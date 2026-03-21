@@ -1,0 +1,104 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+
+  const links = [
+    { label: "Accueil", href: "/", icon: "🏠" },
+    { label: "Portfolio", href: "/portfolio", icon: "🖼️" },
+    { label: "Avis", href: "/avis", icon: "⭐" },
+    { label: "À propos", href: "/a-propos", icon: "💡" },
+    { label: "Contact", href: "/contact", icon: "💬" },
+  ];
+
+  return (
+    <>
+      {/* Yellow top accent strip */}
+      <div className="fixed inset-x-0 top-0 z-[60] h-1.5 bg-yellow-400" />
+
+      <nav className="fixed inset-x-0 top-1.5 z-50">
+        {/* Main bar */}
+        <div className="bg-white border-b-4 border-black">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 sm:h-[72px]">
+
+            {/* Logo */}
+            <Link href="/" className="flex items-center">
+              <Image src="/logo.webp" alt="Logo Cartoonova" width={260} height={78} className="h-16 sm:h-20" style={{ width: "auto" }} priority />
+            </Link>
+
+            {/* Desktop links */}
+            <ul className="hidden lg:flex items-center gap-1">
+              {links.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="relative px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wide text-black hover:bg-yellow-400 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:border-black border-2 border-transparent transition-all duration-200"
+                  >
+                    <span className="mr-1.5">{l.icon}</span>{l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            {/* Right side */}
+            <div className="flex items-center gap-3">
+              {/* CTA button */}
+              <Link
+                href="/product"
+                className="hidden sm:inline-flex items-center gap-2 bg-yellow-400 text-black text-xs font-black uppercase px-5 py-2.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
+              >
+                <span className="text-base leading-none">✏️</span>
+                Créer mon portrait
+              </Link>
+
+              {/* Mobile burger */}
+              <button
+                onClick={() => setOpen(!open)}
+                className="lg:hidden w-11 h-11 rounded-xl bg-yellow-400 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-[5px] cursor-pointer hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
+                aria-label="Menu"
+              >
+                <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "rotate-45 translate-y-2" : ""}`} />
+                <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "opacity-0 scale-0" : ""}`} />
+                <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "-rotate-45 -translate-y-2" : ""}`} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile menu — slide down */}
+        <div className={`lg:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-[500px]" : "max-h-0"}`}>
+          <div className="bg-white border-b-4 border-black mx-3 mt-1 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5">
+            <ul className="flex flex-col gap-2">
+              {links.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-black font-black uppercase text-base border-2 border-transparent hover:border-black hover:bg-yellow-50 transition-all"
+                  >
+                    <span className="text-lg">{l.icon}</span>
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 pt-4 border-t-2 border-black/10">
+              <Link
+                href="/product"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-black font-black uppercase text-sm px-6 py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all"
+              >
+                <span className="text-base">✏️</span>
+                Créer mon portrait
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+}

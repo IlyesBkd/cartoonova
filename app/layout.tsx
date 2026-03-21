@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import ChatWidget from "@/components/ChatWidget";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -9,8 +10,11 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Yellow Simpsons - Turn Your Photo Into Affordable Art",
-  description: "Turn your photos into Simpson-style caricatures. Professional artists, satisfaction guaranteed.",
+  title: "Cartoonova - Transformez vos photos en caricatures cartoon",
+  description: "Créez votre caricature personnalisée style Simpson. Artistes professionnels, satisfaction garantie.",
+  icons: {
+    icon: "/flaticon.png",
+  },
 };
 
 export default function RootLayout({
@@ -19,8 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${poppins.variable} antialiased`}>
-      <body>{children}</body>
+    <html lang="fr" className={`${poppins.variable} antialiased`}>
+      <body>
+        {children}
+        <ChatWidget />
+      </body>
     </html>
   );
 }
