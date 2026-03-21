@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   description: "Créez votre caricature personnalisée style Simpson. Artistes professionnels, satisfaction garantie.",
   icons: {
     icon: "/flaticon.png",
+    apple: "/flaticon.png",
   },
 };
 

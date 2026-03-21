@@ -79,6 +79,8 @@ export default function ProductPage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [prices, setPrices] = useState<Prices | null>(null);
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   // Load prices
   useEffect(() => {
@@ -268,11 +270,33 @@ export default function ProductPage() {
                     onChange={async (e) => {
                       const files = Array.from(e.target.files || []);
                       if (!files.length) return;
-                      const formData = new FormData();
-                      files.forEach((f) => formData.append("files", f));
-                      const r = await fetch("/api/upload", { method: "POST", body: formData });
-                      const data = await r.json();
-                      if (data.urls) setUploadedPhotos(data.urls);
+                      
+                      setUploading(true);
+                      setUploadError("");
+                      
+                      try {
+                        const formData = new FormData();
+                        files.forEach((f) => formData.append("files", f));
+                        
+                        const r = await fetch("/api/upload", { method: "POST", body: formData });
+                        const data = await r.json();
+                        
+                        if (data.urls) {
+                          // Add new photos to existing ones
+                          setUploadedPhotos(prev => [...prev, ...data.urls]);
+                          console.log("Upload successful:", data.urls);
+                        } else if (data.error) {
+                          setUploadError(data.error);
+                          console.error("Upload error:", data.error);
+                        }
+                      } catch (error) {
+                        setUploadError("Erreur lors de l'upload");
+                        console.error("Upload catch error:", error);
+                      } finally {
+                        setUploading(false);
+                        // Clear the input to allow selecting the same files again
+                        e.target.value = '';
+                      }
                     }}
                     className="hidden"
                   />
@@ -282,13 +306,49 @@ export default function ProductPage() {
                     </div>
                     <p className="text-black font-black text-lg uppercase">Glissez-déposez vos photos ici</p>
                     <p className="text-sm text-black/40 font-bold">ou cliquez pour parcourir — JPG, PNG jusqu&apos;à 10 Mo</p>
-                    <button type="button" className="mt-2 bg-yellow-400 text-black font-black text-sm uppercase px-8 py-3.5 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer">Choisir des fichiers</button>
+                    <button 
+                      onClick={() => document.getElementById('photos-upload')?.click()}
+                      className="mt-2 bg-yellow-400 text-black font-black text-sm uppercase px-8 py-3.5 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+                    >
+                      Choisir des fichiers
+                    </button>
                   </label>
-                  {uploadedPhotos.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                      {uploadedPhotos.map((url, i) => (
-                        <img key={i} src={url} alt={`Upload ${i + 1}`} className="w-16 h-16 rounded-lg border-2 border-black object-cover" />
-                      ))}
+                  {uploading && (
+                    <div className="mt-4 flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 border-4 border-black border-t-yellow-400 rounded-full animate-spin" />
+                      <p className="text-black font-black text-sm uppercase">Upload en cours...</p>
+                    </div>
+                  )}
+                  
+                  {uploadError && (
+                    <div className="mt-4 bg-red-100 border-2 border-red-500 rounded-xl p-3 text-sm font-bold text-red-700 text-center">
+                      {uploadError}
+                    </div>
+                  )}
+                  
+                  {uploadedPhotos.length > 0 && !uploading && (
+                    <div className="mt-4">
+                      <p className="text-black font-black text-sm mb-2 text-center">
+                        {uploadedPhotos.length} photo{uploadedPhotos.length > 1 ? "s" : ""} uploadée{uploadedPhotos.length > 1 ? "s" : ""} ✅
+                      </p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {uploadedPhotos.map((url, i) => (
+                          <div key={i} className="relative group">
+                            <img 
+                              src={url} 
+                              alt={`Upload ${i + 1}`} 
+                              className="w-16 h-16 rounded-lg border-2 border-black object-cover transition-transform group-hover:scale-110" 
+                            />
+                            <div className="absolute inset-0 bg-green-400 border-2 border-black rounded-lg opacity-0 group-hover:opacity-30 transition-opacity" />
+                            <button
+                              onClick={() => setUploadedPhotos(prev => prev.filter((_, index) => index !== i))}
+                              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 border-2 border-black rounded-full flex items-center justify-center text-white font-black text-xs hover:bg-red-600 transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -309,7 +369,7 @@ export default function ProductPage() {
                       </div>
                       <div className="p-2 text-center">
                         <p className="font-black text-xs text-black uppercase">{o.label}</p>
-                        <p className="text-yellow-600 font-black text-sm">{o.price} €</p>
+                        <p className="text-yellow-600 font-black text-sm">{o.price === 0 ? "INCLUS" : `${o.price} €`}</p>
                       </div>
                     </button>
                   ))}

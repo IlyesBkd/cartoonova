@@ -40,7 +40,7 @@ export const DEFAULT_PRICES: Prices = {
   fullbodyExtra: 20,
   extraPerson: 15,
   extraAnimal: 15,
-  digital: 49,
+  digital: 0,
   canvas: 89,
   poster: 79,
 };
