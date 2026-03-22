@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
+import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -50,6 +51,7 @@ function PaymentForm({
   isDigital: boolean;
   currency: string;
 }) {
+  const t = useTranslations("checkout");
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -228,7 +230,7 @@ function PaymentForm({
       <div className="bg-white border-2 border-black rounded-xl p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-lg">⚡</span>
-          <h4 className="font-black text-black text-sm">Achat express</h4>
+          <h4 className="font-black text-black text-sm">{t("expressCheckout") || "Achat express"}</h4>
         </div>
         <ExpressCheckoutElement
           onConfirm={async () => {
@@ -240,7 +242,7 @@ function PaymentForm({
       {/* Séparateur */}
       <div className="flex items-center gap-4 my-2">
         <div className="flex-1 h-px bg-black/20"></div>
-        <span className="text-xs font-black text-black/40 uppercase">OU</span>
+        <span className="text-xs font-black text-black/40 uppercase">{t("or") || "OU"}</span>
         <div className="flex-1 h-px bg-black/20"></div>
       </div>
 
@@ -248,7 +250,7 @@ function PaymentForm({
       <div className="bg-white border-2 border-black rounded-xl p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-lg">💳</span>
-          <h4 className="font-black text-black text-sm">Paiement par carte</h4>
+          <h4 className="font-black text-black text-sm">{t("cardPayment") || "Paiement par carte"}</h4>
         </div>
         <PaymentElement 
           options={{
@@ -266,25 +268,25 @@ function PaymentForm({
       </div>
 
       {error && (
-        <div className="bg-red-100 border-2 border-red-500 rounded-xl p-3 text-sm font-bold text-red-700 text-center shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
+        <div className="bg-red-100 border-2 border-red-500 rounded-xl p-3 text-sm font-bold text-red-700 text-center">
           {error}
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 mt-6">
         <button
           type="button"
           onClick={onClose}
           className="flex-1 bg-white text-black font-black text-sm uppercase py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
         >
-          Annuler
+          {t("cancel")}
         </button>
         <button
           type="submit"
           disabled={!stripe || loading}
           className="flex-[2] bg-yellow-400 text-black font-black text-sm uppercase py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Paiement en cours..." : "Payer maintenant 💳"}
+          {loading ? t("paymentInProgress") : t("payNow")}
         </button>
       </div>
     </form>
@@ -301,6 +303,7 @@ export default function CheckoutModal({
   onClose: () => void;
   orderConfig: OrderConfig;
 }) {
+  const t = useTranslations("checkout");
   const [step, setStep] = useState<"info" | "payment" | "success">("info");
   const [clientSecret, setClientSecret] = useState("");
   const [loadingIntent, setLoadingIntent] = useState(false);
@@ -335,20 +338,20 @@ export default function CheckoutModal({
     setFormError("");
 
     if (!email.trim() || !email.includes("@")) {
-      setFormError("Veuillez entrer un email valide.");
+      setFormError(t("errorValidEmail"));
       return;
     }
     if (!isDigital) {
       if (!firstName.trim() || !lastName.trim()) {
-        setFormError("Veuillez entrer votre prénom et nom.");
+        setFormError(t("errorNameRequired"));
         return;
       }
       if (!address.trim() || !city.trim() || !postalCode.trim()) {
-        setFormError("Veuillez remplir l'adresse complète.");
+        setFormError(t("errorAddressRequired"));
         return;
       }
       if (!phone.trim()) {
-        setFormError("Veuillez entrer votre numéro de téléphone.");
+        setFormError(t("errorPhoneRequired"));
         return;
       }
     }
@@ -372,12 +375,12 @@ export default function CheckoutModal({
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
         } else {
-          setFormError("Erreur lors de l'initialisation du paiement.");
+          setFormError(t("errorPaymentInit"));
         }
         setLoadingIntent(false);
       })
       .catch(() => {
-        setFormError("Erreur technique lors de la préparation du paiement.");
+        setFormError(t("errorTechnical"));
         setLoadingIntent(false);
       });
   };
@@ -395,10 +398,10 @@ export default function CheckoutModal({
             <span className="text-3xl animate-bounce">{step === "success" ? "🎉" : step === "payment" ? "💳" : "📋"}</span>
             <div>
               <p className="font-black text-black text-sm uppercase tracking-wide">
-                {step === "success" ? "Commande confirmée" : step === "payment" ? "Paiement sécurisé" : "Vos informations"}
+                {step === "success" ? t("orderConfirmed") : step === "payment" ? t("securePayment") : t("yourInfo")}
               </p>
               <p className="text-xs font-bold text-black/60">
-                {step === "success" ? "Merci !" : step === "payment" ? "Powered by Stripe" : isDigital ? "Livraison digitale" : "Livraison physique"}
+                {step === "success" ? t("thankYou") : step === "payment" ? t("poweredByStripe") : isDigital ? t("digitalDelivery") : t("physicalDelivery")}
               </p>
             </div>
           </div>
@@ -418,7 +421,7 @@ export default function CheckoutModal({
               <div className="bg-gradient-to-r from-white to-yellow-50 border-3 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-black text-black/40 uppercase tracking-wider">Total à payer</p>
+                    <p className="text-xs font-black text-black/40 uppercase tracking-wider">{t("totalToPay")}</p>
                     <p className="text-3xl font-black text-black">{formatPrice(orderConfig.total)}</p>
                   </div>
                   <div className="text-right">
@@ -432,12 +435,12 @@ export default function CheckoutModal({
 
               {/* Email — always required */}
               <div className="space-y-2">
-                <label className={labelClass}>📧 Adresse email *</label>
+                <label className={labelClass}>{t("emailAddress")}</label>
                 <input 
                   type="email" 
                   value={email} 
                   onChange={(e) => setEmail(e.target.value)} 
-                  placeholder="votre@email.com" 
+                  placeholder={t("emailPlaceholder")} 
                   className={`${inputClass} focus:ring-4 focus:ring-yellow-300 transition-all`}
                 />
               </div>
@@ -447,39 +450,39 @@ export default function CheckoutModal({
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={labelClass}>Prénom *</label>
-                      <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jean" className={inputClass} />
+                      <label className={labelClass}>{t("firstName")}</label>
+                      <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={t("firstNamePlaceholder")} className={inputClass} />
                     </div>
                     <div>
-                      <label className={labelClass}>Nom *</label>
-                      <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Dupont" className={inputClass} />
+                      <label className={labelClass}>{t("lastName")}</label>
+                      <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={t("lastNamePlaceholder")} className={inputClass} />
                     </div>
                   </div>
 
                   <div>
-                    <label className={labelClass}>📍 Adresse *</label>
-                    <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="12 rue de la Paix" className={inputClass} />
+                    <label className={labelClass}>{t("address")}</label>
+                    <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t("addressPlaceholder")} className={inputClass} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={labelClass}>Ville *</label>
-                      <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Paris" className={inputClass} />
+                      <label className={labelClass}>{t("city")}</label>
+                      <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("cityPlaceholder")} className={inputClass} />
                     </div>
                     <div>
-                      <label className={labelClass}>Code postal *</label>
-                      <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="75001" className={inputClass} />
+                      <label className={labelClass}>{t("postalCode")}</label>
+                      <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder={t("postalCodePlaceholder")} className={inputClass} />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className={labelClass}>🌍 Pays</label>
+                      <label className={labelClass}>{t("country")}</label>
                       <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className={inputClass} />
                     </div>
                     <div>
-                      <label className={labelClass}>📞 Téléphone *</label>
-                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+33 6 12 34 56 78" className={inputClass} />
+                      <label className={labelClass}>{t("phone")}</label>
+                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("phonePlaceholder")} className={inputClass} />
                     </div>
                   </div>
                 </>
@@ -495,7 +498,7 @@ export default function CheckoutModal({
                 onClick={goToPayment}
                 className="w-full bg-yellow-400 text-black font-black text-sm uppercase py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
               >
-                Continuer vers le paiement →
+                {t("continueToPayment")}
               </button>
             </div>
           )}
@@ -506,13 +509,13 @@ export default function CheckoutModal({
               {loadingIntent || !clientSecret ? (
                 <div className="text-center py-10">
                   <div className="w-12 h-12 border-4 border-black border-t-yellow-400 rounded-full animate-spin mx-auto mb-4" />
-                  <p className="font-black text-black/60 text-sm uppercase">Chargement du paiement...</p>
+                  <p className="font-black text-black/60 text-sm uppercase">{t("loadingPayment")}</p>
                 </div>
               ) : (
                 <>
                   <div className="bg-white border-2 border-black rounded-xl p-4 mb-5 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-black text-black/40 uppercase">Total à payer</p>
+                      <p className="text-xs font-black text-black/40 uppercase">{t("totalToPay")}</p>
                       <p className="text-2xl font-black text-black">{formatPrice(orderConfig.total)}</p>
                     </div>
                     <p className="text-xs font-bold text-black/40">{email}</p>
@@ -583,23 +586,23 @@ export default function CheckoutModal({
               {processing ? (
                 <>
                   <div className="w-12 h-12 border-4 border-black border-t-yellow-400 rounded-full animate-spin mx-auto mb-4" />
-                  <p className="font-black text-black/60 text-sm uppercase">Enregistrement de votre commande...</p>
+                  <p className="font-black text-black/60 text-sm uppercase">{t("savingOrder")}</p>
                 </>
               ) : (
                 <>
                   <span className="text-6xl block mb-4">🎉</span>
-                  <h3 className="text-xl font-black text-black uppercase mb-2">Commande confirmée !</h3>
+                  <h3 className="text-xl font-black text-black uppercase mb-2">{t("orderConfirmedTitle")}</h3>
                   <p className="text-sm font-bold text-black/60 mb-2">
-                    Un email de confirmation a été envoyé à <strong className="text-black">{email}</strong>.
+                    {t("confirmationEmailSent")} <strong className="text-black">{email}</strong>.
                   </p>
                   <p className="text-sm font-bold text-black/60 mb-6">
-                    Nos artistes se mettent au travail immédiatement pour créer votre chef-d&apos;œuvre cartoon !
+                    {t("artistsAtWork")}
                   </p>
                   <button
                     onClick={onClose}
                     className="bg-yellow-400 text-black font-black text-sm uppercase px-8 py-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
                   >
-                    Fermer
+                    {t("close")}
                   </button>
                 </>
               )}

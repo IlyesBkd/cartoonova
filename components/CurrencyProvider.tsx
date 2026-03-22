@@ -33,21 +33,27 @@ function setCookieValue(name: string, value: string) {
 
 export default function CurrencyProvider({
   children,
-  initialCurrency = "EUR",
+  initialCurrency,
   locale = "fr",
 }: {
   children: ReactNode;
   initialCurrency?: Currency;
   locale?: string;
 }) {
-  const [currency, setCurrencyState] = useState<Currency>(initialCurrency);
+  // Devise par défaut basée sur la locale pour Google Shopping
+  // en = USD, toutes les autres locales européennes = EUR
+  const defaultCurrency = locale === "en" ? "USD" : "EUR";
+  const [currency, setCurrencyState] = useState<Currency>(initialCurrency || defaultCurrency);
 
   useEffect(() => {
     const cookieCurrency = getCookie(CURRENCY_COOKIE);
     if (cookieCurrency && currencies.includes(cookieCurrency as Currency)) {
       setCurrencyState(cookieCurrency as Currency);
+    } else {
+      // Si pas de cookie, utiliser la devise par défaut basée sur la locale
+      setCurrencyState(defaultCurrency);
     }
-  }, []);
+  }, [defaultCurrency]);
 
   const setCurrency = (c: Currency) => {
     setCurrencyState(c);

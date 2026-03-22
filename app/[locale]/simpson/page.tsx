@@ -12,14 +12,14 @@ import { upload } from "@vercel/blob/client";
 
 /* ─── Assets locaux ──────────────────────────────────────────────────── */
 const backgroundData = [
-  { src: "/simpson_background/bar.jpg", key: "bgBar" },
-  { src: "/simpson_background/beach.jpg", key: "bgBeach" },
-  { src: "/simpson_background/church.jpg", key: "bgChurch" },
   { src: "/simpson_background/couch8x10.jpg", key: "bgCouch" },
-  { src: "/simpson_background/forest.jpg", key: "bgForest" },
   { src: "/simpson_background/house.jpg", key: "bgHouse" },
-  { src: "/simpson_background/montain.jpg", key: "bgMountain" },
+  { src: "/simpson_background/beach.jpg", key: "bgBeach" },
+  { src: "/simpson_background/bar.jpg", key: "bgBar" },
+  { src: "/simpson_background/church.jpg", key: "bgChurch" },
+  { src: "/simpson_background/forest.jpg", key: "bgForest" },
   { src: "/simpson_background/snow.jpg", key: "bgSnow" },
+  { src: "/simpson_background/montain.jpg", key: "bgMountain" },
   { src: "/simpson_background/valentines.jpg", key: "bgValentines" },
 ];
 
@@ -409,7 +409,10 @@ export default function ProductPage() {
               <div className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
                   <p className="text-xs text-black/40 uppercase tracking-wider font-black">{t("totalLabel")}</p>
-                  <p className="text-4xl sm:text-5xl font-black text-black">{formatPrice(total)}</p>
+                  <div className="flex items-baseline gap-3">
+                    <p className="text-4xl sm:text-5xl font-black text-black">{formatPrice(total)}</p>
+                    <p className="line-through text-gray-400 text-base sm:text-lg font-medium">{formatPrice(total + 20)}</p>
+                  </div>
                   <p className="text-sm text-black/50 font-bold mt-1">{orderDescription}</p>
                 </div>
                 <button
