@@ -11,7 +11,7 @@
     "reviews": "Recensioni",
     "about": "Chi siamo",
     "contact": "Contatti",
-    "cta": "Crea il mio ritratto"
+    "cta": "Ordina il mio ritratto"
   },
   "hero": {
     "badge": "4.8",
@@ -19,7 +19,7 @@
     "title2": "le tue foto",
     "title3": "in cartoon!",
     "subtitle": "Ricevi una caricatura unica disegnata a mano. Il regalo personalizzato perfetto!",
-    "cta": "Crea il mio ritratto ✏️",
+    "cta": "Ordina il mio ritratto ✏️",
     "ctaSecondary": "Come funziona?"
   },
   "howItWorks": {
@@ -56,7 +56,7 @@
     "a5": "Sì! Possiamo includere oggetti, veicoli, scenari o accessori per un piccolo supplemento."
   },
   "product": {
-    "breadcrumb": "Crea il mio ritratto",
+    "breadcrumb": "Ordina il mio ritratto",
     "heroTitle1": "Crea Il Tuo",
     "heroTitle2": "Caricatura Cartoon",
     "heroSubtitle": "Trasformati in un personaggio cartoon disegnato a mano. Il regalo unico e personalizzato perfetto!",
@@ -159,7 +159,7 @@
     "subscribe": "Iscriviti",
     "emailPlaceholder": "La tua email...",
     "shop": "Negozio",
-    "createPortrait": "Crea il mio ritratto",
+    "createPortrait": "Ordina il mio ritratto",
     "clientReviews": "Recensioni clienti",
     "help": "Aiuto",
     "legal": "Legale",

@@ -11,7 +11,7 @@
     "reviews": "Reviews",
     "about": "About",
     "contact": "Contact",
-    "cta": "Create my portrait"
+    "cta": "Order my portrait"
   },
   "hero": {
     "badge": "4.8",
@@ -19,7 +19,7 @@
     "title2": "your photos",
     "title3": "into cartoon!",
     "subtitle": "Receive a unique hand-drawn caricature. The perfect personalized gift!",
-    "cta": "Create my portrait ✏️",
+    "cta": "Order my portrait ✏️",
     "ctaSecondary": "How does it work?"
   },
   "howItWorks": {
@@ -56,7 +56,7 @@
     "a5": "Yes! We can include objects, vehicles, settings or accessories for a small extra fee."
   },
   "product": {
-    "breadcrumb": "Create my portrait",
+    "breadcrumb": "Order my portrait",
     "heroTitle1": "Create Your",
     "heroTitle2": "Cartoon Caricature",
     "heroSubtitle": "Transform yourself into a hand-drawn cartoon character. The perfect unique personalized gift!",
@@ -159,7 +159,7 @@
     "subscribe": "Subscribe",
     "emailPlaceholder": "Your email...",
     "shop": "Shop",
-    "createPortrait": "Create my portrait",
+    "createPortrait": "Order my portrait",
     "clientReviews": "Client reviews",
     "help": "Help",
     "legal": "Legal",

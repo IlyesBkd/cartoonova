@@ -11,7 +11,7 @@
     "reviews": "Bewertungen",
     "about": "Über uns",
     "contact": "Kontakt",
-    "cta": "Mein Portrait erstellen"
+    "cta": "Mein Porträt bestellen"
   },
   "hero": {
     "badge": "4.8",
@@ -19,7 +19,7 @@
     "title2": "Ihre Fotos",
     "title3": "in Cartoon!",
     "subtitle": "Erhalten Sie eine einzigartige handgezeichnete Karikatur. Das perfekte personalisierte Geschenk!",
-    "cta": "Mein Portrait erstellen ✏️",
+    "cta": "Mein Porträt bestellen ✏️",
     "ctaSecondary": "Wie funktioniert es?"
   },
   "howItWorks": {
@@ -56,7 +56,7 @@
     "a5": "Ja! Wir können Objekte, Fahrzeuge, Szenen oder Accessoires gegen einen kleinen Aufpreis einbeziehen."
   },
   "product": {
-    "breadcrumb": "Mein Portrait erstellen",
+    "breadcrumb": "Mein Porträt bestellen",
     "heroTitle1": "Erstellen Sie Ihr",
     "heroTitle2": "Cartoon-Karikatur",
     "heroSubtitle": "Verwandeln Sie sich in eine handgezeichnete Cartoon-Figur. Das perfekte einzigartige personalisierte Geschenk!",
@@ -159,7 +159,7 @@
     "subscribe": "Abonnieren",
     "emailPlaceholder": "Ihre E-Mail...",
     "shop": "Shop",
-    "createPortrait": "Mein Portrait erstellen",
+    "createPortrait": "Mein Porträt bestellen",
     "clientReviews": "Kundenbewertungen",
     "help": "Hilfe",
     "legal": "Rechtliches",

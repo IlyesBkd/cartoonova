@@ -11,7 +11,7 @@
     "reviews": "Avis",
     "about": "À propos",
     "contact": "Contact",
-    "cta": "Créer mon portrait"
+    "cta": "Commander mon portrait"
   },
   "hero": {
     "badge": "4.8",
@@ -19,7 +19,7 @@
     "title2": "vos photos",
     "title3": "en cartoon !",
     "subtitle": "Recevez une caricature unique dessinée à la main. Le cadeau personnalisé parfait !",
-    "cta": "Créer mon portrait ✏️",
+    "cta": "Commander mon portrait ✏️",
     "ctaSecondary": "Comment ça marche ?"
   },
   "howItWorks": {
@@ -56,7 +56,7 @@
     "a5": "Oui ! Nous pouvons inclure des objets, véhicules, décors ou accessoires pour un petit supplément."
   },
   "product": {
-    "breadcrumb": "Créer mon portrait",
+    "breadcrumb": "Commander mon portrait",
     "heroTitle1": "Créez Votre",
     "heroTitle2": "Caricature Cartoon",
     "heroSubtitle": "Transformez-vous en personnage cartoon dessiné à la main. Le cadeau unique et personnalisé parfait !",
@@ -159,7 +159,7 @@
     "subscribe": "S'inscrire",
     "emailPlaceholder": "Votre email...",
     "shop": "Boutique",
-    "createPortrait": "Créer mon portrait",
+    "createPortrait": "Commander mon portrait",
     "clientReviews": "Avis clients",
     "help": "Aide",
     "legal": "Légal",

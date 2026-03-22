@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, PaymentRequestButtonElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { processOrder } from "@/actions/order";
 import { useCurrency } from "@/components/CurrencyProvider";
 import posthog from "posthog-js";
@@ -58,38 +58,130 @@ function PaymentForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    console.log('🚀 1. Début du submit - handleSubmit appelé');
+    
+    if (!stripe || !elements) {
+      console.error('❌ Stripe ou Elements non initialisés');
+      setError("Le système de paiement n'est pas prêt. Veuillez réessayer.");
+      return;
+    }
+    
     setLoading(true);
     setError("");
 
-    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: { return_url: window.location.origin + "/simpson" },
-      redirect: "if_required",
-    });
+    try {
+      console.log('🔍 2. Validation des éléments Stripe...');
+      
+      // Valider que les éléments sont prêts
+      const submitResult = await elements.submit();
+      if (submitResult.error) {
+        console.error('❌ Erreur submit elements:', submitResult.error);
+        setError(submitResult.error.message || "Erreur lors de la validation du paiement.");
+        return;
+      }
+      
+      console.log('💳 3. Appel à stripe.confirmPayment...');
+      console.log('📍 return_url:', window.location.origin + "/simpson");
+      
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: { 
+          return_url: window.location.origin + "/simpson",
+          payment_method_data: {
+            billing_details: {
+              email: formData.email,
+            },
+          },
+        },
+        redirect: "if_required",
+      });
 
-    if (stripeError) {
-      setError(stripeError.message || "Erreur de paiement.");
+      console.log('📊 4. Réponse Stripe reçue:', { stripeError, paymentIntent });
+
+      if (stripeError) {
+        console.error('❌ Erreur Stripe:', stripeError);
+        setError(stripeError.message || "Erreur de paiement. Veuillez réessayer.");
+      } else if (paymentIntent?.status === "succeeded") {
+        console.log('✅ 5. Paiement réussi! PaymentIntent ID:', paymentIntent.id);
+        onSuccess(paymentIntent.id);
+      } else {
+        console.log('⚠️ 6. Paiement en attente ou autre statut:', paymentIntent?.status);
+        // Pour les paiements qui nécessitent une authentification supplémentaire
+        if (paymentIntent?.status === "requires_action" || paymentIntent?.status === "requires_confirmation") {
+          setError("Une action supplémentaire est requise. Veuillez suivre les instructions de paiement.");
+        } else {
+          onSuccess(paymentIntent?.id || "");
+        }
+      }
+    } catch (error) {
+      console.error('💥 7. Erreur critique dans handleSubmit:', error);
+      setError("Une erreur technique est survenue. Veuillez réessayer ou contacter le support.");
+    } finally {
+      console.log('🏁 8. Fin du handleSubmit - reset loading state');
       setLoading(false);
-    } else {
-      setLoading(false);
-      onSuccess(paymentIntent?.id || "");
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {/* Payment Element - Apple Pay / Google Pay / Carte */}
+      {/* Express Checkout - Apple Pay / Google Pay natif */}
+      <div className="bg-white border-2 border-black rounded-xl p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-lg">⚡</span>
+          <h4 className="font-black text-black text-sm">Achat express</h4>
+        </div>
+        <ExpressCheckoutElement
+          onConfirm={async () => {
+            console.log('⚡ 1. Express Checkout confirm');
+            
+            if (!stripe || !elements) {
+              console.error('❌ Stripe ou Elements non initialisés dans Express Checkout');
+              return;
+            }
+
+            try {
+              console.log('💳 2. Paiement Express en cours...');
+              // Pour Express Checkout, on laisse Stripe gérer le flow complet
+              // Le succès sera géré par le return_url ou par le webhook
+              const result = await stripe.confirmPayment({
+                elements,
+                confirmParams: { 
+                  return_url: window.location.origin + "/simpson",
+                },
+                redirect: "always",
+              });
+
+              console.log('📊 3. Réponse Express Stripe:', result);
+            } catch (error) {
+              console.error('💥 4. Erreur critique Express Checkout:', error);
+            }
+          }}
+        />
+      </div>
+
+      {/* Séparateur */}
+      <div className="flex items-center gap-4 my-2">
+        <div className="flex-1 h-px bg-black/20"></div>
+        <span className="text-xs font-black text-black/40 uppercase">OU</span>
+        <div className="flex-1 h-px bg-black/20"></div>
+      </div>
+
+      {/* Payment Element - Carte classique */}
       <div className="bg-white border-2 border-black rounded-xl p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-lg">💳</span>
-          <h4 className="font-black text-black text-sm">Méthodes de paiement</h4>
+          <h4 className="font-black text-black text-sm">Paiement par carte</h4>
         </div>
         <PaymentElement 
           options={{
-            paymentMethodOrder: ['apple_pay', 'google_pay', 'card'],
+            paymentMethodOrder: ['card'], // On retire apple_pay et google_pay car ils sont gérés par ExpressCheckoutElement
             fields: {
-              billingDetails: "never"
+              billingDetails: {
+                email: 'auto' as const,
+                name: 'auto' as const,
+                phone: 'auto' as const,
+                address: 'auto' as const
+              }
             }
           }}
         />
@@ -162,32 +254,43 @@ export default function CheckoutModal({
 
   // Create Payment Intent when moving to payment step
   const goToPayment = () => {
+    console.log('🚀 1. Début goToPayment - création PaymentIntent');
     setFormError("");
 
     // Validate
     if (!email.trim() || !email.includes("@")) {
+      console.error('❌ Email invalide:', email);
       setFormError("Veuillez entrer un email valide.");
       return;
     }
     if (!isDigital) {
       if (!firstName.trim() || !lastName.trim()) {
+        console.error('❌ Nom/prénom manquant');
         setFormError("Veuillez entrer votre prénom et nom.");
         return;
       }
       if (!address.trim() || !city.trim() || !postalCode.trim()) {
+        console.error('❌ Adresse incomplète');
         setFormError("Veuillez remplir l'adresse complète.");
         return;
       }
       if (!phone.trim()) {
+        console.error('❌ Téléphone manquant');
         setFormError("Veuillez entrer votre numéro de téléphone.");
         return;
       }
     }
 
+    console.log('✅ 2. Validation OK - passage à l\'étape paiement');
     setStep("payment");
     setLoadingIntent(true);
 
     const convertedTotal = convert(orderConfig.total);
+    console.log('💰 3. Données PaymentIntent:', {
+      amount: convertedTotal * 100,
+      currency: currency.toLowerCase(),
+      description: orderConfig.description,
+    });
 
     fetch("/api/checkout", {
       method: "POST",
@@ -198,17 +301,33 @@ export default function CheckoutModal({
         description: orderConfig.description,
       }),
     })
-      .then((r) => r.json())
+      .then((r) => {
+        console.log('📡 4. Réponse HTTP reçue, status:', r.status);
+        return r.json();
+      })
       .then((data) => {
-        if (data.clientSecret) setClientSecret(data.clientSecret);
+        console.log('📊 5. Données PaymentIntent reçues:', data);
+        if (data.clientSecret) {
+          console.log('✅ 6. ClientSecret reçu, initialisation Stripe Elements');
+          setClientSecret(data.clientSecret);
+        } else {
+          console.error('❌ ClientSecret manquant dans la réponse:', data);
+          setFormError("Erreur lors de l'initialisation du paiement.");
+        }
         setLoadingIntent(false);
       })
-      .catch(() => setLoadingIntent(false));
+      .catch((error) => {
+        console.error('💥 7. Erreur création PaymentIntent:', error);
+        setFormError("Erreur technique lors de la préparation du paiement.");
+        setLoadingIntent(false);
+      });
   };
 
   // After payment success → process order
   const handlePaymentSuccess = async (paymentId: string) => {
+    console.log('🎯 1. Début handlePaymentSuccess - Payment ID:', paymentId);
     setProcessing(true);
+    
     posthog.capture("Achat réussi", {
       total: orderConfig.total,
       currency,
@@ -218,8 +337,10 @@ export default function CheckoutModal({
       printOption: orderConfig.printOption,
       stripePaymentId: paymentId,
     });
+
     try {
-      await processOrder({
+      console.log('📝 2. Préparation des données pour processOrder...');
+      const orderData = {
         email,
         firstName: isDigital ? undefined : firstName,
         lastName: isDigital ? undefined : lastName,
@@ -237,12 +358,20 @@ export default function CheckoutModal({
         description: orderConfig.description,
         photoUrls: orderConfig.photoUrls,
         stripePaymentId: paymentId,
-      });
+      };
+      
+      console.log('💾 3. Appel à processOrder avec:', orderData);
+      await processOrder(orderData);
+      console.log('✅ 4. processOrder terminé avec succès');
     } catch (e) {
-      console.error("processOrder error:", e);
+      console.error("💥 5. Erreur processOrder:", e);
+      // On continue quand même vers la page de succès même si l'enregistrement en DB échoue
+      // L'utilisateur a payé, il faut lui montrer la confirmation
+    } finally {
+      console.log('🏁 6. Fin handlePaymentSuccess - reset processing state');
+      setProcessing(false);
+      setStep("success");
     }
-    setProcessing(false);
-    setStep("success");
   };
 
   if (!open) return null;
