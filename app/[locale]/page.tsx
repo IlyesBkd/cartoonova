@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from "@/components/Navbar";
-import FooterCartoon from "@/components/FooterCartoon";
 
 const photos = [
   "/simpson_photos_produit/0009_1.jpg",
@@ -40,9 +38,7 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState(0);
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
 
         {/* ═══ HERO ═══ */}
         <section className="relative bg-yellow-400 pt-28 sm:pt-36 pb-16 sm:pb-24 border-b-4 border-black overflow-hidden">
@@ -262,7 +258,5 @@ export default function Home() {
           </div>
         </section>
       </div>
-      <FooterCartoon />
-    </>
   );
 }

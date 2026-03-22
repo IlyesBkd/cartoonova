@@ -92,7 +92,7 @@ export default function FooterCartoon() {
       {/* Bottom bar */}
       <div className="bg-black py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-sm text-yellow-400 font-bold">&copy; 2024 Cartoonova — {t("rights")}</p>
+          <p className="text-sm text-yellow-400 font-bold">&copy; 2026 Cartoonova — {t("rights")}</p>
           <div className="flex items-center gap-4 text-xs text-yellow-400/70 font-bold">
             <Link href="/cgv" className="hover:text-yellow-400 transition-colors">{t("terms")}</Link>
             <span className="text-yellow-400/30">|</span>

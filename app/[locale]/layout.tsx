@@ -8,6 +8,8 @@ import { locales, type Locale } from "@/i18n/config";
 import CurrencyProvider from "@/components/CurrencyProvider";
 import ChatWidget from "@/components/ChatWidget";
 import PostHogProvider from "@/components/PostHogProvider";
+import Navbar from "@/components/Navbar";
+import FooterCartoon from "@/components/FooterCartoon";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -104,7 +106,9 @@ export default async function LocaleLayout({
         <PostHogProvider>
           <NextIntlClientProvider messages={messages}>
             <CurrencyProvider locale={locale}>
+              <Navbar />
               {children}
+              <FooterCartoon />
               <ChatWidget />
             </CurrencyProvider>
           </NextIntlClientProvider>

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function CGV() {
   return (
-    <main className="max-w-3xl mx-auto px-4 py-12 text-gray-800">
+    <main className="max-w-3xl mx-auto px-4 py-12 pt-24 sm:pt-28 text-gray-800">
       <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">Conditions Générales de Vente</h1>
       <p className="text-sm text-gray-400 mb-10">Dernière mise à jour : 21 mars 2024</p>
 

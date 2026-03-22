@@ -1,8 +1,5 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import FooterCartoon from "@/components/FooterCartoon";
-
 const reviews = [
   { name: "Sophie M.", text: "Absolument magnifique ! Le dessin est fidèle et la qualité d'impression est au top. Un cadeau parfait !", photo: "/simpson_photos_produit/0009_1.jpg" },
   { name: "Thomas K.", text: "Livraison super rapide et la qualité est tout simplement géniale. Ma femme était ravie !", photo: "/simpson_photos_produit/0015_1.jpg" },
@@ -17,9 +14,7 @@ const reviews = [
 
 export default function AvisPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-yellow-400 pt-24 sm:pt-28 pb-16">
+    <main className="min-h-screen bg-yellow-400 pt-24 sm:pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
           <div className="text-center mb-12">
@@ -69,7 +64,5 @@ export default function AvisPage() {
           </div>
         </div>
       </main>
-      <FooterCartoon />
-    </>
   );
 }

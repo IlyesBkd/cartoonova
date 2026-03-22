@@ -1,16 +1,12 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import FooterCartoon from "@/components/FooterCartoon";
 import { useState } from "react";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
 
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-blue-100 pt-24 sm:pt-28 pb-16">
+    <main className="min-h-screen bg-blue-100 pt-24 sm:pt-28 pb-16">
         {/* Clouds pattern */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
           <div className="absolute top-32 left-[10%] w-40 h-20 bg-white rounded-full" />
@@ -79,7 +75,5 @@ export default function ContactPage() {
           </div>
         </div>
       </main>
-      <FooterCartoon />
-    </>
   );
 }

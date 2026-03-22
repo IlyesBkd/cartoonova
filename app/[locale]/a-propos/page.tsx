@@ -1,13 +1,8 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import FooterCartoon from "@/components/FooterCartoon";
-
 export default function AProposPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen pt-20">
+    <main className="min-h-screen pt-20">
 
         {/* Hero — Yellow */}
         <section className="bg-yellow-400 py-16 sm:py-24 border-b-4 border-black relative overflow-hidden">
@@ -102,7 +97,5 @@ export default function AProposPage() {
           </div>
         </section>
       </main>
-      <FooterCartoon />
-    </>
   );
 }

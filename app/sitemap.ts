@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 import { locales, defaultLocale } from "@/i18n/config";
 
-const baseUrl = "https://cartoonova.fr";
+const baseUrl = "https://www.cartoonova.com";
 
 type ChangeFrequency = "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
 

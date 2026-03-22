@@ -1,8 +1,5 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import FooterCartoon from "@/components/FooterCartoon";
-
 const photos = [
   "/simpson_photos_produit/0009_1.jpg",
   "/simpson_photos_produit/0015_1.jpg",
@@ -20,9 +17,7 @@ const photos = [
 
 export default function PortfolioPage() {
   return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-blue-100 pt-24 sm:pt-28 pb-16">
+    <main className="min-h-screen bg-blue-100 pt-24 sm:pt-28 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Title */}
           <div className="text-center mb-12">
@@ -59,7 +54,5 @@ export default function PortfolioPage() {
           </div>
         </div>
       </main>
-      <FooterCartoon />
-    </>
   );
 }

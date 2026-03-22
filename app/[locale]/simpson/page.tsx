@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import Navbar from "@/components/Navbar";
-import FooterCartoon from "@/components/FooterCartoon";
 import CheckoutModal from "@/components/CheckoutModal";
 import type { Prices } from "@/lib/types";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -145,7 +143,6 @@ export default function ProductPage() {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-white">
 
         {/* ═══ HERO ═══ */}
@@ -500,7 +497,6 @@ export default function ProductPage() {
           </W>
         </section>
       </div>
-      <FooterCartoon />
       <CheckoutModal
         open={showCheckout}
         onClose={() => setShowCheckout(false)}
