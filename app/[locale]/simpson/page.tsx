@@ -126,9 +126,9 @@ export default function ProductPage() {
   const prints = prices
     ? [
         { img: "/digital.jpeg", label: t("digital"), price: prices.digital },
-        { img: "/framed.jpg", label: t("poster"), price: prices.poster },
-        { img: "/canvas.jpeg", label: t("canvas"), price: prices.canvas },
         { img: "/poster.png", label: t("posterOption"), price: prices.posterSimple },
+        { img: "/canvas.jpeg", label: t("canvas"), price: prices.canvas },
+        { img: "/framed.jpg", label: t("poster"), price: prices.poster },
       ]
     : [];
 
