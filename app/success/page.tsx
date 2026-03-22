@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import { getOrderByPaymentId, updateOrderStatus } from "@/lib/db";
@@ -13,9 +12,13 @@ const resend = new Resend(process.env.RESEND_API_KEY!);
 
 async function sendOrderConfirmation(order: DbOrder) {
   try {
+    console.log("[RESEND] Début envoi email à:", order.customer_email);
+    console.log("[RESEND] API Key présente:", !!process.env.RESEND_API_KEY);
+    console.log("[RESEND] API Key (4 premiers chars):", process.env.RESEND_API_KEY?.slice(0, 4));
+
     const opts = order.options;
-    await resend.emails.send({
-      from: "Cartoonova <contact@cartoonova.fr>",
+    const result = await resend.emails.send({
+      from: "Cartoonova <noreply@cartoonova.com>",
       to: [order.customer_email],
       subject: "🎉 Commande confirmée - Vos artistes commencent !",
       html: `
@@ -49,9 +52,9 @@ async function sendOrderConfirmation(order: DbOrder) {
         </div>
       `,
     });
-    console.log("✅ Email de confirmation envoyé à", order.customer_email);
+    console.log("[RESEND] ✅ Résultat envoi:", JSON.stringify(result));
   } catch (error) {
-    console.error("❌ Erreur envoi email:", error);
+    console.error("[RESEND] ❌ Erreur envoi email:", error);
   }
 }
 
@@ -87,53 +90,90 @@ async function sendDiscordNotification(order: DbOrder) {
   }
 }
 
-export default async function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { payment_intent?: string };
+export default async function SuccessPage(props: {
+  searchParams: Promise<{ payment_intent?: string; redirect_status?: string }>;
 }) {
+  const searchParams = await props.searchParams;
+  console.log("[SUCCESS PAGE] 🚀 Chargement | searchParams:", JSON.stringify(searchParams));
   const paymentIntentId = searchParams.payment_intent;
 
   if (!paymentIntentId) {
-    redirect("/");
+    console.log("[SUCCESS PAGE] ❌ Pas de payment_intent dans l'URL → affichage erreur");
+    return (
+      <div style={{ padding: 40, fontFamily: "monospace" }}>
+        <h1>Erreur : payment_intent manquant</h1>
+        <p>searchParams reçu : <code>{JSON.stringify(searchParams)}</code></p>
+        <a href="/">Retour à l&apos;accueil</a>
+      </div>
+    );
   }
 
   try {
     // 1. Vérifier le statut réel du paiement via Stripe
+    console.log("[SUCCESS PAGE] 1. Retrieve PaymentIntent:", paymentIntentId);
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    console.log("[SUCCESS PAGE] Stripe status:", paymentIntent.status);
 
     if (paymentIntent.status !== "succeeded") {
-      console.log("❌ Paiement non réussi:", paymentIntent.status);
-      redirect("/");
+      console.log("[SUCCESS PAGE] ❌ Paiement non réussi:", paymentIntent.status);
+      return (
+        <div style={{ padding: 40, fontFamily: "monospace" }}>
+          <h1>Paiement non finalisé</h1>
+          <p>Statut Stripe : <code>{paymentIntent.status}</code></p>
+          <p>PI : <code>{paymentIntentId}</code></p>
+          <a href="/">Retour à l&apos;accueil</a>
+        </div>
+      );
     }
 
     // 2. Chercher la commande PENDING correspondante
+    console.log("[SUCCESS PAGE] 2. Recherche commande pour PI:", paymentIntentId);
     const order = await getOrderByPaymentId(paymentIntentId);
+    console.log("[SUCCESS PAGE] Commande trouvée:", order ? `id=${order.id} status=${order.status}` : "NULL");
 
     if (!order) {
-      console.error("❌ Commande non trouvée pour PaymentIntent:", paymentIntentId);
-      redirect("/");
+      console.error("[SUCCESS PAGE] ❌ Commande non trouvée pour PI:", paymentIntentId);
+      return (
+        <div style={{ padding: 40, fontFamily: "monospace" }}>
+          <h1>Commande introuvable</h1>
+          <p>Le paiement a réussi mais la commande n&apos;a pas été trouvée en base.</p>
+          <p>PI : <code>{paymentIntentId}</code></p>
+          <p>Contactez support@cartoonova.com avec ce numéro.</p>
+          <a href="/">Retour à l&apos;accueil</a>
+        </div>
+      );
     }
 
     // 3. Si déjà PAID, ne rien refaire (anti-double envoi)
     if (order.status === "PAID") {
-      console.log("ℹ️ Commande déjà marquée comme PAID, affichage sans re-notification");
+      console.log("[SUCCESS PAGE] ℹ️ Déjà PAID, affichage sans re-notification");
       return <SuccessClient order={order} />;
     }
 
     // 4. Mettre à jour le statut à PAID
+    console.log("[SUCCESS PAGE] 4. UPDATE status → PAID pour:", order.id);
     await updateOrderStatus(order.id, "PAID");
-    console.log(`✅ Commande ${order.id} marquée comme PAID`);
+    console.log("[SUCCESS PAGE] ✅ Commande", order.id, "marquée PAID");
 
     // 5. Envoyer les notifications (une seule fois)
+    console.log("[SUCCESS PAGE] 5. Envoi notifications Discord + Resend...");
     await Promise.all([
       sendOrderConfirmation(order),
       sendDiscordNotification(order),
     ]);
+    console.log("[SUCCESS PAGE] ✅ Notifications envoyées");
 
     return <SuccessClient order={order} />;
   } catch (error) {
-    console.error("❌ Erreur page succès:", error);
-    redirect("/");
+    console.error("[SUCCESS PAGE] 💥 Erreur:", error);
+    return (
+      <div style={{ padding: 40, fontFamily: "monospace" }}>
+        <h1>Erreur technique</h1>
+        <p>PI : <code>{paymentIntentId}</code></p>
+        <p>Erreur : <code>{error instanceof Error ? error.message : String(error)}</code></p>
+        <p>Contactez support@cartoonova.com avec ce numéro.</p>
+        <a href="/">Retour à l&apos;accueil</a>
+      </div>
+    );
   }
 }

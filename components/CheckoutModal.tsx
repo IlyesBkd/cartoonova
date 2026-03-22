@@ -57,14 +57,21 @@ function PaymentForm({
 
   // Extract PaymentIntent ID from clientSecret (format: pi_xxx_secret_yyy)
   const getPaymentIntentId = () => {
+    console.log("[CHECKOUT] clientSecret raw:", clientSecret);
     const match = clientSecret.match(/^(pi_[^_]+)/);
-    return match ? match[1] : "";
+    const id = match ? match[1] : "";
+    console.log("[CHECKOUT] Extracted PI ID:", id);
+    return id;
   };
 
   // Insert order as PENDING in Neon
   const insertPendingOrder = async () => {
     const paymentIntentId = getPaymentIntentId();
-    console.log("📝 Création commande PENDING | PI:", paymentIntentId);
+    if (!paymentIntentId) {
+      console.error("[CHECKOUT] ❌ paymentIntentId est VIDE! clientSecret:", clientSecret);
+      throw new Error("PaymentIntent ID manquant.");
+    }
+    console.log("[CHECKOUT] 📝 INSERT PENDING | PI:", paymentIntentId, "| email:", formData.email);
 
     const res = await fetch("/api/order/create", {
       method: "POST",
@@ -91,18 +98,23 @@ function PaymentForm({
       }),
     });
 
+    console.log("[CHECKOUT] /api/order/create response status:", res.status);
+
     if (!res.ok) {
       const err = await res.json();
-      console.error("❌ Erreur création commande:", err);
+      console.error("[CHECKOUT] ❌ Erreur création commande:", err);
       throw new Error("Erreur lors de l'enregistrement de la commande.");
     }
 
-    console.log("✅ Commande PENDING créée");
+    const data = await res.json();
+    console.log("[CHECKOUT] ✅ Commande PENDING créée, orderId:", data.orderId);
   };
 
   // ─── Card payment flow ─────────────────────────────────────────────
   const handleCardPayment = async () => {
+    console.log("[CARD] 🚀 Début handleCardPayment");
     if (!stripe || !elements) {
+      console.error("[CARD] ❌ stripe ou elements null");
       setError("Le système de paiement n'est pas prêt.");
       return;
     }
@@ -112,19 +124,22 @@ function PaymentForm({
 
     try {
       // 1. Validate elements
+      console.log("[CARD] 1. Appel elements.submit()...");
       const { error: submitError } = await elements.submit();
       if (submitError) {
+        console.error("[CARD] ❌ elements.submit() erreur:", submitError);
         setError(submitError.message || "Erreur de validation.");
         return;
       }
+      console.log("[CARD] ✅ elements.submit() OK");
 
       // 2. Insert PENDING order
+      console.log("[CARD] 2. Insertion commande PENDING...");
       await insertPendingOrder();
 
-      // 3. Confirm payment with redirect: "if_required"
-      //    Cards that don't need 3DS will return paymentIntent inline
-      //    Cards that need 3DS will redirect to return_url after auth
+      // 3. Confirm payment
       const successUrl = `${window.location.origin}/success`;
+      console.log("[CARD] 3. Appel stripe.confirmPayment() | return_url:", successUrl);
 
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -132,17 +147,25 @@ function PaymentForm({
         redirect: "if_required",
       });
 
+      console.log("[CARD] 4. Résultat confirmPayment:", {
+        error: stripeError?.message || null,
+        paymentIntentId: paymentIntent?.id || null,
+        paymentIntentStatus: paymentIntent?.status || null,
+      });
+
       if (stripeError) {
-        console.error("❌ Erreur Stripe:", stripeError);
+        console.error("[CARD] ❌ Erreur Stripe:", stripeError);
         setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
         // Payment succeeded inline — manually redirect
-        console.log("✅ Paiement carte réussi inline:", paymentIntent.id);
-        window.location.href = `/success?payment_intent=${paymentIntent.id}`;
+        const redirectUrl = `/success?payment_intent=${paymentIntent.id}`;
+        console.log("[CARD] ✅ Paiement inline OK, redirect manuel vers:", redirectUrl);
+        window.location.href = redirectUrl;
+      } else {
+        console.log("[CARD] ℹ️ Ni error ni paymentIntent → Stripe a redirigé automatiquement");
       }
-      // else: Stripe redirected automatically via return_url
     } catch (err: any) {
-      console.error("💥 Erreur:", err);
+      console.error("[CARD] 💥 Erreur critique:", err);
       setError(err.message || "Une erreur technique est survenue.");
     } finally {
       setLoading(false);
@@ -151,7 +174,11 @@ function PaymentForm({
 
   // ─── Express Checkout flow (Apple Pay / Google Pay) ────────────────
   const handleExpressPayment = async () => {
-    if (!stripe || !elements) return;
+    console.log("[EXPRESS] 🚀 Début handleExpressPayment");
+    if (!stripe || !elements) {
+      console.error("[EXPRESS] ❌ stripe ou elements null");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -159,12 +186,12 @@ function PaymentForm({
     try {
       // 1. Do NOT call elements.submit() — the wallet already submitted
       // 2. Insert PENDING order BEFORE confirming (redirect will lose JS context)
+      console.log("[EXPRESS] 1. Insertion commande PENDING (avant confirm)...");
       await insertPendingOrder();
 
-      // 3. Confirm with redirect: "always" — Apple Pay MUST redirect
-      //    The wallet sheet closes after confirm, JS context is lost
-      //    Only return_url redirect is reliable here
+      // 3. Confirm — no redirect option = defaults to "always"
       const successUrl = `${window.location.origin}/success`;
+      console.log("[EXPRESS] 2. Appel stripe.confirmPayment() | return_url:", successUrl);
 
       const { error: stripeError } = await stripe.confirmPayment({
         elements,
@@ -172,12 +199,18 @@ function PaymentForm({
       });
 
       // If we reach here, there was an error (redirect didn't happen)
+      console.log("[EXPRESS] 3. confirmPayment retourné (pas de redirect!), error:", stripeError?.message || "aucune");
       if (stripeError) {
-        console.error("❌ Erreur Express Checkout:", stripeError);
+        console.error("[EXPRESS] ❌ Erreur Express Checkout:", stripeError);
         setError(stripeError.message || "Erreur de paiement.");
+      } else {
+        // Fallback: shouldn't happen but just in case
+        const piId = getPaymentIntentId();
+        console.log("[EXPRESS] ⚠️ Pas d'erreur mais pas de redirect. Fallback redirect. PI:", piId);
+        window.location.href = `/success?payment_intent=${piId}`;
       }
     } catch (err: any) {
-      console.error("💥 Erreur Express:", err);
+      console.error("[EXPRESS] 💥 Erreur Express:", err);
       setError(err.message || "Une erreur technique est survenue.");
     } finally {
       setLoading(false);
