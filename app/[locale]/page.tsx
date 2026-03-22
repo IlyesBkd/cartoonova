@@ -74,7 +74,7 @@ export default function Home() {
                 Recevez une caricature unique dessinée à la main. Le cadeau personnalisé parfait !
               </p>
               <div className="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">
-                <a href="/product" className="bg-black text-yellow-400 font-black text-sm uppercase px-8 py-4 rounded-full border-2 border-black shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)] hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.5)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all">
+                <a href="/simpson" className="bg-black text-yellow-400 font-black text-sm uppercase px-8 py-4 rounded-full border-2 border-black shadow-[6px_6px_0px_0px_rgba(255,255,255,0.5)] hover:shadow-[3px_3px_0px_0px_rgba(255,255,255,0.5)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all">
                   Créer mon portrait ✏️
                 </a>
                 <a href="#comment-ca-marche" className="bg-white text-black font-black text-sm uppercase px-8 py-4 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all">
@@ -113,7 +113,7 @@ export default function Home() {
               ))}
             </div>
             <div className="flex justify-center mt-10">
-              <a href="/product" className="bg-yellow-400 text-black font-black text-sm uppercase px-8 py-4 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all">
+              <a href="/simpson" className="bg-yellow-400 text-black font-black text-sm uppercase px-8 py-4 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all">
                 Commencer maintenant &rarr;
               </a>
             </div>
@@ -256,7 +256,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-yellow-400 uppercase mb-4">Prêt(e) à devenir un cartoon ?</h2>
             <p className="text-white/70 font-bold text-lg max-w-md mx-auto mb-8">Rejoignez plus de 85 000 clients satisfaits !</p>
-            <a href="/product" className="inline-block bg-yellow-400 text-black font-black text-base uppercase px-10 py-5 rounded-full border-2 border-yellow-400 shadow-[6px_6px_0px_0px_rgba(250,204,21,0.4)] hover:shadow-[3px_3px_0px_0px_rgba(250,204,21,0.4)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all">
+            <a href="/simpson" className="inline-block bg-yellow-400 text-black font-black text-base uppercase px-10 py-5 rounded-full border-2 border-yellow-400 shadow-[6px_6px_0px_0px_rgba(250,204,21,0.4)] hover:shadow-[3px_3px_0px_0px_rgba(250,204,21,0.4)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all">
               Créer mon portrait ✏️
             </a>
           </div>

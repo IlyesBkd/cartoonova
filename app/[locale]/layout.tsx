@@ -28,7 +28,7 @@ export async function generateMetadata({
 
   const alternateLanguages: Record<string, string> = {};
   for (const l of locales) {
-    alternateLanguages[l] = l === "fr" ? baseUrl : `${baseUrl}/${l}`;
+    alternateLanguages[l] = `${baseUrl}/${l}`;
   }
 
   return {
@@ -36,16 +36,16 @@ export async function generateMetadata({
     description: t("description"),
     metadataBase: new URL(baseUrl),
     alternates: {
-      canonical: locale === "fr" ? "/" : `/${locale}`,
+      canonical: `/${locale}`,
       languages: {
         ...alternateLanguages,
-        "x-default": baseUrl,
+        "x-default": `${baseUrl}/fr`,
       },
     },
     openGraph: {
       title: t("ogTitle"),
       description: t("ogDescription"),
-      url: locale === "fr" ? baseUrl : `${baseUrl}/${locale}`,
+      url: `${baseUrl}/${locale}`,
       siteName: "Cartoonova",
       locale: locale === "fr" ? "fr_FR" : locale === "en" ? "en_GB" : locale === "es" ? "es_ES" : locale === "de" ? "de_DE" : "it_IT",
       type: "website",

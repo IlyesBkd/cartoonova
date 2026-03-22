@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Order {
+  id              String   @id @default(uuid())
+  customerEmail   String
+  customerName    String?
+  customerAddress String?
+  customerCity    String?
+  customerPostal  String?
+  customerCountry String?
+  customerPhone   String?
+  totalPrice      Float
+  currency        String   @default("EUR")
+  options         Json
+  status          String   @default("new")
+  photoUrls       String[]
+  stripePaymentId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Price {
+  id             String @id @default("singleton")
+  base           Float  @default(49)
+  fullbodyExtra  Float  @default(20)
+  extraPerson    Float  @default(15)
+  extraAnimal    Float  @default(15)
+  digital        Float  @default(0)
+  canvas         Float  @default(89)
+  poster         Float  @default(79)
+  posterSimple   Float  @default(19)
+}

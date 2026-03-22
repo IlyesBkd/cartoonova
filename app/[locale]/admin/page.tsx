@@ -1,10 +1,38 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { Order, Prices } from "@/lib/types";
+import type { Prices } from "@/lib/types";
 import { DEFAULT_PRICES } from "@/lib/types";
 
-const STATUS_LABELS: Record<Order["status"], { label: string; color: string }> = {
+/* ─── Prisma DB Order shape ──────────────────────────────────────────── */
+interface DbOrder {
+  id: string;
+  customerEmail: string;
+  customerName: string | null;
+  customerAddress: string | null;
+  customerCity: string | null;
+  customerPostal: string | null;
+  customerCountry: string | null;
+  customerPhone: string | null;
+  totalPrice: number;
+  currency: string;
+  options: {
+    format?: string;
+    people?: number;
+    animals?: number;
+    background?: string;
+    printOption?: string;
+    description?: string;
+  };
+  status: string;
+  photoUrls: string[];
+  stripePaymentId: string | null;
+  createdAt: string;
+}
+
+type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
+
+const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
   new: { label: "Nouvelle", color: "bg-blue-100 text-blue-800 border-blue-300" },
   in_progress: { label: "En cours", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
   completed: { label: "Terminée", color: "bg-green-100 text-green-800 border-green-300" },
@@ -17,9 +45,9 @@ export default function AdminPage() {
   const [tab, setTab] = useState<"orders" | "prices">("orders");
 
   // Orders
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<DbOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<DbOrder | null>(null);
 
   // Prices
   const [prices, setPrices] = useState<Prices>(DEFAULT_PRICES);
@@ -67,7 +95,7 @@ export default function AdminPage() {
   }, [authed, fetchOrders, fetchPrices]);
 
   // Update order status
-  const updateStatus = async (id: string, status: Order["status"]) => {
+  const updateStatus = async (id: string, status: OrderStatus) => {
     await fetch("/api/orders", {
       method: "PATCH",
       headers: headers(),
@@ -205,14 +233,14 @@ export default function AdminPage() {
                           onClick={() => setSelectedOrder(o)}
                           className={`border-b border-gray-100 cursor-pointer hover:bg-yellow-50 transition-colors ${selectedOrder?.id === o.id ? "bg-yellow-50" : ""}`}
                         >
-                          <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 16)}</td>
+                          <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-gray-500">{new Date(o.createdAt).toLocaleDateString("fr-FR")}</td>
-                          <td className="px-4 py-3 font-medium">{o.email}</td>
-                          <td className="px-4 py-3 text-gray-500">{o.printOption}</td>
-                          <td className="px-4 py-3 text-right font-bold">{o.total} €</td>
+                          <td className="px-4 py-3 font-medium">{o.customerEmail}</td>
+                          <td className="px-4 py-3 text-gray-500">{o.options?.printOption || "—"}</td>
+                          <td className="px-4 py-3 text-right font-bold">{o.totalPrice} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
-                            <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status].color}`}>
-                              {STATUS_LABELS[o.status].label}
+                            <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
+                              {STATUS_LABELS[o.status as OrderStatus]?.label || o.status}
                             </span>
                           </td>
                         </tr>
@@ -238,39 +266,39 @@ export default function AdminPage() {
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-1">Client</p>
-                      <p className="font-medium">{selectedOrder.email}</p>
-                      {selectedOrder.firstName && (
-                        <p className="text-gray-600">{selectedOrder.firstName} {selectedOrder.lastName}</p>
+                      <p className="font-medium">{selectedOrder.customerEmail}</p>
+                      {selectedOrder.customerName && (
+                        <p className="text-gray-600">{selectedOrder.customerName}</p>
                       )}
-                      {selectedOrder.phone && <p className="text-gray-600">📞 {selectedOrder.phone}</p>}
+                      {selectedOrder.customerPhone && <p className="text-gray-600">📞 {selectedOrder.customerPhone}</p>}
                     </div>
 
-                    {selectedOrder.address && (
+                    {selectedOrder.customerAddress && (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-xs text-blue-600 font-semibold mb-1">📦 Adresse de livraison</p>
-                        <p className="text-gray-700">{selectedOrder.address}</p>
-                        <p className="text-gray-700">{selectedOrder.postalCode} {selectedOrder.city}</p>
-                        <p className="text-gray-700">{selectedOrder.country}</p>
+                        <p className="text-gray-700">{selectedOrder.customerAddress}</p>
+                        <p className="text-gray-700">{selectedOrder.customerPostal} {selectedOrder.customerCity}</p>
+                        <p className="text-gray-700">{selectedOrder.customerCountry}</p>
                       </div>
                     )}
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-2">Configuration</p>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{selectedOrder.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
-                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{selectedOrder.people}</span></div>
-                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{selectedOrder.animals}</span></div>
-                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{selectedOrder.background}</span></div>
-                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{selectedOrder.printOption}</span></div>
-                        <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total} €</span></div>
+                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{selectedOrder.options?.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
+                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{selectedOrder.options?.people ?? 1}</span></div>
+                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{selectedOrder.options?.animals ?? 0}</span></div>
+                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{selectedOrder.options?.background || "—"}</span></div>
+                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{selectedOrder.options?.printOption || "—"}</span></div>
+                        <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.totalPrice} {selectedOrder.currency}</span></div>
                       </div>
                     </div>
 
-                    {/* Photos */}
+                    {/* Photos — clickable thumbnails */}
                     {selectedOrder.photoUrls.length > 0 && (
                       <div className="bg-gray-50 rounded-lg p-3">
                         <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({selectedOrder.photoUrls.length})</p>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                           {selectedOrder.photoUrls.map((url, i) => (
                             <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:ring-2 hover:ring-yellow-400 transition-all">
                               <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />

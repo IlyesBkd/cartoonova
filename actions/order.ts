@@ -1,21 +1,47 @@
 "use server";
 
 import { Resend } from "resend";
-import { addOrder } from "@/lib/db";
+import prisma from "@/lib/prisma";
 import type { Order } from "@/lib/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function processOrder(orderData: Omit<Order, "id" | "createdAt" | "status">) {
+  // 1. Save to Neon via Prisma
+  const dbOrder = await prisma.order.create({
+    data: {
+      customerEmail: orderData.email,
+      customerName: orderData.firstName
+        ? `${orderData.firstName} ${orderData.lastName || ""}`.trim()
+        : null,
+      customerAddress: orderData.address || null,
+      customerCity: orderData.city || null,
+      customerPostal: orderData.postalCode || null,
+      customerCountry: orderData.country || null,
+      customerPhone: orderData.phone || null,
+      totalPrice: orderData.total,
+      currency: "EUR",
+      options: {
+        format: orderData.format,
+        people: orderData.people,
+        animals: orderData.animals,
+        background: orderData.background,
+        printOption: orderData.printOption,
+        description: orderData.description,
+      },
+      status: "new",
+      photoUrls: orderData.photoUrls,
+      stripePaymentId: orderData.stripePaymentId || null,
+    },
+  });
+
+  // Build a compat order object for email/discord
   const order: Order = {
     ...orderData,
-    id: `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
-    createdAt: new Date().toISOString(),
+    id: dbOrder.id,
+    createdAt: dbOrder.createdAt.toISOString(),
     status: "new",
   };
-
-  // 1. Save to database
-  await addOrder(order);
 
   // 2. Send confirmation email via Resend
   try {

@@ -8,6 +8,7 @@ import type { Prices } from "@/lib/types";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
+import { upload } from "@vercel/blob/client";
 
 /* ─── Assets locaux ──────────────────────────────────────────────────── */
 const backgroundData = [
@@ -299,35 +300,30 @@ export default function ProductPage() {
                     type="file"
                     id="photos-upload"
                     multiple
-                    accept="image/jpeg,image/png"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={async (e) => {
                       const files = Array.from(e.target.files || []);
                       if (!files.length) return;
-                      
+
                       setUploading(true);
                       setUploadError("");
-                      
+
                       try {
-                        const formData = new FormData();
-                        files.forEach((f) => formData.append("files", f));
-                        
-                        const r = await fetch("/api/upload", { method: "POST", body: formData });
-                        const data = await r.json();
-                        
-                        if (data.urls) {
-                          // Add new photos to existing ones
-                          setUploadedPhotos(prev => [...prev, ...data.urls]);
-                          console.log("Upload successful:", data.urls);
-                        } else if (data.error) {
-                          setUploadError(data.error);
-                          console.error("Upload error:", data.error);
+                        const urls: string[] = [];
+                        for (const file of files) {
+                          const blob = await upload(
+                            `orders/${Date.now()}-${file.name}`,
+                            file,
+                            { access: "public", handleUploadUrl: "/api/upload" }
+                          );
+                          urls.push(blob.url);
                         }
+                        setUploadedPhotos(prev => [...prev, ...urls]);
                       } catch (error) {
                         setUploadError(t("uploadError"));
-                        console.error("Upload catch error:", error);
+                        console.error("Upload error:", error);
                       } finally {
                         setUploading(false);
-                        // Clear the input to allow selecting the same files again
                         e.target.value = '';
                       }
                     }}

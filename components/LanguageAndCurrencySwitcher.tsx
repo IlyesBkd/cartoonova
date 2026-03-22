@@ -38,9 +38,8 @@ export default function LanguageAndCurrencySwitcher() {
       }
     }
 
-    // Build new path: default locale (fr) has no prefix with "as-needed"
-    const newPath =
-      newLocale === "fr" ? cleanPath || "/" : `/${newLocale}${cleanPath}`;
+    // With localePrefix: "always", every locale gets a prefix
+    const newPath = `/${newLocale}${cleanPath === "/" ? "" : cleanPath}`;
 
     router.replace(newPath);
     setOpen(false);

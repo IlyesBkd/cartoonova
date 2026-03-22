@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrders, updateOrderStatus } from "@/lib/db";
-import type { Order } from "@/lib/types";
+import prisma from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   const password = req.headers.get("x-admin-password");
   if (password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
   }
-  const orders = await getOrders();
-  return NextResponse.json(orders);
+
+  try {
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(orders);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[GET /api/orders] Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: NextRequest) {
@@ -17,10 +27,15 @@ export async function PATCH(req: NextRequest) {
     if (password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
     }
-    const { id, status }: { id: string; status: Order["status"] } = await req.json();
-    await updateOrderStatus(id, status);
+    const { id, status }: { id: string; status: string } = await req.json();
+    await prisma.order.update({
+      where: { id },
+      data: { status },
+    });
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[PATCH /api/orders] Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

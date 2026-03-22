@@ -546,7 +546,7 @@ export default function PortraitPersonnaliseCartoon() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link
-                href="/product"
+                href="/simpson"
                 className="bg-yellow-400 text-black font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
               >
                 Commencer maintenant →

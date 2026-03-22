@@ -13,7 +13,7 @@ interface PageDef {
 
 const pages: PageDef[] = [
   { path: "", changeFrequency: "weekly", priority: 1 },
-  { path: "/product", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/simpson", changeFrequency: "weekly", priority: 0.9 },
   { path: "/portrait-personnalise-cartoon", changeFrequency: "weekly", priority: 0.85 },
   { path: "/portfolio", changeFrequency: "monthly", priority: 0.7 },
   { path: "/avis", changeFrequency: "monthly", priority: 0.6 },
@@ -29,18 +29,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const page of pages) {
     for (const locale of locales) {
-      const prefix = locale === defaultLocale ? "" : `/${locale}`;
       entries.push({
-        url: `${baseUrl}${prefix}${page.path}`,
+        url: `${baseUrl}/${locale}${page.path}`,
         lastModified: new Date(),
         changeFrequency: page.changeFrequency,
         priority: page.priority,
         alternates: {
           languages: Object.fromEntries(
-            locales.map((l) => [
-              l,
-              `${baseUrl}${l === defaultLocale ? "" : `/${l}`}${page.path}`,
-            ])
+            locales.map((l) => [l, `${baseUrl}/${l}${page.path}`])
           ),
         },
       });
