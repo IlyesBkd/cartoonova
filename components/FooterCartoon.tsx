@@ -31,7 +31,7 @@ export default function FooterCartoon() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2">
-            <Image src="/logo.webp" alt="Logo Cartoonova" width={160} height={48} className="h-12 mb-4" style={{ width: "auto" }} />
+            <Image src="/logo.webp" alt="Logo Cartoonova" width={160} height={48} className="h-12 mb-4" />
             <p className="text-sm text-black/70 font-bold leading-relaxed mb-5 max-w-xs">
               {t("madeWith")}
             </p>
@@ -76,10 +76,14 @@ export default function FooterCartoon() {
               </li>
               <li>📍 Paris, France</li>
             </ul>
-            <div className="mt-4 flex items-center gap-1.5">
-              {["Visa", "MC", "PayPal"].map((p) => (
-                <span key={p} className="text-[10px] font-black text-black bg-white rounded px-2 py-1 border border-black">{p}</span>
-              ))}
+            <div className="mt-4">
+              <Image 
+                src="/visa_mastercard_paypal-3.png" 
+                alt="Moyens de paiement : Visa, MasterCard, PayPal" 
+                width={200} 
+                height={60} 
+                className="h-auto max-w-full"
+              />
             </div>
           </div>
         </div>
