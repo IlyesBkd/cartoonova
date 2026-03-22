@@ -77,13 +77,19 @@ export default function AdminPage() {
 
   // Login
   const handleLogin = async () => {
-    const r = await fetch("/api/orders", { headers: { "x-admin-password": password } });
-    if (r.ok) {
-      setAuthed(true);
-      setOrders(await r.json());
-      fetchPrices();
-    } else {
-      alert("Mot de passe incorrect.");
+    try {
+      const r = await fetch("/api/orders", { headers: { "x-admin-password": password } });
+      if (r.ok) {
+        setAuthed(true);
+        setOrders(await r.json());
+        fetchPrices();
+      } else {
+        const data = await r.json().catch(() => null);
+        const msg = data?.error || `Erreur ${r.status}`;
+        alert(r.status === 401 ? "Mot de passe incorrect." : `Erreur serveur : ${msg}`);
+      }
+    } catch (e) {
+      alert(`Erreur réseau : ${e instanceof Error ? e.message : "Connexion impossible"}`);
     }
   };
 
