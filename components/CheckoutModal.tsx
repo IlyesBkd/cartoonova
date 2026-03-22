@@ -27,7 +27,6 @@ interface OrderConfig {
 
 /* ─── Payment Form ────────────────────────────────────────────────── */
 function PaymentForm({
-  onSuccess,
   onClose,
   clientSecret,
   formData,
@@ -35,7 +34,6 @@ function PaymentForm({
   isDigital,
   currency,
 }: {
-  onSuccess: (paymentId: string) => void;
   onClose: () => void;
   clientSecret: string;
   formData: {
@@ -58,7 +56,7 @@ function PaymentForm({
   const [error, setError] = useState("");
 
   // Shared function: insert order in DB then confirm payment
-  const createOrderAndPay = async (mode: "card" | "express") => {
+  const createOrderAndPay = async () => {
     if (!stripe || !elements) {
       setError("Le système de paiement n'est pas prêt.");
       return;
@@ -114,38 +112,32 @@ function PaymentForm({
 
       console.log("✅ Commande PENDING créée, lancement du paiement Stripe...");
 
-      // 3. Confirm payment with Stripe
-      if (mode === "express") {
-        // Express Checkout always redirects
-        await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: window.location.origin + "/success",
-          },
-        });
-      } else {
-        // Card payment — try inline first, fallback to redirect
-        const result = await stripe.confirmPayment({
-          elements,
-          confirmParams: {
-            return_url: window.location.origin + "/success",
-            payment_method_data: {
-              billing_details: { email: formData.email },
-            },
-          },
-          redirect: "if_required",
-        });
+      // 3. Confirm payment — ALWAYS use redirect: "if_required"
+      //    This way we catch both:
+      //    - Cases where Stripe redirects automatically (3DS, bank redirect)
+      //    - Cases where payment succeeds inline (Apple Pay, Google Pay, simple card)
+      const successUrl = `${window.location.origin}/success`;
 
-        if (result.error) {
-          console.error("❌ Erreur Stripe:", result.error);
-          setError(result.error.message || "Erreur de paiement.");
-        } else if (result.paymentIntent?.status === "succeeded") {
-          console.log("✅ Paiement réussi:", result.paymentIntent.id);
-          onSuccess(result.paymentIntent.id);
-        } else if (result.paymentIntent?.id) {
-          onSuccess(result.paymentIntent.id);
-        }
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: successUrl,
+        },
+        redirect: "if_required",
+      });
+
+      if (stripeError) {
+        // Payment failed — show error to user
+        console.error("❌ Erreur Stripe:", stripeError);
+        setError(stripeError.message || "Erreur de paiement. Veuillez réessayer.");
+      } else if (paymentIntent) {
+        // Stripe did NOT redirect — payment succeeded inline (Apple Pay, Google Pay, etc.)
+        // We MUST redirect manually to /success so the server triggers PAID + Discord + Resend
+        console.log("✅ Paiement réussi inline (pas de redirect Stripe). Statut:", paymentIntent.status);
+        window.location.href = `/success?payment_intent=${paymentIntent.id}`;
       }
+      // If neither error nor paymentIntent → Stripe redirected the user automatically
+      // The return_url will handle it
     } catch (err) {
       console.error("💥 Erreur critique:", err);
       setError("Une erreur technique est survenue.");
@@ -156,7 +148,7 @@ function PaymentForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createOrderAndPay("card");
+    await createOrderAndPay();
   };
 
   return (
@@ -169,7 +161,7 @@ function PaymentForm({
         </div>
         <ExpressCheckoutElement
           onConfirm={async () => {
-            await createOrderAndPay("express");
+            await createOrderAndPay();
           }}
         />
       </div>
@@ -317,22 +309,6 @@ export default function CheckoutModal({
         setFormError("Erreur technique lors de la préparation du paiement.");
         setLoadingIntent(false);
       });
-  };
-
-  // After payment success → redirect to /success page (which handles DB update + notifications)
-  const handlePaymentSuccess = async (paymentId: string) => {
-    posthog.capture("Achat réussi", {
-      total: orderConfig.total,
-      currency,
-      format: orderConfig.format,
-      people: orderConfig.people,
-      animals: orderConfig.animals,
-      printOption: orderConfig.printOption,
-      stripePaymentId: paymentId,
-    });
-
-    // Redirect to /success — the server component handles PAID update + Discord + Resend
-    window.location.href = `/success?payment_intent=${paymentId}`;
   };
 
   if (!open) return null;
@@ -508,7 +484,6 @@ export default function CheckoutModal({
                     }}
                   >
                     <PaymentForm
-                      onSuccess={handlePaymentSuccess}
                       onClose={() => setStep("info")}
                       clientSecret={clientSecret}
                       formData={{
