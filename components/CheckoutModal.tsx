@@ -55,8 +55,53 @@ function PaymentForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Shared function: insert order in DB then confirm payment
-  const createOrderAndPay = async () => {
+  // Extract PaymentIntent ID from clientSecret (format: pi_xxx_secret_yyy)
+  const getPaymentIntentId = () => {
+    const match = clientSecret.match(/^(pi_[^_]+)/);
+    return match ? match[1] : "";
+  };
+
+  // Insert order as PENDING in Neon
+  const insertPendingOrder = async () => {
+    const paymentIntentId = getPaymentIntentId();
+    console.log("📝 Création commande PENDING | PI:", paymentIntentId);
+
+    const res = await fetch("/api/order/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        paymentIntentId,
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        address: formData.address,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        country: formData.country,
+        phone: formData.phone,
+        format: orderConfig.format,
+        people: orderConfig.people,
+        animals: orderConfig.animals,
+        background: orderConfig.background,
+        printOption: orderConfig.printOption,
+        total: orderConfig.total,
+        currency,
+        description: orderConfig.description,
+        photoUrls: orderConfig.photoUrls,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      console.error("❌ Erreur création commande:", err);
+      throw new Error("Erreur lors de l'enregistrement de la commande.");
+    }
+
+    console.log("✅ Commande PENDING créée");
+  };
+
+  // ─── Card payment flow ─────────────────────────────────────────────
+  const handleCardPayment = async () => {
     if (!stripe || !elements) {
       setError("Le système de paiement n'est pas prêt.");
       return;
@@ -66,81 +111,74 @@ function PaymentForm({
     setError("");
 
     try {
-      // 1. Validate Stripe elements
-      const submitResult = await elements.submit();
-      if (submitResult.error) {
-        setError(submitResult.error.message || "Erreur de validation.");
+      // 1. Validate elements
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        setError(submitError.message || "Erreur de validation.");
         return;
       }
 
-      // 2. Insert order as PENDING in Neon — only now, not before
-      console.log("📝 Création de la commande PENDING en DB...");
-      const piMatch = clientSecret.match(/^(pi_[^_]+)/);
-      const paymentIntentId = piMatch ? piMatch[1] : "";
+      // 2. Insert PENDING order
+      await insertPendingOrder();
 
-      const orderRes = await fetch("/api/order/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paymentIntentId,
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          address: formData.address,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
-          phone: formData.phone,
-          format: orderConfig.format,
-          people: orderConfig.people,
-          animals: orderConfig.animals,
-          background: orderConfig.background,
-          printOption: orderConfig.printOption,
-          total: orderConfig.total,
-          currency,
-          description: orderConfig.description,
-          photoUrls: orderConfig.photoUrls,
-        }),
-      });
-
-      if (!orderRes.ok) {
-        const err = await orderRes.json();
-        console.error("❌ Erreur création commande:", err);
-        setError("Erreur lors de l'enregistrement de la commande.");
-        return;
-      }
-
-      console.log("✅ Commande PENDING créée, lancement du paiement Stripe...");
-
-      // 3. Confirm payment — ALWAYS use redirect: "if_required"
-      //    This way we catch both:
-      //    - Cases where Stripe redirects automatically (3DS, bank redirect)
-      //    - Cases where payment succeeds inline (Apple Pay, Google Pay, simple card)
+      // 3. Confirm payment with redirect: "if_required"
+      //    Cards that don't need 3DS will return paymentIntent inline
+      //    Cards that need 3DS will redirect to return_url after auth
       const successUrl = `${window.location.origin}/success`;
 
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
-        confirmParams: {
-          return_url: successUrl,
-        },
+        confirmParams: { return_url: successUrl },
         redirect: "if_required",
       });
 
       if (stripeError) {
-        // Payment failed — show error to user
         console.error("❌ Erreur Stripe:", stripeError);
-        setError(stripeError.message || "Erreur de paiement. Veuillez réessayer.");
+        setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
-        // Stripe did NOT redirect — payment succeeded inline (Apple Pay, Google Pay, etc.)
-        // We MUST redirect manually to /success so the server triggers PAID + Discord + Resend
-        console.log("✅ Paiement réussi inline (pas de redirect Stripe). Statut:", paymentIntent.status);
+        // Payment succeeded inline — manually redirect
+        console.log("✅ Paiement carte réussi inline:", paymentIntent.id);
         window.location.href = `/success?payment_intent=${paymentIntent.id}`;
       }
-      // If neither error nor paymentIntent → Stripe redirected the user automatically
-      // The return_url will handle it
-    } catch (err) {
-      console.error("💥 Erreur critique:", err);
-      setError("Une erreur technique est survenue.");
+      // else: Stripe redirected automatically via return_url
+    } catch (err: any) {
+      console.error("💥 Erreur:", err);
+      setError(err.message || "Une erreur technique est survenue.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ─── Express Checkout flow (Apple Pay / Google Pay) ────────────────
+  const handleExpressPayment = async () => {
+    if (!stripe || !elements) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      // 1. Do NOT call elements.submit() — the wallet already submitted
+      // 2. Insert PENDING order BEFORE confirming (redirect will lose JS context)
+      await insertPendingOrder();
+
+      // 3. Confirm with redirect: "always" — Apple Pay MUST redirect
+      //    The wallet sheet closes after confirm, JS context is lost
+      //    Only return_url redirect is reliable here
+      const successUrl = `${window.location.origin}/success`;
+
+      const { error: stripeError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: { return_url: successUrl },
+      });
+
+      // If we reach here, there was an error (redirect didn't happen)
+      if (stripeError) {
+        console.error("❌ Erreur Express Checkout:", stripeError);
+        setError(stripeError.message || "Erreur de paiement.");
+      }
+    } catch (err: any) {
+      console.error("💥 Erreur Express:", err);
+      setError(err.message || "Une erreur technique est survenue.");
     } finally {
       setLoading(false);
     }
@@ -148,7 +186,7 @@ function PaymentForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createOrderAndPay();
+    await handleCardPayment();
   };
 
   return (
@@ -161,7 +199,7 @@ function PaymentForm({
         </div>
         <ExpressCheckoutElement
           onConfirm={async () => {
-            await createOrderAndPay();
+            await handleExpressPayment();
           }}
         />
       </div>
