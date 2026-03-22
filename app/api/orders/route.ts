@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getOrders, updateOrderStatus } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -10,9 +10,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const orders = await prisma.order.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const orders = await getOrders();
     return NextResponse.json(orders);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -28,10 +26,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
     }
     const { id, status }: { id: string; status: string } = await req.json();
-    await prisma.order.update({
-      where: { id },
-      data: { status },
-    });
+    await updateOrderStatus(id, status);
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";

@@ -1,45 +1,42 @@
 "use server";
 
 import { Resend } from "resend";
-import prisma from "@/lib/prisma";
+import { insertOrder } from "@/lib/db";
 import type { Order } from "@/lib/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function processOrder(orderData: Omit<Order, "id" | "createdAt" | "status">) {
-  // 1. Save to Neon via Prisma
-  const dbOrder = await prisma.order.create({
-    data: {
-      customerEmail: orderData.email,
-      customerName: orderData.firstName
-        ? `${orderData.firstName} ${orderData.lastName || ""}`.trim()
-        : null,
-      customerAddress: orderData.address || null,
-      customerCity: orderData.city || null,
-      customerPostal: orderData.postalCode || null,
-      customerCountry: orderData.country || null,
-      customerPhone: orderData.phone || null,
-      totalPrice: orderData.total,
-      currency: "EUR",
-      options: {
-        format: orderData.format,
-        people: orderData.people,
-        animals: orderData.animals,
-        background: orderData.background,
-        printOption: orderData.printOption,
-        description: orderData.description,
-      },
-      status: "new",
-      photoUrls: orderData.photoUrls,
-      stripePaymentId: orderData.stripePaymentId || null,
+  // 1. Save to Neon via SQL
+  const dbOrder = await insertOrder({
+    customerEmail: orderData.email,
+    customerName: orderData.firstName
+      ? `${orderData.firstName} ${orderData.lastName || ""}`.trim()
+      : null,
+    customerAddress: orderData.address || null,
+    customerCity: orderData.city || null,
+    customerPostal: orderData.postalCode || null,
+    customerCountry: orderData.country || null,
+    customerPhone: orderData.phone || null,
+    totalPrice: orderData.total,
+    currency: "EUR",
+    options: {
+      format: orderData.format,
+      people: orderData.people,
+      animals: orderData.animals,
+      background: orderData.background,
+      printOption: orderData.printOption,
+      description: orderData.description,
     },
+    photoUrls: orderData.photoUrls,
+    stripePaymentId: orderData.stripePaymentId || null,
   });
 
   // Build a compat order object for email/discord
   const order: Order = {
     ...orderData,
     id: dbOrder.id,
-    createdAt: dbOrder.createdAt.toISOString(),
+    createdAt: dbOrder.created_at,
     status: "new",
   };
 

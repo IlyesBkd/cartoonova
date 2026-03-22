@@ -3,32 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Prices } from "@/lib/types";
 import { DEFAULT_PRICES } from "@/lib/types";
-
-/* ─── Prisma DB Order shape ──────────────────────────────────────────── */
-interface DbOrder {
-  id: string;
-  customerEmail: string;
-  customerName: string | null;
-  customerAddress: string | null;
-  customerCity: string | null;
-  customerPostal: string | null;
-  customerCountry: string | null;
-  customerPhone: string | null;
-  totalPrice: number;
-  currency: string;
-  options: {
-    format?: string;
-    people?: number;
-    animals?: number;
-    background?: string;
-    printOption?: string;
-    description?: string;
-  };
-  status: string;
-  photoUrls: string[];
-  stripePaymentId: string | null;
-  createdAt: string;
-}
+import type { DbOrder } from "@/lib/db";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
@@ -240,10 +215,10 @@ export default function AdminPage() {
                           className={`border-b border-gray-100 cursor-pointer hover:bg-yellow-50 transition-colors ${selectedOrder?.id === o.id ? "bg-yellow-50" : ""}`}
                         >
                           <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
-                          <td className="px-4 py-3 text-gray-500">{new Date(o.createdAt).toLocaleDateString("fr-FR")}</td>
-                          <td className="px-4 py-3 font-medium">{o.customerEmail}</td>
-                          <td className="px-4 py-3 text-gray-500">{o.options?.printOption || "—"}</td>
-                          <td className="px-4 py-3 text-right font-bold">{o.totalPrice} {o.currency}</td>
+                          <td className="px-4 py-3 text-gray-500">{new Date(o.created_at).toLocaleDateString("fr-FR")}</td>
+                          <td className="px-4 py-3 font-medium">{o.customer_email}</td>
+                          <td className="px-4 py-3 text-gray-500">{(o.options as any)?.printOption || "—"}</td>
+                          <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
                               {STATUS_LABELS[o.status as OrderStatus]?.label || o.status}
@@ -272,40 +247,40 @@ export default function AdminPage() {
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-1">Client</p>
-                      <p className="font-medium">{selectedOrder.customerEmail}</p>
-                      {selectedOrder.customerName && (
-                        <p className="text-gray-600">{selectedOrder.customerName}</p>
+                      <p className="font-medium">{selectedOrder.customer_email}</p>
+                      {selectedOrder.customer_name && (
+                        <p className="text-gray-600">{selectedOrder.customer_name}</p>
                       )}
-                      {selectedOrder.customerPhone && <p className="text-gray-600">📞 {selectedOrder.customerPhone}</p>}
+                      {selectedOrder.customer_phone && <p className="text-gray-600">📞 {selectedOrder.customer_phone}</p>}
                     </div>
 
-                    {selectedOrder.customerAddress && (
+                    {selectedOrder.customer_address && (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-xs text-blue-600 font-semibold mb-1">📦 Adresse de livraison</p>
-                        <p className="text-gray-700">{selectedOrder.customerAddress}</p>
-                        <p className="text-gray-700">{selectedOrder.customerPostal} {selectedOrder.customerCity}</p>
-                        <p className="text-gray-700">{selectedOrder.customerCountry}</p>
+                        <p className="text-gray-700">{selectedOrder.customer_address}</p>
+                        <p className="text-gray-700">{selectedOrder.customer_postal} {selectedOrder.customer_city}</p>
+                        <p className="text-gray-700">{selectedOrder.customer_country}</p>
                       </div>
                     )}
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-2">Configuration</p>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{selectedOrder.options?.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
-                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{selectedOrder.options?.people ?? 1}</span></div>
-                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{selectedOrder.options?.animals ?? 0}</span></div>
-                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{selectedOrder.options?.background || "—"}</span></div>
-                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{selectedOrder.options?.printOption || "—"}</span></div>
-                        <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.totalPrice} {selectedOrder.currency}</span></div>
+                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{(selectedOrder.options as any)?.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
+                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{(selectedOrder.options as any)?.people ?? 1}</span></div>
+                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{(selectedOrder.options as any)?.animals ?? 0}</span></div>
+                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{(selectedOrder.options as any)?.background || "—"}</span></div>
+                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{(selectedOrder.options as any)?.printOption || "—"}</span></div>
+                        <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
                       </div>
                     </div>
 
                     {/* Photos — clickable thumbnails */}
-                    {selectedOrder.photoUrls.length > 0 && (
+                    {selectedOrder.photo_urls.length > 0 && (
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({selectedOrder.photoUrls.length})</p>
+                        <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({selectedOrder.photo_urls.length})</p>
                         <div className="grid grid-cols-3 gap-2">
-                          {selectedOrder.photoUrls.map((url, i) => (
+                          {selectedOrder.photo_urls.map((url: string, i: number) => (
                             <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:ring-2 hover:ring-yellow-400 transition-all">
                               <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                             </a>
@@ -334,8 +309,8 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    {selectedOrder.stripePaymentId && (
-                      <p className="text-xs text-gray-400 font-mono">Stripe: {selectedOrder.stripePaymentId}</p>
+                    {selectedOrder.stripe_payment_id && (
+                      <p className="text-xs text-gray-400 font-mono">Stripe: {selectedOrder.stripe_payment_id}</p>
                     )}
                   </div>
                 </div>
