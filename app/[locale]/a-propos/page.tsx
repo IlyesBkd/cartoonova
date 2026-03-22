@@ -97,7 +97,7 @@ export default function AProposPage() {
               En 3 étapes simples, recevez votre caricature unique dessinée à la main.
             </p>
             <a href="/simpson" className="inline-block bg-yellow-400 text-black font-black text-base uppercase px-10 py-5 rounded-full border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all">
-              Créer mon portrait ✏️
+              Commander mon portrait ✏️
             </a>
           </div>
         </section>

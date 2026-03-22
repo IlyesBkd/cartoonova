@@ -109,7 +109,7 @@ export default function PortraitPersonnaliseCartoon() {
     ],
     faq: [
       {
-        question: "Comment créer mon portrait personnalisé cartoon ?",
+        question: "Comment commander mon portrait personnalisé cartoon ?",
         answer: "C'est très simple ! Choisissez votre format, téléchargez vos photos, sélectionnez vos options et validez. Notre équipe d'artistes crée votre portrait personnalisé en quelques jours.",
       },
       {
@@ -198,7 +198,7 @@ export default function PortraitPersonnaliseCartoon() {
                   href="#commander"
                   className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
                 >
-                  Créer mon portrait cartoon →
+                  Commandez mon portrait cartoon →
                 </Link>
               </div>
               <div className="relative">
@@ -538,7 +538,7 @@ export default function PortraitPersonnaliseCartoon() {
         <section className="py-20 px-4 bg-black text-white">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-black mb-6">
-              Prêt à créer votre portrait cartoon unique ?
+              Prêt à commander votre portrait cartoon unique ?
             </h2>
             <p className="text-xl mb-8 text-white/90">
               Rejoignez des milliers de clients satisfaits. Votre <strong> portrait personnalisé </strong> 

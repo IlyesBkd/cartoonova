@@ -64,7 +64,7 @@ export default function AvisPage() {
           {/* CTA */}
           <div className="text-center mt-14">
             <a href="/simpson" className="inline-block bg-black text-yellow-400 font-black text-base uppercase px-10 py-4 rounded-full border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all">
-              Créer ma caricature &rarr;
+              Commander ma caricature &rarr;
             </a>
           </div>
         </div>

@@ -1,9 +1,9 @@
 {
   "meta": {
     "title": "Cartoonova - Turn Your Photos into Cartoon Caricatures",
-    "description": "Create your personalized cartoon-style caricature. Professional artists, satisfaction guaranteed.",
+    "description": "Order your personalized cartoon-style caricature. Professional artists, satisfaction guaranteed.",
     "ogTitle": "Custom Cartoon Portrait - Cartoonova",
-    "ogDescription": "Create your personalized caricature from your photo. A unique and original gift!"
+    "ogDescription": "Order your personalized caricature from your photo. A unique and original gift!"
   },
   "nav": {
     "home": "Home",
@@ -57,7 +57,7 @@
   },
   "product": {
     "breadcrumb": "Order my portrait",
-    "heroTitle1": "Create Your",
+    "heroTitle1": "Order Your",
     "heroTitle2": "Cartoon Caricature",
     "heroSubtitle": "Transform yourself into a hand-drawn cartoon character. The perfect unique personalized gift!",
     "handDrawn": "Hand-drawn",
@@ -121,7 +121,7 @@
     "review5Text": "Top-notch customer service and stunning result. It won't be the last time I order here!",
     "review6Name": "Nicolas B.",
     "review6Text": "We were very pleasantly surprised. Great image and excellent support. We will recommend without hesitation.",
-    "faqQ1": "How long does it take to create the caricature?",
+    "faqQ1": "How long does it take to Order the caricature?",
     "faqA1": "Our artists typically complete your caricature in 3 to 5 business days depending on complexity.",
     "faqQ2": "Do all people need to be in the same photo?",
     "faqA2": "Not at all! Send us individual photos and our artists will draw everyone together in one image.",

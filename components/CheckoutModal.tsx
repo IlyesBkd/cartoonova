@@ -86,7 +86,7 @@ function PaymentForm({
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: { 
-          return_url: window.location.origin + "/simpson",
+          return_url: window.location.origin + "/success",
           payment_method_data: {
             billing_details: {
               email: formData.email,
@@ -146,7 +146,7 @@ function PaymentForm({
               const result = await stripe.confirmPayment({
                 elements,
                 confirmParams: { 
-                  return_url: window.location.origin + "/simpson",
+                  return_url: window.location.origin + "/success",
                 },
                 redirect: "always",
               });
@@ -299,6 +299,23 @@ export default function CheckoutModal({
         amount: convertedTotal * 100,
         currency: currency.toLowerCase(),
         description: orderConfig.description,
+        orderData: {
+          email,
+          firstName: isDigital ? undefined : firstName,
+          lastName: isDigital ? undefined : lastName,
+          address: isDigital ? undefined : address,
+          city: isDigital ? undefined : city,
+          postalCode: isDigital ? undefined : postalCode,
+          country: isDigital ? undefined : country,
+          phone: isDigital ? undefined : phone,
+          format: orderConfig.format,
+          people: orderConfig.people,
+          animals: orderConfig.animals,
+          background: orderConfig.background,
+          printOption: orderConfig.printOption,
+          total: orderConfig.total,
+          photoUrls: orderConfig.photoUrls,
+        },
       }),
     })
       .then((r) => {

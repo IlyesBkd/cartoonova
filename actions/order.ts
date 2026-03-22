@@ -6,96 +6,11 @@ import type { Order } from "@/lib/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function processOrder(orderData: Omit<Order, "id" | "createdAt" | "status">) {
-  // 1. Save to Neon via SQL
-  const dbOrder = await insertOrder({
-    customerEmail: orderData.email,
-    customerName: orderData.firstName
-      ? `${orderData.firstName} ${orderData.lastName || ""}`.trim()
-      : null,
-    customerAddress: orderData.address || null,
-    customerCity: orderData.city || null,
-    customerPostal: orderData.postalCode || null,
-    customerCountry: orderData.country || null,
-    customerPhone: orderData.phone || null,
-    totalPrice: orderData.total,
-    currency: "EUR",
-    options: {
-      format: orderData.format,
-      people: orderData.people,
-      animals: orderData.animals,
-      background: orderData.background,
-      printOption: orderData.printOption,
-      description: orderData.description,
-    },
-    photoUrls: orderData.photoUrls,
-    stripePaymentId: orderData.stripePaymentId || null,
-  });
-
-  // Build a compat order object for email/discord
-  const order: Order = {
-    ...orderData,
-    id: dbOrder.id,
-    createdAt: dbOrder.created_at,
-    status: "new",
-  };
-
-  // 2. Send confirmation email via Resend
-  try {
-    await resend.emails.send({
-      from: "Cartoonova <onboarding@resend.dev>",
-      to: order.email,
-      subject: `🎨 Commande confirmée ! — ${order.id}`,
-      html: buildEmailHTML(order),
-    });
-  } catch (e) {
-    console.error("Resend email error:", e);
-  }
-
-  // 3. Send Discord notification
-  try {
-    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    if (webhookUrl) {
-      const isPhysical = order.printOption !== "Digital";
-      await fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          embeds: [
-            {
-              title: "🛒 Nouvelle Commande Cartoonova !",
-              color: 0xfacc15,
-              fields: [
-                { name: "🆔 Commande", value: order.id, inline: true },
-                { name: "💰 Total", value: `${order.total} €`, inline: true },
-                { name: "📧 Email", value: order.email, inline: true },
-                { name: "🎨 Format", value: order.format === "fullbody" ? "Corps Entier" : "Portrait", inline: true },
-                { name: "👥 Personnes", value: `${order.people}`, inline: true },
-                { name: "🐾 Animaux", value: `${order.animals}`, inline: true },
-                { name: "🖼️ Impression", value: order.printOption, inline: true },
-                { name: "🏞️ Arrière-plan", value: order.background, inline: true },
-                { name: "📸 Photos", value: `${order.photoUrls.length} fichier(s)`, inline: true },
-                ...(isPhysical && order.firstName
-                  ? [
-                      {
-                        name: "📦 Livraison",
-                        value: `${order.firstName} ${order.lastName}\n${order.address}\n${order.postalCode} ${order.city}\n${order.country}\n📞 ${order.phone}`,
-                      },
-                    ]
-                  : []),
-              ],
-              footer: { text: "Cartoonova — Dashboard Admin" },
-              timestamp: order.createdAt,
-            },
-          ],
-        }),
-      });
-    }
-  } catch (e) {
-    console.error("Discord webhook error:", e);
-  }
-
-  return { success: true, orderId: order.id };
+export async function processOrder(orderData: any) {
+  // La logique est maintenant gérée dans /success/page.tsx
+  // Cette fonction est conservée pour compatibilité mais ne fait rien
+  console.log("processOrder appelé - logique déplacée vers /success");
+  return { success: true };
 }
 
 // ─── Email HTML Template ─────────────────────────────────────────────
