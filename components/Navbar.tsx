@@ -77,7 +77,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile menu — slide down */}
-        <div className={`xl:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-[500px]" : "max-h-0"}`}>
+        <div className={`xl:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-[500px] pointer-events-auto" : "max-h-0 pointer-events-none"}`}>
           <div className="bg-white border-b-4 border-black mx-3 mt-1 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5">
             <ul className="flex flex-col gap-2">
               {links.map((l) => (

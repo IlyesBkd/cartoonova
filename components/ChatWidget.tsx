@@ -45,9 +45,9 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 pointer-events-none">
       {/* Chat window */}
-      <div className={`transition-all duration-300 origin-bottom-right ${open ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}`}>
+      <div className={`pointer-events-auto transition-all duration-300 origin-bottom-right ${open ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}`}>
         <div className="w-[280px] sm:w-[380px] bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col">
           {/* Header */}
           <div className="bg-yellow-400 border-b-4 border-black px-5 py-4 flex items-center justify-between">
@@ -146,7 +146,7 @@ export default function ChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(!open)}
-        className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-black flex items-center justify-center text-xl sm:text-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer ${open ? "bg-white" : "bg-yellow-400 animate-bounce"}`}
+        className={`pointer-events-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-black flex items-center justify-center text-xl sm:text-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer ${open ? "bg-white" : "bg-yellow-400 animate-bounce"}`}
         aria-label="Ouvrir le chat"
       >
         {open ? "✕" : "💬"}

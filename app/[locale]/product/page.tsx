@@ -217,7 +217,7 @@ export default function ProductPage() {
               <p className="text-black/50 font-bold max-w-lg mx-auto">{t("customizeSubtitle")}</p>
             </div>
 
-            <div className="max-w-5xl mx-auto bg-yellow-50 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-10 flex flex-col gap-14">
+            <div className="relative z-10 max-w-5xl mx-auto bg-yellow-50 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-10 flex flex-col gap-14">
 
               {/* Étape 1 : Format */}
               <div>

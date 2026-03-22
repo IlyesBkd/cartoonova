@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrices, updatePrices } from "@/lib/db";
 import type { Prices } from "@/lib/types";
+import { revalidatePath } from "next/cache";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const prices = await getPrices();
-  return NextResponse.json(prices);
+  try {
+    const prices = await getPrices();
+    return NextResponse.json(prices);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[GET /api/prices] Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
 
 export async function PUT(req: NextRequest) {
@@ -15,8 +24,17 @@ export async function PUT(req: NextRequest) {
     }
     const prices: Prices = await req.json();
     await updatePrices(prices);
+
+    // Purge Next.js cache so new prices appear immediately
+    revalidatePath("/");
+    revalidatePath("/product");
+    revalidatePath("/[locale]");
+    revalidatePath("/[locale]/product");
+
     return NextResponse.json({ ok: true });
-  } catch {
-    return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[PUT /api/prices] Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

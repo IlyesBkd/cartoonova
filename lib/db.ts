@@ -3,7 +3,9 @@ import { join } from "path";
 import type { Order, Prices } from "./types";
 import { DEFAULT_PRICES } from "./types";
 
-const DATA_DIR = join(process.cwd(), "data");
+// On Vercel, only /tmp is writable. Locally, use project data/ dir.
+const isVercel = !!process.env.VERCEL;
+const DATA_DIR = isVercel ? "/tmp" : join(process.cwd(), "data");
 const ORDERS_FILE = join(DATA_DIR, "orders.json");
 const PRICES_FILE = join(DATA_DIR, "prices.json");
 
