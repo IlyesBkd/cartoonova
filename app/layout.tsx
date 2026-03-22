@@ -1,34 +1,11 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import "./globals.css";
-import ChatWidget from "@/components/ChatWidget";
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-export const metadata: Metadata = {
-  title: "Cartoonova - Transformez vos photos en caricatures cartoon",
-  description: "Créez votre caricature personnalisée style Simpson. Artistes professionnels, satisfaction garantie.",
-  icons: {
-    icon: "/flaticon.png",
-    apple: "/flaticon.png",
-  },
-};
+// Root layout is intentionally minimal.
+// All rendering is handled by app/[locale]/layout.tsx via next-intl.
+// This file exists only as a required Next.js entry point.
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="fr" className={`${poppins.variable} antialiased`}>
-      <body>
-        {children}
-        <ChatWidget />
-      </body>
-    </html>
-  );
+  return children;
 }

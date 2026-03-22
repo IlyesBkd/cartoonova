@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, PaymentRequestButtonElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { processOrder } from "@/actions/order";
+import { useCurrency } from "@/components/CurrencyProvider";
+import posthog from "posthog-js";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -146,6 +148,7 @@ export default function CheckoutModal({
   const [formError, setFormError] = useState("");
 
   const isDigital = orderConfig.printOption === "Digital";
+  const { currency, format: formatPrice, convert } = useCurrency();
 
   // Reset on open/close
   useEffect(() => {
@@ -184,11 +187,14 @@ export default function CheckoutModal({
     setStep("payment");
     setLoadingIntent(true);
 
+    const convertedTotal = convert(orderConfig.total);
+
     fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        amount: orderConfig.total * 100,
+        amount: convertedTotal * 100,
+        currency: currency.toLowerCase(),
         description: orderConfig.description,
       }),
     })
@@ -203,6 +209,15 @@ export default function CheckoutModal({
   // After payment success → process order
   const handlePaymentSuccess = async (paymentId: string) => {
     setProcessing(true);
+    posthog.capture("Achat réussi", {
+      total: orderConfig.total,
+      currency,
+      format: orderConfig.format,
+      people: orderConfig.people,
+      animals: orderConfig.animals,
+      printOption: orderConfig.printOption,
+      stripePaymentId: paymentId,
+    });
     try {
       await processOrder({
         email,
@@ -267,7 +282,7 @@ export default function CheckoutModal({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-black text-black/40 uppercase tracking-wider">Total à payer</p>
-                    <p className="text-3xl font-black text-black">{orderConfig.total} €</p>
+                    <p className="text-3xl font-black text-black">{formatPrice(orderConfig.total)}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-bold text-black/40 max-w-[200px]">{orderConfig.description}</p>
@@ -361,7 +376,7 @@ export default function CheckoutModal({
                   <div className="bg-white border-2 border-black rounded-xl p-4 mb-5 flex items-center justify-between">
                     <div>
                       <p className="text-xs font-black text-black/40 uppercase">Total à payer</p>
-                      <p className="text-2xl font-black text-black">{orderConfig.total} €</p>
+                      <p className="text-2xl font-black text-black">{formatPrice(orderConfig.total)}</p>
                     </div>
                     <p className="text-xs font-bold text-black/40">{email}</p>
                   </div>
@@ -373,12 +388,31 @@ export default function CheckoutModal({
                       appearance: {
                         theme: "flat",
                         variables: {
-                          colorPrimary: "#facc15",
                           colorBackground: "#ffffff",
+                          colorPrimary: "#facc15",
                           colorText: "#000000",
-                          borderRadius: "12px",
+                          borderRadius: "8px",
                           fontFamily: "Poppins, system-ui, sans-serif",
                           fontWeightNormal: "600",
+                        },
+                        rules: {
+                          ".Input": {
+                            border: "2px solid #000",
+                            boxShadow: "none",
+                          },
+                          ".Input:focus": {
+                            border: "2px solid #000",
+                            boxShadow: "4px 4px 0px 0px rgba(0,0,0,1)",
+                          },
+                          ".AccordionItem": {
+                            border: "2px solid #000",
+                            borderRadius: "8px",
+                            marginBottom: "12px",
+                          },
+                          ".AccordionItem--selected": {
+                            backgroundColor: "#fefce8",
+                            border: "3px solid #000",
+                          },
                         },
                       },
                     }}

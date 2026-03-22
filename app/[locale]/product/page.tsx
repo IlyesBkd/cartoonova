@@ -1,22 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import FooterCartoon from "@/components/FooterCartoon";
 import CheckoutModal from "@/components/CheckoutModal";
 import type { Prices } from "@/lib/types";
+import { useCurrency } from "@/components/CurrencyProvider";
+import { useTranslations } from "next-intl";
+import posthog from "posthog-js";
 
 /* ─── Assets locaux ──────────────────────────────────────────────────── */
-const backgrounds = [
-  { src: "/simpson_background/bar.jpg", label: "Bar" },
-  { src: "/simpson_background/beach.jpg", label: "Plage" },
-  { src: "/simpson_background/church.jpg", label: "Église" },
-  { src: "/simpson_background/couch8x10.jpg", label: "Canapé" },
-  { src: "/simpson_background/forest.jpg", label: "Forêt" },
-  { src: "/simpson_background/house.jpg", label: "Maison" },
-  { src: "/simpson_background/montain.jpg", label: "Montagne" },
-  { src: "/simpson_background/snow.jpg", label: "Neige" },
-  { src: "/simpson_background/valentines.jpg", label: "Saint-Valentin" },
+const backgroundData = [
+  { src: "/simpson_background/bar.jpg", key: "bgBar" },
+  { src: "/simpson_background/beach.jpg", key: "bgBeach" },
+  { src: "/simpson_background/church.jpg", key: "bgChurch" },
+  { src: "/simpson_background/couch8x10.jpg", key: "bgCouch" },
+  { src: "/simpson_background/forest.jpg", key: "bgForest" },
+  { src: "/simpson_background/house.jpg", key: "bgHouse" },
+  { src: "/simpson_background/montain.jpg", key: "bgMountain" },
+  { src: "/simpson_background/snow.jpg", key: "bgSnow" },
+  { src: "/simpson_background/valentines.jpg", key: "bgValentines" },
 ];
 
 const photos = [
@@ -34,22 +37,28 @@ const photos = [
   "/simpson_photos_produit/IB4-20.jpg",
 ];
 
-const faqData = [
-  { q: "Combien de temps faut-il pour réaliser la caricature ?", a: "Nos artistes réalisent généralement votre caricature en 3 à 5 jours ouvrés selon la complexité de la commande." },
-  { q: "Les personnes doivent-elles toutes être sur la même photo ?", a: "Pas du tout ! Envoyez-nous des photos individuelles et nos artistes dessineront tout le monde ensemble sur une seule image." },
-  { q: "Que se passe-t-il si je ne suis pas satisfait(e) ?", a: "Nous offrons des révisions illimitées et gratuites jusqu'à votre entière satisfaction. Votre bonheur est notre priorité !" },
-  { q: "Mon animal de compagnie peut-il aussi devenir jaune ?", a: "Absolument ! Chiens, chats, oiseaux — nous pouvons transformer n'importe quel animal adoré en personnage cartoon jaune." },
-  { q: "Puis-je aussi faire dessiner des objets ?", a: "Oui ! Nous pouvons inclure des objets, véhicules, décors ou accessoires dans votre caricature pour un petit supplément." },
-];
-
-const reviews = [
-  { name: "Sophie M.", text: "Absolument magnifique ! Le dessin est fidèle et la qualité d'impression est au top. Un cadeau parfait !" },
-  { name: "Thomas K.", text: "Livraison super rapide et la qualité est tout simplement géniale. Ma femme était ravie !" },
-  { name: "Marie L.", text: "Le cadeau parfait pour l'anniversaire de mes parents. La ressemblance est incroyable, ils ont adoré !" },
-  { name: "Pierre D.", text: "Travail remarquable ! Le dessin nous ressemble vraiment. Absolument recommandé." },
-  { name: "Julie R.", text: "Service client au top et résultat bluffant. Ce ne sera pas la dernière fois que je commande ici !" },
-  { name: "Nicolas B.", text: "Nous étions très agréablement surpris. Super image et un support excellent. On recommandera sans hésiter." },
-];
+/* ─── Safe YouTube embed ─────────────────────────────────────────────── */
+function SafeYouTube({ src, title }: { src: string; title: string }) {
+  const [hasError, setHasError] = useState(false);
+  if (hasError) {
+    return (
+      <div className="w-full aspect-video flex items-center justify-center bg-gray-100 rounded-xl">
+        <p className="text-black/50 font-bold text-sm">Video unavailable</p>
+      </div>
+    );
+  }
+  return (
+    <iframe
+      src={src}
+      title={title}
+      loading="lazy"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+      className="w-full aspect-video border-none"
+      onError={() => setHasError(true)}
+    />
+  );
+}
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 const W = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
@@ -69,6 +78,9 @@ const Check = () => (
 
 /* ═══════════════════════════════════════════════════════════════════════ */
 export default function ProductPage() {
+  const t = useTranslations("product");
+  const tn = useTranslations("nav");
+  const { format: formatPrice } = useCurrency();
   const [format, setFormat] = useState<"portrait" | "fullbody">("portrait");
   const [people, setPeople] = useState(1);
   const [animals, setAnimals] = useState(0);
@@ -82,6 +94,26 @@ export default function ProductPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
+  // Translated data arrays
+  const backgrounds = backgroundData.map((bg) => ({ ...bg, label: t(bg.key as "bgBar") }));
+
+  const faqData = [
+    { q: t("faqQ1"), a: t("faqA1") },
+    { q: t("faqQ2"), a: t("faqA2") },
+    { q: t("faqQ3"), a: t("faqA3") },
+    { q: t("faqQ4"), a: t("faqA4") },
+    { q: t("faqQ5"), a: t("faqA5") },
+  ];
+
+  const reviews = [
+    { name: t("review1Name"), text: t("review1Text") },
+    { name: t("review2Name"), text: t("review2Text") },
+    { name: t("review3Name"), text: t("review3Text") },
+    { name: t("review4Name"), text: t("review4Text") },
+    { name: t("review5Name"), text: t("review5Text") },
+    { name: t("review6Name"), text: t("review6Text") },
+  ];
+
   // Load prices
   useEffect(() => {
     fetch("/api/prices")
@@ -89,25 +121,26 @@ export default function ProductPage() {
       .then(setPrices);
   }, []);
 
-  // Dynamic prints based on prices
+  // Dynamic prints based on prices (Mission 3: added Poster option)
   const prints = prices
     ? [
-        { img: "/digital.jpeg", label: "Digital", price: prices.digital },
-        { img: "/canvas.jpeg", label: "Portrait sur Toile", price: prices.canvas },
-        { img: "/framed.jpg", label: "Poster Encadré", price: prices.poster },
+        { img: "/digital.jpeg", label: t("digital"), price: prices.digital },
+        { img: "/canvas.jpeg", label: t("canvas"), price: prices.canvas },
+        { img: "/framed.jpg", label: t("poster"), price: prices.poster },
+        { img: "/poster.png", label: t("posterOption"), price: prices.posterSimple },
       ]
     : [];
 
-  // Dynamic total calculation
+  // Dynamic total calculation (fixed operator precedence bug)
   const total = prices
     ? prices.base +
       (format === "fullbody" ? prices.fullbodyExtra : 0) +
       (people - 1) * prices.extraPerson +
       animals * prices.extraAnimal +
-      (prints[selectedPrint]?.price ?? 0 - prices.base)
+      (prints[selectedPrint]?.price ?? 0)
     : 0;
 
-  const orderDescription = `${format === "fullbody" ? "Corps Entier" : "Portrait"} · ${people} pers.${animals > 0 ? ` + ${animals} animal${animals > 1 ? "ux" : ""}` : ""} · ${prints[selectedPrint]?.label || "Digital"}`;
+  const orderDescription = `${format === "fullbody" ? t("fullbody") : t("portrait")} · ${people} pers.${animals > 0 ? ` + ${animals} animal${animals > 1 ? "s" : ""}` : ""} · ${prints[selectedPrint]?.label || t("digital")}`;
 
   return (
     <>
@@ -122,9 +155,9 @@ export default function ProductPage() {
           </div>
           <W className="relative z-10">
             <nav className="text-sm font-bold text-black/60 mb-8">
-              <a href="/" className="hover:text-black transition-colors">Accueil</a>
+              <a href="/" className="hover:text-black transition-colors">{tn("home")}</a>
               <span className="mx-2">/</span>
-              <span className="text-black font-black">Créer mon portrait</span>
+              <span className="text-black font-black">{t("breadcrumb")}</span>
             </nav>
             <div className="flex flex-col lg:flex-row items-center gap-12">
               {/* Main image + minis */}
@@ -142,8 +175,8 @@ export default function ProductPage() {
                   ))}
                 </div>
               </div>
-              {/* Text */}
-              <div className="flex-1 text-center lg:text-left">
+              {/* Text — Mission 2: hidden on mobile */}
+              <div className="flex-1 text-center lg:text-left hidden md:block">
                 <div className="inline-flex items-center gap-2 bg-white border-2 border-black rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-5">
                   <span className="text-sm font-black text-black">4.8</span>
                   <span className="h-4 w-px bg-black/20" />
@@ -156,14 +189,14 @@ export default function ProductPage() {
                   </span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight text-black uppercase mb-5">
-                  Créez Votre <span className="text-white" style={{ WebkitTextStroke: "2px black" }}>Caricature Cartoon</span>
+                  {t("heroTitle1")} <span className="text-white" style={{ WebkitTextStroke: "2px black" }}>{t("heroTitle2")}</span>
                 </h1>
-                <p className="text-lg text-black/60 font-bold mb-8 max-w-md mx-auto lg:mx-0">Transformez-vous en personnage cartoon dessiné à la main. Le cadeau unique et personnalisé parfait !</p>
+                <p className="text-lg text-black/60 font-bold mb-8 max-w-md mx-auto lg:mx-0">{t("heroSubtitle")}</p>
                 <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                   {[
-                    { emoji: "✏️", label: "Dessiné à la main" },
-                    { emoji: "🔄", label: "Révision gratuite" },
-                    { emoji: "📦", label: "Livraison rapide" },
+                    { emoji: "✏️", label: t("handDrawn") },
+                    { emoji: "🔄", label: t("freeRevision") },
+                    { emoji: "📦", label: t("fastDelivery") },
                   ].map((b) => (
                     <div key={b.label} className="flex items-center gap-2 bg-white border-2 border-black rounded-full px-4 py-2 text-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
                       <span>{b.emoji}</span>
@@ -180,8 +213,8 @@ export default function ProductPage() {
         <section className="py-14 sm:py-20 border-b-4 border-black">
           <W>
             <div className="text-center mb-10">
-              <h2 className="text-3xl sm:text-4xl font-black text-black uppercase mb-2">Personnalisez Votre <span className="text-yellow-500">Caricature</span></h2>
-              <p className="text-black/50 font-bold max-w-lg mx-auto">Choisissez vos options étape par étape. Le total se met à jour en temps réel.</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-black uppercase mb-2">{t("customizeTitle")} <span className="text-yellow-500">{t("customizeHighlight")}</span></h2>
+              <p className="text-black/50 font-bold max-w-lg mx-auto">{t("customizeSubtitle")}</p>
             </div>
 
             <div className="max-w-5xl mx-auto bg-yellow-50 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-10 flex flex-col gap-14">
@@ -189,15 +222,15 @@ export default function ProductPage() {
               {/* Étape 1 : Format */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Step n={1} title="Choisissez votre format" />
+                  <Step n={1} title={t("step1")} />
                   <span className="text-2xl animate-bounce">⬇️</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="grid grid-cols-2 gap-5">
                   {([
-                    { key: "portrait" as const, label: "Portrait", desc: "Tête et épaules — style classique", extra: "Inclus", icon: "👤" },
-                    { key: "fullbody" as const, label: "Corps Entier", desc: "De la tête aux pieds — montrez votre style", extra: "+20 €", icon: "🧍" },
+                    { key: "portrait" as const, label: t("portrait"), desc: t("portraitDesc"), extra: t("included"), icon: "👤" },
+                    { key: "fullbody" as const, label: t("fullbody"), desc: t("fullbodyDesc"), extra: prices ? `+${formatPrice(prices.fullbodyExtra)}` : "+20 €", icon: "🧍" },
                   ]).map((o) => (
-                    <button key={o.key} onClick={() => setFormat(o.key)} className={`relative cursor-pointer text-left rounded-2xl p-6 transition-all duration-200 border-4 ${format === o.key ? "border-black bg-yellow-400 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]" : "border-black/30 bg-white hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"}`}>
+                    <button key={o.key} onClick={() => { setFormat(o.key); posthog.capture("Option sélectionnée", { type: "format", value: o.key }); }} className={`relative cursor-pointer text-left rounded-2xl p-6 transition-all duration-200 border-4 ${format === o.key ? "border-black bg-yellow-400 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]" : "border-black/30 bg-white hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"}`}>
                       {format === o.key && <Check />}
                       <div className="text-3xl mb-3">{o.icon}</div>
                       <p className="font-black text-lg text-black uppercase">{o.label}</p>
@@ -211,27 +244,27 @@ export default function ProductPage() {
               {/* Étape 2 : Personnes & Animaux */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Step n={2} title="Combien de personnes & animaux ?" />
+                  <Step n={2} title={t("step2")} />
                   <span className="text-2xl animate-bounce">⬇️</span>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-10">
+                <div className="grid grid-cols-2 gap-10">
                   <div className="flex-1">
-                    <p className="text-sm font-black uppercase text-black mb-3">👥 Personnes</p>
+                    <p className="text-sm font-black uppercase text-black mb-3">👥 {t("people")}</p>
                     <div className="flex items-center gap-3">
                       <button onClick={() => setPeople(Math.max(1, people - 1))} className="w-12 h-12 rounded-xl bg-white border-2 border-black text-black font-black text-xl flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer">−</button>
                       <div className="w-16 h-12 rounded-xl bg-yellow-400 text-black font-black text-xl flex items-center justify-center border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">{people}</div>
                       <button onClick={() => setPeople(Math.min(6, people + 1))} className="w-12 h-12 rounded-xl bg-white border-2 border-black text-black font-black text-xl flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer">+</button>
                     </div>
-                    <p className="text-xs text-black/40 font-bold mt-2">1re personne incluse · +15 € par personne supplémentaire</p>
+                    <p className="text-xs text-black/40 font-bold mt-2">{t("firstPersonIncluded")} · +{prices ? formatPrice(prices.extraPerson) : "15 €"} {t("perExtraPerson")}</p>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-black uppercase text-black mb-3">🐾 Animaux</p>
+                    <p className="text-sm font-black uppercase text-black mb-3">🐾 {t("animals")}</p>
                     <div className="flex items-center gap-3">
                       <button onClick={() => setAnimals(Math.max(0, animals - 1))} className="w-12 h-12 rounded-xl bg-white border-2 border-black text-black font-black text-xl flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer">−</button>
                       <div className="w-16 h-12 rounded-xl bg-yellow-400 text-black font-black text-xl flex items-center justify-center border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">{animals}</div>
                       <button onClick={() => setAnimals(Math.min(4, animals + 1))} className="w-12 h-12 rounded-xl bg-white border-2 border-black text-black font-black text-xl flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer">+</button>
                     </div>
-                    <p className="text-xs text-black/40 font-bold mt-2">+15 € par animal</p>
+                    <p className="text-xs text-black/40 font-bold mt-2">+{prices ? formatPrice(prices.extraAnimal) : "15 €"} {t("perAnimal")}</p>
                   </div>
                 </div>
               </div>
@@ -239,7 +272,7 @@ export default function ProductPage() {
               {/* Étape 3 : Arrière-plans */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Step n={3} title="Choisissez un arrière-plan" />
+                  <Step n={3} title={t("step3")} />
                   <span className="text-2xl animate-bounce">⬇️</span>
                 </div>
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
@@ -258,7 +291,7 @@ export default function ProductPage() {
               {/* Étape 4 : Upload */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Step n={4} title="Téléversez vos photos" />
+                  <Step n={4} title={t("step4")} />
                   <span className="text-2xl animate-bounce">⬇️</span>
                 </div>
                 <div className="border-4 border-dashed border-black rounded-2xl p-8 sm:p-12 text-center bg-white hover:bg-yellow-50 transition-all duration-200">
@@ -290,7 +323,7 @@ export default function ProductPage() {
                           console.error("Upload error:", data.error);
                         }
                       } catch (error) {
-                        setUploadError("Erreur lors de l'upload");
+                        setUploadError(t("uploadError"));
                         console.error("Upload catch error:", error);
                       } finally {
                         setUploading(false);
@@ -304,19 +337,19 @@ export default function ProductPage() {
                     <div className="w-20 h-20 rounded-2xl bg-yellow-400 border-2 border-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                       <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 3 3 0 013.438 3.42A3.75 3.75 0 0118 19.5H6.75z" /></svg>
                     </div>
-                    <p className="text-black font-black text-lg uppercase">Glissez-déposez vos photos ici</p>
-                    <p className="text-sm text-black/40 font-bold">ou cliquez pour parcourir — JPG, PNG jusqu&apos;à 10 Mo</p>
+                    <p className="text-black font-black text-lg uppercase">{t("uploadTitle")}</p>
+                    <p className="text-sm text-black/40 font-bold">{t("uploadSubtitle")}</p>
                     <button 
                       onClick={() => document.getElementById('photos-upload')?.click()}
                       className="mt-2 bg-yellow-400 text-black font-black text-sm uppercase px-8 py-3.5 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
                     >
-                      Choisir des fichiers
+                      {t("uploadBtn")}
                     </button>
                   </label>
                   {uploading && (
                     <div className="mt-4 flex flex-col items-center gap-2">
                       <div className="w-12 h-12 border-4 border-black border-t-yellow-400 rounded-full animate-spin" />
-                      <p className="text-black font-black text-sm uppercase">Upload en cours...</p>
+                      <p className="text-black font-black text-sm uppercase">{t("uploading")}</p>
                     </div>
                   )}
                   
@@ -357,19 +390,19 @@ export default function ProductPage() {
               {/* Étape 5 : Options d'impression */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Step n={5} title="Options d'impression" />
+                  <Step n={5} title={t("step5")} />
                   <span className="text-2xl animate-bounce">⬇️</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3 max-w-lg">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {prints.map((o, i) => (
-                    <button key={i} onClick={() => setSelectedPrint(i)} className={`relative cursor-pointer rounded-xl overflow-hidden transition-all duration-200 border-2 group ${selectedPrint === i ? "border-black bg-yellow-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" : "border-black/30 bg-white hover:border-black"}`}>
+                    <button key={i} onClick={() => { setSelectedPrint(i); posthog.capture("Option sélectionnée", { type: "print", value: o.label }); }} className={`relative cursor-pointer rounded-xl overflow-hidden transition-all duration-200 border-2 group ${selectedPrint === i ? "border-black bg-yellow-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" : "border-black/30 bg-white hover:border-black"}`}>
                       {selectedPrint === i && <Check />}
                       <div className="aspect-square bg-gray-50 overflow-hidden border-b-2 border-black/20">
                         <img src={o.img} alt={o.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
                       <div className="p-2 text-center">
                         <p className="font-black text-xs text-black uppercase">{o.label}</p>
-                        <p className="text-yellow-600 font-black text-sm">{o.price === 0 ? "INCLUS" : `${o.price} €`}</p>
+                        <p className="text-yellow-600 font-black text-sm">{o.price === 0 ? t("includedLabel") : formatPrice(o.price)}</p>
                       </div>
                     </button>
                   ))}
@@ -379,15 +412,15 @@ export default function ProductPage() {
               {/* Bouton Acheter */}
               <div className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
-                  <p className="text-xs text-black/40 uppercase tracking-wider font-black">Votre Total</p>
-                  <p className="text-4xl sm:text-5xl font-black text-black">{total} €</p>
+                  <p className="text-xs text-black/40 uppercase tracking-wider font-black">{t("totalLabel")}</p>
+                  <p className="text-4xl sm:text-5xl font-black text-black">{formatPrice(total)}</p>
                   <p className="text-sm text-black/50 font-bold mt-1">{orderDescription}</p>
                 </div>
                 <button
-                  onClick={() => setShowCheckout(true)}
+                  onClick={() => { setShowCheckout(true); posthog.capture("Début du paiement", { total, format, people, animals, print: prints[selectedPrint]?.label }); }}
                   className="w-full sm:w-auto bg-yellow-400 text-black font-black text-lg uppercase px-12 py-5 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
                 >
-                  Acheter maintenant 🛒
+                  {t("buyNow")}
                 </button>
               </div>
 
@@ -399,8 +432,8 @@ export default function ProductPage() {
         <section className="bg-blue-400 py-14 sm:py-20 border-b-4 border-black">
           <W>
             <div className="text-center mb-10">
-              <h2 className="text-3xl sm:text-4xl font-black text-white uppercase mb-2">Nos Réalisations 🖼️</h2>
-              <p className="text-white/80 font-bold">Découvrez ce que nos artistes peuvent créer pour vous !</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-white uppercase mb-2">{t("galleryTitle")}</h2>
+              <p className="text-white/80 font-bold">{t("gallerySubtitle")}</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {photos.map((src, i) => (
@@ -418,17 +451,13 @@ export default function ProductPage() {
         <section className="bg-yellow-400 py-14 sm:py-20 border-b-4 border-black">
           <W>
             <div className="text-center mb-10">
-              <h2 className="text-3xl sm:text-4xl font-black text-black uppercase mb-2">Comment nous vous dessinons 🎬</h2>
-              <p className="text-black/60 font-bold">Regardez la magie opérer — de la photo au cartoon !</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-black uppercase mb-2">{t("videoTitle")}</h2>
+              <p className="text-black/60 font-bold">{t("videoSubtitle")}</p>
             </div>
             <div className="max-w-3xl mx-auto border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
-              <iframe
-                src="https://www.youtube.com/embed/qMFbHtBDKmI"
-                title="Comment nous vous dessinons"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full aspect-video border-none"
-              />
+              <Suspense fallback={<div className="w-full aspect-video bg-gray-100 animate-pulse" />}>
+                <SafeYouTube src="https://www.youtube.com/embed/qMFbHtBDKmI" title={t("videoTitle")} />
+              </Suspense>
             </div>
           </W>
         </section>
@@ -436,7 +465,7 @@ export default function ProductPage() {
         {/* ═══ FAQ ═══ */}
         <section className="bg-white py-14 sm:py-20 border-b-4 border-black">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-black text-black uppercase mb-10">Questions Fréquentes 🤓</h2>
+            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-black text-black uppercase mb-10">{t("faqTitle")}</h2>
             <div className="flex flex-col gap-4">
               {faqData.map((f, i) => (
                 <div key={i} className="border-4 border-black rounded-2xl overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -454,7 +483,7 @@ export default function ProductPage() {
         {/* ═══ AVIS ═══ */}
         <section className="bg-yellow-400 py-14 sm:py-20 border-b-4 border-black">
           <W>
-            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-black text-black uppercase mb-12">Merci pour votre confiance ⭐</h2>
+            <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-black text-black uppercase mb-12">{t("reviewsTitle")}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {reviews.map((r, i) => (
                 <div key={i} className="bg-white border-4 border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">

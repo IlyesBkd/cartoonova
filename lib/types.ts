@@ -33,6 +33,7 @@ export interface Prices {
   digital: number;
   canvas: number;
   poster: number;
+  posterSimple: number;
 }
 
 export const DEFAULT_PRICES: Prices = {
@@ -43,4 +44,5 @@ export const DEFAULT_PRICES: Prices = {
   digital: 0,
   canvas: 89,
   poster: 79,
+  posterSimple: 19,
 };

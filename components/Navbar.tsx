@@ -3,16 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import LanguageAndCurrencySwitcher from "@/components/LanguageAndCurrencySwitcher";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
+  const t = useTranslations("nav");
+
   const links = [
-    { label: "Accueil", href: "/", icon: "🏠" },
-    { label: "Portfolio", href: "/portfolio", icon: "🖼️" },
-    { label: "Avis", href: "/avis", icon: "⭐" },
-    { label: "À propos", href: "/a-propos", icon: "💡" },
-    { label: "Contact", href: "/contact", icon: "💬" },
+    { label: t("home"), href: "/", icon: "🏠" },
+    { label: t("portfolio"), href: "/portfolio", icon: "🖼️" },
+    { label: t("reviews"), href: "/avis", icon: "⭐" },
+    { label: t("about"), href: "/a-propos", icon: "💡" },
+    { label: t("contact"), href: "/contact", icon: "💬" },
   ];
 
   return (
@@ -30,35 +34,38 @@ export default function Navbar() {
               <Image src="/logo.webp" alt="Logo Cartoonova" width={260} height={78} className="h-16 sm:h-20" style={{ width: "auto" }} priority />
             </Link>
 
-            {/* Desktop links */}
-            <ul className="hidden lg:flex items-center gap-1">
+            {/* Desktop links — hidden below xl to prevent overflow with long translations */}
+            <ul className="hidden xl:flex items-center gap-0.5">
               {links.map((l) => (
                 <li key={l.label}>
                   <Link
                     href={l.href}
-                    className="relative px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wide text-black hover:bg-yellow-400 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:border-black border-2 border-transparent transition-all duration-200"
+                    className="relative whitespace-nowrap px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wide text-black hover:bg-yellow-400 hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:border-black border-2 border-transparent transition-all duration-200"
                   >
-                    <span className="mr-1.5">{l.icon}</span>{l.label}
+                    <span className="mr-1">{l.icon}</span>{l.label}
                   </Link>
                 </li>
               ))}
             </ul>
 
             {/* Right side */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Language & Currency Switcher */}
+              <LanguageAndCurrencySwitcher />
+
               {/* CTA button */}
               <Link
                 href="/product"
-                className="hidden sm:inline-flex items-center gap-2 bg-yellow-400 text-black text-xs font-black uppercase px-5 py-2.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
+                className="hidden lg:inline-flex items-center gap-1.5 whitespace-nowrap bg-yellow-400 text-black text-xs font-black uppercase px-4 py-2.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
               >
                 <span className="text-base leading-none">✏️</span>
-                Créer mon portrait
+                {t("cta")}
               </Link>
 
-              {/* Mobile burger */}
+              {/* Burger — visible below xl */}
               <button
                 onClick={() => setOpen(!open)}
-                className="lg:hidden w-11 h-11 rounded-xl bg-yellow-400 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-[5px] cursor-pointer hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
+                className="xl:hidden w-11 h-11 rounded-xl bg-yellow-400 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-[5px] cursor-pointer hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
                 aria-label="Menu"
               >
                 <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "rotate-45 translate-y-2" : ""}`} />
@@ -70,7 +77,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile menu — slide down */}
-        <div className={`lg:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-[500px]" : "max-h-0"}`}>
+        <div className={`xl:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-[500px]" : "max-h-0"}`}>
           <div className="bg-white border-b-4 border-black mx-3 mt-1 rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5">
             <ul className="flex flex-col gap-2">
               {links.map((l) => (
@@ -93,7 +100,7 @@ export default function Navbar() {
                 className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-black font-black uppercase text-sm px-6 py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all"
               >
                 <span className="text-base">✏️</span>
-                Créer mon portrait
+                {t("cta")}
               </Link>
             </div>
           </div>

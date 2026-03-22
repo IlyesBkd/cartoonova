@@ -328,6 +328,7 @@ export default function AdminPage() {
                   { key: "digital" as const, label: "Option Digital", icon: "💻" },
                   { key: "canvas" as const, label: "Option Portrait sur Toile", icon: "🖼️" },
                   { key: "poster" as const, label: "Option Poster Encadré", icon: "🖼️" },
+                  { key: "posterSimple" as const, label: "Option Poster Simple", icon: "📄" },
                 ].map((item) => (
                   <div key={item.key}>
                     <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
