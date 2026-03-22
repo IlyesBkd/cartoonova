@@ -6,8 +6,10 @@ import Link from "next/link";
 export default function SuccessClient({ order }: { order: any }) {
   const [showConfetti, setShowConfetti] = useState(true);
 
+  // Décoder options JSONB (le driver Neon le parse automatiquement en objet)
+  const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
+
   useEffect(() => {
-    // Arrêter les confettis après 5 secondes
     const timer = setTimeout(() => setShowConfetti(false), 5000);
     return () => clearTimeout(timer);
   }, []);
@@ -54,7 +56,7 @@ export default function SuccessClient({ order }: { order: any }) {
               </div>
               <h1 className="text-3xl sm:text-5xl font-black text-black uppercase mb-4 leading-tight">
                 BOOM !<br />
-                <span className="text-yellow-400 bg-black px-2">C'est dans la boîte !</span>
+                <span className="text-yellow-400 bg-black px-2">C&apos;est dans la boîte !</span>
               </h1>
               <p className="text-lg sm:text-xl font-bold text-black/80">
                 Votre commande est confirmée et nos artistes sont déjà au travail ! 🎨
@@ -70,7 +72,7 @@ export default function SuccessClient({ order }: { order: any }) {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="bg-white border-2 border-black rounded-lg p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <p className="text-xs font-black text-black/60 uppercase mb-1">Numéro de commande</p>
-                  <p className="text-lg font-black text-black">#{order.id}</p>
+                  <p className="text-lg font-black text-black">#{String(order.id).slice(0, 8)}</p>
                 </div>
                 
                 <div className="bg-white border-2 border-black rounded-lg p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -81,20 +83,20 @@ export default function SuccessClient({ order }: { order: any }) {
                 <div className="bg-white border-2 border-black rounded-lg p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <p className="text-xs font-black text-black/60 uppercase mb-1">Format</p>
                   <p className="text-lg font-black text-black">
-                    {order.format === 'portrait' ? 'Portrait' : 'Full Body'}
+                    {opts?.format === "portrait" ? "Portrait" : "Full Body"}
                   </p>
                 </div>
                 
                 <div className="bg-white border-2 border-black rounded-lg p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   <p className="text-xs font-black text-black/60 uppercase mb-1">Personnes</p>
                   <p className="text-lg font-black text-black">
-                    {order.people} {order.animals > 0 && `+ ${order.animals} animaux`}
+                    {opts?.people} {opts?.animals > 0 && `+ ${opts.animals} animaux`}
                   </p>
                 </div>
                 
                 <div className="bg-white border-2 border-black rounded-lg p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:col-span-2">
-                  <p className="text-xs font-black text-black/60 uppercase mb-1">Option d'impression</p>
-                  <p className="text-lg font-black text-black">{order.print_option}</p>
+                  <p className="text-xs font-black text-black/60 uppercase mb-1">Option d&apos;impression</p>
+                  <p className="text-lg font-black text-black">{opts?.printOption}</p>
                 </div>
                 
                 <div className="bg-yellow-400 border-2 border-black rounded-lg p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:col-span-2">
@@ -130,7 +132,7 @@ export default function SuccessClient({ order }: { order: any }) {
                 href="/"
                 className="bg-black text-white font-black text-lg uppercase px-8 py-4 rounded-full border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] active:translate-y-1 active:shadow-none transition-all text-center"
               >
-                🏠 Retour à l'accueil
+                🏠 Retour à l&apos;accueil
               </Link>
               
               <Link

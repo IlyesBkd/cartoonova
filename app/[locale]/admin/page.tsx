@@ -217,7 +217,7 @@ export default function AdminPage() {
                           <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-gray-500">{new Date(o.created_at).toLocaleDateString("fr-FR")}</td>
                           <td className="px-4 py-3 font-medium">{o.customer_email}</td>
-                          <td className="px-4 py-3 text-gray-500">{o.print_option || "—"}</td>
+                          <td className="px-4 py-3 text-gray-500">{(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.printOption || "—"}</td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
@@ -251,43 +251,43 @@ export default function AdminPage() {
                       {selectedOrder.customer_name && (
                         <p className="text-gray-600">{selectedOrder.customer_name}</p>
                       )}
-                      {selectedOrder.customer_phone && <p className="text-gray-600">📞 {selectedOrder.customer_phone}</p>}
+                      {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.phone && <p className="text-gray-600">📞 {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options).phone}</p>}
                     </div>
 
                     {selectedOrder.customer_address && (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-xs text-blue-600 font-semibold mb-1">📦 Adresse de livraison</p>
                         <p className="text-gray-700">{selectedOrder.customer_address}</p>
-                        <p className="text-gray-700">{selectedOrder.customer_postal} {selectedOrder.customer_city}</p>
-                        <p className="text-gray-700">{selectedOrder.customer_country}</p>
+                        <p className="text-gray-700">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.postalCode} {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.city}</p>
+                        <p className="text-gray-700">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.country}</p>
                       </div>
                     )}
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-2">Configuration</p>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{selectedOrder.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
-                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{selectedOrder.people}</span></div>
-                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{selectedOrder.animals}</span></div>
-                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{selectedOrder.background}</span></div>
-                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{selectedOrder.print_option}</span></div>
+                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
+                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.people}</span></div>
+                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.animals}</span></div>
+                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.background}</span></div>
+                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.printOption}</span></div>
                         <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
                       </div>
                     </div>
 
                     {/* Photos — clickable thumbnails */}
-                    {selectedOrder.photo_urls.length > 0 && (
+                    {(() => { const urls = typeof selectedOrder.photo_urls === 'string' ? JSON.parse(selectedOrder.photo_urls) : selectedOrder.photo_urls; return urls && urls.length > 0 ? (
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({selectedOrder.photo_urls.length})</p>
+                        <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({urls.length})</p>
                         <div className="grid grid-cols-3 gap-2">
-                          {selectedOrder.photo_urls.map((url: string, i: number) => (
+                          {urls.map((url: string, i: number) => (
                             <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:ring-2 hover:ring-yellow-400 transition-all">
                               <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                             </a>
                           ))}
                         </div>
                       </div>
-                    )}
+                    ) : null; })()}
 
                     {/* Status update */}
                     <div>
@@ -309,8 +309,8 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    {selectedOrder.stripe_payment_id && (
-                      <p className="text-xs text-gray-400 font-mono">Stripe: {selectedOrder.stripe_payment_id}</p>
+                    {selectedOrder.payment_intent_id && (
+                      <p className="text-xs text-gray-400 font-mono">Stripe: {selectedOrder.payment_intent_id}</p>
                     )}
                   </div>
                 </div>

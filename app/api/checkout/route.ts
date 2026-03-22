@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { neon } from "@neondatabase/serverless";
-import { nanoid } from "nanoid";
+import { sql } from "@/lib/db";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -22,7 +21,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Devise non supportée." }, { status: 400 });
     }
 
-    // 1. Créer le PaymentIntent
+    // 1. Créer le PaymentIntent Stripe
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: stripeCurrency,
@@ -30,45 +29,51 @@ export async function POST(req: NextRequest) {
       automatic_payment_methods: { enabled: true },
     });
 
-    // 2. Sauvegarder la commande en PENDING dans Neon
-    const sql = neon(process.env.DATABASE_URL!);
-    const orderId = nanoid(8); // ID court et unique
-    
-    await sql`
+    // 2. Construire l'objet options JSONB
+    const options = JSON.stringify({
+      format: orderData.format,
+      people: orderData.people,
+      animals: orderData.animals,
+      background: orderData.background,
+      printOption: orderData.printOption,
+      description: description,
+      phone: orderData.phone || null,
+      postalCode: orderData.postalCode || null,
+      city: orderData.city || null,
+      country: orderData.country || null,
+    });
+
+    // 3. Construire le tableau photoUrls en JSONB
+    const photoUrls = JSON.stringify(orderData.photoUrls || []);
+
+    // 4. Construire le nom complet
+    const customerName = [orderData.firstName, orderData.lastName].filter(Boolean).join(" ") || null;
+
+    // 5. Insérer la commande en PENDING dans Neon
+    const rows = await sql`
       INSERT INTO orders (
-        id, customer_email, customer_name, customer_phone, customer_address,
-        customer_postal, customer_city, customer_country, format, people, animals,
-        background, print_option, total_price, currency, photo_urls, description,
-        stripe_payment_id, status, created_at
+        payment_intent_id, customer_email, customer_name, customer_address,
+        total_price, currency, options, photo_urls, status
       ) VALUES (
-        ${orderId},
-        ${orderData.email},
-        ${orderData.firstName || null},
-        ${orderData.phone || null},
-        ${orderData.address || null},
-        ${orderData.postalCode || null},
-        ${orderData.city || null},
-        ${orderData.country || null},
-        ${orderData.format},
-        ${orderData.people},
-        ${orderData.animals},
-        ${orderData.background},
-        ${orderData.printOption},
-        ${orderData.total},
-        ${currency.toUpperCase()},
-        ${JSON.stringify(orderData.photoUrls || [])},
-        ${description},
         ${paymentIntent.id},
-        'PENDING',
-        NOW()
+        ${orderData.email},
+        ${customerName},
+        ${orderData.address || null},
+        ${orderData.total},
+        ${stripeCurrency.toUpperCase()},
+        ${options}::jsonb,
+        ${photoUrls}::jsonb,
+        'PENDING'
       )
+      RETURNING id
     `;
 
-    console.log(`✅ Commande ${orderId} créée en PENDING avec PaymentIntent ${paymentIntent.id}`);
+    const orderId = rows[0]?.id;
+    console.log(`✅ Commande ${orderId} créée en PENDING | PI: ${paymentIntent.id}`);
 
     return NextResponse.json({ 
       clientSecret: paymentIntent.client_secret,
-      orderId: orderId 
+      orderId 
     });
   } catch (error) {
     console.error("Stripe/DB error:", error);

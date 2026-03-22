@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import Stripe from "stripe";
-import { neon } from "@neondatabase/serverless";
 import { Resend } from "resend";
-import { getOrderByPaymentId, updateOrderStatus as updateOrderStatusInDb } from "@/lib/db";
+import { getOrderByPaymentId, updateOrderStatus } from "@/lib/db";
+import type { DbOrder } from "@/lib/db";
 import SuccessClient from "@/app/success/SuccessClient";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -11,8 +11,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
-async function sendOrderConfirmation(order: any) {
+async function sendOrderConfirmation(order: DbOrder) {
   try {
+    const opts = order.options;
     await resend.emails.send({
       from: "Cartoonova <contact@cartoonova.fr>",
       to: [order.customer_email],
@@ -24,30 +25,23 @@ async function sendOrderConfirmation(order: any) {
               🎉 BOOM ! C'est dans la boîte !
             </h1>
             <p style="font-size: 18px; font-weight: bold; text-align: center; margin: 0 0 30px 0; color: #000;">
-              Votre commande #${order.id} est confirmée
+              Votre commande #${order.id.slice(0, 8)} est confirmée
             </p>
-            
             <div style="background: #fef3c7; border: 2px solid #000; padding: 20px; margin: 20px 0;">
-              <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 15px 0; color: #000;">Récapitulatif de votre commande</h2>
+              <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 15px 0; color: #000;">Récapitulatif</h2>
               <ul style="font-size: 16px; font-weight: bold; margin: 0; padding: 0 0 0 20px; color: #000;">
-                <li>Format: ${order.format === 'portrait' ? 'Portrait' : 'Full Body'}</li>
-                <li>Personnes: ${order.people}</li>
-                ${order.animals > 0 ? `<li>Animaux: ${order.animals}</li>` : ''}
-                <li>Option: ${order.print_option}</li>
+                <li>Format: ${opts.format === 'portrait' ? 'Portrait' : 'Full Body'}</li>
+                <li>Personnes: ${opts.people}</li>
+                ${opts.animals > 0 ? `<li>Animaux: ${opts.animals}</li>` : ''}
+                <li>Option: ${opts.printOption}</li>
                 <li>Total: ${order.total_price} ${order.currency}</li>
               </ul>
             </div>
-            
             <div style="text-align: center; margin: 30px 0;">
-              <p style="font-size: 18px; font-weight: bold; color: #000; margin: 0 0 10px 0;">
-                🎨 Nos artistes se mettent au travail !
-              </p>
-              <p style="font-size: 16px; color: #000; margin: 0;">
-                Vous recevrez votre caricature dans 3-5 jours ouvrables.
-              </p>
+              <p style="font-size: 18px; font-weight: bold; color: #000;">🎨 Nos artistes se mettent au travail !</p>
+              <p style="font-size: 16px; color: #000;">Vous recevrez votre caricature dans 3-5 jours ouvrables.</p>
             </div>
           </div>
-          
           <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
             <p>Merci pour votre confiance ! 🎨</p>
             <p>L'équipe Cartoonova</p>
@@ -55,17 +49,17 @@ async function sendOrderConfirmation(order: any) {
         </div>
       `,
     });
-    
     console.log("✅ Email de confirmation envoyé à", order.customer_email);
   } catch (error) {
     console.error("❌ Erreur envoi email:", error);
   }
 }
 
-async function sendDiscordNotification(order: any) {
+async function sendDiscordNotification(order: DbOrder) {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
+    const opts = order.options;
 
     await fetch(webhookUrl, {
       method: "POST",
@@ -73,13 +67,13 @@ async function sendDiscordNotification(order: any) {
       body: JSON.stringify({
         embeds: [{
           title: "🎉 NOUVELLE COMMANDE REÇUE !",
-          color: 16776960, // Jaune
+          color: 16776960,
           fields: [
-            { name: "📦 Numéro", value: order.id, inline: true },
+            { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
             { name: "📧 Email", value: order.customer_email, inline: true },
-            { name: "🎨 Format", value: order.format, inline: true },
-            { name: "👥 Personnes", value: order.animals > 0 ? `${order.people} + ${order.animals} animaux` : order.people.toString(), inline: true },
-            { name: "🖼️ Option", value: order.print_option, inline: true },
+            { name: "🎨 Format", value: opts.format, inline: true },
+            { name: "👥 Personnes", value: opts.animals > 0 ? `${opts.people} + ${opts.animals} animaux` : opts.people.toString(), inline: true },
+            { name: "🖼️ Option", value: opts.printOption, inline: true },
             { name: "💰 Total", value: `${order.total_price} ${order.currency}`, inline: true },
           ],
           footer: { text: "Cartoonova • Paiement réussi" },
@@ -87,15 +81,10 @@ async function sendDiscordNotification(order: any) {
         }],
       }),
     });
-    
     console.log("✅ Notification Discord envoyée");
   } catch (error) {
     console.error("❌ Erreur notification Discord:", error);
   }
-}
-
-async function updateOrderStatus(orderId: string, status: string) {
-  await updateOrderStatusInDb(orderId, status);
 }
 
 export default async function SuccessPage({
@@ -112,7 +101,7 @@ export default async function SuccessPage({
   try {
     // 1. Vérifier le statut réel du paiement via Stripe
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
+
     if (paymentIntent.status !== "succeeded") {
       console.log("❌ Paiement non réussi:", paymentIntent.status);
       redirect("/");
@@ -120,15 +109,15 @@ export default async function SuccessPage({
 
     // 2. Chercher la commande PENDING correspondante
     const order = await getOrderByPaymentId(paymentIntentId);
-    
+
     if (!order) {
       console.error("❌ Commande non trouvée pour PaymentIntent:", paymentIntentId);
       redirect("/");
     }
 
-    // 3. Si déjà paid, ne rien refaire
+    // 3. Si déjà PAID, ne rien refaire (anti-double envoi)
     if (order.status === "PAID") {
-      console.log("ℹ️ Commande déjà marquée comme paid");
+      console.log("ℹ️ Commande déjà marquée comme PAID, affichage sans re-notification");
       return <SuccessClient order={order} />;
     }
 

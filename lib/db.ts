@@ -2,140 +2,57 @@ import { neon } from "@neondatabase/serverless";
 import type { Prices } from "./types";
 import { DEFAULT_PRICES } from "./types";
 
-// ─── SQL tagged template ─────────────────────────────────────────────
-const sql = neon(process.env.DATABASE_URL!);
-
-// ─── Auto-create tables ──────────────────────────────────────────────
-let _initialized = false;
-
-export async function ensureTables() {
-  if (_initialized) return;
-  await sql`
-    CREATE TABLE IF NOT EXISTS orders (
-      id VARCHAR(8) PRIMARY KEY,
-      customer_email VARCHAR(255) NOT NULL,
-      customer_name VARCHAR(255),
-      customer_phone VARCHAR(50),
-      customer_address TEXT,
-      customer_postal VARCHAR(50),
-      customer_city VARCHAR(255),
-      customer_country VARCHAR(100),
-      format VARCHAR(50) NOT NULL,
-      people INTEGER NOT NULL,
-      animals INTEGER NOT NULL,
-      background VARCHAR(100) NOT NULL,
-      print_option VARCHAR(100) NOT NULL,
-      total_price DECIMAL(10,2) NOT NULL,
-      currency VARCHAR(10) NOT NULL,
-      photo_urls TEXT[] DEFAULT ARRAY[]::TEXT[],
-      description TEXT,
-      stripe_payment_id VARCHAR(255) NOT NULL,
-      status VARCHAR(50) DEFAULT 'PENDING',
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `;
-  await sql`
-    CREATE TABLE IF NOT EXISTS prices (
-      id VARCHAR(50) PRIMARY KEY DEFAULT 'singleton',
-      base DECIMAL(10,2) DEFAULT 49,
-      fullbody_extra DECIMAL(10,2) DEFAULT 20,
-      extra_person DECIMAL(10,2) DEFAULT 15,
-      extra_animal DECIMAL(10,2) DEFAULT 15,
-      digital DECIMAL(10,2) DEFAULT 0,
-      canvas DECIMAL(10,2) DEFAULT 89,
-      poster DECIMAL(10,2) DEFAULT 79,
-      poster_simple DECIMAL(10,2) DEFAULT 19
-    )
-  `;
-  await sql`
-    INSERT INTO prices (id) VALUES ('singleton')
-    ON CONFLICT (id) DO NOTHING
-  `;
-  _initialized = true;
-}
+// ─── SQL Connection ──────────────────────────────────────────────────
+export const sql = neon(process.env.DATABASE_URL!);
 
 // ─── Orders ──────────────────────────────────────────────────────────
-export interface DbOrder {
-  id: string;
-  customer_email: string;
-  customer_name: string | null;
-  customer_phone: string | null;
-  customer_address: string | null;
-  customer_postal: string | null;
-  customer_city: string | null;
-  customer_country: string | null;
+export interface OrderOptions {
   format: string;
   people: number;
   animals: number;
   background: string;
-  print_option: string;
+  printOption: string;
+  description?: string;
+  phone?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+}
+
+export interface DbOrder {
+  id: string;
+  payment_intent_id: string;
+  customer_email: string;
+  customer_name: string | null;
+  customer_address: string | null;
   total_price: number;
   currency: string;
+  options: OrderOptions;
   photo_urls: string[];
-  description: string;
-  stripe_payment_id: string;
   status: string;
   created_at: string;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
-  await ensureTables();
   const rows = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows as unknown as DbOrder[];
 }
 
-export async function insertOrder(data: {
-  customerEmail: string;
-  customerName?: string | null;
-  customerAddress?: string | null;
-  customerCity?: string | null;
-  customerPostal?: string | null;
-  customerCountry?: string | null;
-  customerPhone?: string | null;
-  totalPrice: number;
-  currency?: string;
-  options: Record<string, unknown>;
-  photoUrls: string[];
-  stripePaymentId?: string | null;
-}): Promise<DbOrder> {
-  await ensureTables();
-  const opts = JSON.stringify(data.options);
-  const cur = data.currency || "EUR";
-  const name = data.customerName || null;
-  const [order] = await sql`
-    INSERT INTO orders (
-      id, customer_email, customer_name, customer_address, customer_city,
-      customer_postal, customer_country, customer_phone, total_price, currency,
-      options, photo_urls, stripe_payment_id
-    ) VALUES (
-      gen_random_uuid(), ${data.customerEmail}, ${name}, ${data.customerAddress},
-      ${data.customerCity}, ${data.customerPostal}, ${data.customerCountry},
-      ${data.customerPhone}, ${data.totalPrice}, ${cur}, ${opts},
-      ${data.photoUrls}, ${data.stripePaymentId}
-    )
-    RETURNING *
+export async function getOrderByPaymentId(paymentIntentId: string): Promise<DbOrder | null> {
+  const rows = await sql`
+    SELECT * FROM orders WHERE payment_intent_id = ${paymentIntentId}
   `;
-  return order as unknown as DbOrder;
+  return (rows[0] as unknown as DbOrder) || null;
 }
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
-  await ensureTables();
   await sql`
-    UPDATE orders SET status = ${status} WHERE id = ${orderId}
+    UPDATE orders SET status = ${status} WHERE id = ${orderId}::uuid
   `;
-}
-
-export async function getOrderByPaymentId(paymentId: string): Promise<DbOrder | null> {
-  await ensureTables();
-  const [order] = await sql`
-    SELECT * FROM orders WHERE stripe_payment_id = ${paymentId}
-  `;
-  return order as unknown as DbOrder || null;
 }
 
 // ─── Prices ──────────────────────────────────────────────────────────
 export async function getPrices(): Promise<Prices> {
-  await ensureTables();
   const rows = await sql`SELECT * FROM prices WHERE id = 'singleton'`;
   if (!rows.length) return DEFAULT_PRICES;
   const r = rows[0] as Record<string, unknown>;
@@ -152,7 +69,6 @@ export async function getPrices(): Promise<Prices> {
 }
 
 export async function updatePrices(prices: Prices): Promise<void> {
-  await ensureTables();
   await sql`
     UPDATE prices SET
       base = ${prices.base},
