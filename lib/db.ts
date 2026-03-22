@@ -12,20 +12,25 @@ export async function ensureTables() {
   if (_initialized) return;
   await sql`
     CREATE TABLE IF NOT EXISTS orders (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id VARCHAR(8) PRIMARY KEY,
       customer_email VARCHAR(255) NOT NULL,
       customer_name VARCHAR(255),
-      customer_address TEXT,
-      customer_city VARCHAR(255),
-      customer_postal VARCHAR(50),
-      customer_country VARCHAR(100),
       customer_phone VARCHAR(50),
+      customer_address TEXT,
+      customer_postal VARCHAR(50),
+      customer_city VARCHAR(255),
+      customer_country VARCHAR(100),
+      format VARCHAR(50) NOT NULL,
+      people INTEGER NOT NULL,
+      animals INTEGER NOT NULL,
+      background VARCHAR(100) NOT NULL,
+      print_option VARCHAR(100) NOT NULL,
       total_price DECIMAL(10,2) NOT NULL,
-      currency VARCHAR(10) DEFAULT 'EUR',
-      options JSONB DEFAULT '{}',
-      status VARCHAR(50) DEFAULT 'new',
+      currency VARCHAR(10) NOT NULL,
       photo_urls TEXT[] DEFAULT ARRAY[]::TEXT[],
-      stripe_payment_id VARCHAR(255),
+      description TEXT,
+      stripe_payment_id VARCHAR(255) NOT NULL,
+      status VARCHAR(50) DEFAULT 'PENDING',
       created_at TIMESTAMP DEFAULT NOW()
     )
   `;
@@ -54,17 +59,22 @@ export interface DbOrder {
   id: string;
   customer_email: string;
   customer_name: string | null;
-  customer_address: string | null;
-  customer_city: string | null;
-  customer_postal: string | null;
-  customer_country: string | null;
   customer_phone: string | null;
+  customer_address: string | null;
+  customer_postal: string | null;
+  customer_city: string | null;
+  customer_country: string | null;
+  format: string;
+  people: number;
+  animals: number;
+  background: string;
+  print_option: string;
   total_price: number;
   currency: string;
-  options: Record<string, unknown>;
-  status: string;
   photo_urls: string[];
-  stripe_payment_id: string | null;
+  description: string;
+  stripe_payment_id: string;
+  status: string;
   created_at: string;
 }
 
@@ -92,29 +102,35 @@ export async function insertOrder(data: {
   const opts = JSON.stringify(data.options);
   const cur = data.currency || "EUR";
   const name = data.customerName || null;
-  const addr = data.customerAddress || null;
-  const city = data.customerCity || null;
-  const postal = data.customerPostal || null;
-  const country = data.customerCountry || null;
-  const phone = data.customerPhone || null;
-  const stripe = data.stripePaymentId || null;
-  const rows = await sql`
+  const [order] = await sql`
     INSERT INTO orders (
-      customer_email, customer_name, customer_address, customer_city,
-      customer_postal, customer_country, customer_phone,
-      total_price, currency, options, photo_urls, stripe_payment_id
+      id, customer_email, customer_name, customer_address, customer_city,
+      customer_postal, customer_country, customer_phone, total_price, currency,
+      options, photo_urls, stripe_payment_id
     ) VALUES (
-      ${data.customerEmail}, ${name}, ${addr}, ${city},
-      ${postal}, ${country}, ${phone},
-      ${data.totalPrice}, ${cur}, ${opts}::jsonb, ${data.photoUrls}, ${stripe}
-    ) RETURNING *
+      gen_random_uuid(), ${data.customerEmail}, ${name}, ${data.customerAddress},
+      ${data.customerCity}, ${data.customerPostal}, ${data.customerCountry},
+      ${data.customerPhone}, ${data.totalPrice}, ${cur}, ${opts},
+      ${data.photoUrls}, ${data.stripePaymentId}
+    )
+    RETURNING *
   `;
-  return rows[0] as unknown as DbOrder;
+  return order as unknown as DbOrder;
 }
 
-export async function updateOrderStatus(id: string, status: string): Promise<void> {
+export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
   await ensureTables();
-  await sql`UPDATE orders SET status = ${status} WHERE id = ${id}::uuid`;
+  await sql`
+    UPDATE orders SET status = ${status} WHERE id = ${orderId}
+  `;
+}
+
+export async function getOrderByPaymentId(paymentId: string): Promise<DbOrder | null> {
+  await ensureTables();
+  const [order] = await sql`
+    SELECT * FROM orders WHERE stripe_payment_id = ${paymentId}
+  `;
+  return order as unknown as DbOrder || null;
 }
 
 // ─── Prices ──────────────────────────────────────────────────────────

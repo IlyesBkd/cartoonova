@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Stripe from "stripe";
 import { neon } from "@neondatabase/serverless";
 import { Resend } from "resend";
+import { getOrderByPaymentId, updateOrderStatus as updateOrderStatusInDb } from "@/lib/db";
 import SuccessClient from "@/app/success/SuccessClient";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -93,22 +94,8 @@ async function sendDiscordNotification(order: any) {
   }
 }
 
-async function getOrderData(paymentIntentId: string) {
-  const sql = neon(process.env.DATABASE_URL!);
-  
-  const orders = await sql`
-    SELECT * FROM orders WHERE stripe_payment_id = ${paymentIntentId}
-  `;
-  
-  return orders[0] || null;
-}
-
 async function updateOrderStatus(orderId: string, status: string) {
-  const sql = neon(process.env.DATABASE_URL!);
-  
-  await sql`
-    UPDATE orders SET status = ${status} WHERE id = ${orderId}
-  `;
+  await updateOrderStatusInDb(orderId, status);
 }
 
 export default async function SuccessPage({
@@ -132,7 +119,7 @@ export default async function SuccessPage({
     }
 
     // 2. Chercher la commande PENDING correspondante
-    const order = await getOrderData(paymentIntentId);
+    const order = await getOrderByPaymentId(paymentIntentId);
     
     if (!order) {
       console.error("❌ Commande non trouvée pour PaymentIntent:", paymentIntentId);

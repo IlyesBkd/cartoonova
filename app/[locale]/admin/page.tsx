@@ -217,7 +217,7 @@ export default function AdminPage() {
                           <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-gray-500">{new Date(o.created_at).toLocaleDateString("fr-FR")}</td>
                           <td className="px-4 py-3 font-medium">{o.customer_email}</td>
-                          <td className="px-4 py-3 text-gray-500">{(o.options as any)?.printOption || "—"}</td>
+                          <td className="px-4 py-3 text-gray-500">{o.print_option || "—"}</td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
@@ -266,11 +266,11 @@ export default function AdminPage() {
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-2">Configuration</p>
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{(selectedOrder.options as any)?.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
-                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{(selectedOrder.options as any)?.people ?? 1}</span></div>
-                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{(selectedOrder.options as any)?.animals ?? 0}</span></div>
-                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{(selectedOrder.options as any)?.background || "—"}</span></div>
-                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{(selectedOrder.options as any)?.printOption || "—"}</span></div>
+                        <div><span className="text-gray-500">Format:</span> <span className="font-semibold">{selectedOrder.format === "fullbody" ? "Corps Entier" : "Portrait"}</span></div>
+                        <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{selectedOrder.people}</span></div>
+                        <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{selectedOrder.animals}</span></div>
+                        <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{selectedOrder.background}</span></div>
+                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{selectedOrder.print_option}</span></div>
                         <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
                       </div>
                     </div>
