@@ -1,8 +1,61 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
-export default function SuccessClient({ order }: { order: any }) {
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
+
+interface SuccessOrder {
+  id: string;
+  payment_intent_id: string;
+  customer_email: string;
+  total_price: number;
+  currency: string;
+  options: string | { format: string; people: number; animals: number; printOption: string };
+}
+
+export default function SuccessClient({
+  order,
+  isNewConversion = false,
+}: {
+  order: SuccessOrder;
+  isNewConversion?: boolean;
+}) {
+  const conversionSent = useRef(false);
+
+  useEffect(() => {
+    // Triple protection anti-double comptage :
+    // 1. isNewConversion = false si la commande était déjà PAID côté serveur
+    // 2. conversionSent ref empêche le double-fire en React Strict Mode
+    // 3. sessionStorage empêche le re-fire si l'utilisateur refresh la page
+    if (!isNewConversion) return;
+    if (conversionSent.current) return;
+
+    const storageKey = `gtag_conversion_${order.payment_intent_id}`;
+    if (sessionStorage.getItem(storageKey)) return;
+
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "conversion", {
+        send_to: "AW-18013095662/Mbw7COzNqI4cEO6NqI1D",
+        value: order.total_price,
+        currency: order.currency,
+        transaction_id: order.payment_intent_id,
+      });
+      console.log("[GTAG] ✅ Conversion Google Ads envoyée:", {
+        value: order.total_price,
+        currency: order.currency,
+        transaction_id: order.payment_intent_id,
+      });
+    }
+
+    sessionStorage.setItem(storageKey, "1");
+    conversionSent.current = true;
+  }, [isNewConversion, order.total_price, order.currency, order.payment_intent_id]);
+
   // Décoder options JSONB (le driver Neon le parse automatiquement en objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
 

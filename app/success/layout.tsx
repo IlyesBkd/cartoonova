@@ -1,5 +1,5 @@
-import "../globals.css";
 import { Poppins } from "next/font/google";
+import "../globals.css";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -13,8 +13,8 @@ export default function SuccessLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
-      <body className={`${poppins.variable} font-sans antialiased`}>{children}</body>
+    <html lang="fr" className={`${poppins.variable} antialiased`}>
+      <body>{children}</body>
     </html>
   );
 }

@@ -144,26 +144,32 @@ export default async function SuccessPage(props: {
       );
     }
 
-    // 3. Si déjà PAID, ne rien refaire (anti-double envoi)
-    if (order.status === "PAID") {
+    // 3. Déterminer si c'est un premier chargement (conversion fraîche)
+    const isNewConversion = order.status !== "PAID";
+
+    // 4. Si pas encore PAID, mettre à jour + notifier
+    if (isNewConversion) {
+      console.log("[SUCCESS PAGE] 4. UPDATE status → PAID pour:", order.id);
+      await updateOrderStatus(order.id, "PAID");
+      console.log("[SUCCESS PAGE] ✅ Commande", order.id, "marquée PAID");
+
+      // 5. Envoyer les notifications (une seule fois)
+      console.log("[SUCCESS PAGE] 5. Envoi notifications Discord + Resend...");
+      await Promise.all([
+        sendOrderConfirmation(order),
+        sendDiscordNotification(order),
+      ]);
+      console.log("[SUCCESS PAGE] ✅ Notifications envoyées");
+    } else {
       console.log("[SUCCESS PAGE] ℹ️ Déjà PAID, affichage sans re-notification");
-      return <SuccessClient order={order} />;
     }
 
-    // 4. Mettre à jour le statut à PAID
-    console.log("[SUCCESS PAGE] 4. UPDATE status → PAID pour:", order.id);
-    await updateOrderStatus(order.id, "PAID");
-    console.log("[SUCCESS PAGE] ✅ Commande", order.id, "marquée PAID");
-
-    // 5. Envoyer les notifications (une seule fois)
-    console.log("[SUCCESS PAGE] 5. Envoi notifications Discord + Resend...");
-    await Promise.all([
-      sendOrderConfirmation(order),
-      sendDiscordNotification(order),
-    ]);
-    console.log("[SUCCESS PAGE] ✅ Notifications envoyées");
-
-    return <SuccessClient order={order} />;
+    return (
+      <SuccessClient
+        order={order}
+        isNewConversion={isNewConversion}
+      />
+    );
   } catch (error) {
     console.error("[SUCCESS PAGE] 💥 Erreur:", error);
     return (
