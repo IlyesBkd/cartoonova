@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Fonction utilitaire pour échapper les caractères spéciaux XML
+const escapeXml = (str: string): string =>
+  str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+
 // Matrice de prix fixe pour éviter les discordances Google Merchant Center
 const PRICE_MATRIX = {
   fr: { currency: "EUR", price: "29.00", sale_price: "14.00" },
@@ -115,11 +124,11 @@ export async function GET(
     const imageUrl = `${baseUrl}${product.image}`;
 
     return `    <item>
-      <g:id>${product.id}</g:id>
-      <g:title>${title}</g:title>
-      <g:description>${description}</g:description>
-      <g:link>${productUrl}</g:link>
-      <g:image_link>${imageUrl}</g:image_link>
+      <g:id>${escapeXml(product.id)}</g:id>
+      <g:title>${escapeXml(title)}</g:title>
+      <g:description>${escapeXml(description)}</g:description>
+      <g:link>${escapeXml(productUrl)}</g:link>
+      <g:image_link>${escapeXml(imageUrl)}</g:image_link>
       <g:price>${price} ${currency}</g:price>
       <g:sale_price>${sale_price} ${currency}</g:sale_price>
       <g:condition>new</g:condition>
