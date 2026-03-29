@@ -13,7 +13,13 @@ interface PageDef {
 
 const pages: PageDef[] = [
   { path: "", changeFrequency: "weekly", priority: 1 },
+  { path: "/collections", changeFrequency: "weekly", priority: 0.95 },
   { path: "/simpson", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/onepiece", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/dbz", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/ghibli", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/rickandmorty", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/disney", changeFrequency: "weekly", priority: 0.9 },
   { path: "/portrait-personnalise-cartoon", changeFrequency: "weekly", priority: 0.85 },
   { path: "/portfolio", changeFrequency: "monthly", priority: 0.7 },
   { path: "/avis", changeFrequency: "monthly", priority: 0.6 },

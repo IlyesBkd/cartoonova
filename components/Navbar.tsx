@@ -13,6 +13,7 @@ export default function Navbar() {
 
   const links = [
     { label: t("home"), href: "/", icon: "🏠" },
+    { label: t("collections"), href: "/collections", icon: "🎨" },
     { label: t("portfolio"), href: "/portfolio", icon: "🖼️" },
     { label: t("reviews"), href: "/avis", icon: "⭐" },
     { label: t("about"), href: "/a-propos", icon: "💡" },
@@ -55,7 +56,7 @@ export default function Navbar() {
 
               {/* CTA button */}
               <Link
-                href="/simpson"
+                href="/collections"
                 className="hidden lg:inline-flex items-center gap-1.5 whitespace-nowrap bg-yellow-400 text-black text-xs font-black uppercase px-4 py-2.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all"
               >
                 <span className="text-base leading-none">✏️</span>
@@ -95,7 +96,7 @@ export default function Navbar() {
             </ul>
             <div className="mt-4 pt-4 border-t-2 border-black/10">
               <Link
-                href="/simpson"
+                href="/collections"
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-2 w-full bg-yellow-400 text-black font-black uppercase text-sm px-6 py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all"
               >
