@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       currency,
       description,
       photoUrls,
+      style,
     } = await req.json();
 
     if (!paymentIntentId || !email) {
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
       animals,
       background,
       printOption,
+      style: style || null,
       description,
       phone: phone || null,
       postalCode: postalCode || null,

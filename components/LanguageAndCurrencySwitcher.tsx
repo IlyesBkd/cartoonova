@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
 import { locales, localeNames, localeFlags, type Locale } from "@/i18n/config";
 import { currencies, currencySymbols, currencyFlags, currencyNames, type Currency } from "@/lib/currency";
@@ -11,6 +11,8 @@ export default function LanguageAndCurrencySwitcher() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const locale = useLocale() as Locale;
+  const tl = useTranslations("language");
+  const tc = useTranslations("currency");
   const router = useRouter();
   const pathname = usePathname();
   const { currency, setCurrency } = useCurrency();
@@ -68,7 +70,7 @@ export default function LanguageAndCurrencySwitcher() {
           {/* Language section */}
           <div className="p-4 border-b-4 border-black">
             <p className="text-xs font-black text-black/60 uppercase tracking-wider mb-3">
-              🌍 Langue
+              🌍 {tl("label")}
             </p>
             <div className="grid grid-cols-2 gap-2">
               {locales.map((l) => (
@@ -91,7 +93,7 @@ export default function LanguageAndCurrencySwitcher() {
           {/* Currency section */}
           <div className="p-4">
             <p className="text-xs font-black text-black/60 uppercase tracking-wider mb-3">
-              💰 Devise
+              💰 {tc("label")}
             </p>
             <div className="grid grid-cols-2 gap-2">
               {currencies.map((c) => (

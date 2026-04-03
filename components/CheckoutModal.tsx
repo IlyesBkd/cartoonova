@@ -24,6 +24,7 @@ interface OrderConfig {
   total: number;
   description: string;
   photoUrls: string[];
+  style: string;
 }
 
 /* ─── Payment Form ────────────────────────────────────────────────── */
@@ -97,6 +98,7 @@ function PaymentForm({
         currency,
         description: orderConfig.description,
         photoUrls: orderConfig.photoUrls,
+        style: orderConfig.style,
       }),
     });
 

@@ -103,6 +103,10 @@ export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
     productId: "cartoonova-simpson-base",
     productName: "Custom Simpson Portrait",
   },
+  simpsons2: {
+    productId: "cartoonova-simpson-v2",
+    productName: "Custom Simpson Portrait V2",
+  },
   onepiece: {
     productId: "cartoonova-onepiece-wanted",
     productName: "One Piece Wanted Poster",

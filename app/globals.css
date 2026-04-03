@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Safelist for dynamic product colors - these classes must be preserved */
+@layer utilities {
+  .hover\:bg-amber-100:hover { background-color: rgb(254 243 199); }
+  .hover\:bg-orange-100:hover { background-color: rgb(255 237 213); }
+  .hover\:bg-pink-100:hover { background-color: rgb(252 231 243); }
+  .hover\:bg-emerald-100:hover { background-color: rgb(209 250 229); }
+  .hover\:bg-lime-100:hover { background-color: rgb(236 252 203); }
+}
+
 @theme inline {
   --color-primary: #ffd23a;
   --color-primary-dark: #c39500;

@@ -12,6 +12,7 @@ export interface OrderOptions {
   animals: number;
   background: string;
   printOption: string;
+  style?: string;
   description?: string;
   phone?: string;
   postalCode?: string;

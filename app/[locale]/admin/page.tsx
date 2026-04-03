@@ -7,6 +7,16 @@ import type { DbOrder } from "@/lib/db";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
+const STYLE_LABELS: Record<string, { label: string; emoji: string }> = {
+  simpson: { label: "Simpson", emoji: "🟡" },
+  simpsons2: { label: "Simpson V2", emoji: "🟡" },
+  dbz: { label: "Dragon Ball Z", emoji: "⚡" },
+  disney: { label: "Disney", emoji: "✨" },
+  ghibli: { label: "Ghibli", emoji: "🌸" },
+  onepiece: { label: "One Piece", emoji: "🏴‍☠️" },
+  rickandmorty: { label: "Rick & Morty", emoji: "🌀" },
+};
+
 const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
   new: { label: "Nouvelle", color: "bg-blue-100 text-blue-800 border-blue-300" },
   in_progress: { label: "En cours", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
@@ -17,7 +27,7 @@ const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<"orders" | "prices">("orders");
+  const [tab, setTab] = useState<"orders" | "prices" | "analytics">("orders");
 
   // Orders
   const [orders, setOrders] = useState<DbOrder[]>([]);
@@ -150,6 +160,12 @@ export default function AdminPage() {
             )}
           </button>
           <button
+            onClick={() => setTab("analytics")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "analytics" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
+          >
+            <span>📊</span> Analytics
+          </button>
+          <button
             onClick={() => setTab("prices")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "prices" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
           >
@@ -197,6 +213,7 @@ export default function AdminPage() {
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">ID</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">Date</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">Client</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Style</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">Produit</th>
                       <th className="text-right px-4 py-3 font-semibold text-gray-600">Total</th>
                       <th className="text-center px-4 py-3 font-semibold text-gray-600">Statut</th>
@@ -205,7 +222,7 @@ export default function AdminPage() {
                   <tbody>
                     {orders.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center text-gray-400">Aucune commande pour le moment.</td>
+                        <td colSpan={7} className="px-4 py-12 text-center text-gray-400">Aucune commande pour le moment.</td>
                       </tr>
                     ) : (
                       orders.map((o) => (
@@ -217,6 +234,7 @@ export default function AdminPage() {
                           <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-gray-500">{new Date(o.created_at).toLocaleDateString("fr-FR")}</td>
                           <td className="px-4 py-3 font-medium">{o.customer_email}</td>
+                          <td className="px-4 py-3">{(() => { const opts = typeof o.options === 'string' ? JSON.parse(o.options) : o.options; const s = STYLE_LABELS[opts?.style]; return s ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-lg text-xs font-bold">{s.emoji} {s.label}</span> : <span className="text-gray-400">—</span>; })()}</td>
                           <td className="px-4 py-3 text-gray-500">{(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.printOption || "—"}</td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
@@ -262,6 +280,13 @@ export default function AdminPage() {
                         <p className="text-gray-700">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.country}</p>
                       </div>
                     )}
+
+                    {(() => { const opts = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options; const s = STYLE_LABELS[opts?.style]; return s ? (
+                      <div className="bg-purple-50 rounded-lg p-3">
+                        <p className="text-xs text-purple-600 font-semibold mb-1">🎨 Style</p>
+                        <p className="font-bold text-gray-900">{s.emoji} {s.label}</p>
+                      </div>
+                    ) : null; })()}
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-2">Configuration</p>
@@ -318,6 +343,206 @@ export default function AdminPage() {
             </div>
           </>
         )}
+
+        {/* ═══ ANALYTICS TAB ═══ */}
+        {tab === "analytics" && (() => {
+          const paidOrders = orders.filter((o) => o.status !== "PENDING");
+          const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.total_price), 0);
+          const avgOrderValue = paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0;
+
+          // Revenue by currency
+          const revenueByCurrency: Record<string, number> = {};
+          paidOrders.forEach((o) => {
+            const c = o.currency || "EUR";
+            revenueByCurrency[c] = (revenueByCurrency[c] || 0) + Number(o.total_price);
+          });
+
+          // Orders by style
+          const ordersByStyle: Record<string, number> = {};
+          paidOrders.forEach((o) => {
+            const opts = typeof o.options === "string" ? JSON.parse(o.options) : o.options;
+            const style = opts?.style || "unknown";
+            ordersByStyle[style] = (ordersByStyle[style] || 0) + 1;
+          });
+          const styleEntries = Object.entries(ordersByStyle).sort((a, b) => b[1] - a[1]);
+          const maxStyleCount = styleEntries.length > 0 ? styleEntries[0][1] : 1;
+
+          // Orders by day (last 30 days)
+          const now = new Date();
+          const last30: Record<string, number> = {};
+          for (let i = 29; i >= 0; i--) {
+            const d = new Date(now);
+            d.setDate(d.getDate() - i);
+            last30[d.toISOString().slice(0, 10)] = 0;
+          }
+          paidOrders.forEach((o) => {
+            const day = new Date(o.created_at).toISOString().slice(0, 10);
+            if (last30[day] !== undefined) last30[day]++;
+          });
+          const dayEntries = Object.entries(last30);
+          const maxDayCount = Math.max(...Object.values(last30), 1);
+
+          // Orders by format
+          const formatCounts: Record<string, number> = { portrait: 0, fullbody: 0 };
+          paidOrders.forEach((o) => {
+            const opts = typeof o.options === "string" ? JSON.parse(o.options) : o.options;
+            const f = opts?.format || "portrait";
+            formatCounts[f] = (formatCounts[f] || 0) + 1;
+          });
+
+          // Orders by print option
+          const printCounts: Record<string, number> = {};
+          paidOrders.forEach((o) => {
+            const opts = typeof o.options === "string" ? JSON.parse(o.options) : o.options;
+            const p = opts?.printOption || "Digital";
+            printCounts[p] = (printCounts[p] || 0) + 1;
+          });
+          const printEntries = Object.entries(printCounts).sort((a, b) => b[1] - a[1]);
+
+          return (
+            <>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">📊 Analytics</h2>
+                <p className="text-sm text-gray-500">Vue d&apos;ensemble des performances</p>
+              </div>
+
+              {/* KPI Cards */}
+              <div className="grid grid-cols-4 gap-4 mb-8">
+                <div className="bg-white border border-gray-200 rounded-xl p-5">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">Chiffre d&apos;affaires</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">
+                    {Object.entries(revenueByCurrency).map(([c, v]) => (
+                      <span key={c} className="block">{v.toFixed(2)} {c}</span>
+                    ))}
+                    {Object.keys(revenueByCurrency).length === 0 && "0.00 EUR"}
+                  </p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-5">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">Commandes payées</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{paidOrders.length}</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-5">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">Panier moyen</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{avgOrderValue.toFixed(2)} €</p>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-5">
+                  <p className="text-xs text-gray-500 font-semibold uppercase">Total commandes</p>
+                  <p className="text-2xl font-bold text-gray-900 mt-1">{orders.length}</p>
+                </div>
+              </div>
+
+              {/* Charts row */}
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                {/* Orders by style */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="font-bold text-gray-900 mb-4">🎨 Commandes par style</h3>
+                  <div className="space-y-3">
+                    {styleEntries.map(([style, count]) => {
+                      const s = STYLE_LABELS[style];
+                      return (
+                        <div key={style} className="flex items-center gap-3">
+                          <span className="text-sm font-semibold w-32 truncate">{s ? `${s.emoji} ${s.label}` : style}</span>
+                          <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+                            <div
+                              className="h-full bg-yellow-400 rounded-full flex items-center justify-end pr-2"
+                              style={{ width: `${Math.max((count / maxStyleCount) * 100, 8)}%` }}
+                            >
+                              <span className="text-xs font-bold text-black">{count}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {styleEntries.length === 0 && <p className="text-gray-400 text-sm">Aucune donnée</p>}
+                  </div>
+                </div>
+
+                {/* Orders by print option */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="font-bold text-gray-900 mb-4">🖼️ Options d&apos;impression</h3>
+                  <div className="space-y-3">
+                    {printEntries.map(([opt, count]) => (
+                      <div key={opt} className="flex items-center gap-3">
+                        <span className="text-sm font-semibold w-32 truncate">{opt}</span>
+                        <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
+                          <div
+                            className="h-full bg-purple-400 rounded-full flex items-center justify-end pr-2"
+                            style={{ width: `${Math.max((count / (printEntries[0]?.[1] || 1)) * 100, 8)}%` }}
+                          >
+                            <span className="text-xs font-bold text-white">{count}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {printEntries.length === 0 && <p className="text-gray-400 text-sm">Aucune donnée</p>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Orders over time (last 30 days) */}
+              <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+                <h3 className="font-bold text-gray-900 mb-4">📈 Commandes (30 derniers jours)</h3>
+                <div className="flex items-end gap-[3px] h-40">
+                  {dayEntries.map(([day, count]) => (
+                    <div key={day} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                      <div
+                        className="w-full bg-yellow-400 rounded-t transition-all hover:bg-yellow-500"
+                        style={{ height: `${Math.max((count / maxDayCount) * 100, 2)}%` }}
+                      />
+                      <div className="absolute -top-8 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        {day.slice(5)} : {count}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between mt-2 text-[10px] text-gray-400">
+                  <span>{dayEntries[0]?.[0]?.slice(5)}</span>
+                  <span>{dayEntries[dayEntries.length - 1]?.[0]?.slice(5)}</span>
+                </div>
+              </div>
+
+              {/* Format split */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="font-bold text-gray-900 mb-4">📐 Format</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <div className="flex rounded-full overflow-hidden h-8 bg-gray-100">
+                        {paidOrders.length > 0 && (
+                          <>
+                            <div className="bg-blue-400 h-full flex items-center justify-center" style={{ width: `${(formatCounts.portrait / paidOrders.length) * 100}%` }}>
+                              {formatCounts.portrait > 0 && <span className="text-xs font-bold text-white">{formatCounts.portrait}</span>}
+                            </div>
+                            <div className="bg-emerald-400 h-full flex items-center justify-center" style={{ width: `${(formatCounts.fullbody / paidOrders.length) * 100}%` }}>
+                              {formatCounts.fullbody > 0 && <span className="text-xs font-bold text-white">{formatCounts.fullbody}</span>}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 mt-3 text-xs">
+                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-blue-400 rounded-full"></span> Portrait ({formatCounts.portrait})</span>
+                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-emerald-400 rounded-full"></span> Corps Entier ({formatCounts.fullbody})</span>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h3 className="font-bold text-gray-900 mb-4">💱 Devises utilisées</h3>
+                  <div className="space-y-2">
+                    {Object.entries(revenueByCurrency).sort((a, b) => b[1] - a[1]).map(([c, v]) => (
+                      <div key={c} className="flex items-center justify-between text-sm">
+                        <span className="font-semibold">{c}</span>
+                        <span className="font-bold text-gray-900">{v.toFixed(2)} {c}</span>
+                      </div>
+                    ))}
+                    {Object.keys(revenueByCurrency).length === 0 && <p className="text-gray-400 text-sm">Aucune donnée</p>}
+                  </div>
+                </div>
+              </div>
+            </>
+          );
+        })()}
 
         {/* ═══ PRICES TAB ═══ */}
         {tab === "prices" && (
