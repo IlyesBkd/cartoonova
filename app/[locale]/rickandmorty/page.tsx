@@ -15,14 +15,14 @@ import { useProductTracking, PRODUCT_CONFIGS } from "@/hooks/useProductTracking"
 const BACKGROUNDS: { src: string; key: string }[] = [];
 
 const GALLERY_PHOTOS = [
-  "/rickandmorty/Photo_produits/1.webp",
-  "/rickandmorty/Photo_produits/il_1140xN.6929430540_28j8.webp",
-  "/rickandmorty/Photo_produits/il_1140xN.6929433252_cgte.webp",
-  "/rickandmorty/Photo_produits/il_1140xN.6977423979_mjqy.webp",
-  "/rickandmorty/Photo_produits/il_794xN.4850315677_9cqe.webp",
-  "/rickandmorty/Photo_produits/il_794xN.4850315693_rqjs.webp",
-  "/rickandmorty/Photo_produits/il_794xN.4850315697_f5io.webp",
-  "/rickandmorty/Photo_produits/il_794xN.4866606302_i42x.webp",
+  "/rickandmorty/Photo_produits/1.png",
+  "/rickandmorty/Photo_produits/il_1140xN.6929430540_28j8.png",
+  "/rickandmorty/Photo_produits/il_1140xN.6929433252_cgte.png",
+  "/rickandmorty/Photo_produits/il_1140xN.6977423979_mjqy.png",
+  "/rickandmorty/Photo_produits/il_794xN.4850315677_9cqe.png",
+  "/rickandmorty/Photo_produits/il_794xN.4850315693_rqjs.png",
+  "/rickandmorty/Photo_produits/il_794xN.4850315697_f5io.png",
+  "/rickandmorty/Photo_produits/il_794xN.4866606302_i42x.png",
 ];
 
 const SOCIAL_PROOF_NAMES = [
@@ -148,10 +148,10 @@ export default function ProductPage() {
   }, []);
 
   const prints = prices ? [
-    { img: "/rickandmorty/Add-Ons/digital.webp", label: t("digital"), price: prices.digital },
-    { img: "/rickandmorty/Add-Ons/poster.webp", label: t("posterOption"), price: prices.posterSimple },
-    { img: "/rickandmorty/Add-Ons/portrait_sur_toile.webp", label: t("canvas"), price: prices.canvas },
-    { img: "/rickandmorty/Add-Ons/portrait_encadré.webp", label: t("poster"), price: prices.poster },
+    { img: "/rickandmorty/Add-Ons/digital.png", label: t("digital"), price: prices.digital },
+    { img: "/rickandmorty/Add-Ons/poster.png", label: t("posterOption"), price: prices.posterSimple },
+    { img: "/rickandmorty/Add-Ons/portrait_sur_toile.png", label: t("canvas"), price: prices.canvas },
+    { img: "/rickandmorty/Add-Ons/portrait_encadré.png", label: t("poster"), price: prices.poster },
   ] : [];
 
   const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.price ?? 0) : 0;

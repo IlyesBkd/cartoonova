@@ -17,7 +17,7 @@ const PRODUCTS = [
   {
     slug: "dbz",
     emoji: "⚡",
-    image: "/dbz/Photo_produits/1.webp",
+    image: "/dbz/Photo_produits/1.png",
     bgColor: "from-orange-400 to-orange-500",
     accentColor: "orange-500",
     shadowColor: "rgba(249,115,22,0.6)",
@@ -25,7 +25,7 @@ const PRODUCTS = [
   {
     slug: "disney",
     emoji: "✨",
-    image: "/disney/Photo_produits/1.webp",
+    image: "/disney/Photo_produits/1.png",
     bgColor: "from-pink-400 to-pink-500",
     accentColor: "pink-500",
     shadowColor: "rgba(236,72,153,0.6)",
@@ -33,7 +33,7 @@ const PRODUCTS = [
   {
     slug: "ghibli",
     emoji: "🌸",
-    image: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.webp",
+    image: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
     bgColor: "from-emerald-400 to-green-500",
     accentColor: "emerald-500",
     shadowColor: "rgba(16,185,129,0.6)",
@@ -41,7 +41,7 @@ const PRODUCTS = [
   {
     slug: "onepiece",
     emoji: "🏴‍☠️",
-    image: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.webp",
+    image: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
     bgColor: "from-amber-500 to-orange-500",
     accentColor: "amber-600",
     shadowColor: "rgba(245,158,11,0.6)",
@@ -49,7 +49,7 @@ const PRODUCTS = [
   {
     slug: "rickandmorty",
     emoji: "🌀",
-    image: "/rickandmorty/Photo_produits/1.webp",
+    image: "/rickandmorty/Photo_produits/1.png",
     bgColor: "from-lime-400 to-green-500",
     accentColor: "lime-500",
     shadowColor: "rgba(132,204,22,0.6)",

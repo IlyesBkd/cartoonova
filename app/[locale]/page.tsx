@@ -22,11 +22,11 @@ const photos = [
 
 const collections = [
   { name: "Simpson", href: "/simpson", color: "from-amber-400 to-yellow-400", img: "/simpson_photos_produit/0009_1.jpg" },
-  { name: "Dragon Ball Z", href: "/dbz", color: "from-orange-400 to-orange-500", img: "/dbz/Photo_produits/1.webp" },
-  { name: "Disney", href: "/disney", color: "from-pink-400 to-pink-500", img: "/disney/Photo_produits/1.webp" },
-  { name: "Ghibli", href: "/ghibli", color: "from-emerald-400 to-green-500", img: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.webp" },
-  { name: "One Piece", href: "/onepiece", color: "from-amber-500 to-orange-500", img: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.webp" },
-  { name: "Rick & Morty", href: "/rickandmorty", color: "from-lime-400 to-green-500", img: "/rickandmorty/Photo_produits/1.webp" },
+  { name: "Dragon Ball Z", href: "/dbz", color: "from-orange-400 to-orange-500", img: "/dbz/Photo_produits/1.png" },
+  { name: "Disney", href: "/disney", color: "from-pink-400 to-pink-500", img: "/disney/Photo_produits/1.png" },
+  { name: "Ghibli", href: "/ghibli", color: "from-emerald-400 to-green-500", img: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.png" },
+  { name: "One Piece", href: "/onepiece", color: "from-amber-500 to-orange-500", img: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png" },
+  { name: "Rick & Morty", href: "/rickandmorty", color: "from-lime-400 to-green-500", img: "/rickandmorty/Photo_produits/1.png" },
 ];
 
 

@@ -24,11 +24,11 @@ const BACKGROUNDS = [
 ];
 
 const GALLERY_PHOTOS = [
-  "/DBZ/Photo_produits/1.webp",
-  "/DBZ/Photo_produits/il_1140xN.7733273072_b9q7.webp",
-  "/DBZ/Photo_produits/il_1140xN.7781222829_j22o.webp",
-  "/DBZ/Photo_produits/il_1140xN.7781222843_qc6e.webp",
-  "/DBZ/Photo_produits/il_1140xN.7781222857_h7cu.webp",
+  "/DBZ/Photo_produits/1.png",
+  "/DBZ/Photo_produits/il_1140xN.7733273072_b9q7.png",
+  "/DBZ/Photo_produits/il_1140xN.7781222829_j22o.png",
+  "/DBZ/Photo_produits/il_1140xN.7781222843_qc6e.png",
+  "/DBZ/Photo_produits/il_1140xN.7781222857_h7cu.png",
   "/DBZ/Photo_produits/il_1140xN.4418149486_poi0.jpg",
   "/DBZ/Photo_produits/il_1140xN.4642601061_1pq4.jpg",
   "/DBZ/Photo_produits/ezgif.com-webp-to-png (7).png",

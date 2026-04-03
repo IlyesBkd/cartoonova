@@ -44,7 +44,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-onepiece-wanted",
     slug: "onepiece",
-    image: "/onepiece/wanted_produits/1.webp",
+    image: "/onepiece/wanted_produits/1.png",
     translations: {
       fr: { title: "Poster Wanted One Piece Personnalisé", description: "Créez votre propre avis de recherche One Piece ! Devenez un pirate légendaire avec votre prime personnalisée." },
       en: { title: "Custom One Piece Wanted Poster", description: "Create your own One Piece wanted poster! Become a legendary pirate with your custom bounty." },
@@ -56,7 +56,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-dbz-portrait",
     slug: "dbz",
-    image: "/dbz/Photo_produits/1.webp",
+    image: "/dbz/Photo_produits/1.png",
     translations: {
       fr: { title: "Portrait Dragon Ball Z Personnalisé", description: "Transformez-vous en Super Saiyan ! Portrait personnalisé dans le style Dragon Ball Z dessiné à la main." },
       en: { title: "Custom Dragon Ball Z Portrait", description: "Transform into a Super Saiyan! Custom portrait in Dragon Ball Z style, hand-drawn." },
@@ -68,7 +68,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-ghibli-portrait",
     slug: "ghibli",
-    image: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.webp",
+    image: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
     translations: {
       fr: { title: "Portrait Studio Ghibli Personnalisé", description: "Entrez dans l'univers enchanté de Ghibli ! Portrait magique inspiré de Totoro, Chihiro et Mononoké." },
       en: { title: "Custom Studio Ghibli Portrait", description: "Enter the enchanted world of Ghibli! Magical portrait inspired by Totoro, Spirited Away and Mononoke." },
@@ -80,7 +80,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-rickandmorty-portrait",
     slug: "rickandmorty",
-    image: "/rickandmorty/Photo_produits/1.webp",
+    image: "/rickandmorty/Photo_produits/1.png",
     translations: {
       fr: { title: "Portrait Rick & Morty Personnalisé", description: "Wubba Lubba Dub Dub ! Rejoignez Rick et Morty dans leurs aventures interdimensionnelles avec votre portrait." },
       en: { title: "Custom Rick & Morty Portrait", description: "Wubba Lubba Dub Dub! Join Rick and Morty in their interdimensional adventures with your portrait." },
@@ -92,7 +92,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-disney-portrait",
     slug: "disney",
-    image: "/disney/Photo_produits/1.webp",
+    image: "/disney/Photo_produits/1.png",
     translations: {
       fr: { title: "Portrait Disney Personnalisé", description: "Devenez le héros de votre propre conte de fées Disney ! Portrait magique style animation classique." },
       en: { title: "Custom Disney Portrait", description: "Become the hero of your own Disney fairy tale! Magical portrait in classic animation style." },

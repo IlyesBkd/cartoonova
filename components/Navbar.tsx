@@ -58,7 +58,7 @@ export default function Navbar() {
 
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
-              <Image src="/logo.webp" alt="Logo Cartoonova" width={140} height={42} className="h-12 sm:h-14 w-auto" priority />
+              <Image src="/logo.png" alt="Logo Cartoonova" width={140} height={42} className="h-12 sm:h-14 w-auto" priority />
             </Link>
 
             {/* Desktop links */}

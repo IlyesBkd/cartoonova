@@ -15,14 +15,14 @@ import { useProductTracking, PRODUCT_CONFIGS } from "@/hooks/useProductTracking"
 const BACKGROUNDS: { src: string; key: string }[] = [];
 
 const GALLERY_PHOTOS = [
-  "/Disney/Photo_produits/1.webp",
-  "/Disney/Photo_produits/il_1140xN.6576111634_dwx3.webp",
-  "/Disney/Photo_produits/il_1140xN.6576111670_bk3q.webp",
-  "/Disney/Photo_produits/il_1140xN.6576119278_hzjr.webp",
-  "/Disney/Photo_produits/il_1140xN.6624222083_1rk3.webp",
-  "/Disney/Photo_produits/il_1140xN.6624222155_5ukx.webp",
-  "/Disney/Photo_produits/il_1140xN.6624222159_pajm.webp",
-  "/Disney/Add-Ons/digital.webp",
+  "/Disney/Photo_produits/1.png",
+  "/Disney/Photo_produits/il_1140xN.6576111634_dwx3.png",
+  "/Disney/Photo_produits/il_1140xN.6576111670_bk3q.png",
+  "/Disney/Photo_produits/il_1140xN.6576119278_hzjr.png",
+  "/Disney/Photo_produits/il_1140xN.6624222083_1rk3.png",
+  "/Disney/Photo_produits/il_1140xN.6624222155_5ukx.png",
+  "/Disney/Photo_produits/il_1140xN.6624222159_pajm.png",
+  "/Disney/Add-Ons/digital.png",
 ];
 
 const SOCIAL_PROOF_NAMES = [
@@ -148,10 +148,10 @@ export default function ProductPage() {
   }, []);
 
   const prints = prices ? [
-    { img: "/Disney/Add-Ons/digital.webp", label: t("digital"), price: prices.digital },
-    { img: "/Disney/Add-Ons/poster.webp", label: t("posterOption"), price: prices.posterSimple },
+    { img: "/Disney/Add-Ons/digital.png", label: t("digital"), price: prices.digital },
+    { img: "/Disney/Add-Ons/poster.png", label: t("posterOption"), price: prices.posterSimple },
     { img: "/Disney/Add-Ons/portrait_sur_toile.png", label: t("canvas"), price: prices.canvas },
-    { img: "/Disney/Add-Ons/portrait_encadré.webp", label: t("poster"), price: prices.poster },
+    { img: "/Disney/Add-Ons/portrait_encadré.png", label: t("poster"), price: prices.poster },
   ] : [];
 
   const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.price ?? 0) : 0;

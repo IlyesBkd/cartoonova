@@ -30,7 +30,7 @@ export default function FooterCartoon() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2">
-            <Image src="/logo.webp" alt="Logo Cartoonova" width={160} height={48} className="h-12 mb-4" style={{ width: "auto" }} />
+            <Image src="/logo.png" alt="Logo Cartoonova" width={160} height={48} className="h-12 mb-4" style={{ width: "auto" }} />
             <p className="text-sm text-black/70 font-bold leading-relaxed mb-5 max-w-xs">
               {t("madeWith")}
             </p>

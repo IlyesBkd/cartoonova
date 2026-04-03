@@ -15,14 +15,14 @@ import { useProductTracking, PRODUCT_CONFIGS } from "@/hooks/useProductTracking"
 const BACKGROUNDS: { src: string; key: string }[] = [];
 
 const GALLERY_PHOTOS = [
-  "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.webp",
-  "/onepiece/wanted_produit/il_1140xN.7075208403_h6ii.webp",
-  "/onepiece/wanted_produit/il_1140xN.7075208427_9pky.webp",
-  "/onepiece/wanted_produit/il_1140xN.7075210791_t70l.webp",
-  "/onepiece/wanted_produit/il_1140xN.7263590518_s1vk.webp",
-  "/onepiece/wanted_produit/il_1140xN.7263593458_c94y.webp",
-  "/onepiece/wanted_produit/il_1140xN.7311536425_c0lx.webp",
-  "/onepiece/wanted_produit/8.webp",
+  "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
+  "/onepiece/wanted_produit/il_1140xN.7075208403_h6ii.png",
+  "/onepiece/wanted_produit/il_1140xN.7075208427_9pky.png",
+  "/onepiece/wanted_produit/il_1140xN.7075210791_t70l.png",
+  "/onepiece/wanted_produit/il_1140xN.7263590518_s1vk.png",
+  "/onepiece/wanted_produit/il_1140xN.7263593458_c94y.png",
+  "/onepiece/wanted_produit/il_1140xN.7311536425_c0lx.png",
+  "/onepiece/wanted_produit/8.png",
 ];
 
 const SOCIAL_PROOF_NAMES = [
@@ -148,10 +148,10 @@ export default function ProductPage() {
   }, []);
 
   const prints = prices ? [
-    { img: "/onepiece/digital.webp", label: t("digital"), price: prices.digital },
-    { img: "/onepiece/poster.webp", label: t("posterOption"), price: prices.posterSimple },
-    { img: "/onepiece/portrait_sur_toile.webp", label: t("canvas"), price: prices.canvas },
-    { img: "/onepiece/portrait_encadré.webp", label: t("poster"), price: prices.poster },
+    { img: "/onepiece/digital.png", label: t("digital"), price: prices.digital },
+    { img: "/onepiece/poster.png", label: t("posterOption"), price: prices.posterSimple },
+    { img: "/onepiece/portrait_sur_toile.png", label: t("canvas"), price: prices.canvas },
+    { img: "/onepiece/portrait_encadré.png", label: t("poster"), price: prices.poster },
   ] : [];
 
   const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.price ?? 0) : 0;

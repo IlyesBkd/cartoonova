@@ -15,14 +15,14 @@ import { useProductTracking, PRODUCT_CONFIGS } from "@/hooks/useProductTracking"
 const BACKGROUNDS: { src: string; key: string }[] = [];
 
 const GALLERY_PHOTOS = [
-  "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.webp",
-  "/Ghibli/Photo_produits/il_794xN.7001686038_phv9.webp",
-  "/Ghibli/Photo_produits/il_794xN.7001719866_sh1o.webp",
-  "/Ghibli/Photo_produits/il_794xN.7049662203_8jy8.webp",
-  "/Ghibli/Photo_produits/il_794xN.7339346102_tqwv.webp",
-  "/Ghibli/Photo_produits/il_794xN.7339346104_18dc.webp",
-  "/Ghibli/Photo_produits/il_794xN.7339346124_iahy.webp",
-  "/Ghibli/Photo_produits/il_794xN.7387284335_oesn.webp",
+  "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
+  "/Ghibli/Photo_produits/il_794xN.7001686038_phv9.png",
+  "/Ghibli/Photo_produits/il_794xN.7001719866_sh1o.png",
+  "/Ghibli/Photo_produits/il_794xN.7049662203_8jy8.png",
+  "/Ghibli/Photo_produits/il_794xN.7339346102_tqwv.png",
+  "/Ghibli/Photo_produits/il_794xN.7339346104_18dc.png",
+  "/Ghibli/Photo_produits/il_794xN.7339346124_iahy.png",
+  "/Ghibli/Photo_produits/il_794xN.7387284335_oesn.png",
 ];
 
 const SOCIAL_PROOF_NAMES = [
@@ -148,10 +148,10 @@ export default function ProductPage() {
   }, []);
 
   const prints = prices ? [
-    { img: "/Ghibli/Add-Ons/digital.webp", label: t("digital"), price: prices.digital },
-    { img: "/Ghibli/Add-Ons/poster.webp", label: t("posterOption"), price: prices.posterSimple },
-    { img: "/Ghibli/Add-Ons/portrait_sur_toile.webp", label: t("canvas"), price: prices.canvas },
-    { img: "/Ghibli/Add-Ons/portrait_encadré.webp", label: t("poster"), price: prices.poster },
+    { img: "/Ghibli/Add-Ons/digital.png", label: t("digital"), price: prices.digital },
+    { img: "/Ghibli/Add-Ons/poster.png", label: t("posterOption"), price: prices.posterSimple },
+    { img: "/Ghibli/Add-Ons/portrait_sur_toile.png", label: t("canvas"), price: prices.canvas },
+    { img: "/Ghibli/Add-Ons/portrait_encadré.png", label: t("poster"), price: prices.poster },
   ] : [];
 
   const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.price ?? 0) : 0;
