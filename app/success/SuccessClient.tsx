@@ -40,7 +40,7 @@ export default function SuccessClient({
 
     if (typeof window.gtag === "function") {
       window.gtag("event", "conversion", {
-        send_to: "AW-18013095662/Mbw7COzNqI4cEO6NqI1D",
+        send_to: `${process.env.NEXT_PUBLIC_GOOGLE_ADS_ID}/${process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL}`,
         value: order.total_price,
         currency: order.currency,
         transaction_id: order.payment_intent_id,

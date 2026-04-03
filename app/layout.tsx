@@ -8,7 +8,7 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const AW_ID = "AW-18013095662";
+const AW_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "";
 
 export default function RootLayout({
   children,
