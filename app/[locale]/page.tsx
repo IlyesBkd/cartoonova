@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import posthog from "posthog-js";
 
 const photos = [
   "/simpson_photos_produit/0009_1.jpg",
@@ -22,9 +23,9 @@ const photos = [
 
 const collections = [
   { name: "Simpson", href: "/simpson", color: "from-amber-400 to-yellow-400", img: "/simpson_photos_produit/0009_1.jpg" },
-  { name: "Dragon Ball Z", href: "/dbz", color: "from-orange-400 to-orange-500", img: "/dbz/Photo_produits/1.png" },
-  { name: "Disney", href: "/disney", color: "from-pink-400 to-pink-500", img: "/disney/Photo_produits/1.png" },
-  { name: "Ghibli", href: "/ghibli", color: "from-emerald-400 to-green-500", img: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.png" },
+  { name: "Dragon Ball Z", href: "/dbz", color: "from-orange-400 to-orange-500", img: "/DBZ/Photo_produits/1.png" },
+  { name: "Disney", href: "/disney", color: "from-pink-400 to-pink-500", img: "/Disney/Photo_produits/1.png" },
+  { name: "Ghibli", href: "/ghibli", color: "from-emerald-400 to-green-500", img: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png" },
   { name: "One Piece", href: "/onepiece", color: "from-amber-500 to-orange-500", img: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png" },
   { name: "Rick & Morty", href: "/rickandmorty", color: "from-lime-400 to-green-500", img: "/rickandmorty/Photo_produits/1.png" },
 ];
@@ -87,7 +88,7 @@ export default function Home() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                  <Link href="/collections" className="group bg-amber-400 text-black font-black text-base px-8 py-4 rounded-xl border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[5px] active:translate-y-[5px] transition-all">
+                  <Link href="/collections" onClick={() => posthog.capture("cta_clicked", { cta: "hero_create_portrait", source: "homepage" })} className="group bg-amber-400 text-black font-black text-base px-8 py-4 rounded-xl border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[5px] active:translate-y-[5px] transition-all">
                     <span className="flex items-center gap-2">
                       {t("createMyPortrait")}
                       <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
@@ -149,7 +150,7 @@ export default function Home() {
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {collections.map((c, i) => (
-                <Link key={c.name} href={c.href} className={`group relative bg-white rounded-2xl border-3 border-black overflow-hidden shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300`} style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * 1}deg)` }}>
+                <Link key={c.name} href={c.href} onClick={() => posthog.capture("collection_clicked", { collection: c.name, position: i, source: "homepage" })} className={`group relative bg-white rounded-2xl border-3 border-black overflow-hidden shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300`} style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * 1}deg)` }}>
                   <div className="aspect-[4/5] relative">
                     <Image src={c.img} alt={c.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 45vw, 30vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -189,7 +190,7 @@ export default function Home() {
               ))}
             </div>
             <div className="flex justify-center mt-10">
-              <Link href="/collections" className="bg-amber-400 text-black font-black text-sm uppercase px-8 py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+              <Link href="/collections" onClick={() => posthog.capture("cta_clicked", { cta: "how_it_works_start_now", source: "homepage" })} className="bg-amber-400 text-black font-black text-sm uppercase px-8 py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
                 {t("startNow")}
               </Link>
             </div>
@@ -301,7 +302,7 @@ export default function Home() {
             <div className="space-y-3">
               {faqData.map((faq, i) => (
                 <div key={i} className={`bg-white rounded-xl border-2 border-black overflow-hidden transition-all duration-200 ${openFaq === i ? "shadow-[4px_4px_0px_0px_rgba(251,191,36,0.8)]" : "shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]"}`}>
-                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left">
+                  <button onClick={() => { const newState = openFaq === i ? null : i; setOpenFaq(newState); if (newState !== null) posthog.capture("faq_toggled", { question_index: i, question: faq.q, source: "homepage" }); }} className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left">
                     <span className="font-bold text-gray-900 text-sm sm:text-base">{faq.q}</span>
                     <span className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${openFaq === i ? "bg-amber-400 text-black rotate-180" : "bg-gray-100 text-gray-400"}`}>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -327,7 +328,7 @@ export default function Home() {
             <div className="flex items-center justify-center gap-1 mb-4">{[...Array(5)].map((_, i) => <span key={i} className="text-black text-lg">★</span>)}<span className="text-black/70 font-bold text-sm ml-2">4.9/5 — 2,500+ portraits</span></div>
             <h2 className="text-3xl sm:text-4xl font-black text-black mb-3 uppercase"><span className="inline-block -rotate-1">{t("ctaTitle")}</span></h2>
             <p className="text-base text-black/60 mb-8 max-w-lg mx-auto">{t("ctaSubtitle")}</p>
-            <Link href="/collections" className="inline-flex items-center gap-2 bg-black text-amber-400 font-black text-lg px-10 py-5 rounded-xl border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[6px] active:translate-y-[6px] transition-all uppercase">
+            <Link href="/collections" onClick={() => posthog.capture("cta_clicked", { cta: "final_cta_create_portrait", source: "homepage" })} className="inline-flex items-center gap-2 bg-black text-amber-400 font-black text-lg px-10 py-5 rounded-xl border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[6px] active:translate-y-[6px] transition-all uppercase">
               {t("createMyPortrait")}
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
             </Link>

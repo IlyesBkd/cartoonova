@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import posthog from "posthog-js";
 
 declare global {
   interface Window {
@@ -37,6 +38,20 @@ export default function SuccessClient({
 
     const storageKey = `gtag_conversion_${order.payment_intent_id}`;
     if (sessionStorage.getItem(storageKey)) return;
+
+    // PostHog purchase tracking
+    const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
+    posthog.capture("purchase_completed", {
+      value: order.total_price,
+      currency: order.currency,
+      transaction_id: order.payment_intent_id,
+      order_id: order.id,
+      style: opts?.style || "unknown",
+      format: opts?.format || "unknown",
+      people: opts?.people || 1,
+      animals: opts?.animals || 0,
+      print_option: opts?.printOption || "unknown",
+    });
 
     if (typeof window.gtag === "function") {
       window.gtag("event", "conversion", {

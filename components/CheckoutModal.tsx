@@ -125,6 +125,7 @@ function PaymentForm({
 
     setLoading(true);
     setError("");
+    posthog.capture("payment_initiated", { method: "card", value: orderConfig.total, style: orderConfig.style });
 
     try {
       // 1. Validate elements
@@ -159,6 +160,7 @@ function PaymentForm({
 
       if (stripeError) {
         console.error("[CARD] ❌ Erreur Stripe:", stripeError);
+        posthog.capture("payment_error", { method: "card", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
         // Payment succeeded inline — manually redirect
@@ -186,6 +188,7 @@ function PaymentForm({
 
     setLoading(true);
     setError("");
+    posthog.capture("payment_initiated", { method: "express", value: orderConfig.total, style: orderConfig.style });
 
     try {
       // 1. Do NOT call elements.submit() — the wallet already submitted
@@ -206,6 +209,7 @@ function PaymentForm({
       console.log("[EXPRESS] 3. confirmPayment retourné (pas de redirect!), error:", stripeError?.message || "aucune");
       if (stripeError) {
         console.error("[EXPRESS] ❌ Erreur Express Checkout:", stripeError);
+        posthog.capture("payment_error", { method: "express", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else {
         // Fallback: shouldn't happen but just in case
@@ -325,7 +329,7 @@ export default function CheckoutModal({
   const isDigital = orderConfig.printOption === "Digital";
   const { currency, format: formatPrice, convert } = useCurrency();
 
-  // Reset on open/close
+  // Reset on open/close + track modal open
   useEffect(() => {
     if (!open) {
       setStep("info");
@@ -333,7 +337,15 @@ export default function CheckoutModal({
       setFormError("");
       return;
     }
-  }, [open]);
+    posthog.capture("checkout_modal_opened", {
+      style: orderConfig.style,
+      value: orderConfig.total,
+      format: orderConfig.format,
+      print_option: orderConfig.printOption,
+      people: orderConfig.people,
+      animals: orderConfig.animals,
+    });
+  }, [open, orderConfig]);
 
   // Create Payment Intent when moving to payment step (NO DB insert here)
   const goToPayment = () => {
@@ -357,6 +369,13 @@ export default function CheckoutModal({
         return;
       }
     }
+
+    posthog.capture("checkout_info_completed", {
+      style: orderConfig.style,
+      value: orderConfig.total,
+      is_digital: isDigital,
+      has_address: !isDigital,
+    });
 
     setStep("payment");
     setLoadingIntent(true);

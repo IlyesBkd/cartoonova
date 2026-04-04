@@ -56,7 +56,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-dbz-portrait",
     slug: "dbz",
-    image: "/dbz/Photo_produits/1.png",
+    image: "/DBZ/Photo_produits/1.png",
     translations: {
       fr: { title: "Portrait Dragon Ball Z Personnalisé", description: "Transformez-vous en Super Saiyan ! Portrait personnalisé dans le style Dragon Ball Z dessiné à la main." },
       en: { title: "Custom Dragon Ball Z Portrait", description: "Transform into a Super Saiyan! Custom portrait in Dragon Ball Z style, hand-drawn." },
@@ -68,7 +68,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-ghibli-portrait",
     slug: "ghibli",
-    image: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
+    image: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
     translations: {
       fr: { title: "Portrait Studio Ghibli Personnalisé", description: "Entrez dans l'univers enchanté de Ghibli ! Portrait magique inspiré de Totoro, Chihiro et Mononoké." },
       en: { title: "Custom Studio Ghibli Portrait", description: "Enter the enchanted world of Ghibli! Magical portrait inspired by Totoro, Spirited Away and Mononoke." },
@@ -92,7 +92,7 @@ const PRODUCTS: Product[] = [
   {
     id: "cartoonova-disney-portrait",
     slug: "disney",
-    image: "/disney/Photo_produits/1.png",
+    image: "/Disney/Photo_produits/1.png",
     translations: {
       fr: { title: "Portrait Disney Personnalisé", description: "Devenez le héros de votre propre conte de fées Disney ! Portrait magique style animation classique." },
       en: { title: "Custom Disney Portrait", description: "Become the hero of your own Disney fairy tale! Magical portrait in classic animation style." },

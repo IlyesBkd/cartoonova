@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useCurrency } from "@/components/CurrencyProvider";
 import Link from "next/link";
 import Image from "next/image";
+import posthog from "posthog-js";
 
 const PRODUCTS = [
   {
@@ -17,7 +18,7 @@ const PRODUCTS = [
   {
     slug: "dbz",
     emoji: "⚡",
-    image: "/dbz/Photo_produits/1.png",
+    image: "/DBZ/Photo_produits/1.png",
     bgColor: "from-orange-400 to-orange-500",
     accentColor: "orange-500",
     shadowColor: "rgba(249,115,22,0.6)",
@@ -25,7 +26,7 @@ const PRODUCTS = [
   {
     slug: "disney",
     emoji: "✨",
-    image: "/disney/Photo_produits/1.png",
+    image: "/Disney/Photo_produits/1.png",
     bgColor: "from-pink-400 to-pink-500",
     accentColor: "pink-500",
     shadowColor: "rgba(236,72,153,0.6)",
@@ -33,7 +34,7 @@ const PRODUCTS = [
   {
     slug: "ghibli",
     emoji: "🌸",
-    image: "/ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
+    image: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
     bgColor: "from-emerald-400 to-green-500",
     accentColor: "emerald-500",
     shadowColor: "rgba(16,185,129,0.6)",
@@ -117,6 +118,7 @@ export default function CollectionsPage() {
               <Link
                 key={product.slug}
                 href={`/${product.slug}`}
+                onClick={() => posthog.capture("collection_clicked", { collection: product.slug, position: index, source: "collections_page" })}
                 className="group relative bg-white rounded-2xl border-3 border-black overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-300"
                 style={{ 
                   transform: `rotate(${(index % 2 === 0 ? -1 : 1) * 0.5}deg)`,
