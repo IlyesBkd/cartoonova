@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { getOrderByPaymentId, updateOrderStatus } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
 import SuccessClient from "@/app/success/SuccessClient";
+import { getLangFromCountry, confirmationEmail } from "@/lib/email-i18n";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -17,37 +18,41 @@ async function sendOrderConfirmation(order: DbOrder) {
     console.log("[RESEND] API Key (4 premiers chars):", process.env.RESEND_API_KEY?.slice(0, 4));
 
     const opts = order.options;
+    const lang = getLangFromCountry(order.detected_country);
+    const t = confirmationEmail[lang];
+    const ref = order.id.slice(0, 8);
+
     const result = await resend.emails.send({
       from: "Cartoonova <noreply@cartoonova.com>",
       to: [order.customer_email],
-      subject: "🎉 Commande confirmée - Vos artistes commencent !",
+      subject: t.subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
           <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
             <h1 style="font-size: 32px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
-              🎉 BOOM ! C'est dans la boîte !
+              ${t.title}
             </h1>
             <p style="font-size: 18px; font-weight: bold; text-align: center; margin: 0 0 30px 0; color: #000;">
-              Votre commande #${order.id.slice(0, 8)} est confirmée
+              ${t.orderConfirmed(ref)}
             </p>
             <div style="background: #fef3c7; border: 2px solid #000; padding: 20px; margin: 20px 0;">
-              <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 15px 0; color: #000;">Récapitulatif</h2>
+              <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 15px 0; color: #000;">${t.summary}</h2>
               <ul style="font-size: 16px; font-weight: bold; margin: 0; padding: 0 0 0 20px; color: #000;">
-                <li>Format: ${opts.format === 'portrait' ? 'Portrait' : 'Full Body'}</li>
-                <li>Personnes: ${opts.people}</li>
-                ${opts.animals > 0 ? `<li>Animaux: ${opts.animals}</li>` : ''}
-                <li>Option: ${opts.printOption}</li>
-                <li>Total: ${order.total_price} ${order.currency}</li>
+                <li>${t.format}: ${opts.format === 'portrait' ? 'Portrait' : 'Full Body'}</li>
+                <li>${t.people}: ${opts.people}</li>
+                ${opts.animals > 0 ? `<li>${t.animals}: ${opts.animals}</li>` : ''}
+                <li>${t.option}: ${opts.printOption}</li>
+                <li>${t.total}: ${order.total_price} ${order.currency}</li>
               </ul>
             </div>
             <div style="text-align: center; margin: 30px 0;">
-              <p style="font-size: 18px; font-weight: bold; color: #000;">🎨 Nos artistes se mettent au travail !</p>
-              <p style="font-size: 16px; color: #000;">Vous recevrez votre caricature dans 3-5 jours ouvrables.</p>
+              <p style="font-size: 18px; font-weight: bold; color: #000;">${t.artistsWorking}</p>
+              <p style="font-size: 16px; color: #000;">${t.deliveryTime}</p>
             </div>
           </div>
           <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
-            <p>Merci pour votre confiance ! 🎨</p>
-            <p>L'équipe Cartoonova</p>
+            <p>${t.thanks}</p>
+            <p>${t.team}</p>
           </div>
         </div>
       `,

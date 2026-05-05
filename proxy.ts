@@ -21,6 +21,7 @@ const countryCurrencyMap: Record<string, string> = {
 };
 
 const CURRENCY_COOKIE = "cartoonova_currency";
+const COUNTRY_COOKIE = "cartoonova_country";
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -31,11 +32,20 @@ export function proxy(request: NextRequest) {
     console.log("[PROXY] ✅ /success bypass — skipping next-intl");
     const response = NextResponse.next();
 
+    const country = request.headers.get("x-vercel-ip-country") || "";
+
     const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
     if (!existingCurrency) {
-      const country = request.headers.get("x-vercel-ip-country") || "";
       const detectedCurrency = countryCurrencyMap[country.toUpperCase()] || "EUR";
       response.cookies.set(CURRENCY_COOKIE, detectedCurrency, {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 365,
+        sameSite: "lax",
+      });
+    }
+
+    if (country && !request.cookies.get(COUNTRY_COOKIE)?.value) {
+      response.cookies.set(COUNTRY_COOKIE, country.toUpperCase(), {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
         sameSite: "lax",
@@ -52,15 +62,22 @@ export function proxy(request: NextRequest) {
   // Currency detection — only set if no cookie exists
   const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
 
-  if (!existingCurrency) {
-    // Vercel Edge: x-vercel-ip-country header
-    const country = request.headers.get("x-vercel-ip-country") || "";
+  const country = request.headers.get("x-vercel-ip-country") || "";
 
+  if (!existingCurrency) {
     const detectedCurrency = countryCurrencyMap[country.toUpperCase()] || "EUR";
 
     response.cookies.set(CURRENCY_COOKIE, detectedCurrency, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365, // 1 year
+      sameSite: "lax",
+    });
+  }
+
+  if (country && !request.cookies.get(COUNTRY_COOKIE)?.value) {
+    response.cookies.set(COUNTRY_COOKIE, country.toUpperCase(), {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
     });
   }

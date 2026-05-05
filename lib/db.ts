@@ -32,6 +32,7 @@ export interface DbOrder {
   photo_urls: string[];
   status: string;
   created_at: string;
+  detected_country: string | null;
   final_image_url: string | null;
   final_image_sent_at: string | null;
 }

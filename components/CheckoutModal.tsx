@@ -76,6 +76,8 @@ function PaymentForm({
     }
     console.log("[CHECKOUT] 📝 INSERT PENDING | PI:", paymentIntentId, "| email:", formData.email);
 
+    const detectedCountry = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1] || null;
+
     const res = await fetch("/api/order/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -99,6 +101,7 @@ function PaymentForm({
         description: orderConfig.description,
         photoUrls: orderConfig.photoUrls,
         style: orderConfig.style,
+        detectedCountry,
       }),
     });
 

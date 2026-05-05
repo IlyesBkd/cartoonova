@@ -161,6 +161,7 @@ export default function AdminPage() {
           customerName: selectedOrder.customer_name,
           finalImageUrl: selectedOrder.final_image_url,
           orderRef: selectedOrder.id,
+          detectedCountry: selectedOrder.detected_country,
         }),
       });
       if (r.ok) {
@@ -341,6 +342,13 @@ export default function AdminPage() {
                       )}
                       {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.phone && <p className="text-gray-600">📞 {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options).phone}</p>}
                     </div>
+
+                    {selectedOrder.detected_country && (
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-xs text-gray-500 font-semibold mb-1">🌍 Pays détecté (IP)</p>
+                        <p className="font-semibold">{selectedOrder.detected_country}</p>
+                      </div>
+                    )}
 
                     {selectedOrder.customer_address && (
                       <div className="bg-blue-50 rounded-lg p-3">

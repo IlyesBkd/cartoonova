@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       description,
       photoUrls,
       style,
+      detectedCountry,
     } = await req.json();
 
     if (!paymentIntentId || !email) {
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     const rows = await sql`
       INSERT INTO orders (
         payment_intent_id, customer_email, customer_name, customer_address,
-        total_price, currency, options, photo_urls, status
+        total_price, currency, options, photo_urls, status, detected_country
       ) VALUES (
         ${paymentIntentId},
         ${email},
@@ -60,7 +61,8 @@ export async function POST(req: NextRequest) {
         ${(currency || "EUR").toUpperCase()},
         ${options}::jsonb,
         ${photoUrlsJson}::jsonb,
-        'PENDING'
+        'PENDING',
+        ${detectedCountry || null}
       )
       RETURNING id
     `;
