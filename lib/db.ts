@@ -32,6 +32,8 @@ export interface DbOrder {
   photo_urls: string[];
   status: string;
   created_at: string;
+  final_image_url: string | null;
+  final_image_sent_at: string | null;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
@@ -49,6 +51,18 @@ export async function getOrderByPaymentId(paymentIntentId: string): Promise<DbOr
 export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
   await sql`
     UPDATE orders SET status = ${status} WHERE id = ${orderId}::uuid
+  `;
+}
+
+export async function updateOrderFinalImage(orderId: string, finalImageUrl: string): Promise<void> {
+  await sql`
+    UPDATE orders SET final_image_url = ${finalImageUrl} WHERE id = ${orderId}::uuid
+  `;
+}
+
+export async function markFinalImageSent(orderId: string): Promise<void> {
+  await sql`
+    UPDATE orders SET final_image_sent_at = NOW() WHERE id = ${orderId}::uuid
   `;
 }
 

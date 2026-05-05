@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { upload } from "@vercel/blob/client";
 import type { Prices } from "@/lib/types";
 import { DEFAULT_PRICES } from "@/lib/types";
 import type { DbOrder } from "@/lib/db";
@@ -38,6 +39,12 @@ export default function AdminPage() {
   const [prices, setPrices] = useState<Prices>(DEFAULT_PRICES);
   const [savingPrices, setSavingPrices] = useState(false);
   const [pricesSaved, setPricesSaved] = useState(false);
+
+  // Final image
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [sendingImage, setSendingImage] = useState(false);
+  const [imageSent, setImageSent] = useState(false);
 
   const headers = useCallback(
     () => ({ "Content-Type": "application/json", "x-admin-password": password }),
@@ -107,6 +114,69 @@ export default function AdminPage() {
     setSavingPrices(false);
     setPricesSaved(true);
     setTimeout(() => setPricesSaved(false), 2000);
+  };
+
+  // Upload final image to Vercel Blob
+  const handleUploadFinalImage = async (file: File) => {
+    if (!selectedOrder) return;
+    setUploadingImage(true);
+    try {
+      const blob = await upload(`final/${selectedOrder.id}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      });
+      // Save to DB
+      await fetch("/api/orders/send-final-image", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          customerEmail: selectedOrder.customer_email,
+          finalImageUrl: blob.url,
+          saveOnly: true,
+        }),
+      });
+      // Update local state with new URL
+      const updated = { ...selectedOrder, final_image_url: blob.url };
+      setSelectedOrder(updated);
+      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+    } catch (err) {
+      alert(`Erreur upload: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
+    }
+    setUploadingImage(false);
+  };
+
+  // Send final image email via Resend
+  const handleSendFinalImage = async () => {
+    if (!selectedOrder?.final_image_url) return;
+    setSendingImage(true);
+    setImageSent(false);
+    try {
+      const r = await fetch("/api/orders/send-final-image", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          customerEmail: selectedOrder.customer_email,
+          customerName: selectedOrder.customer_name,
+          finalImageUrl: selectedOrder.final_image_url,
+          orderRef: selectedOrder.id,
+        }),
+      });
+      if (r.ok) {
+        setImageSent(true);
+        const updated = { ...selectedOrder, final_image_sent_at: new Date().toISOString() };
+        setSelectedOrder(updated);
+        setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+        setTimeout(() => setImageSent(false), 4000);
+      } else {
+        const data = await r.json().catch(() => null);
+        alert(`Erreur envoi: ${data?.error || "Erreur inconnue"}`);
+      }
+    } catch (err) {
+      alert(`Erreur réseau: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
+    }
+    setSendingImage(false);
   };
 
   // ─── Login screen ────────────────────────────────────────────────
@@ -313,6 +383,68 @@ export default function AdminPage() {
                         </div>
                       </div>
                     ) : null; })()}
+
+                    {/* Final image upload & send */}
+                    <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-200">
+                      <p className="text-xs text-emerald-700 font-semibold mb-2">🎨 Image finale</p>
+
+                      {selectedOrder.final_image_url ? (
+                        <div className="space-y-2">
+                          <a href={selectedOrder.final_image_url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-emerald-300 hover:ring-2 hover:ring-emerald-400 transition-all">
+                            <img src={selectedOrder.final_image_url} alt="Image finale" className="w-full h-auto object-cover" />
+                          </a>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploadingImage}
+                              className="flex-1 px-3 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              {uploadingImage ? "Upload..." : "Remplacer"}
+                            </button>
+                            <button
+                              onClick={handleSendFinalImage}
+                              disabled={sendingImage}
+                              className="flex-[2] px-3 py-2 text-xs font-bold rounded-lg border border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              {sendingImage ? "Envoi en cours..." : selectedOrder.final_image_sent_at ? "Renvoyer par email" : "Envoyer au client"}
+                            </button>
+                          </div>
+                          {selectedOrder.final_image_sent_at && (
+                            <p className="text-[10px] text-emerald-600 font-semibold text-center">
+                              Envoyé le {new Date(selectedOrder.final_image_sent_at).toLocaleString("fr-FR")}
+                            </p>
+                          )}
+                          {imageSent && (
+                            <p className="text-xs text-emerald-600 font-bold text-center bg-emerald-100 rounded-lg py-1">
+                              Email envoyé avec succès !
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploadingImage}
+                            className="w-full px-3 py-4 text-xs font-bold rounded-lg border-2 border-dashed border-emerald-300 bg-white text-emerald-600 hover:bg-emerald-50 hover:border-emerald-400 transition-all cursor-pointer disabled:opacity-50 flex flex-col items-center gap-1"
+                          >
+                            <span className="text-lg">{uploadingImage ? "⏳" : "📤"}</span>
+                            {uploadingImage ? "Upload en cours..." : "Uploader l'image finale"}
+                          </button>
+                        </div>
+                      )}
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleUploadFinalImage(file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </div>
 
                     {/* Status update */}
                     <div>

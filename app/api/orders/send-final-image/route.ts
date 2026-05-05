@@ -1,0 +1,80 @@
+import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
+import { updateOrderFinalImage, markFinalImageSent } from "@/lib/db";
+
+const resend = new Resend(process.env.RESEND_API_KEY!);
+
+export async function POST(req: NextRequest) {
+  const password = req.headers.get("x-admin-password");
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
+  }
+
+  try {
+    const { orderId, customerEmail, customerName, finalImageUrl, orderRef, saveOnly } = await req.json();
+
+    if (!orderId || !finalImageUrl) {
+      return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
+    }
+
+    // 1. Save final image URL to DB
+    await updateOrderFinalImage(orderId, finalImageUrl);
+
+    // If saveOnly, just persist the URL and return
+    if (saveOnly) {
+      return NextResponse.json({ ok: true, saved: true });
+    }
+
+    if (!customerEmail) {
+      return NextResponse.json({ error: "Email client manquant." }, { status: 400 });
+    }
+
+    // 2. Send email via Resend
+    const result = await resend.emails.send({
+      from: "Cartoonova <noreply@cartoonova.com>",
+      to: [customerEmail],
+      subject: "🎨 Votre illustration Cartoonova est prête !",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
+          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
+            <h1 style="font-size: 32px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
+              🎨 Votre illustration est prête !
+            </h1>
+            <p style="font-size: 16px; text-align: center; margin: 0 0 30px 0; color: #000;">
+              ${customerName ? `Bonjour ${customerName},` : "Bonjour,"}
+            </p>
+            <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #555;">
+              Votre commande <strong>#${(orderRef || orderId).slice(0, 8)}</strong> a été finalisée par nos artistes. Découvrez le résultat ci-dessous :
+            </p>
+            <div style="text-align: center; margin: 20px 0;">
+              <img src="${finalImageUrl}" alt="Votre illustration Cartoonova" style="max-width: 100%; border: 3px solid #000; border-radius: 12px; box-shadow: 6px 6px 0px rgba(0,0,0,1);" />
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${finalImageUrl}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
+                Télécharger mon illustration
+              </a>
+            </div>
+            <p style="font-size: 14px; text-align: center; color: #555; margin-top: 20px;">
+              Si vous avez des retours ou besoin d'une modification, répondez simplement à cet email.
+            </p>
+          </div>
+          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
+            <p>Merci pour votre confiance ! 🎨</p>
+            <p>L'équipe Cartoonova</p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log("[SEND-FINAL-IMAGE] Email envoyé:", JSON.stringify(result));
+
+    // 3. Mark as sent in DB
+    await markFinalImageSent(orderId);
+
+    return NextResponse.json({ ok: true, emailResult: result });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[POST /api/orders/send-final-image] Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
