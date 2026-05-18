@@ -310,7 +310,6 @@ export default function ProductPage() {
 
             <div className="grid md:grid-cols-[1.1fr_1fr] gap-10 items-center">
               <div className="relative">
-                <div className="section-label mb-5">{tp("bestSellerLabel")}</div>
                 <h1 className="font-display text-[clamp(2.6rem,6vw,5.2rem)] leading-[0.95] mb-3">
                   {t("heroTitle1")}{" "}
                   <span className="doodle-underline text-[var(--cn-yellow-deep)]">
