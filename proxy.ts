@@ -1,6 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
+import { locales } from "./i18n/config";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -20,19 +21,35 @@ const countryCurrencyMap: Record<string, string> = {
   AU: "AUD", NZ: "AUD",
 };
 
+// Country → Locale preference for root-path geo-redirect
+const countryLocaleMap: Record<string, (typeof locales)[number]> = {
+  FR: "fr", BE: "fr", LU: "fr", MC: "fr", CH: "fr",
+  DE: "de", AT: "de", LI: "de",
+  ES: "es", AR: "es", MX: "es", CL: "es", CO: "es", PE: "es", VE: "es", UY: "es", PY: "es", BO: "es", EC: "es", DO: "es", GT: "es", CR: "es", PA: "es", HN: "es", NI: "es", SV: "es", CU: "es",
+  IT: "it", SM: "it", VA: "it",
+};
+
 const CURRENCY_COOKIE = "cartoonova_currency";
 const COUNTRY_COOKIE = "cartoonova_country";
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  console.log("[PROXY] pathname:", pathname, "| fullUrl:", request.nextUrl.href);
+  const country = request.headers.get("x-vercel-ip-country") || "";
+
+  // Root-path geo-redirect: send the user to the locale matching their country
+  // before next-intl falls back to the default. Respect existing NEXT_LOCALE cookie.
+  if (pathname === "/") {
+    const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+    const validCookie = cookieLocale && (locales as readonly string[]).includes(cookieLocale) ? cookieLocale : null;
+    const fromCountry = country ? countryLocaleMap[country.toUpperCase()] : null;
+    const target = validCookie ?? fromCountry ?? "en";
+    return NextResponse.redirect(new URL(`/${target}`, request.url));
+  }
 
   // Skip next-intl for /success (standalone page, no locale needed)
   if (pathname.startsWith("/success")) {
     console.log("[PROXY] ✅ /success bypass — skipping next-intl");
     const response = NextResponse.next();
-
-    const country = request.headers.get("x-vercel-ip-country") || "";
 
     const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
     if (!existingCurrency) {
@@ -61,8 +78,6 @@ export function proxy(request: NextRequest) {
 
   // Currency detection — only set if no cookie exists
   const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
-
-  const country = request.headers.get("x-vercel-ip-country") || "";
 
   if (!existingCurrency) {
     const detectedCurrency = countryCurrencyMap[country.toUpperCase()] || "EUR";
