@@ -55,3 +55,23 @@ export function convertAndFormat(amountInEUR: number, currency: Currency, locale
 }
 
 export const CURRENCY_COOKIE = "cartoonova_currency";
+
+const COUNTRY_TO_CURRENCY: Record<string, Currency> = {
+  US: "USD",
+  GB: "GBP",
+  CA: "CAD",
+  AU: "AUD", NZ: "AUD",
+  // Eurozone
+  AT: "EUR", BE: "EUR", CY: "EUR", DE: "EUR", EE: "EUR", ES: "EUR", FI: "EUR",
+  FR: "EUR", GR: "EUR", HR: "EUR", IE: "EUR", IT: "EUR", LT: "EUR", LU: "EUR",
+  LV: "EUR", MT: "EUR", NL: "EUR", PT: "EUR", SI: "EUR", SK: "EUR",
+  // EUR-pegged or EUR-accepted micro-states
+  AD: "EUR", MC: "EUR", SM: "EUR", VA: "EUR", ME: "EUR", XK: "EUR",
+  // Switzerland — CHF not supported, EUR is widely accepted there
+  CH: "EUR", LI: "EUR",
+};
+
+export function getCurrencyFromCountry(country?: string | null): Currency | undefined {
+  if (!country) return undefined;
+  return COUNTRY_TO_CURRENCY[country.toUpperCase()];
+}

@@ -330,7 +330,7 @@ export default function CheckoutModal({
   const [formError, setFormError] = useState("");
 
   const isDigital = orderConfig.printOption === "Digital";
-  const { currency, format: formatPrice, convert } = useCurrency();
+  const { currency, formatRaw: formatPrice } = useCurrency();
 
   // Reset on open/close + track modal open
   useEffect(() => {
@@ -383,13 +383,11 @@ export default function CheckoutModal({
     setStep("payment");
     setLoadingIntent(true);
 
-    const convertedTotal = convert(orderConfig.total);
-
     fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        amount: Math.round(convertedTotal * 100),
+        amount: Math.round(orderConfig.total * 100),
         currency: currency.toLowerCase(),
         description: orderConfig.description,
       }),

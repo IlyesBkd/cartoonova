@@ -1,3 +1,5 @@
+import type { Currency } from "./currency";
+
 export interface Order {
   id: string;
   createdAt: string;
@@ -16,7 +18,7 @@ export interface Order {
   people: number;
   animals: number;
   background: string;
-  printOption: string; // "Digital" | "Portrait sur Toile" | "Poster Encadré"
+  printOption: string;
   total: number;
   description: string;
   // Files
@@ -25,7 +27,7 @@ export interface Order {
   stripePaymentId?: string;
 }
 
-export interface Prices {
+export interface PriceSet {
   base: number;
   fullbodyExtra: number;
   extraPerson: number;
@@ -36,7 +38,11 @@ export interface Prices {
   posterSimple: number;
 }
 
-export const DEFAULT_PRICES: Prices = {
+export type Prices = PriceSet;
+
+export type PricesByCurrency = Record<Currency, PriceSet>;
+
+export const DEFAULT_PRICE_SET: PriceSet = {
   base: 49,
   fullbodyExtra: 20,
   extraPerson: 15,
@@ -45,4 +51,14 @@ export const DEFAULT_PRICES: Prices = {
   canvas: 89,
   poster: 79,
   posterSimple: 19,
+};
+
+export const DEFAULT_PRICES: Prices = DEFAULT_PRICE_SET;
+
+export const DEFAULT_PRICES_BY_CURRENCY: PricesByCurrency = {
+  EUR: { ...DEFAULT_PRICE_SET },
+  USD: { base: 55, fullbodyExtra: 22, extraPerson: 17, extraAnimal: 17, digital: 0, canvas: 99, poster: 89, posterSimple: 22 },
+  GBP: { base: 45, fullbodyExtra: 18, extraPerson: 14, extraAnimal: 14, digital: 0, canvas: 79, poster: 69, posterSimple: 17 },
+  CAD: { base: 75, fullbodyExtra: 30, extraPerson: 22, extraAnimal: 22, digital: 0, canvas: 135, poster: 119, posterSimple: 29 },
+  AUD: { base: 85, fullbodyExtra: 35, extraPerson: 25, extraAnimal: 25, digital: 0, canvas: 149, poster: 135, posterSimple: 33 },
 };

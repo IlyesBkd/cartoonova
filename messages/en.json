@@ -728,5 +728,17 @@
     "ctaReassurance": "✏️ Hand-drawn · ⚡ Delivered in 48h · 🔒 Satisfied or refunded",
     "portraitAlt": "Cartoon portrait",
     "realizationAlt": "Creation"
+  },
+  "socialProof": {
+    "names": [
+      "Emma from London",
+      "Oliver from Manchester",
+      "Charlotte from Dublin",
+      "James from Sydney",
+      "Olivia from New York",
+      "William from Toronto",
+      "Sophie from Edinburgh",
+      "Noah from Melbourne"
+    ]
   }
 }

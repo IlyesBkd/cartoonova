@@ -1,6 +1,8 @@
 import { neon } from "@neondatabase/serverless";
-import type { Prices } from "./types";
-import { DEFAULT_PRICES } from "./types";
+import type { Prices, PriceSet, PricesByCurrency } from "./types";
+import { DEFAULT_PRICES, DEFAULT_PRICES_BY_CURRENCY } from "./types";
+import type { Currency } from "./currency";
+import { convertPrice } from "./currency";
 
 // ─── SQL Connection ──────────────────────────────────────────────────
 export const sql = neon(process.env.DATABASE_URL!);
@@ -68,33 +70,74 @@ export async function markFinalImageSent(orderId: string): Promise<void> {
 }
 
 // ─── Prices ──────────────────────────────────────────────────────────
-export async function getPrices(): Promise<Prices> {
-  const rows = await sql`SELECT * FROM prices WHERE id = 'singleton'`;
-  if (!rows.length) return DEFAULT_PRICES;
-  const r = rows[0] as Record<string, unknown>;
-  return {
-    base: Number(r.base),
-    fullbodyExtra: Number(r.fullbody_extra),
-    extraPerson: Number(r.extra_person),
-    extraAnimal: Number(r.extra_animal),
-    digital: Number(r.digital),
-    canvas: Number(r.canvas),
-    poster: Number(r.poster),
-    posterSimple: Number(r.poster_simple),
-  };
+
+let pricesSchemaReady: Promise<void> | null = null;
+
+async function ensurePricesSchema(): Promise<void> {
+  if (pricesSchemaReady) return pricesSchemaReady;
+  pricesSchemaReady = (async () => {
+    await sql`ALTER TABLE prices ADD COLUMN IF NOT EXISTS data JSONB`;
+    const rows = await sql`SELECT data, base, fullbody_extra, extra_person, extra_animal, digital, canvas, poster, poster_simple FROM prices WHERE id = 'singleton'`;
+    if (!rows.length) return;
+    const r = rows[0] as Record<string, unknown>;
+    if (r.data) return;
+    const eur: PriceSet = {
+      base: Number(r.base),
+      fullbodyExtra: Number(r.fullbody_extra),
+      extraPerson: Number(r.extra_person),
+      extraAnimal: Number(r.extra_animal),
+      digital: Number(r.digital),
+      canvas: Number(r.canvas),
+      poster: Number(r.poster),
+      posterSimple: Number(r.poster_simple),
+    };
+    const scale = (rate: number): PriceSet =>
+      Object.fromEntries(
+        Object.entries(eur).map(([k, v]) => [k, k === "digital" ? v : Math.ceil((v as number) * rate)])
+      ) as unknown as PriceSet;
+    const seeded: PricesByCurrency = {
+      EUR: eur,
+      USD: scale(1.08),
+      GBP: scale(0.86),
+      CAD: scale(1.48),
+      AUD: scale(1.66),
+    };
+    await sql`UPDATE prices SET data = ${JSON.stringify(seeded)}::jsonb WHERE id = 'singleton'`;
+  })().catch((e) => {
+    pricesSchemaReady = null;
+    throw e;
+  });
+  return pricesSchemaReady;
 }
 
-export async function updatePrices(prices: Prices): Promise<void> {
-  await sql`
-    UPDATE prices SET
-      base = ${prices.base},
-      fullbody_extra = ${prices.fullbodyExtra},
-      extra_person = ${prices.extraPerson},
-      extra_animal = ${prices.extraAnimal},
-      digital = ${prices.digital},
-      canvas = ${prices.canvas},
-      poster = ${prices.poster},
-      poster_simple = ${prices.posterSimple}
-    WHERE id = 'singleton'
-  `;
+export async function getPrices(): Promise<Prices> {
+  return getPricesForCurrency("EUR");
+}
+
+export async function getPricesForCurrency(currency: Currency): Promise<PriceSet> {
+  await ensurePricesSchema();
+  const rows = await sql`SELECT data FROM prices WHERE id = 'singleton'`;
+  if (!rows.length || !rows[0].data) {
+    const eur = DEFAULT_PRICES_BY_CURRENCY.EUR;
+    return currency === "EUR" ? eur : DEFAULT_PRICES_BY_CURRENCY[currency];
+  }
+  const data = rows[0].data as PricesByCurrency;
+  const set = data[currency];
+  if (set) return set;
+  const eur = data.EUR;
+  return Object.fromEntries(
+    Object.entries(eur).map(([k, v]) => [k, k === "digital" ? v : convertPrice(v as number, currency)])
+  ) as unknown as PriceSet;
+}
+
+export async function getAllPrices(): Promise<PricesByCurrency> {
+  await ensurePricesSchema();
+  const rows = await sql`SELECT data FROM prices WHERE id = 'singleton'`;
+  if (!rows.length || !rows[0].data) return DEFAULT_PRICES_BY_CURRENCY;
+  return rows[0].data as PricesByCurrency;
+}
+
+export async function updateAllPrices(data: PricesByCurrency): Promise<void> {
+  await ensurePricesSchema();
+  await sql`UPDATE prices SET data = ${JSON.stringify(data)}::jsonb WHERE id = 'singleton'`;
 }

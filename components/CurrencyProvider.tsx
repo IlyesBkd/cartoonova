@@ -1,12 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { type Currency, currencies, CURRENCY_COOKIE, convertAndFormat, convertPrice } from "@/lib/currency";
+import { type Currency, currencies, CURRENCY_COOKIE, convertAndFormat, convertPrice, formatPrice } from "@/lib/currency";
 
 interface CurrencyContextType {
   currency: Currency;
   setCurrency: (c: Currency) => void;
   format: (amountInEUR: number) => string;
+  formatRaw: (amount: number) => string;
   convert: (amountInEUR: number) => number;
 }
 
@@ -14,6 +15,7 @@ const CurrencyContext = createContext<CurrencyContextType>({
   currency: "EUR",
   setCurrency: () => {},
   format: (a) => `${a} €`,
+  formatRaw: (a) => `${a} €`,
   convert: (a) => a,
 });
 
@@ -40,17 +42,15 @@ export default function CurrencyProvider({
   initialCurrency?: Currency;
   locale?: string;
 }) {
-  // Devise par défaut basée sur la locale pour Google Shopping
-  // en = USD, toutes les autres locales européennes = EUR
-  const defaultCurrency = locale === "en" ? "USD" : "EUR";
-  const [currency, setCurrencyState] = useState<Currency>(initialCurrency || defaultCurrency);
+  const localeFallback: Currency = locale === "en" ? "GBP" : "EUR";
+  const defaultCurrency: Currency = initialCurrency || localeFallback;
+  const [currency, setCurrencyState] = useState<Currency>(defaultCurrency);
 
   useEffect(() => {
     const cookieCurrency = getCookie(CURRENCY_COOKIE);
     if (cookieCurrency && currencies.includes(cookieCurrency as Currency)) {
       setCurrencyState(cookieCurrency as Currency);
     } else {
-      // Si pas de cookie, utiliser la devise par défaut basée sur la locale
       setCurrencyState(defaultCurrency);
     }
   }, [defaultCurrency]);
@@ -61,10 +61,11 @@ export default function CurrencyProvider({
   };
 
   const format = (amountInEUR: number) => convertAndFormat(amountInEUR, currency, locale);
+  const formatRaw = (amount: number) => formatPrice(amount, currency, locale);
   const convert = (amountInEUR: number) => convertPrice(amountInEUR, currency);
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, format, convert }}>
+    <CurrencyContext.Provider value={{ currency, setCurrency, format, formatRaw, convert }}>
       {children}
     </CurrencyContext.Provider>
   );

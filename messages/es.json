@@ -728,5 +728,17 @@
     "ctaReassurance": "✏️ Dibujado a mano · ⚡ Entrega en 48h · 🔒 Satisfecho o reembolsado",
     "portraitAlt": "Retrato cartoon",
     "realizationAlt": "Creación"
+  },
+  "socialProof": {
+    "names": [
+      "María de Madrid",
+      "Carlos de Barcelona",
+      "Lucía de Valencia",
+      "Pablo de Sevilla",
+      "Sofía de Bilbao",
+      "Diego de Málaga",
+      "Carmen de Granada",
+      "Javier de Zaragoza"
+    ]
   }
 }

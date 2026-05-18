@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l -i \"headers\\(\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(xargs -I {} du -h {})",
+      "Bash(node *)",
+      "Bash(grep -v \":0$\")",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(mkdir -p /tmp/design)",
+      "Bash(cp \"C:/Users/ilyee/.claude/projects/C--Users-ilyee-Desktop-Cartoonova---Figma/b09d65a1-4edf-41a3-94ab-cf2192221ce1/tool-results/webfetch-1779138097913-nyh7e7.bin\" /tmp/design/archive.gz)",
+      "Read(//tmp/**)",
+      "Bash(gunzip archive.gz)",
+      "Bash(mkdir -p extracted)",
+      "Bash(tar -xf archive -C extracted)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}

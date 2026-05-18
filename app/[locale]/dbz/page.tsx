@@ -8,6 +8,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
 import { upload } from "@vercel/blob/client";
 import { useProductTracking, PRODUCT_CONFIGS } from "@/hooks/useProductTracking";
+import { ProductJsonLd, PRODUCT_STYLE_META } from "@/components/structured-data";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    ASSETS
@@ -34,10 +35,6 @@ const GALLERY_PHOTOS = [
   "/DBZ/Photo_produits/ezgif.com-webp-to-png (7).png",
 ];
 
-const SOCIAL_PROOF_NAMES = [
-  "Sophie de Lyon", "Thomas de Paris", "Marie de Bordeaux", "Lucas de Marseille",
-  "Emma de Toulouse", "Hugo de Nantes", "Léa de Strasbourg", "Nathan de Lille",
-];
 
 /* ═══════════════════════════════════════════════════════════════════════════
    ANIMATED PRICE — count-up/down fluide
@@ -82,8 +79,9 @@ function Confetti({ active }: { active: boolean }) {
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function ProductPage() {
   const t = useTranslations("dbz");
+  const socialProofNames = useTranslations("socialProof").raw("names") as string[];
   const tp = useTranslations("product");
-  const { format: formatPrice, currency } = useCurrency();
+  const { formatRaw: formatPrice, currency } = useCurrency();
   const { trackOptionSelected, trackPhotoUploaded, trackCheckoutStarted } = useProductTracking(PRODUCT_CONFIGS.dbz);
 
   // Core state
@@ -142,7 +140,7 @@ export default function ProductPage() {
     { name: t("review6Name"), text: t("review6Text") },
   ];
 
-  useEffect(() => { fetch("/api/prices").then((r) => r.json()).then(setPrices); }, []);
+  useEffect(() => { fetch(`/api/prices?currency=${currency}`).then((r) => r.json()).then(setPrices); }, [currency]);
 
   useEffect(() => {
     const interval = setInterval(() => setActivePhoto((p) => (p + 1) % 6), 4000);
@@ -150,7 +148,7 @@ export default function ProductPage() {
   }, []);
 
   useEffect(() => {
-    const show = () => { setToastName(SOCIAL_PROOF_NAMES[Math.floor(Math.random() * SOCIAL_PROOF_NAMES.length)]); setToastVisible(true); setTimeout(() => setToastVisible(false), 4000); };
+    const show = () => { setToastName(socialProofNames[Math.floor(Math.random() * socialProofNames.length)]); setToastVisible(true); setTimeout(() => setToastVisible(false), 4000); };
     const interval = setInterval(show, 35000);
     const initial = setTimeout(show, 12000);
     return () => { clearInterval(interval); clearTimeout(initial); };
@@ -213,6 +211,20 @@ export default function ProductPage() {
 
   return (
     <>
+      <ProductJsonLd product={{
+        name: PRODUCT_STYLE_META.dbz.name,
+        description: PRODUCT_STYLE_META.dbz.description,
+        brand: "Cartoonova",
+        image: PRODUCT_STYLE_META.dbz.image,
+        sku: PRODUCT_STYLE_META.dbz.sku,
+        offers: {
+          priceCurrency: currency,
+          price: String(prices?.base ?? 49),
+          availability: "https://schema.org/InStock",
+          priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        },
+        aggregateRating: { ratingValue: 4.9, reviewCount: 2500 },
+      }} />
       <div className="min-h-screen bg-orange-50 text-gray-900 overflow-x-hidden">
 
         {/* SOCIAL PROOF LIVE TOAST */}

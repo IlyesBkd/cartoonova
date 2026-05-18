@@ -728,5 +728,17 @@
     "ctaReassurance": "✏️ Disegnato a mano · ⚡ Consegna in 48h · 🔒 Soddisfatti o rimborsati",
     "portraitAlt": "Ritratto cartoon",
     "realizationAlt": "Creazione"
+  },
+  "socialProof": {
+    "names": [
+      "Giulia da Roma",
+      "Marco da Milano",
+      "Sofia da Napoli",
+      "Lorenzo da Torino",
+      "Aurora da Firenze",
+      "Alessandro da Bologna",
+      "Chiara da Venezia",
+      "Francesco da Palermo"
+    ]
   }
 }

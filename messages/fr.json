@@ -728,5 +728,17 @@
     "ctaReassurance": "✏️ Dessiné à la main · ⚡ Livré en 48h · 🔒 Satisfait ou remboursé",
     "portraitAlt": "Portrait cartoon",
     "realizationAlt": "Réalisation"
+  },
+  "socialProof": {
+    "names": [
+      "Sophie de Lyon",
+      "Thomas de Paris",
+      "Marie de Bordeaux",
+      "Lucas de Marseille",
+      "Emma de Toulouse",
+      "Hugo de Nantes",
+      "Léa de Strasbourg",
+      "Nathan de Lille"
+    ]
   }
 }

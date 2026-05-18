@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -7,6 +8,7 @@ import { locales, type Locale } from "@/i18n/config";
 import CurrencyProvider from "@/components/CurrencyProvider";
 import PostHogProvider from "@/components/PostHogProvider";
 import LayoutShell from "@/components/LayoutShell";
+import { getCurrencyFromCountry } from "@/lib/currency";
 
 const baseUrl = "https://cartoonova.fr";
 
@@ -90,10 +92,13 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
 
+  const country = (await headers()).get("x-vercel-ip-country");
+  const initialCurrency = getCurrencyFromCountry(country);
+
   return (
     <PostHogProvider>
       <NextIntlClientProvider messages={messages}>
-        <CurrencyProvider locale={locale}>
+        <CurrencyProvider locale={locale} initialCurrency={initialCurrency}>
           <LayoutShell>
             {children}
           </LayoutShell>

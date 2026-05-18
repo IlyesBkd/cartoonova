@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { upload } from "@vercel/blob/client";
-import type { Prices } from "@/lib/types";
-import { DEFAULT_PRICES } from "@/lib/types";
+import type { PriceSet, PricesByCurrency } from "@/lib/types";
+import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
+import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
 import type { DbOrder } from "@/lib/db";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
 const STYLE_LABELS: Record<string, { label: string; emoji: string }> = {
   simpson: { label: "Simpson", emoji: "🟡" },
-  simpsons2: { label: "Simpson V2", emoji: "🟡" },
   dbz: { label: "Dragon Ball Z", emoji: "⚡" },
   disney: { label: "Disney", emoji: "✨" },
   ghibli: { label: "Ghibli", emoji: "🌸" },
@@ -36,7 +36,8 @@ export default function AdminPage() {
   const [selectedOrder, setSelectedOrder] = useState<DbOrder | null>(null);
 
   // Prices
-  const [prices, setPrices] = useState<Prices>(DEFAULT_PRICES);
+  const [pricesByCurrency, setPricesByCurrency] = useState<PricesByCurrency>(DEFAULT_PRICES_BY_CURRENCY);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>("EUR");
   const [savingPrices, setSavingPrices] = useState(false);
   const [pricesSaved, setPricesSaved] = useState(false);
 
@@ -62,10 +63,10 @@ export default function AdminPage() {
 
   const fetchPrices = useCallback(async () => {
     try {
-      const r = await fetch("/api/prices");
-      if (r.ok) setPrices(await r.json());
+      const r = await fetch("/api/prices/all", { headers: { "x-admin-password": password } });
+      if (r.ok) setPricesByCurrency(await r.json());
     } catch {}
-  }, []);
+  }, [password]);
 
   // Login
   const handleLogin = async () => {
@@ -106,14 +107,21 @@ export default function AdminPage() {
   // Save prices
   const savePrices = async () => {
     setSavingPrices(true);
-    await fetch("/api/prices", {
+    await fetch("/api/prices/all", {
       method: "PUT",
       headers: headers(),
-      body: JSON.stringify(prices),
+      body: JSON.stringify(pricesByCurrency),
     });
     setSavingPrices(false);
     setPricesSaved(true);
     setTimeout(() => setPricesSaved(false), 2000);
+  };
+
+  const updatePriceField = (key: keyof PriceSet, value: number) => {
+    setPricesByCurrency({
+      ...pricesByCurrency,
+      [selectedCurrency]: { ...pricesByCurrency[selectedCurrency], [key]: value },
+    });
   };
 
   // Upload final image to Vercel Blob
@@ -689,10 +697,26 @@ export default function AdminPage() {
           <>
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900">💰 Gestion des Prix</h2>
-              <p className="text-sm text-gray-500">Modifiez les prix de chaque option de personnalisation.</p>
+              <p className="text-sm text-gray-500">Modifiez les prix de chaque option, indépendamment pour chaque devise.</p>
             </div>
 
             <div className="max-w-2xl bg-white border border-gray-200 rounded-xl p-6">
+              <div className="flex gap-2 mb-6 border-b border-gray-100 pb-4 flex-wrap">
+                {currencies.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setSelectedCurrency(c)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${
+                      selectedCurrency === c
+                        ? "bg-gray-900 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {currencyFlags[c]} {c}
+                  </button>
+                ))}
+              </div>
+
               <div className="grid grid-cols-2 gap-6">
                 {[
                   { key: "base" as const, label: "Prix de base (Portrait)", icon: "🎨" },
@@ -711,11 +735,11 @@ export default function AdminPage() {
                     <div className="relative">
                       <input
                         type="number"
-                        value={prices[item.key]}
-                        onChange={(e) => setPrices({ ...prices, [item.key]: Number(e.target.value) })}
-                        className="w-full px-4 py-2.5 pr-8 text-sm font-semibold border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+                        value={pricesByCurrency[selectedCurrency][item.key]}
+                        onChange={(e) => updatePriceField(item.key, Number(e.target.value))}
+                        className="w-full px-4 py-2.5 pr-10 text-sm font-semibold border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-semibold">€</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-semibold">{currencySymbols[selectedCurrency]}</span>
                     </div>
                   </div>
                 ))}
@@ -727,10 +751,10 @@ export default function AdminPage() {
                   disabled={savingPrices}
                   className="bg-gray-900 text-white font-semibold text-sm px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50"
                 >
-                  {savingPrices ? "Enregistrement..." : "💾 Enregistrer les prix"}
+                  {savingPrices ? "Enregistrement..." : "💾 Enregistrer tous les prix"}
                 </button>
                 {pricesSaved && (
-                  <span className="text-sm text-green-600 font-semibold">✅ Prix mis à jour !</span>
+                  <span className="text-sm text-green-600 font-semibold">✅ Tous les prix mis à jour !</span>
                 )}
               </div>
             </div>

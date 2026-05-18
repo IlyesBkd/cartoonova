@@ -728,5 +728,17 @@
     "ctaReassurance": "✏️ Handgezeichnet · ⚡ Lieferung in 48h · 🔒 Zufrieden oder Geld zurück",
     "portraitAlt": "Cartoon-Portrait",
     "realizationAlt": "Kreation"
+  },
+  "socialProof": {
+    "names": [
+      "Anna aus Berlin",
+      "Lukas aus München",
+      "Mia aus Hamburg",
+      "Maximilian aus Köln",
+      "Emma aus Frankfurt",
+      "Felix aus Stuttgart",
+      "Lena aus Düsseldorf",
+      "Paul aus Wien"
+    ]
   }
 }

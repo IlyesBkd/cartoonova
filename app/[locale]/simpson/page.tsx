@@ -39,10 +39,6 @@ const GALLERY_PHOTOS = [
   "/simpson_photos_produit/IB4-20.jpg",
 ];
 
-const SOCIAL_PROOF_NAMES = [
-  "Sophie de Lyon", "Thomas de Paris", "Marie de Bordeaux", "Lucas de Marseille",
-  "Emma de Toulouse", "Hugo de Nantes", "Léa de Strasbourg", "Nathan de Lille",
-];
 
 /* ═══════════════════════════════════════════════════════════════════════════
    ANIMATED PRICE — count-up/down fluide
@@ -87,8 +83,9 @@ function Confetti({ active }: { active: boolean }) {
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function ProductPage() {
   const t = useTranslations("product");
+  const socialProofNames = useTranslations("socialProof").raw("names") as string[];
   const tp = useTranslations("product");
-  const { format: formatPrice, currency } = useCurrency();
+  const { formatRaw: formatPrice, currency } = useCurrency();
   const { trackOptionSelected, trackPhotoUploaded, trackCheckoutStarted } = useProductTracking(PRODUCT_CONFIGS.simpson);
 
   // Core state
@@ -147,7 +144,7 @@ export default function ProductPage() {
     { name: t("review6Name"), text: t("review6Text") },
   ];
 
-  useEffect(() => { fetch("/api/prices").then((r) => r.json()).then(setPrices); }, []);
+  useEffect(() => { fetch(`/api/prices?currency=${currency}`).then((r) => r.json()).then(setPrices); }, [currency]);
 
   useEffect(() => {
     const interval = setInterval(() => setActivePhoto((p) => (p + 1) % 6), 4000);
@@ -155,7 +152,7 @@ export default function ProductPage() {
   }, []);
 
   useEffect(() => {
-    const show = () => { setToastName(SOCIAL_PROOF_NAMES[Math.floor(Math.random() * SOCIAL_PROOF_NAMES.length)]); setToastVisible(true); setTimeout(() => setToastVisible(false), 4000); };
+    const show = () => { setToastName(socialProofNames[Math.floor(Math.random() * socialProofNames.length)]); setToastVisible(true); setTimeout(() => setToastVisible(false), 4000); };
     const interval = setInterval(show, 35000);
     const initial = setTimeout(show, 12000);
     return () => { clearInterval(interval); clearTimeout(initial); };
