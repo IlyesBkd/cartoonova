@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import posthog from "posthog-js";
+import { GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
 
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
 }
 
@@ -53,23 +55,27 @@ export default function SuccessClient({
       print_option: opts?.printOption || "unknown",
     });
 
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "conversion", {
-        send_to: `${process.env.NEXT_PUBLIC_GOOGLE_ADS_ID}/${process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL}`,
-        value: order.total_price,
-        currency: order.currency,
-        transaction_id: order.payment_intent_id,
-      });
-      console.log("[GTAG] ✅ Conversion Google Ads envoyée:", {
-        value: order.total_price,
-        currency: order.currency,
-        transaction_id: order.payment_intent_id,
-      });
-    }
+    const gtag = window.gtag ?? ((...args: unknown[]) => {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push(args);
+    });
+
+    gtag("event", "conversion", {
+      send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
+      value: order.total_price,
+      currency: order.currency,
+      transaction_id: order.payment_intent_id,
+    });
+    console.log("[GTAG] ✅ Conversion Google Ads envoyée:", {
+      send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
+      value: order.total_price,
+      currency: order.currency,
+      transaction_id: order.payment_intent_id,
+    });
 
     sessionStorage.setItem(storageKey, "1");
     conversionSent.current = true;
-  }, [isNewConversion, order.total_price, order.currency, order.payment_intent_id]);
+  }, [isNewConversion, order.id, order.options, order.total_price, order.currency, order.payment_intent_id]);
 
   // Décoder options JSONB (le driver Neon le parse automatiquement en objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
