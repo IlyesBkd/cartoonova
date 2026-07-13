@@ -1,4 +1,4 @@
-type Lang = "fr" | "en" | "es" | "de" | "it";
+export type Lang = "fr" | "en" | "es" | "de" | "it";
 
 // Country code → language mapping
 const countryToLang: Record<string, Lang> = {
@@ -175,5 +175,173 @@ export const finalImageEmail: Record<Lang, {
     feedback: "Se hai dei commenti o hai bisogno di una modifica, rispondi semplicemente a questa email.",
     thanks: "Grazie per la tua fiducia! 🎨",
     team: "Il team Cartoonova",
+  },
+};
+
+// ─── Poster confirmation email (before printing/shipping) ────────────
+export const posterConfirmationEmail: Record<Lang, {
+  subject: string;
+  title: string;
+  greeting: (name: string | null) => string;
+  intro: (ref: string) => string;
+  attachmentNote: string;
+  cta: string;
+  reassurance: string;
+  thanks: string;
+  team: string;
+}> = {
+  fr: {
+    subject: "✅ Confirmez votre visuel avant impression",
+    title: "✅ Un dernier accord avant impression",
+    greeting: (name) => name ? `Bonjour ${name},` : "Bonjour,",
+    intro: (ref) => `Votre poster de la commande <strong>#${ref}</strong> est prêt à partir en impression. Vous trouverez la photo finale ci-dessous et en pièce jointe de cet email.`,
+    attachmentNote: "📎 Le visuel final est joint à cet email.",
+    cta: "Voir et valider mon visuel",
+    reassurance: "Une fois votre confirmation reçue, nous lançons l'impression et l'expédition de votre poster.",
+    thanks: "Merci pour votre confiance ! 🎨",
+    team: "L'équipe Cartoonova",
+  },
+  en: {
+    subject: "✅ Confirm your artwork before printing",
+    title: "✅ One last check before printing",
+    greeting: (name) => name ? `Hello ${name},` : "Hello,",
+    intro: (ref) => `Your poster for order <strong>#${ref}</strong> is ready to go to print. You'll find the final photo below and attached to this email.`,
+    attachmentNote: "📎 The final artwork is attached to this email.",
+    cta: "View and confirm my artwork",
+    reassurance: "Once we receive your confirmation, we'll start printing and shipping your poster.",
+    thanks: "Thank you for your trust! 🎨",
+    team: "The Cartoonova Team",
+  },
+  es: {
+    subject: "✅ Confirma tu diseño antes de imprimir",
+    title: "✅ Una última confirmación antes de imprimir",
+    greeting: (name) => name ? `Hola ${name},` : "Hola,",
+    intro: (ref) => `Tu póster del pedido <strong>#${ref}</strong> está listo para imprimirse. Encontrarás la foto final debajo y adjunta a este correo.`,
+    attachmentNote: "📎 El diseño final está adjunto a este correo.",
+    cta: "Ver y confirmar mi diseño",
+    reassurance: "En cuanto recibamos tu confirmación, empezaremos a imprimir y enviar tu póster.",
+    thanks: "¡Gracias por tu confianza! 🎨",
+    team: "El equipo Cartoonova",
+  },
+  de: {
+    subject: "✅ Bestätigen Sie Ihr Motiv vor dem Druck",
+    title: "✅ Eine letzte Bestätigung vor dem Druck",
+    greeting: (name) => name ? `Hallo ${name},` : "Hallo,",
+    intro: (ref) => `Ihr Poster zur Bestellung <strong>#${ref}</strong> ist druckfertig. Das finale Bild finden Sie unten und im Anhang dieser E-Mail.`,
+    attachmentNote: "📎 Das finale Motiv ist dieser E-Mail beigefügt.",
+    cta: "Motiv ansehen und bestätigen",
+    reassurance: "Sobald Ihre Bestätigung eingeht, starten wir den Druck und Versand Ihres Posters.",
+    thanks: "Vielen Dank für Ihr Vertrauen! 🎨",
+    team: "Das Cartoonova-Team",
+  },
+  it: {
+    subject: "✅ Conferma la tua grafica prima della stampa",
+    title: "✅ Un'ultima conferma prima della stampa",
+    greeting: (name) => name ? `Ciao ${name},` : "Ciao,",
+    intro: (ref) => `Il tuo poster dell'ordine <strong>#${ref}</strong> è pronto per la stampa. Trovi la foto finale qui sotto e in allegato a questa email.`,
+    attachmentNote: "📎 La grafica finale è allegata a questa email.",
+    cta: "Visualizza e conferma la mia grafica",
+    reassurance: "Non appena riceviamo la tua conferma, avviamo la stampa e la spedizione del tuo poster.",
+    thanks: "Grazie per la tua fiducia! 🎨",
+    team: "Il team Cartoonova",
+  },
+};
+
+// ─── Poster confirmation public page ──────────────────────────────────
+export const posterConfirmationPage: Record<Lang, {
+  pageTitle: string;
+  heading: (ref: string) => string;
+  description: string;
+  confirmButton: string;
+  changesButton: string;
+  confirmedTitle: string;
+  confirmedBody: string;
+  changesTitle: string;
+  changesBody: string;
+  alreadyRespondedConfirmed: (date: string) => string;
+  alreadyRespondedChanges: (date: string) => string;
+  invalidTitle: string;
+  invalidBody: string;
+  sending: string;
+}> = {
+  fr: {
+    pageTitle: "Confirmez votre poster — Cartoonova",
+    heading: (ref) => `Commande #${ref}`,
+    description: "Merci de vérifier attentivement le visuel ci-dessous avant que nous lancions l'impression de votre poster.",
+    confirmButton: "✅ Je confirme, imprimez et envoyez",
+    changesButton: "✏️ Je demande une modification",
+    confirmedTitle: "Merci, c'est confirmé !",
+    confirmedBody: "Votre poster part en impression puis en expédition. Vous recevrez un email dès son envoi.",
+    changesTitle: "Bien reçu !",
+    changesBody: "Merci de répondre directement à l'email de confirmation pour nous préciser la modification souhaitée. Nous ne lancerons pas l'impression avant votre accord.",
+    alreadyRespondedConfirmed: (date) => `Vous avez déjà confirmé ce visuel le ${date}.`,
+    alreadyRespondedChanges: (date) => `Vous avez déjà demandé une modification le ${date}. Vous pouvez changer d'avis ci-dessous.`,
+    invalidTitle: "Lien invalide ou expiré",
+    invalidBody: "Ce lien de confirmation n'est plus valide. Contactez-nous à info.cartoonova@gmail.com avec votre numéro de commande.",
+    sending: "Envoi en cours...",
+  },
+  en: {
+    pageTitle: "Confirm your poster — Cartoonova",
+    heading: (ref) => `Order #${ref}`,
+    description: "Please review the artwork below carefully before we send your poster to print.",
+    confirmButton: "✅ I confirm, print and ship it",
+    changesButton: "✏️ I'd like a change",
+    confirmedTitle: "Thanks, you're all set!",
+    confirmedBody: "Your poster is going to print and will ship soon. You'll get an email as soon as it's on its way.",
+    changesTitle: "Got it!",
+    changesBody: "Please reply directly to the confirmation email to tell us what you'd like changed. We won't start printing until you approve it.",
+    alreadyRespondedConfirmed: (date) => `You already confirmed this artwork on ${date}.`,
+    alreadyRespondedChanges: (date) => `You already requested a change on ${date}. You can change your mind below.`,
+    invalidTitle: "Invalid or expired link",
+    invalidBody: "This confirmation link is no longer valid. Contact us at info.cartoonova@gmail.com with your order number.",
+    sending: "Sending...",
+  },
+  es: {
+    pageTitle: "Confirma tu póster — Cartoonova",
+    heading: (ref) => `Pedido #${ref}`,
+    description: "Revisa con atención el diseño de abajo antes de que enviemos tu póster a imprimir.",
+    confirmButton: "✅ Confirmo, imprímanlo y envíenlo",
+    changesButton: "✏️ Quiero un cambio",
+    confirmedTitle: "¡Gracias, todo listo!",
+    confirmedBody: "Tu póster pasa a imprenta y se enviará pronto. Te avisaremos por email en cuanto salga.",
+    changesTitle: "¡Recibido!",
+    changesBody: "Responde directamente al email de confirmación para indicarnos el cambio deseado. No imprimiremos hasta tu aprobación.",
+    alreadyRespondedConfirmed: (date) => `Ya confirmaste este diseño el ${date}.`,
+    alreadyRespondedChanges: (date) => `Ya pediste un cambio el ${date}. Puedes cambiar de opinión abajo.`,
+    invalidTitle: "Enlace no válido o caducado",
+    invalidBody: "Este enlace de confirmación ya no es válido. Contáctanos en info.cartoonova@gmail.com con tu número de pedido.",
+    sending: "Enviando...",
+  },
+  de: {
+    pageTitle: "Poster bestätigen — Cartoonova",
+    heading: (ref) => `Bestellung #${ref}`,
+    description: "Bitte prüfen Sie das Motiv unten sorgfältig, bevor wir Ihr Poster in den Druck geben.",
+    confirmButton: "✅ Ich bestätige, drucken und versenden",
+    changesButton: "✏️ Ich möchte eine Änderung",
+    confirmedTitle: "Danke, alles bestätigt!",
+    confirmedBody: "Ihr Poster geht in den Druck und wird bald versendet. Sie erhalten eine E-Mail, sobald es unterwegs ist.",
+    changesTitle: "Verstanden!",
+    changesBody: "Bitte antworten Sie direkt auf die Bestätigungs-E-Mail und teilen uns die gewünschte Änderung mit. Wir starten den Druck erst nach Ihrer Freigabe.",
+    alreadyRespondedConfirmed: (date) => `Sie haben dieses Motiv bereits am ${date} bestätigt.`,
+    alreadyRespondedChanges: (date) => `Sie haben bereits am ${date} eine Änderung angefragt. Sie können Ihre Meinung unten ändern.`,
+    invalidTitle: "Ungültiger oder abgelaufener Link",
+    invalidBody: "Dieser Bestätigungslink ist nicht mehr gültig. Kontaktieren Sie uns unter info.cartoonova@gmail.com mit Ihrer Bestellnummer.",
+    sending: "Wird gesendet...",
+  },
+  it: {
+    pageTitle: "Conferma il tuo poster — Cartoonova",
+    heading: (ref) => `Ordine #${ref}`,
+    description: "Controlla attentamente la grafica qui sotto prima che mandiamo il tuo poster in stampa.",
+    confirmButton: "✅ Confermo, stampatelo e speditelo",
+    changesButton: "✏️ Vorrei una modifica",
+    confirmedTitle: "Grazie, tutto confermato!",
+    confirmedBody: "Il tuo poster va in stampa e verrà spedito a breve. Ti avviseremo via email non appena partirà.",
+    changesTitle: "Ricevuto!",
+    changesBody: "Rispondi direttamente all'email di conferma per indicarci la modifica desiderata. Non avvieremo la stampa senza la tua approvazione.",
+    alreadyRespondedConfirmed: (date) => `Hai già confermato questa grafica il ${date}.`,
+    alreadyRespondedChanges: (date) => `Hai già richiesto una modifica il ${date}. Puoi cambiare idea qui sotto.`,
+    invalidTitle: "Link non valido o scaduto",
+    invalidBody: "Questo link di conferma non è più valido. Contattaci a info.cartoonova@gmail.com con il numero del tuo ordine.",
+    sending: "Invio in corso...",
   },
 };

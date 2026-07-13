@@ -37,6 +37,10 @@ export interface DbOrder {
   detected_country: string | null;
   final_image_url: string | null;
   final_image_sent_at: string | null;
+  poster_confirmation_token: string | null;
+  poster_confirmation_sent_at: string | null;
+  poster_confirmation_status: "confirmed" | "changes_requested" | null;
+  poster_confirmation_responded_at: string | null;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
@@ -67,6 +71,59 @@ export async function markFinalImageSent(orderId: string): Promise<void> {
   await sql`
     UPDATE orders SET final_image_sent_at = NOW() WHERE id = ${orderId}::uuid
   `;
+}
+
+// ─── Poster confirmation ─────────────────────────────────────────────
+
+let posterConfirmationSchemaReady: Promise<void> | null = null;
+
+async function ensurePosterConfirmationSchema(): Promise<void> {
+  if (posterConfirmationSchemaReady) return posterConfirmationSchemaReady;
+  posterConfirmationSchemaReady = (async () => {
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_token TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_sent_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_status TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_responded_at TIMESTAMPTZ`;
+  })().catch((e) => {
+    posterConfirmationSchemaReady = null;
+    throw e;
+  });
+  return posterConfirmationSchemaReady;
+}
+
+export async function setPosterConfirmationToken(orderId: string, token: string): Promise<void> {
+  await ensurePosterConfirmationSchema();
+  await sql`
+    UPDATE orders
+    SET poster_confirmation_token = ${token},
+        poster_confirmation_sent_at = NOW(),
+        poster_confirmation_status = NULL,
+        poster_confirmation_responded_at = NULL
+    WHERE id = ${orderId}::uuid
+  `;
+}
+
+export async function getOrderByConfirmationToken(token: string): Promise<DbOrder | null> {
+  await ensurePosterConfirmationSchema();
+  const rows = await sql`
+    SELECT * FROM orders WHERE poster_confirmation_token = ${token}
+  `;
+  return (rows[0] as unknown as DbOrder) || null;
+}
+
+export async function recordPosterConfirmationResponse(
+  token: string,
+  status: "confirmed" | "changes_requested"
+): Promise<DbOrder | null> {
+  await ensurePosterConfirmationSchema();
+  const rows = await sql`
+    UPDATE orders
+    SET poster_confirmation_status = ${status},
+        poster_confirmation_responded_at = NOW()
+    WHERE poster_confirmation_token = ${token}
+    RETURNING *
+  `;
+  return (rows[0] as unknown as DbOrder) || null;
 }
 
 // ─── Prices ──────────────────────────────────────────────────────────

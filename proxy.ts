@@ -46,9 +46,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${target}`, request.url));
   }
 
-  // Skip next-intl for /success (standalone page, no locale needed)
-  if (pathname.startsWith("/success")) {
-    console.log("[PROXY] ✅ /success bypass — skipping next-intl");
+  // Skip next-intl for /success and /confirm-poster (standalone pages, no locale needed)
+  if (pathname.startsWith("/success") || pathname.startsWith("/confirm-poster")) {
+    console.log("[PROXY] ✅ standalone bypass — skipping next-intl:", pathname);
     const response = NextResponse.next();
 
     const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
@@ -103,6 +103,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     // Match all pathnames except API routes, static files, etc.
-    "/((?!api|_next|_vercel|success|.*\\..*).*)",
+    "/((?!api|_next|_vercel|success|confirm-poster|.*\\..*).*)",
   ],
 };

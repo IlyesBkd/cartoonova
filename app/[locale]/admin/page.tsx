@@ -47,6 +47,10 @@ export default function AdminPage() {
   const [sendingImage, setSendingImage] = useState(false);
   const [imageSent, setImageSent] = useState(false);
 
+  // Poster confirmation
+  const [sendingConfirmation, setSendingConfirmation] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
+
   const headers = useCallback(
     () => ({ "Content-Type": "application/json", "x-admin-password": password }),
     [password]
@@ -186,6 +190,44 @@ export default function AdminPage() {
       alert(`Erreur réseau: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
     }
     setSendingImage(false);
+  };
+
+  // Send poster confirmation email via Resend (before printing/shipping)
+  const handleSendPosterConfirmation = async () => {
+    if (!selectedOrder?.final_image_url) return;
+    setSendingConfirmation(true);
+    setConfirmationSent(false);
+    try {
+      const r = await fetch("/api/orders/send-poster-confirmation", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          customerEmail: selectedOrder.customer_email,
+          customerName: selectedOrder.customer_name,
+          finalImageUrl: selectedOrder.final_image_url,
+          orderRef: selectedOrder.id,
+          detectedCountry: selectedOrder.detected_country,
+        }),
+      });
+      if (r.ok) {
+        setConfirmationSent(true);
+        const updated = {
+          ...selectedOrder,
+          poster_confirmation_sent_at: new Date().toISOString(),
+          poster_confirmation_status: null,
+        };
+        setSelectedOrder(updated);
+        setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+        setTimeout(() => setConfirmationSent(false), 4000);
+      } else {
+        const data = await r.json().catch(() => null);
+        alert(`Erreur envoi: ${data?.error || "Erreur inconnue"}`);
+      }
+    } catch (err) {
+      alert(`Erreur réseau: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
+    }
+    setSendingConfirmation(false);
   };
 
   // ─── Login screen ────────────────────────────────────────────────
@@ -435,6 +477,44 @@ export default function AdminPage() {
                               Email envoyé avec succès !
                             </p>
                           )}
+
+                          {/* Poster confirmation before printing/shipping */}
+                          <div className="pt-2 mt-2 border-t border-emerald-200 space-y-2">
+                            <button
+                              onClick={handleSendPosterConfirmation}
+                              disabled={sendingConfirmation}
+                              className="w-full px-3 py-2 text-xs font-bold rounded-lg border border-amber-500 bg-amber-500 text-white hover:bg-amber-600 transition-all cursor-pointer disabled:opacity-50"
+                            >
+                              {sendingConfirmation
+                                ? "Envoi en cours..."
+                                : selectedOrder.poster_confirmation_sent_at
+                                ? "📮 Renvoyer la demande de confirmation"
+                                : "📮 Envoyer pour confirmation avant impression"}
+                            </button>
+                            {selectedOrder.poster_confirmation_status === "confirmed" ? (
+                              <p className="text-[10px] text-emerald-600 font-semibold text-center">
+                                ✅ Client a confirmé le{" "}
+                                {selectedOrder.poster_confirmation_responded_at &&
+                                  new Date(selectedOrder.poster_confirmation_responded_at).toLocaleString("fr-FR")}
+                              </p>
+                            ) : selectedOrder.poster_confirmation_status === "changes_requested" ? (
+                              <p className="text-[10px] text-amber-600 font-semibold text-center">
+                                ✏️ Modification demandée le{" "}
+                                {selectedOrder.poster_confirmation_responded_at &&
+                                  new Date(selectedOrder.poster_confirmation_responded_at).toLocaleString("fr-FR")}
+                              </p>
+                            ) : selectedOrder.poster_confirmation_sent_at ? (
+                              <p className="text-[10px] text-gray-500 font-semibold text-center">
+                                ⏳ En attente de réponse du client (envoyé le{" "}
+                                {new Date(selectedOrder.poster_confirmation_sent_at).toLocaleString("fr-FR")})
+                              </p>
+                            ) : null}
+                            {confirmationSent && (
+                              <p className="text-xs text-amber-600 font-bold text-center bg-amber-100 rounded-lg py-1">
+                                Email de confirmation envoyé !
+                              </p>
+                            )}
+                          </div>
                         </div>
                       ) : (
                         <div className="space-y-2">
