@@ -279,7 +279,7 @@ export default function PortraitPersonnaliseCartoon() {
                   />
                 </div>
                 <h3 className="text-xl font-black mb-2">Digital</h3>
-                <p className="text-2xl font-black text-yellow-600 mb-4">INCLUS</p>
+                <p className="text-2xl font-black text-yellow-600 mb-4">À partir de 49€</p>
                 <p className="text-black/70 font-medium mb-4">
                   Fichier haute résolution parfait pour le web et l'impression locale. 
                   Votre <strong> portrait personnalisé à partir de photo </strong> instantanément.
@@ -310,7 +310,7 @@ export default function PortraitPersonnaliseCartoon() {
                   />
                 </div>
                 <h3 className="text-xl font-black mb-2">Portrait sur Toile</h3>
-                <p className="text-2xl font-black text-yellow-600 mb-4">89€</p>
+                <p className="text-2xl font-black text-yellow-600 mb-4">À partir de 138€</p>
                 <p className="text-black/70 font-medium mb-4">
                   Œuvre d'art prête à accrocher. Votre <strong> affiche personnalisée </strong> 
                   sur toile de galerie avec cadre inclus.
@@ -318,7 +318,7 @@ export default function PortraitPersonnaliseCartoon() {
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-sm font-medium">Toile 40x50 cm</span>
+                    <span className="text-sm font-medium">Toile 40x60 cm</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-green-500" />
@@ -341,7 +341,7 @@ export default function PortraitPersonnaliseCartoon() {
                   />
                 </div>
                 <h3 className="text-xl font-black mb-2">Poster Encadré</h3>
-                <p className="text-2xl font-black text-yellow-600 mb-4">79€</p>
+                <p className="text-2xl font-black text-yellow-600 mb-4">À partir de 128€</p>
                 <p className="text-black/70 font-medium mb-4">
                   Poster premium avec cadre moderne. Votre <strong> portrait de famille personnalisé </strong> 
                   mis en valeur comme une véritable œuvre.
