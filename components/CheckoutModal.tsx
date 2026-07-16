@@ -6,6 +6,7 @@ import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElement
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
+import { COUNTRIES, getCallingCode } from "@/lib/countries";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -43,6 +44,7 @@ function PaymentForm({
     firstName?: string;
     lastName?: string;
     address?: string;
+    addressLine2?: string;
     city?: string;
     postalCode?: string;
     country?: string;
@@ -87,6 +89,7 @@ function PaymentForm({
         firstName: formData.firstName,
         lastName: formData.lastName,
         address: formData.address,
+        addressLine2: formData.addressLine2,
         city: formData.city,
         postalCode: formData.postalCode,
         country: formData.country,
@@ -323,11 +326,23 @@ export default function CheckoutModal({
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [country, setCountry] = useState("France");
+  const [countryCode, setCountryCode] = useState("FR");
+  const [phonePrefix, setPhonePrefix] = useState("+33");
   const [phone, setPhone] = useState("");
   const [formError, setFormError] = useState("");
+  const tCountry = useTranslations("checkout.countries");
+
+  // Prefill country/phone prefix from the IP-detected country cookie
+  useEffect(() => {
+    const detected = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1]?.toUpperCase();
+    if (detected && COUNTRIES.some((c) => c.code === detected)) {
+      setCountryCode(detected);
+      setPhonePrefix(getCallingCode(detected));
+    }
+  }, []);
 
   const isDigital = orderConfig.printOption === "Digital";
   const { currency, formatRaw: formatPrice } = useCurrency();
@@ -486,6 +501,11 @@ export default function CheckoutModal({
                     <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t("addressPlaceholder")} className={inputClass} />
                   </div>
 
+                  <div>
+                    <label className={labelClass}>{t("addressLine2")}</label>
+                    <input type="text" value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} placeholder={t("addressLine2Placeholder")} className={inputClass} />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className={labelClass}>{t("city")}</label>
@@ -497,10 +517,27 @@ export default function CheckoutModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClass}>{t("country")}</label>
+                    <select value={countryCode} onChange={(e) => { setCountryCode(e.target.value); setPhonePrefix(getCallingCode(e.target.value)); }} className={inputClass}>
+                      {[...COUNTRIES]
+                        .sort((a, b) => tCountry(a.code).localeCompare(tCountry(b.code)))
+                        .map((c) => (
+                          <option key={c.code} value={c.code}>{tCountry(c.code)}</option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-[auto_1fr] gap-3">
                     <div>
-                      <label className={labelClass}>{t("country")}</label>
-                      <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className={inputClass} />
+                      <label className={labelClass}>{t("phonePrefix")}</label>
+                      <select value={phonePrefix} onChange={(e) => setPhonePrefix(e.target.value)} className={`${inputClass} w-24`}>
+                        {[...new Set(COUNTRIES.map((c) => c.callingCode))]
+                          .sort((a, b) => Number(a.replace("+", "")) - Number(b.replace("+", "")))
+                          .map((code) => (
+                            <option key={code} value={code}>{code}</option>
+                          ))}
+                      </select>
                     </div>
                     <div>
                       <label className={labelClass}>{t("phone")}</label>
@@ -587,10 +624,11 @@ export default function CheckoutModal({
                         firstName,
                         lastName,
                         address,
+                        addressLine2,
                         city,
                         postalCode,
-                        country,
-                        phone,
+                        country: tCountry(countryCode),
+                        phone: `${phonePrefix} ${phone}`.trim(),
                       }}
                       orderConfig={orderConfig}
                       isDigital={isDigital}

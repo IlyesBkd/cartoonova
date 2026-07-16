@@ -20,6 +20,7 @@ export interface OrderOptions {
   postalCode?: string;
   city?: string;
   country?: string;
+  addressLine2?: string;
 }
 
 export interface DbOrder {

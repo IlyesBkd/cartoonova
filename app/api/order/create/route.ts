@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
       firstName,
       lastName,
       address,
+      addressLine2,
       city,
       postalCode,
       country,
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
       postalCode: postalCode || null,
       city: city || null,
       country: country || null,
+      addressLine2: addressLine2 || null,
     });
 
     const photoUrlsJson = JSON.stringify(photoUrls || []);

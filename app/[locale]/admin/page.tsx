@@ -479,6 +479,9 @@ export default function AdminPage() {
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-xs text-blue-600 font-semibold mb-1">📦 Adresse de livraison</p>
                         <p className="text-gray-700">{selectedOrder.customer_address}</p>
+                        {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.addressLine2 && (
+                          <p className="text-gray-700">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options).addressLine2}</p>
+                        )}
                         <p className="text-gray-700">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.postalCode} {(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.city}</p>
                         <p className="text-gray-700">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.country}</p>
                       </div>
