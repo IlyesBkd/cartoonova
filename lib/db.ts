@@ -133,6 +133,8 @@ export async function recordPosterConfirmationResponse(
 
 // ─── Support inbox (IMAP sync) ────────────────────────────────────────
 
+export type SupportMessageCategory = "customer" | "notification" | "spam";
+
 export interface SupportMessage {
   id: number;
   message_id: string;
@@ -143,6 +145,7 @@ export interface SupportMessage {
   order_id: string | null;
   read_at: string | null;
   created_at: string;
+  category: SupportMessageCategory | null;
 }
 
 let supportInboxSchemaReady: Promise<void> | null = null;
@@ -164,6 +167,7 @@ async function ensureSupportInboxSchema(): Promise<void> {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `;
+    await sql`ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS category TEXT`;
     await sql`
       CREATE TABLE IF NOT EXISTS imap_sync_state (
         id TEXT PRIMARY KEY DEFAULT 'singleton',
@@ -217,13 +221,14 @@ export async function insertSupportMessage(msg: {
   bodyText: string | null;
   receivedAt: Date;
   orderId: string | null;
+  category: SupportMessageCategory | null;
 }): Promise<{ isNew: boolean }> {
   await ensureSupportInboxSchema();
   const rows = await sql`
-    INSERT INTO support_messages (message_id, from_email, subject, body_text, received_at, order_id)
+    INSERT INTO support_messages (message_id, from_email, subject, body_text, received_at, order_id, category)
     VALUES (
       ${msg.messageId}, ${msg.fromEmail}, ${msg.subject}, ${msg.bodyText}, ${msg.receivedAt.toISOString()},
-      ${msg.orderId ? msg.orderId : null}::uuid
+      ${msg.orderId ? msg.orderId : null}::uuid, ${msg.category}
     )
     ON CONFLICT (message_id) DO NOTHING
     RETURNING id
@@ -240,6 +245,25 @@ export async function getSupportMessages(): Promise<SupportMessage[]> {
 export async function markSupportMessageRead(id: number): Promise<void> {
   await ensureSupportInboxSchema();
   await sql`UPDATE support_messages SET read_at = NOW() WHERE id = ${id}`;
+}
+
+export async function getUnclassifiedSupportMessages(limit: number): Promise<SupportMessage[]> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`
+    SELECT * FROM support_messages WHERE category IS NULL ORDER BY received_at DESC LIMIT ${limit}
+  `;
+  return rows as unknown as SupportMessage[];
+}
+
+export async function countUnclassifiedSupportMessages(): Promise<number> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`SELECT COUNT(*)::int AS c FROM support_messages WHERE category IS NULL`;
+  return Number(rows[0]?.c ?? 0);
+}
+
+export async function setSupportMessageCategory(id: number, category: SupportMessageCategory): Promise<void> {
+  await ensureSupportInboxSchema();
+  await sql`UPDATE support_messages SET category = ${category} WHERE id = ${id}`;
 }
 
 // ─── Prices ──────────────────────────────────────────────────────────

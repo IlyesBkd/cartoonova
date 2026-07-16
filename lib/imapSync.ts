@@ -6,7 +6,18 @@ import {
   insertSupportMessage,
   findOrderByOutboundMessageId,
   findOrderByCustomerEmail,
+  type SupportMessageCategory,
 } from "./db";
+import { classifySupportMessage } from "./aiClassify";
+
+interface PendingMessage {
+  messageId: string;
+  fromEmail: string;
+  subject: string | null;
+  bodyText: string;
+  receivedAt: Date;
+  orderId: string | null;
+}
 
 async function notifySupportDiscord(msg: {
   fromEmail: string;
@@ -18,9 +29,7 @@ async function notifySupportDiscord(msg: {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
 
-    const fields = [
-      { name: "📧 De", value: msg.fromEmail, inline: true },
-    ];
+    const fields = [{ name: "📧 De", value: msg.fromEmail, inline: true }];
     if (msg.orderId) {
       fields.push({ name: "📦 Commande liée", value: msg.orderId.slice(0, 8), inline: true });
     }
@@ -34,7 +43,7 @@ async function notifySupportDiscord(msg: {
       body: JSON.stringify({
         embeds: [
           {
-            title: `📩 Nouveau message support : ${msg.subject || "(sans objet)"}`,
+            title: `📩 Nouveau message client : ${msg.subject || "(sans objet)"}`,
             color: 3447003,
             fields,
             footer: { text: "Cartoonova • Boîte support" },
@@ -68,6 +77,7 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
 
   let checked = 0;
   let newMessages = 0;
+  const pending: PendingMessage[] = [];
 
   await client.connect();
 
@@ -115,19 +125,7 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
         if (order) orderId = order.id;
       }
 
-      const { isNew } = await insertSupportMessage({
-        messageId,
-        fromEmail,
-        subject,
-        bodyText,
-        receivedAt,
-        orderId,
-      });
-
-      if (isNew) {
-        newMessages++;
-        await notifySupportDiscord({ fromEmail, subject: subject || "", bodyText, orderId });
-      }
+      pending.push({ messageId, fromEmail, subject, bodyText, receivedAt, orderId });
     }
 
     if (maxUid > lastUid) {
@@ -136,6 +134,24 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
   } finally {
     await client.logout().catch(() => client.close());
   }
+
+  // Classify all fetched messages concurrently, then persist + notify.
+  const categories: SupportMessageCategory[] = await Promise.all(
+    pending.map((msg) => classifySupportMessage({ fromEmail: msg.fromEmail, subject: msg.subject, bodyText: msg.bodyText }))
+  );
+
+  await Promise.all(
+    pending.map(async (msg, i) => {
+      const category = categories[i];
+      const { isNew } = await insertSupportMessage({ ...msg, category });
+      if (isNew) {
+        newMessages++;
+        if (category === "customer") {
+          await notifySupportDiscord({ fromEmail: msg.fromEmail, subject: msg.subject || "", bodyText: msg.bodyText, orderId: msg.orderId });
+        }
+      }
+    })
+  );
 
   return { checked, newMessages };
 }

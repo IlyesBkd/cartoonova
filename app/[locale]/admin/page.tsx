@@ -57,6 +57,9 @@ export default function AdminPage() {
   const [syncingSupport, setSyncingSupport] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [expandedMessageId, setExpandedMessageId] = useState<number | null>(null);
+  const [showAllSupport, setShowAllSupport] = useState(false);
+  const [classifyingBacklog, setClassifyingBacklog] = useState(false);
+  const [backlogRemaining, setBacklogRemaining] = useState<number | null>(null);
 
   const headers = useCallback(
     () => ({ "Content-Type": "application/json", "x-admin-password": password }),
@@ -112,6 +115,23 @@ export default function AdminPage() {
       headers: headers(),
       body: JSON.stringify({ id }),
     });
+  };
+
+  const handleClassifyBacklog = async () => {
+    setClassifyingBacklog(true);
+    try {
+      let remaining = Infinity;
+      while (remaining > 0) {
+        const r = await fetch("/api/support/classify-backlog", { method: "POST", headers: headers() });
+        if (!r.ok) break;
+        const data = await r.json();
+        remaining = data.remaining ?? 0;
+        setBacklogRemaining(remaining);
+        if (data.processed === 0) break;
+      }
+      await fetchSupportMessages();
+    } catch {}
+    setClassifyingBacklog(false);
   };
 
   // Login
@@ -329,9 +349,9 @@ export default function AdminPage() {
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "support" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
           >
             <span>💬</span> Support
-            {supportMessages.filter((m) => !m.read_at).length > 0 && (
+            {supportMessages.filter((m) => !m.read_at && m.category !== "spam" && m.category !== "notification").length > 0 && (
               <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                {supportMessages.filter((m) => !m.read_at).length}
+                {supportMessages.filter((m) => !m.read_at && m.category !== "spam" && m.category !== "notification").length}
               </span>
             )}
           </button>
@@ -635,82 +655,126 @@ export default function AdminPage() {
         )}
 
         {/* ═══ SUPPORT TAB ═══ */}
-        {tab === "support" && (
-          <>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">💬 Support</h2>
-                <p className="text-sm text-gray-500">
-                  Emails reçus sur support@cartoonova.com — synchronisation automatique 1x/jour, ou manuelle ci-dessous.
-                </p>
-              </div>
-              <button
-                onClick={handleSyncSupport}
-                disabled={syncingSupport}
-                className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {syncingSupport ? "⏳ Vérification..." : "🔄 Vérifier maintenant"}
-              </button>
-            </div>
+        {tab === "support" && (() => {
+          const unclassifiedCount = supportMessages.filter((m) => !m.category).length;
+          const hiddenCount = supportMessages.filter((m) => m.category === "spam" || m.category === "notification").length;
+          const visibleMessages = showAllSupport
+            ? supportMessages
+            : supportMessages.filter((m) => m.category !== "spam" && m.category !== "notification");
+          const CATEGORY_BADGE: Record<string, { label: string; color: string }> = {
+            customer: { label: "🟢 Client", color: "bg-emerald-100 text-emerald-700" },
+            notification: { label: "🔵 Notification", color: "bg-blue-100 text-blue-700" },
+            spam: { label: "🔴 Spam", color: "bg-red-100 text-red-700" },
+          };
 
-            {syncError && (
-              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">
-                {syncError}
+          return (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">💬 Support</h2>
+                  <p className="text-sm text-gray-500">
+                    Emails reçus sur support@cartoonova.com — synchronisation automatique 1x/jour, ou manuelle ci-dessous.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  {unclassifiedCount > 0 && (
+                    <button
+                      onClick={handleClassifyBacklog}
+                      disabled={classifyingBacklog}
+                      className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {classifyingBacklog
+                        ? `🧹 Classement... (${backlogRemaining ?? unclassifiedCount} restants)`
+                        : `🧹 Classer ${unclassifiedCount} ancien(s) message(s)`}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleSyncSupport}
+                    disabled={syncingSupport}
+                    className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {syncingSupport ? "⏳ Vérification..." : "🔄 Vérifier maintenant"}
+                  </button>
+                </div>
               </div>
-            )}
 
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              {loadingSupport ? (
-                <p className="px-4 py-12 text-center text-gray-400">Chargement...</p>
-              ) : supportMessages.length === 0 ? (
-                <p className="px-4 py-12 text-center text-gray-400">Aucun message pour le moment.</p>
-              ) : (
-                <div className="divide-y divide-gray-100">
-                  {supportMessages.map((m) => {
-                    const isExpanded = expandedMessageId === m.id;
-                    const linkedOrder = m.order_id ? orders.find((o) => o.id === m.order_id) : null;
-                    return (
-                      <div key={m.id} className={!m.read_at ? "bg-blue-50/40" : ""}>
-                        <button
-                          onClick={() => {
-                            setExpandedMessageId(isExpanded ? null : m.id);
-                            if (!m.read_at) handleMarkSupportRead(m.id);
-                          }}
-                          className="w-full text-left px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                        >
-                          {!m.read_at && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-sm truncate ${!m.read_at ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}>
-                                {m.from_email}
-                              </span>
-                              {linkedOrder && (
-                                <span className="flex-shrink-0 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">
-                                  📦 {linkedOrder.id.slice(0, 8)}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs text-gray-500 truncate">{m.subject || "(sans objet)"}</p>
-                          </div>
-                          <span className="text-xs text-gray-400 flex-shrink-0">
-                            {new Date(m.received_at).toLocaleString("fr-FR")}
-                          </span>
-                        </button>
-                        {isExpanded && (
-                          <div className="px-4 pb-4">
-                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
-                              {m.body_text || "(pas de contenu texte)"}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+              {syncError && (
+                <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">
+                  {syncError}
                 </div>
               )}
-            </div>
-          </>
-        )}
+
+              {hiddenCount > 0 && (
+                <div className="mb-4 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm text-gray-600">
+                  <span>{hiddenCount} message(s) spam/notification masqué(s)</span>
+                  <button
+                    onClick={() => setShowAllSupport((v) => !v)}
+                    className="font-semibold text-gray-900 hover:underline cursor-pointer"
+                  >
+                    {showAllSupport ? "Masquer" : "Afficher tout"}
+                  </button>
+                </div>
+              )}
+
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                {loadingSupport ? (
+                  <p className="px-4 py-12 text-center text-gray-400">Chargement...</p>
+                ) : visibleMessages.length === 0 ? (
+                  <p className="px-4 py-12 text-center text-gray-400">Aucun message pour le moment.</p>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {visibleMessages.map((m) => {
+                      const isExpanded = expandedMessageId === m.id;
+                      const linkedOrder = m.order_id ? orders.find((o) => o.id === m.order_id) : null;
+                      const badge = m.category ? CATEGORY_BADGE[m.category] : null;
+                      return (
+                        <div key={m.id} className={!m.read_at ? "bg-blue-50/40" : ""}>
+                          <button
+                            onClick={() => {
+                              setExpandedMessageId(isExpanded ? null : m.id);
+                              if (!m.read_at) handleMarkSupportRead(m.id);
+                            }}
+                            className="w-full text-left px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                          >
+                            {!m.read_at && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-sm truncate ${!m.read_at ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}>
+                                  {m.from_email}
+                                </span>
+                                {linkedOrder && (
+                                  <span className="flex-shrink-0 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">
+                                    📦 {linkedOrder.id.slice(0, 8)}
+                                  </span>
+                                )}
+                                {showAllSupport && badge && (
+                                  <span className={`flex-shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-full ${badge.color}`}>
+                                    {badge.label}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-gray-500 truncate">{m.subject || "(sans objet)"}</p>
+                            </div>
+                            <span className="text-xs text-gray-400 flex-shrink-0">
+                              {new Date(m.received_at).toLocaleString("fr-FR")}
+                            </span>
+                          </button>
+                          {isExpanded && (
+                            <div className="px-4 pb-4">
+                              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
+                                {m.body_text || "(pas de contenu texte)"}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        })()}
 
         {/* ═══ ANALYTICS TAB ═══ */}
         {tab === "analytics" && (() => {
