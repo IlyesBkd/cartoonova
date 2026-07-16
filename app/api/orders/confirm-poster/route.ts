@@ -5,12 +5,21 @@ async function sendDiscordNotification(order: {
   id: string;
   customer_email: string;
   status: "confirmed" | "changes_requested";
+  note?: string | null;
 }) {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
 
     const isConfirmed = order.status === "confirmed";
+    const fields = [
+      { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
+      { name: "📧 Email", value: order.customer_email, inline: true },
+    ];
+    if (!isConfirmed && order.note) {
+      fields.push({ name: "✏️ Modification demandée", value: order.note.slice(0, 1000), inline: false });
+    }
+
     await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,10 +30,7 @@ async function sendDiscordNotification(order: {
               ? "✅ Client a confirmé son poster !"
               : "✏️ Client demande une modification",
             color: isConfirmed ? 5763719 : 15844367,
-            fields: [
-              { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
-              { name: "📧 Email", value: order.customer_email, inline: true },
-            ],
+            fields,
             footer: { text: "Cartoonova • Confirmation poster" },
             timestamp: new Date().toISOString(),
           },
@@ -38,14 +44,14 @@ async function sendDiscordNotification(order: {
 
 export async function POST(req: NextRequest) {
   try {
-    const { token, action }: { token: string; action: "confirm" | "changes" } = await req.json();
+    const { token, action, note }: { token: string; action: "confirm" | "changes"; note?: string } = await req.json();
 
     if (!token || (action !== "confirm" && action !== "changes")) {
       return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
     }
 
     const status = action === "confirm" ? "confirmed" : "changes_requested";
-    const order = await recordPosterConfirmationResponse(token, status);
+    const order = await recordPosterConfirmationResponse(token, status, action === "changes" ? note : null);
 
     if (!order) {
       return NextResponse.json({ error: "Lien invalide ou expiré." }, { status: 404 });
@@ -55,6 +61,7 @@ export async function POST(req: NextRequest) {
       id: order.id,
       customer_email: order.customer_email,
       status,
+      note: order.poster_confirmation_note,
     });
 
     return NextResponse.json({ ok: true, status });

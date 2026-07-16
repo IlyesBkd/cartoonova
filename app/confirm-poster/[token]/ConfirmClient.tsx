@@ -20,18 +20,21 @@ export default function ConfirmClient({
   const [status, setStatus] = useState<Status>(initialStatus);
   const [sending, setSending] = useState<"confirm" | "changes" | null>(null);
   const [error, setError] = useState(false);
+  const [showChangesForm, setShowChangesForm] = useState(false);
+  const [note, setNote] = useState("");
 
-  const respond = async (action: "confirm" | "changes") => {
+  const respond = async (action: "confirm" | "changes", noteText?: string) => {
     setSending(action);
     setError(false);
     try {
       const r = await fetch("/api/orders/confirm-poster", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, action }),
+        body: JSON.stringify({ token, action, note: noteText }),
       });
       if (r.ok) {
         setStatus(action === "confirm" ? "confirmed" : "changes_requested");
+        setShowChangesForm(false);
       } else {
         setError(true);
       }
@@ -68,22 +71,53 @@ export default function ConfirmClient({
         </p>
       )}
 
-      <div className="flex flex-col gap-3">
-        <button
-          onClick={() => respond("confirm")}
-          disabled={sending !== null}
-          className="w-full bg-yellow-400 text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
-        >
-          {sending === "confirm" ? t.sending : t.confirmButton}
-        </button>
-        <button
-          onClick={() => respond("changes")}
-          disabled={sending !== null}
-          className="w-full bg-white text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
-        >
-          {sending === "changes" ? t.sending : t.changesButton}
-        </button>
-      </div>
+      {showChangesForm ? (
+        <div className="space-y-3">
+          <div>
+            <label className="text-sm font-bold text-black block mb-1">{t.changesPrompt}</label>
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder={t.changesPlaceholder}
+              rows={4}
+              className="w-full border-2 border-black rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+            />
+          </div>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => respond("changes", note)}
+              disabled={sending !== null || note.trim().length === 0}
+              className="w-full bg-amber-400 text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {sending === "changes" ? t.sending : t.changesSubmit}
+            </button>
+            <button
+              onClick={() => setShowChangesForm(false)}
+              disabled={sending !== null}
+              className="w-full text-xs font-semibold text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              ←
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => respond("confirm")}
+            disabled={sending !== null}
+            className="w-full bg-yellow-400 text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {sending === "confirm" ? t.sending : t.confirmButton}
+          </button>
+          <button
+            onClick={() => setShowChangesForm(true)}
+            disabled={sending !== null}
+            className="w-full bg-white text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {t.changesButton}
+          </button>
+        </div>
+      )}
 
       {error && (
         <p className="text-xs text-center text-red-600 font-semibold">

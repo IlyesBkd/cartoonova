@@ -216,6 +216,7 @@ export default function AdminPage() {
           ...selectedOrder,
           poster_confirmation_sent_at: new Date().toISOString(),
           poster_confirmation_status: null,
+          poster_confirmation_note: null,
         };
         setSelectedOrder(updated);
         setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
@@ -498,11 +499,18 @@ export default function AdminPage() {
                                   new Date(selectedOrder.poster_confirmation_responded_at).toLocaleString("fr-FR")}
                               </p>
                             ) : selectedOrder.poster_confirmation_status === "changes_requested" ? (
-                              <p className="text-[10px] text-amber-600 font-semibold text-center">
-                                ✏️ Modification demandée le{" "}
-                                {selectedOrder.poster_confirmation_responded_at &&
-                                  new Date(selectedOrder.poster_confirmation_responded_at).toLocaleString("fr-FR")}
-                              </p>
+                              <div className="space-y-1">
+                                <p className="text-[10px] text-amber-600 font-semibold text-center">
+                                  ✏️ Modification demandée le{" "}
+                                  {selectedOrder.poster_confirmation_responded_at &&
+                                    new Date(selectedOrder.poster_confirmation_responded_at).toLocaleString("fr-FR")}
+                                </p>
+                                {selectedOrder.poster_confirmation_note && (
+                                  <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 whitespace-pre-wrap">
+                                    {selectedOrder.poster_confirmation_note}
+                                  </p>
+                                )}
+                              </div>
                             ) : selectedOrder.poster_confirmation_sent_at ? (
                               <p className="text-[10px] text-gray-500 font-semibold text-center">
                                 ⏳ En attente de réponse du client (envoyé le{" "}

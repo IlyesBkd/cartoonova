@@ -41,6 +41,7 @@ export interface DbOrder {
   poster_confirmation_sent_at: string | null;
   poster_confirmation_status: "confirmed" | "changes_requested" | null;
   poster_confirmation_responded_at: string | null;
+  poster_confirmation_note: string | null;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
@@ -84,6 +85,7 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_status TEXT`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_responded_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_note TEXT`;
   })().catch((e) => {
     posterConfirmationSchemaReady = null;
     throw e;
@@ -98,7 +100,8 @@ export async function setPosterConfirmationToken(orderId: string, token: string)
     SET poster_confirmation_token = ${token},
         poster_confirmation_sent_at = NOW(),
         poster_confirmation_status = NULL,
-        poster_confirmation_responded_at = NULL
+        poster_confirmation_responded_at = NULL,
+        poster_confirmation_note = NULL
     WHERE id = ${orderId}::uuid
   `;
 }
@@ -113,13 +116,15 @@ export async function getOrderByConfirmationToken(token: string): Promise<DbOrde
 
 export async function recordPosterConfirmationResponse(
   token: string,
-  status: "confirmed" | "changes_requested"
+  status: "confirmed" | "changes_requested",
+  note?: string | null
 ): Promise<DbOrder | null> {
   await ensurePosterConfirmationSchema();
   const rows = await sql`
     UPDATE orders
     SET poster_confirmation_status = ${status},
-        poster_confirmation_responded_at = NOW()
+        poster_confirmation_responded_at = NOW(),
+        poster_confirmation_note = ${note || null}
     WHERE poster_confirmation_token = ${token}
     RETURNING *
   `;

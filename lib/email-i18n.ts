@@ -256,6 +256,9 @@ export const posterConfirmationPage: Record<Lang, {
   changesButton: string;
   confirmedTitle: string;
   confirmedBody: string;
+  changesPrompt: string;
+  changesPlaceholder: string;
+  changesSubmit: string;
   changesTitle: string;
   changesBody: string;
   alreadyRespondedConfirmed: (date: string) => string;
@@ -272,8 +275,11 @@ export const posterConfirmationPage: Record<Lang, {
     changesButton: "✏️ Je demande une modification",
     confirmedTitle: "Merci, c'est confirmé !",
     confirmedBody: "Votre poster part en impression puis en expédition. Vous recevrez un email dès son envoi.",
+    changesPrompt: "Quelle modification souhaitez-vous ?",
+    changesPlaceholder: "Ex : le fond doit être bleu et non vert...",
+    changesSubmit: "Envoyer ma demande",
     changesTitle: "Bien reçu !",
-    changesBody: "Merci de répondre directement à l'email de confirmation pour nous préciser la modification souhaitée. Nous ne lancerons pas l'impression avant votre accord.",
+    changesBody: "Votre demande a été transmise à notre équipe. Nous ne lancerons pas l'impression avant votre accord.",
     alreadyRespondedConfirmed: (date) => `Vous avez déjà confirmé ce visuel le ${date}.`,
     alreadyRespondedChanges: (date) => `Vous avez déjà demandé une modification le ${date}. Vous pouvez changer d'avis ci-dessous.`,
     invalidTitle: "Lien invalide ou expiré",
@@ -288,8 +294,11 @@ export const posterConfirmationPage: Record<Lang, {
     changesButton: "✏️ I'd like a change",
     confirmedTitle: "Thanks, you're all set!",
     confirmedBody: "Your poster is going to print and will ship soon. You'll get an email as soon as it's on its way.",
+    changesPrompt: "What would you like changed?",
+    changesPlaceholder: "E.g. the background should be blue, not green...",
+    changesSubmit: "Send my request",
     changesTitle: "Got it!",
-    changesBody: "Please reply directly to the confirmation email to tell us what you'd like changed. We won't start printing until you approve it.",
+    changesBody: "Your request has been sent to our team. We won't start printing until you approve it.",
     alreadyRespondedConfirmed: (date) => `You already confirmed this artwork on ${date}.`,
     alreadyRespondedChanges: (date) => `You already requested a change on ${date}. You can change your mind below.`,
     invalidTitle: "Invalid or expired link",
@@ -304,8 +313,11 @@ export const posterConfirmationPage: Record<Lang, {
     changesButton: "✏️ Quiero un cambio",
     confirmedTitle: "¡Gracias, todo listo!",
     confirmedBody: "Tu póster pasa a imprenta y se enviará pronto. Te avisaremos por email en cuanto salga.",
+    changesPrompt: "¿Qué te gustaría cambiar?",
+    changesPlaceholder: "Ej: el fondo debería ser azul, no verde...",
+    changesSubmit: "Enviar mi solicitud",
     changesTitle: "¡Recibido!",
-    changesBody: "Responde directamente al email de confirmación para indicarnos el cambio deseado. No imprimiremos hasta tu aprobación.",
+    changesBody: "Tu solicitud ha sido enviada a nuestro equipo. No imprimiremos hasta tu aprobación.",
     alreadyRespondedConfirmed: (date) => `Ya confirmaste este diseño el ${date}.`,
     alreadyRespondedChanges: (date) => `Ya pediste un cambio el ${date}. Puedes cambiar de opinión abajo.`,
     invalidTitle: "Enlace no válido o caducado",
@@ -320,8 +332,11 @@ export const posterConfirmationPage: Record<Lang, {
     changesButton: "✏️ Ich möchte eine Änderung",
     confirmedTitle: "Danke, alles bestätigt!",
     confirmedBody: "Ihr Poster geht in den Druck und wird bald versendet. Sie erhalten eine E-Mail, sobald es unterwegs ist.",
+    changesPrompt: "Was möchten Sie geändert haben?",
+    changesPlaceholder: "Z. B. der Hintergrund sollte blau statt grün sein...",
+    changesSubmit: "Anfrage senden",
     changesTitle: "Verstanden!",
-    changesBody: "Bitte antworten Sie direkt auf die Bestätigungs-E-Mail und teilen uns die gewünschte Änderung mit. Wir starten den Druck erst nach Ihrer Freigabe.",
+    changesBody: "Ihre Anfrage wurde an unser Team weitergeleitet. Wir starten den Druck erst nach Ihrer Freigabe.",
     alreadyRespondedConfirmed: (date) => `Sie haben dieses Motiv bereits am ${date} bestätigt.`,
     alreadyRespondedChanges: (date) => `Sie haben bereits am ${date} eine Änderung angefragt. Sie können Ihre Meinung unten ändern.`,
     invalidTitle: "Ungültiger oder abgelaufener Link",
@@ -336,8 +351,11 @@ export const posterConfirmationPage: Record<Lang, {
     changesButton: "✏️ Vorrei una modifica",
     confirmedTitle: "Grazie, tutto confermato!",
     confirmedBody: "Il tuo poster va in stampa e verrà spedito a breve. Ti avviseremo via email non appena partirà.",
+    changesPrompt: "Cosa vorresti modificare?",
+    changesPlaceholder: "Es: lo sfondo dovrebbe essere blu, non verde...",
+    changesSubmit: "Invia la mia richiesta",
     changesTitle: "Ricevuto!",
-    changesBody: "Rispondi direttamente all'email di conferma per indicarci la modifica desiderata. Non avvieremo la stampa senza la tua approvazione.",
+    changesBody: "La tua richiesta è stata inviata al nostro team. Non avvieremo la stampa senza la tua approvazione.",
     alreadyRespondedConfirmed: (date) => `Hai già confermato questa grafica il ${date}.`,
     alreadyRespondedChanges: (date) => `Hai già richiesto una modifica il ${date}. Puoi cambiare idea qui sotto.`,
     invalidTitle: "Link non valido o scaduto",
