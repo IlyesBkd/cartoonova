@@ -131,6 +131,117 @@ export async function recordPosterConfirmationResponse(
   return (rows[0] as unknown as DbOrder) || null;
 }
 
+// ─── Support inbox (IMAP sync) ────────────────────────────────────────
+
+export interface SupportMessage {
+  id: number;
+  message_id: string;
+  from_email: string;
+  subject: string | null;
+  body_text: string | null;
+  received_at: string;
+  order_id: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+let supportInboxSchemaReady: Promise<void> | null = null;
+
+async function ensureSupportInboxSchema(): Promise<void> {
+  if (supportInboxSchemaReady) return supportInboxSchemaReady;
+  supportInboxSchemaReady = (async () => {
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS last_outbound_message_id TEXT`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS support_messages (
+        id SERIAL PRIMARY KEY,
+        message_id TEXT UNIQUE NOT NULL,
+        from_email TEXT NOT NULL,
+        subject TEXT,
+        body_text TEXT,
+        received_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        order_id UUID REFERENCES orders(id),
+        read_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    await sql`
+      CREATE TABLE IF NOT EXISTS imap_sync_state (
+        id TEXT PRIMARY KEY DEFAULT 'singleton',
+        last_uid INTEGER NOT NULL DEFAULT 0,
+        last_synced_at TIMESTAMPTZ
+      )
+    `;
+    await sql`INSERT INTO imap_sync_state (id, last_uid) VALUES ('singleton', 0) ON CONFLICT (id) DO NOTHING`;
+  })().catch((e) => {
+    supportInboxSchemaReady = null;
+    throw e;
+  });
+  return supportInboxSchemaReady;
+}
+
+export async function setOrderLastOutboundMessageId(orderId: string, messageId: string): Promise<void> {
+  await ensureSupportInboxSchema();
+  await sql`UPDATE orders SET last_outbound_message_id = ${messageId} WHERE id = ${orderId}::uuid`;
+}
+
+export async function findOrderByOutboundMessageId(messageId: string): Promise<{ id: string } | null> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`SELECT id FROM orders WHERE last_outbound_message_id = ${messageId} LIMIT 1`;
+  return (rows[0] as { id: string }) || null;
+}
+
+export async function findOrderByCustomerEmail(email: string): Promise<{ id: string } | null> {
+  const rows = await sql`
+    SELECT id FROM orders WHERE lower(customer_email) = lower(${email}) ORDER BY created_at DESC LIMIT 1
+  `;
+  return (rows[0] as { id: string }) || null;
+}
+
+export async function getImapSyncState(): Promise<{ lastUid: number }> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`SELECT last_uid FROM imap_sync_state WHERE id = 'singleton'`;
+  return { lastUid: Number(rows[0]?.last_uid ?? 0) };
+}
+
+export async function setImapSyncState(lastUid: number): Promise<void> {
+  await ensureSupportInboxSchema();
+  await sql`
+    UPDATE imap_sync_state SET last_uid = ${lastUid}, last_synced_at = NOW() WHERE id = 'singleton'
+  `;
+}
+
+export async function insertSupportMessage(msg: {
+  messageId: string;
+  fromEmail: string;
+  subject: string | null;
+  bodyText: string | null;
+  receivedAt: Date;
+  orderId: string | null;
+}): Promise<{ isNew: boolean }> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`
+    INSERT INTO support_messages (message_id, from_email, subject, body_text, received_at, order_id)
+    VALUES (
+      ${msg.messageId}, ${msg.fromEmail}, ${msg.subject}, ${msg.bodyText}, ${msg.receivedAt.toISOString()},
+      ${msg.orderId ? msg.orderId : null}::uuid
+    )
+    ON CONFLICT (message_id) DO NOTHING
+    RETURNING id
+  `;
+  return { isNew: rows.length > 0 };
+}
+
+export async function getSupportMessages(): Promise<SupportMessage[]> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`SELECT * FROM support_messages ORDER BY received_at DESC LIMIT 200`;
+  return rows as unknown as SupportMessage[];
+}
+
+export async function markSupportMessageRead(id: number): Promise<void> {
+  await ensureSupportInboxSchema();
+  await sql`UPDATE support_messages SET read_at = NOW() WHERE id = ${id}`;
+}
+
 // ─── Prices ──────────────────────────────────────────────────────────
 
 let pricesSchemaReady: Promise<void> | null = null;

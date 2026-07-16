@@ -25,6 +25,7 @@ async function sendOrderConfirmation(order: DbOrder) {
     const result = await resend.emails.send({
       from: "Cartoonova <noreply@cartoonova.com>",
       to: [order.customer_email],
+      replyTo: "support@cartoonova.com",
       subject: t.subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">

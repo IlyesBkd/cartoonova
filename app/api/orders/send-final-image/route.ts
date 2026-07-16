@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { updateOrderFinalImage, markFinalImageSent } from "@/lib/db";
+import { updateOrderFinalImage, markFinalImageSent, setOrderLastOutboundMessageId } from "@/lib/db";
 import { getLangFromCountry, finalImageEmail } from "@/lib/email-i18n";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     const result = await resend.emails.send({
       from: "Cartoonova <noreply@cartoonova.com>",
       to: [customerEmail],
+      replyTo: "support@cartoonova.com",
       subject: t.subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
@@ -72,6 +73,10 @@ export async function POST(req: NextRequest) {
     });
 
     console.log("[SEND-FINAL-IMAGE] Email envoyé:", JSON.stringify(result));
+
+    if (result.data?.id) {
+      await setOrderLastOutboundMessageId(orderId, result.data.id);
+    }
 
     // 3. Mark as sent in DB
     await markFinalImageSent(orderId);

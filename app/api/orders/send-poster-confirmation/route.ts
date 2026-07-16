@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
-import { setPosterConfirmationToken } from "@/lib/db";
+import { setPosterConfirmationToken, setOrderLastOutboundMessageId } from "@/lib/db";
 import { getLangFromCountry, posterConfirmationEmail } from "@/lib/email-i18n";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
     const result = await resend.emails.send({
       from: "Cartoonova <noreply@cartoonova.com>",
       to: [customerEmail],
+      replyTo: "support@cartoonova.com",
       subject: t.subject,
       attachments: [
         {
@@ -73,6 +74,10 @@ export async function POST(req: NextRequest) {
     });
 
     console.log("[SEND-POSTER-CONFIRMATION] Email envoyé:", JSON.stringify(result));
+
+    if (result.data?.id) {
+      await setOrderLastOutboundMessageId(orderId, result.data.id);
+    }
 
     return NextResponse.json({ ok: true, emailResult: result });
   } catch (error: unknown) {

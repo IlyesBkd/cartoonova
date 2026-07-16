@@ -5,7 +5,7 @@ import { upload } from "@vercel/blob/client";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
-import type { DbOrder } from "@/lib/db";
+import type { DbOrder, SupportMessage } from "@/lib/db";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<"orders" | "prices" | "analytics">("orders");
+  const [tab, setTab] = useState<"orders" | "prices" | "analytics" | "support">("orders");
 
   // Orders
   const [orders, setOrders] = useState<DbOrder[]>([]);
@@ -51,6 +51,13 @@ export default function AdminPage() {
   const [sendingConfirmation, setSendingConfirmation] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
 
+  // Support inbox
+  const [supportMessages, setSupportMessages] = useState<SupportMessage[]>([]);
+  const [loadingSupport, setLoadingSupport] = useState(false);
+  const [syncingSupport, setSyncingSupport] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [expandedMessageId, setExpandedMessageId] = useState<number | null>(null);
+
   const headers = useCallback(
     () => ({ "Content-Type": "application/json", "x-admin-password": password }),
     [password]
@@ -71,6 +78,41 @@ export default function AdminPage() {
       if (r.ok) setPricesByCurrency(await r.json());
     } catch {}
   }, [password]);
+
+  const fetchSupportMessages = useCallback(async () => {
+    setLoadingSupport(true);
+    try {
+      const r = await fetch("/api/support/messages", { headers: { "x-admin-password": password } });
+      if (r.ok) setSupportMessages(await r.json());
+    } catch {}
+    setLoadingSupport(false);
+  }, [password]);
+
+  const handleSyncSupport = async () => {
+    setSyncingSupport(true);
+    setSyncError(null);
+    try {
+      const r = await fetch("/api/support/sync", { method: "POST", headers: headers() });
+      if (r.ok) {
+        await fetchSupportMessages();
+      } else {
+        const data = await r.json().catch(() => null);
+        setSyncError(data?.error || "Erreur de synchronisation.");
+      }
+    } catch (e) {
+      setSyncError(e instanceof Error ? e.message : "Erreur réseau.");
+    }
+    setSyncingSupport(false);
+  };
+
+  const handleMarkSupportRead = async (id: number) => {
+    setSupportMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: new Date().toISOString() } : m)));
+    await fetch("/api/support/messages", {
+      method: "PATCH",
+      headers: headers(),
+      body: JSON.stringify({ id }),
+    });
+  };
 
   // Login
   const handleLogin = async () => {
@@ -94,8 +136,9 @@ export default function AdminPage() {
     if (authed) {
       fetchOrders();
       fetchPrices();
+      fetchSupportMessages();
     }
-  }, [authed, fetchOrders, fetchPrices]);
+  }, [authed, fetchOrders, fetchPrices, fetchSupportMessages]);
 
   // Update order status
   const updateStatus = async (id: string, status: OrderStatus) => {
@@ -278,6 +321,17 @@ export default function AdminPage() {
             {orders.filter((o) => o.status === "new").length > 0 && (
               <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                 {orders.filter((o) => o.status === "new").length}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => setTab("support")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "support" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
+          >
+            <span>💬</span> Support
+            {supportMessages.filter((m) => !m.read_at).length > 0 && (
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {supportMessages.filter((m) => !m.read_at).length}
               </span>
             )}
           </button>
@@ -574,6 +628,84 @@ export default function AdminPage() {
                       <p className="text-xs text-gray-400 font-mono">Stripe: {selectedOrder.payment_intent_id}</p>
                     )}
                   </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ═══ SUPPORT TAB ═══ */}
+        {tab === "support" && (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">💬 Support</h2>
+                <p className="text-sm text-gray-500">
+                  Emails reçus sur support@cartoonova.com — synchronisation automatique 1x/jour, ou manuelle ci-dessous.
+                </p>
+              </div>
+              <button
+                onClick={handleSyncSupport}
+                disabled={syncingSupport}
+                className="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {syncingSupport ? "⏳ Vérification..." : "🔄 Vérifier maintenant"}
+              </button>
+            </div>
+
+            {syncError && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-3">
+                {syncError}
+              </div>
+            )}
+
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+              {loadingSupport ? (
+                <p className="px-4 py-12 text-center text-gray-400">Chargement...</p>
+              ) : supportMessages.length === 0 ? (
+                <p className="px-4 py-12 text-center text-gray-400">Aucun message pour le moment.</p>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {supportMessages.map((m) => {
+                    const isExpanded = expandedMessageId === m.id;
+                    const linkedOrder = m.order_id ? orders.find((o) => o.id === m.order_id) : null;
+                    return (
+                      <div key={m.id} className={!m.read_at ? "bg-blue-50/40" : ""}>
+                        <button
+                          onClick={() => {
+                            setExpandedMessageId(isExpanded ? null : m.id);
+                            if (!m.read_at) handleMarkSupportRead(m.id);
+                          }}
+                          className="w-full text-left px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                        >
+                          {!m.read_at && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-sm truncate ${!m.read_at ? "font-bold text-gray-900" : "font-medium text-gray-700"}`}>
+                                {m.from_email}
+                              </span>
+                              {linkedOrder && (
+                                <span className="flex-shrink-0 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">
+                                  📦 {linkedOrder.id.slice(0, 8)}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 truncate">{m.subject || "(sans objet)"}</p>
+                          </div>
+                          <span className="text-xs text-gray-400 flex-shrink-0">
+                            {new Date(m.received_at).toLocaleString("fr-FR")}
+                          </span>
+                        </button>
+                        {isExpanded && (
+                          <div className="px-4 pb-4">
+                            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
+                              {m.body_text || "(pas de contenu texte)"}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
