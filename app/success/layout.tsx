@@ -1,4 +1,5 @@
 import { Poppins } from "next/font/google";
+import PostHogProvider from "@/components/PostHogProvider";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -14,7 +15,9 @@ export default function SuccessLayout({
 }) {
   return (
     <html lang="fr" className={`${poppins.variable} antialiased`}>
-      <body>{children}</body>
+      <body>
+        <PostHogProvider>{children}</PostHogProvider>
+      </body>
     </html>
   );
 }
