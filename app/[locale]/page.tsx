@@ -129,7 +129,7 @@ export default function Home() {
           {/* Social proof bar */}
           <div className="mt-16 bg-gray-900 py-4 border-y-3 border-black">
             <div className="max-w-5xl mx-auto px-4 flex items-center justify-center gap-8 sm:gap-14 flex-wrap">
-              {[{ v: "2,500+", l: t("portraitsCreated") }, { v: "4.9★", l: t("averageRating") }, { v: "48h", l: t("delivery") }, { v: "100%", l: t("satisfactionGuarantee") }].map((s, i) => (
+              {[{ v: "2,500+", l: t("portraitsCreated") }, { v: "4.9★", l: t("averageRating") }, { v: "24h", l: t("delivery") }, { v: "100%", l: t("satisfactionGuarantee") }].map((s, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="text-amber-400 font-black text-lg sm:text-xl">{s.v}</span>
                   <span className="text-gray-300 text-xs sm:text-sm font-medium">{s.l}</span>

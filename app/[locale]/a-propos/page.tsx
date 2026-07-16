@@ -52,7 +52,7 @@ export default function AProposPage() {
               {[
                 { icon: "✏️", title: "100% fait main", desc: "Chaque portrait est dessiné à la main par un artiste professionnel. Zéro IA, zéro modèle." },
                 { icon: "😊", title: "Satisfaction garantie", desc: "Révisions illimitées et gratuites. On ne s'arrête pas tant que vous n'êtes pas ravi(e)." },
-                { icon: "⚡", title: "Rapide & fiable", desc: "3 à 5 jours ouvrés. Support 24/7. Livraison sécurisée partout dans le monde." },
+                { icon: "⚡", title: "Rapide & fiable", desc: "Dessin en 24h, impressions livrées en 3 à 5 jours ouvrés. Support 24/7. Livraison sécurisée partout dans le monde." },
               ].map((v) => (
                 <div key={v.title} className="bg-white border-4 border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-6 text-center hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
                   <span className="text-4xl mb-3 block">{v.icon}</span>

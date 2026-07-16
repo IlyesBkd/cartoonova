@@ -118,7 +118,7 @@ export default function PortraitPersonnaliseCartoon() {
       },
       {
         question: "Combien de temps faut-il pour recevoir mon portrait ?",
-        answer: "Le délai moyen est de 3-5 jours ouvrables. Les options digitales sont livrées par email, les impressions par colis sécurisé. Vous recevrez un aperçu pour validation avant livraison finale.",
+        answer: "Le dessin est réalisé en 24h. Si vous avez choisi une impression (poster, toile), comptez 3 à 5 jours ouvrés supplémentaires pour la fabrication et l'envoi du colis. Les options digitales sont livrées par email.",
       },
       {
         question: "Puis-je commander un portrait de famille ?",
@@ -398,7 +398,7 @@ export default function PortraitPersonnaliseCartoon() {
                 </div>
                 <h3 className="text-lg font-black mb-3">Livraison Express</h3>
                 <p className="text-black/70 font-medium">
-                  Version digitale instantanée, impressions en 3-5 jours. Votre 
+                  Version digitale en 24h, impressions livrées en 3 à 5 jours. Votre
                   <strong> caricature personnalisée </strong> rapidement chez vous.
                 </p>
               </div>

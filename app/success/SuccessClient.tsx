@@ -156,8 +156,8 @@ export default function SuccessClient({
                   Nos artistes se mettent au travail !
                 </h3>
                 <p className="text-[10px] sm:text-xs font-bold text-black/80 leading-tight">
-                  Vous recevrez un premier aperçu par email dans 3-5 jours ouvrables. 
-                  Notre équipe vous contactera pour valider chaque détail.
+                  Le dessin est réalisé en 24h. Si vous avez commandé une impression (poster, toile),
+                  comptez 3 à 5 jours ouvrés supplémentaires pour la fabrication et l&apos;envoi.
                 </p>
               </div>
             </div>

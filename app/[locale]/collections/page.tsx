@@ -95,9 +95,9 @@ export default function CollectionsPage() {
 
           {/* Stats bar */}
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-gray-500 text-sm">
-            <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>Satisfait ou remboursé</span>
-            <span>✏️ Dessiné à la main</span>
-            <span>⚡ Livré en 48h</span>
+            <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>{t("badgeSatisfied")}</span>
+            <span>{t("badgeHandDrawn")}</span>
+            <span>{t("badgeDelivery24h")}</span>
           </div>
         </div>
       </section>
@@ -240,7 +240,7 @@ export default function CollectionsPage() {
             {t("ctaButton")}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
           </Link>
-          <p className="mt-5 text-sm text-black/40">✏️ Dessiné à la main · ⚡ Livré en 48h · 🔒 Satisfait ou remboursé</p>
+          <p className="mt-5 text-sm text-black/40">{t("trustBar")}</p>
         </div>
       </section>
     </div>

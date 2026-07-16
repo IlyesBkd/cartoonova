@@ -55,9 +55,9 @@ export default function CGV() {
 
         <section>
           <h2 className="text-2xl font-bold mt-8 mb-4 text-gray-900">Article 6 — Délais de réalisation et livraison</h2>
-          <p>Les délais de réalisation d&apos;une caricature sont généralement de <strong>3 à 5 jours ouvrés</strong> à compter de la réception du paiement et des photos. Ce délai peut varier en fonction de la complexité de la commande et de la charge de travail des artistes.</p>
+          <p>Les délais de réalisation d&apos;une caricature sont généralement de <strong>24 heures</strong> à compter de la réception du paiement et des photos. Ce délai peut varier en fonction de la complexité de la commande et de la charge de travail des artistes.</p>
           <p className="mt-3"><strong>Produits numériques :</strong> Le fichier est envoyé par email au Client dès validation de la caricature.</p>
-          <p className="mt-3"><strong>Produits imprimés :</strong> L&apos;impression et l&apos;expédition prennent un délai supplémentaire de 5 à 10 jours ouvrés selon la destination. Les frais et délais de livraison sont indiqués lors de la commande.</p>
+          <p className="mt-3"><strong>Produits imprimés :</strong> L&apos;impression et l&apos;expédition prennent un délai supplémentaire de 3 à 5 jours ouvrés selon la destination. Les frais et délais de livraison sont indiqués lors de la commande.</p>
           <p className="mt-3">Cartoonova ne saurait être tenue responsable des retards de livraison imputables au transporteur ou à un cas de force majeure.</p>
         </section>
 
