@@ -1,5 +1,6 @@
 import { MetadataRoute } from "next";
 import { locales, defaultLocale } from "@/i18n/config";
+import { getAllPublishedArticleRefs } from "@/lib/blogDb";
 
 const baseUrl = "https://www.cartoonova.com";
 
@@ -21,8 +22,7 @@ const pages: PageDef[] = [
   { path: "/rickandmorty", changeFrequency: "weekly", priority: 0.9 },
   { path: "/disney", changeFrequency: "weekly", priority: 0.9 },
   { path: "/portrait-personnalise-cartoon", changeFrequency: "weekly", priority: 0.85 },
-  { path: "/portfolio", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/avis", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/blog", changeFrequency: "daily", priority: 0.8 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
   { path: "/a-propos", changeFrequency: "yearly", priority: 0.4 },
   { path: "/cgv", changeFrequency: "yearly", priority: 0.3 },
@@ -30,7 +30,7 @@ const pages: PageDef[] = [
   { path: "/politique-de-confidentialite", changeFrequency: "yearly", priority: 0.3 },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
   for (const page of pages) {
@@ -47,6 +47,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       });
     }
+  }
+
+  const articles = await getAllPublishedArticleRefs().catch(() => []);
+  for (const article of articles) {
+    entries.push({
+      url: `${baseUrl}/${article.locale}/blog/${article.slug}`,
+      lastModified: new Date(article.updatedAt),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    });
   }
 
   return entries;
