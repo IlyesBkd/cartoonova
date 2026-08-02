@@ -264,9 +264,8 @@ function PaymentForm({
           <span className="text-lg">💳</span>
           <h4 className="font-black text-black text-sm">{t("cardPayment") || "Paiement par carte"}</h4>
         </div>
-        <PaymentElement 
+        <PaymentElement
           options={{
-            paymentMethodOrder: ['card'],
             fields: {
               billingDetails: {
                 email: 'auto' as const,
@@ -428,7 +427,7 @@ export default function CheckoutModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
 
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-br from-yellow-50 to-yellow-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transform transition-all duration-300 scale-100 hover:scale-[1.02]">
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-br from-yellow-50 to-yellow-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transform transition-all duration-300 scale-100">
         {/* Header */}
         <div className="bg-gradient-to-r from-yellow-400 to-yellow-300 border-b-4 border-black px-6 py-4 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-3">
@@ -442,12 +441,19 @@ export default function CheckoutModal({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center font-black text-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer hover:bg-red-50"
-          >
-            ✕
-          </button>
+          <div className="flex items-center gap-3">
+            {step !== "success" && (
+              <span className="text-xs font-black text-black/50 uppercase whitespace-nowrap">
+                {step === "info" ? t("step1Of2") : t("step2Of2")}
+              </span>
+            )}
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center font-black text-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer hover:bg-red-50"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="p-6">
@@ -559,6 +565,7 @@ export default function CheckoutModal({
               >
                 {t("continueToPayment")}
               </button>
+              <p className="text-center text-xs font-bold text-black/40">🔒 {t("securePayment")} · {t("poweredByStripe")}</p>
             </div>
           )}
 

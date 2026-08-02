@@ -410,7 +410,9 @@
     "errorAddressRequired": "Veuillez remplir l'adresse complète.",
     "errorPhoneRequired": "Veuillez entrer votre numéro de téléphone.",
     "errorPaymentInit": "Erreur lors de l'initialisation du paiement.",
-    "errorTechnical": "Erreur technique lors de la préparation du paiement."
+    "errorTechnical": "Erreur technique lors de la préparation du paiement.",
+    "step1Of2": "Étape 1/2",
+    "step2Of2": "Étape 2/2"
   },
   "footer": {
     "newsletter": "Restez dans la boucle !",
