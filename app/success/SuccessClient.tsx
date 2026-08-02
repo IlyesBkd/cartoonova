@@ -9,6 +9,7 @@ declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
+    fbq?: (...args: unknown[]) => void;
   }
 }
 
@@ -72,6 +73,14 @@ export default function SuccessClient({
       currency: order.currency,
       transaction_id: order.payment_intent_id,
     });
+
+    // Meta Pixel purchase event — no-op until NEXT_PUBLIC_META_PIXEL_ID is set (see notesmanuel.md)
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq("track", "Purchase", {
+        value: order.total_price,
+        currency: order.currency,
+      });
+    }
 
     sessionStorage.setItem(storageKey, "1");
     conversionSent.current = true;
