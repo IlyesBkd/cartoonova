@@ -14,6 +14,14 @@ const DEFAULT_COLORS: ProductColorScheme = {
 
 const PRODUCT_SLUGS = Object.keys(PRODUCT_COLOR_SCHEMES);
 
+// Only render a social icon once a real profile URL is configured -
+// no placeholder "#" links to accounts that don't exist yet.
+const SOCIAL_LINKS = [
+  { label: "Facebook", initial: "F", url: process.env.NEXT_PUBLIC_FACEBOOK_URL },
+  { label: "Instagram", initial: "I", url: process.env.NEXT_PUBLIC_INSTAGRAM_URL },
+  { label: "TikTok", initial: "T", url: process.env.NEXT_PUBLIC_TIKTOK_URL },
+].filter((social): social is { label: string; initial: string; url: string } => Boolean(social.url));
+
 export default function FooterCartoon() {
   const t = useTranslations("footer");
   const tn = useTranslations("nav");
@@ -34,13 +42,15 @@ export default function FooterCartoon() {
             <p className="text-sm text-black/70 font-bold leading-relaxed mb-5 max-w-xs">
               {t("madeWith")}
             </p>
-            <div className="flex items-center gap-3">
-              {["Facebook", "Instagram", "TikTok"].map((s) => (
-                <a key={s} href="#" aria-label={s} className="w-10 h-10 rounded-full bg-black flex items-center justify-center font-black text-xs border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-y-1 transition-all" style={{ color: colors.accentHex }}>
-                  {s[0]}
-                </a>
-              ))}
-            </div>
+            {SOCIAL_LINKS.length > 0 && (
+              <div className="flex items-center gap-3">
+                {SOCIAL_LINKS.map((social) => (
+                  <a key={social.label} href={social.url} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="w-10 h-10 rounded-full bg-black flex items-center justify-center font-black text-xs border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-y-1 transition-all" style={{ color: colors.accentHex }}>
+                    {social.initial}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Shop */}
