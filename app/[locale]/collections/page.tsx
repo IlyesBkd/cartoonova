@@ -78,10 +78,7 @@ export default function CollectionsPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white border-2 border-black rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-6">
-            <div className="flex">{[...Array(5)].map((_, i) => <span key={i} className="text-amber-500 text-sm">★</span>)}</div>
-            <span className="text-gray-700 text-sm font-bold">4.9/5</span>
-            <span className="text-gray-400">·</span>
-            <span className="text-gray-500 text-sm">+2,500 portraits</span>
+            <span className="text-gray-700 text-sm font-bold">{t("trustBar")}</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 uppercase mb-5 leading-[1.1]">
@@ -223,8 +220,7 @@ export default function CollectionsPage() {
         </div>
         <div className="max-w-3xl mx-auto px-4 text-center relative">
           <div className="flex items-center justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => <span key={i} className="text-black text-lg">★</span>)}
-            <span className="text-black/70 font-bold text-sm ml-2">4.9/5 — 2,500+ portraits</span>
+            <span className="text-black/70 font-bold text-sm">{t("trustBar")}</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-black text-black mb-3 uppercase">
             <span className="inline-block -rotate-1">{t("ctaTitle")}</span>
