@@ -412,7 +412,8 @@
     "errorPaymentInit": "Fehler beim Initialisieren der Zahlung.",
     "errorTechnical": "Technischer Fehler bei der Vorbereitung der Zahlung.",
     "step1Of2": "Schritt 1/2",
-    "step2Of2": "Schritt 2/2"
+    "step2Of2": "Schritt 2/2",
+    "orderByGuidance": "Brauchst du es zu einem bestimmten Datum? Rechne mit 24h für die Zeichnung + 3 bis 5 Werktagen für Druck und Lieferung."
   },
   "footer": {
     "newsletter": "Bleiben Sie auf dem Laufenden!",

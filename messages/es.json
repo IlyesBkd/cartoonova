@@ -412,7 +412,8 @@
     "errorPaymentInit": "Error al inicializar el pago.",
     "errorTechnical": "Error técnico al preparar el pago.",
     "step1Of2": "Paso 1/2",
-    "step2Of2": "Paso 2/2"
+    "step2Of2": "Paso 2/2",
+    "orderByGuidance": "¿Lo necesitas para una fecha concreta? Cuenta 24h de dibujo + 3 a 5 días hábiles de impresión y envío."
   },
   "footer": {
     "newsletter": "¡Mantente al día!",

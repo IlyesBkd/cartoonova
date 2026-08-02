@@ -476,6 +476,10 @@ export default function CheckoutModal({
                 </div>
               </div>
 
+              {!isDigital && (
+                <p className="text-xs font-bold text-black/50 text-center -mt-1">🎁 {t("orderByGuidance")}</p>
+              )}
+
               {/* Email — always required */}
               <div className="space-y-2">
                 <label className={labelClass}>{t("emailAddress")}</label>

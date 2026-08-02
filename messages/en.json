@@ -412,7 +412,8 @@
     "errorPaymentInit": "Error initializing payment.",
     "errorTechnical": "Technical error while preparing payment.",
     "step1Of2": "Step 1/2",
-    "step2Of2": "Step 2/2"
+    "step2Of2": "Step 2/2",
+    "orderByGuidance": "Need it for a specific date? Allow 24h for the drawing + 3 to 5 business days for printing and delivery."
   },
   "footer": {
     "newsletter": "Stay in the loop!",

@@ -412,7 +412,8 @@
     "errorPaymentInit": "Erreur lors de l'initialisation du paiement.",
     "errorTechnical": "Erreur technique lors de la préparation du paiement.",
     "step1Of2": "Étape 1/2",
-    "step2Of2": "Étape 2/2"
+    "step2Of2": "Étape 2/2",
+    "orderByGuidance": "Cadeau pour une date précise ? Comptez 24h de dessin + 3 à 5 jours ouvrés d'impression et livraison."
   },
   "footer": {
     "newsletter": "Restez dans la boucle !",

@@ -412,7 +412,8 @@
     "errorPaymentInit": "Errore nell'inizializzazione del pagamento.",
     "errorTechnical": "Errore tecnico durante la preparazione del pagamento.",
     "step1Of2": "Passo 1/2",
-    "step2Of2": "Passo 2/2"
+    "step2Of2": "Passo 2/2",
+    "orderByGuidance": "Ti serve per una data precisa? Calcola 24h per il disegno + 3-5 giorni lavorativi per stampa e consegna."
   },
   "footer": {
     "newsletter": "Resta aggiornato!",
