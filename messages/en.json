@@ -7,6 +7,7 @@
   },
   "nav": {
     "home": "Home",
+    "blog": "Blog",
     "collections": "Choose My Style",
     "portfolio": "Portfolio",
     "reviews": "Reviews",
@@ -14,6 +15,20 @@
     "contact": "Contact",
     "cta": "Order my portrait",
     "viewAllStyles": "View all styles"
+  },
+  "blog": {
+    "metaTitle": "Cartoonova Blog — Gift ideas and style guides",
+    "metaDescription": "Gift ideas, style guides and practical tips about personalized cartoon caricature portraits.",
+    "title": "The Cartoonova Blog",
+    "subtitle": "Gift ideas, style guides and practical tips for your personalized portrait.",
+    "readMore": "Read article",
+    "publishedOn": "Published on",
+    "backToBlog": "Back to blog",
+    "noArticles": "No articles yet. Check back very soon!",
+    "relatedArticles": "You might also like",
+    "ctaTitle": "Want your own personalized portrait?",
+    "ctaSubtitle": "Discover all our styles and build yours in a few clicks.",
+    "ctaButton": "Discover our styles"
   },
   "collections": {
     "heroTitle": "Choose Your Universe",

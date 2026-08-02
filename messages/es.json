@@ -7,6 +7,7 @@
   },
   "nav": {
     "home": "Inicio",
+    "blog": "Blog",
     "collections": "Elegir Mi Estilo",
     "portfolio": "Portfolio",
     "reviews": "Opiniones",
@@ -14,6 +15,20 @@
     "contact": "Contacto",
     "cta": "Pedir mi retrato",
     "viewAllStyles": "Ver todos los estilos"
+  },
+  "blog": {
+    "metaTitle": "Blog de Cartoonova — Ideas de regalo y guías de estilo",
+    "metaDescription": "Ideas de regalo, guías de estilo y consejos prácticos sobre el retrato caricatura personalizado.",
+    "title": "El Blog de Cartoonova",
+    "subtitle": "Ideas de regalo, guías de estilo y consejos prácticos para tu retrato personalizado.",
+    "readMore": "Leer el artículo",
+    "publishedOn": "Publicado el",
+    "backToBlog": "Volver al blog",
+    "noArticles": "Todavía no hay artículos. ¡Vuelve muy pronto!",
+    "relatedArticles": "También te puede interesar",
+    "ctaTitle": "¿Quieres tu propio retrato personalizado?",
+    "ctaSubtitle": "Descubre todos nuestros estilos y crea el tuyo en unos clics.",
+    "ctaButton": "Descubrir nuestros estilos"
   },
   "collections": {
     "heroTitle": "Elige tu universo",

@@ -7,6 +7,7 @@
   },
   "nav": {
     "home": "Startseite",
+    "blog": "Blog",
     "collections": "Meinen Stil wählen",
     "portfolio": "Portfolio",
     "reviews": "Bewertungen",
@@ -14,6 +15,20 @@
     "contact": "Kontakt",
     "cta": "Mein Porträt bestellen",
     "viewAllStyles": "Alle Stile ansehen"
+  },
+  "blog": {
+    "metaTitle": "Cartoonova Blog — Geschenkideen und Stilguides",
+    "metaDescription": "Geschenkideen, Stilguides und praktische Tipps rund um das personalisierte Cartoon-Karikatur-Porträt.",
+    "title": "Der Cartoonova Blog",
+    "subtitle": "Geschenkideen, Stilguides und praktische Tipps für Ihr personalisiertes Porträt.",
+    "readMore": "Artikel lesen",
+    "publishedOn": "Veröffentlicht am",
+    "backToBlog": "Zurück zum Blog",
+    "noArticles": "Noch keine Artikel. Schauen Sie bald wieder vorbei!",
+    "relatedArticles": "Das könnte Sie auch interessieren",
+    "ctaTitle": "Möchten Sie Ihr eigenes personalisiertes Porträt?",
+    "ctaSubtitle": "Entdecken Sie alle unsere Stile und gestalten Sie Ihres in wenigen Klicks.",
+    "ctaButton": "Unsere Stile entdecken"
   },
   "collections": {
     "heroTitle": "Wählen Sie Ihr Universum",
