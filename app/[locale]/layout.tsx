@@ -10,7 +10,7 @@ import PostHogProvider from "@/components/PostHogProvider";
 import LayoutShell from "@/components/LayoutShell";
 import { getCurrencyFromCountry } from "@/lib/currency";
 
-const baseUrl = "https://cartoonova.fr";
+const baseUrl = "https://www.cartoonova.com";
 
 export async function generateMetadata({
   params,
