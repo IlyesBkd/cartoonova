@@ -552,14 +552,14 @@ export default function PortraitPersonnaliseCartoon() {
                 Commencer maintenant →
               </Link>
               <Link
-                href="/portfolio"
+                href="/collections"
                 className="bg-white text-black font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
               >
                 Voir nos réalisations
               </Link>
             </div>
             <div className="flex justify-center gap-8 text-sm">
-              <Link href="/avis" className="text-white/80 hover:text-white underline">
+              <Link href="/#avis" className="text-white/80 hover:text-white underline">
                 Voir les avis clients
               </Link>
               <Link href="/contact" className="text-white/80 hover:text-white underline">

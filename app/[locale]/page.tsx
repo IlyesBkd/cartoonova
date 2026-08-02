@@ -220,7 +220,7 @@ export default function Home() {
               ))}
             </div>
             <div className="flex justify-center mt-10">
-              <Link href="/portfolio" className="bg-white text-gray-900 font-black text-sm uppercase px-8 py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+              <Link href="/collections" className="bg-white text-gray-900 font-black text-sm uppercase px-8 py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
                 {t("viewPortfolio")}
               </Link>
             </div>
@@ -286,7 +286,7 @@ export default function Home() {
               ))}
             </div>
             <div className="flex justify-center mt-10">
-              <Link href="/avis" className="bg-white text-gray-900 font-black text-sm uppercase px-8 py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+              <Link href="/#avis" className="bg-white text-gray-900 font-black text-sm uppercase px-8 py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
                 {t("viewAllReviews")}
               </Link>
             </div>

@@ -173,7 +173,7 @@ export default function SuccessClient({
             </Link>
             
             <Link
-              href="/portfolio"
+              href="/collections"
               className="bg-yellow-400 text-black font-black text-xs sm:text-sm lg:text-lg uppercase px-4 sm:px-6 py-2 sm:py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] sm:hover:translate-x-[2px] hover:translate-y-[1px] sm:hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all text-center"
             >
               🖼️ Portfolio

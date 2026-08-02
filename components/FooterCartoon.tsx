@@ -48,8 +48,8 @@ export default function FooterCartoon() {
             <h4 className="font-black text-sm text-black mb-4 uppercase tracking-wider border-b-2 border-black pb-2">{t("shop")}</h4>
             <ul className="flex flex-col gap-2 text-sm font-bold text-black/70">
               <li><Link href="/simpson" className="hover:text-black transition-colors">{t("createPortrait")}</Link></li>
-              <li><Link href="/portfolio" className="hover:text-black transition-colors">{tn("portfolio")}</Link></li>
-              <li><Link href="/avis" className="hover:text-black transition-colors">{t("clientReviews")}</Link></li>
+              <li><Link href="/collections" className="hover:text-black transition-colors">{tn("portfolio")}</Link></li>
+              <li><Link href="/#avis" className="hover:text-black transition-colors">{t("clientReviews")}</Link></li>
               <li><Link href="/contact" className="hover:text-black transition-colors">{tn("contact")}</Link></li>
             </ul>
           </div>
