@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://images.example.org/renovation/thermal-system.webp",
+    "alt": "Technician assessing a residential thermal system",
+    "sourceUrl": "https://www.ademe.fr/",
+    "width": 1800,
+    "height": 1013,
+    "mimeType": "image/webp",
+    "bytes": 320000,
+    "tags": ["heat", "pump", "energy", "efficiency"]
+  },
+  {
+    "url": "https://images.example.org/renovation/wall-section.jpg",
+    "alt": "Detailed wall insulation and ventilation section",
+    "sourceUrl": "https://energy.ec.europa.eu/",
+    "width": 1600,
+    "height": 900,
+    "mimeType": "image/jpeg",
+    "bytes": 410000,
+    "tags": ["insulation", "moisture", "materials", "ventilation"]
+  },
+  {
+    "url": "https://images.example.org/renovation/project-plan.png",
+    "alt": "Renovation project plan with cost categories",
+    "sourceUrl": "https://example.org/methodology",
+    "width": 1440,
+    "height": 810,
+    "mimeType": "image/png",
+    "bytes": 520000,
+    "tags": ["renovation", "budget", "planning", "contingency"]
+  }
+]

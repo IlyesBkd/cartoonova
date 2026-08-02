@@ -1,0 +1,136 @@
+{
+  "version": 1,
+  "project": {
+    "id": "cartoonova",
+    "name": "Cartoonova",
+    "siteUrl": "${SITE_URL:-https://www.cartoonova.com}",
+    "timezone": "Europe/Paris",
+    "topic": "personalized hand-drawn cartoon caricature portraits and gift ideas",
+    "description": "Blog Cartoonova : idées cadeaux, guides de style et conseils pratiques autour du portrait caricature personnalisé.",
+    "editorial": {
+      "voice": "chaleureuse, inspirante, orientée cadeaux, honnête sur les délais et le processus, jamais survendeuse",
+      "audience": "personnes cherchant un cadeau original et personnalisé pour un proche, ou clientes déjà convaincues et curieuses des styles disponibles",
+      "principles": [
+        "toujours relier le sujet à un vrai cas d'usage cadeau ou personnalisation",
+        "rester honnête sur les délais annoncés (dessin en 24h, impression et livraison en 3 à 5 jours ouvrés)",
+        "éviter le jargon marketing creux, privilégier des conseils concrets et actionnables",
+        "mentionner Cartoonova naturellement dans le texte, jamais de façon insistante ou répétée"
+      ],
+      "forbiddenPatterns": [
+        "garanti à 100%",
+        "vous ne devinerez jamais",
+        "le secret que personne ne vous dit",
+        "achetez maintenant avant qu'il ne soit trop tard"
+      ]
+    }
+  },
+  "contentTypes": [
+    {
+      "id": "article",
+      "label": "Article de blog",
+      "minWords": 700,
+      "maxWords": 1600,
+      "requiredImages": 2,
+      "dailyTargets": { "fr": 1, "en": 1, "es": 1, "de": 1, "it": 1 },
+      "reserveTargets": { "fr": 3, "en": 3, "es": 3, "de": 3, "it": 3 },
+      "categories": ["gift-guides", "style-guides", "how-to"]
+    }
+  ],
+  "locales": [
+    { "id": "fr", "language": "French", "market": "France", "isDefault": true, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "en", "language": "English", "market": "United States", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "es", "language": "Spanish", "market": "Spain", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "de", "language": "German", "market": "Germany", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "it", "language": "Italian", "market": "Italy", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] }
+  ],
+  "sources": {
+    "seeds": [
+      "portrait personnalisé cadeau",
+      "caricature cadeau original",
+      "idée cadeau anniversaire originale",
+      "cadeau saint valentin original",
+      "cadeau de noel original",
+      "cadeau fête des mères original",
+      "cadeau fête des pères original",
+      "idée cadeau pour fan de manga",
+      "cadeau personnalisé photo animal de compagnie",
+      "affiche personnalisée cadeau",
+      "cadeau pour fan de Dragon Ball",
+      "cadeau pour fan de One Piece",
+      "cadeau pour fan de Studio Ghibli"
+    ],
+    "allowDomains": [],
+    "denyDomains": [],
+    "requireAttribution": false
+  },
+  "adapters": {
+    "cms": { "type": "neon", "options": {} },
+    "ai": {
+      "type": "${AI_ADAPTER:-mock}",
+      "options": {
+        "endpoint": "${AI_ENDPOINT:-https://api.openai.com/v1/chat/completions}",
+        "apiKey": "${AI_API_KEY:-dry-run-key}"
+      }
+    },
+    "search": {
+      "type": "${SEARCH_ADAPTER:-fixture}",
+      "options": {
+        "topicsFile": "fixtures/cartoonova-topics.json",
+        "serpFile": "fixtures/serp.json",
+        "apiKey": "${SERPAPI_API_KEY:-}",
+        "discoverCacheTtlMs": 86400000
+      }
+    },
+    "analytics": { "type": "file", "options": { "file": "fixtures/analytics.json" } },
+    "media": { "type": "local-catalog", "options": { "catalogFile": "fixtures/cartoonova-media.json" } },
+    "distribution": { "type": "json-outbox", "options": { "file": "distribution-outbox.json" } }
+  },
+  "ai": {
+    "model": "${AI_MODEL:-gpt-4o}",
+    "translationModel": "${AI_TRANSLATION_MODEL:-gpt-4o-mini}",
+    "temperature": 0.4,
+    "maxCallsPerDay": 30,
+    "maxTokensPerDay": 150000,
+    "maxAttemptsPerItem": 2,
+    "maxCorrectionsPerItem": 1,
+    "retryDelayMs": 20000,
+    "circuitBreakerFailures": 3,
+    "circuitBreakerCooldownMs": 3600000
+  },
+  "seo": {
+    "enabled": true,
+    "minTitleLength": 20,
+    "maxTitleLength": 65,
+    "minDescriptionLength": 90,
+    "maxDescriptionLength": 160,
+    "competitorCount": 3,
+    "refreshLookbackDays": 90,
+    "minimumImpressionsForRefresh": 50,
+    "protectedPaths": []
+  },
+  "images": {
+    "minWidth": 1200,
+    "minHeight": 675,
+    "maxBytes": 5000000,
+    "allowedMimeTypes": ["image/jpeg", "image/png", "image/webp"],
+    "requireDistinctSources": true
+  },
+  "publishing": {
+    "minDelayMinutes": 30,
+    "maxDelayMinutes": 90,
+    "requireCompleteTranslations": false,
+    "timezone": "Europe/Paris"
+  },
+  "workers": {
+    "generationIntervalMs": 1800000,
+    "publicationIntervalMs": 300000,
+    "seoIntervalMs": 21600000,
+    "lockTtlMs": 7200000
+  },
+  "paths": {
+    "data": "${DATA_DIR:-data}",
+    "state": "${STATE_DIR:-.state}",
+    "temp": "${TEMP_DIR:-.tmp}",
+    "logs": "${LOG_DIR:-logs}"
+  }
+}

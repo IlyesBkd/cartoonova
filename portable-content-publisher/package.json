@@ -1,0 +1,28 @@
+{
+  "name": "portable-content-publisher",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portable multilingual content generation, publication and SEO automation engine",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "check": "npm run build && npm test && npm run audit:residue",
+    "start": "node --import tsx src/app/cli.ts worker all",
+    "dry-run": "node --import tsx src/app/cli.ts dry-run",
+    "migrate": "node --import tsx scripts/migrate.ts",
+    "verify": "node --import tsx scripts/verify.ts",
+    "audit:residue": "node --import tsx scripts/audit-residue.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0"
+  }
+}

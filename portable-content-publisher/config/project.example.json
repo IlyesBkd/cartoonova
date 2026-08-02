@@ -1,0 +1,148 @@
+{
+  "version": 1,
+  "project": {
+    "id": "sustainable-habitat",
+    "name": "Sustainable Habitat",
+    "siteUrl": "${SITE_URL:-https://example.org}",
+    "timezone": "Europe/Paris",
+    "topic": "energy-efficient housing and responsible renovation",
+    "description": "Independent practical publication for households planning durable renovation work.",
+    "editorial": {
+      "voice": "clear, evidence-led, practical and independent",
+      "audience": "homeowners and tenants comparing renovation choices",
+      "principles": [
+        "separate verified facts from interpretation",
+        "explain trade-offs and uncertainty",
+        "cite primary or authoritative sources",
+        "offer original analysis rather than a source recap"
+      ],
+      "forbiddenPatterns": [
+        "guaranteed miracle",
+        "you will not believe",
+        "secret experts hate"
+      ]
+    }
+  },
+  "contentTypes": [
+    {
+      "id": "article",
+      "label": "News analysis",
+      "minWords": 320,
+      "maxWords": 1400,
+      "requiredImages": 2,
+      "dailyTargets": { "fr": 2, "en": 2 },
+      "reserveTargets": { "fr": 2, "en": 2 },
+      "categories": ["policy", "materials", "energy"]
+    },
+    {
+      "id": "guide",
+      "label": "Practical guide",
+      "minWords": 450,
+      "maxWords": 2200,
+      "requiredImages": 2,
+      "dailyTargets": { "fr": 1, "en": 1 },
+      "reserveTargets": { "fr": 1, "en": 1 },
+      "categories": ["planning", "budget", "maintenance"]
+    },
+    {
+      "id": "review",
+      "label": "Independent assessment",
+      "minWords": 500,
+      "maxWords": 2400,
+      "requiredImages": 2,
+      "dailyTargets": { "fr": 1, "en": 1 },
+      "reserveTargets": { "fr": 1, "en": 1 },
+      "categories": ["products", "services", "methods"]
+    }
+  ],
+  "locales": [
+    {
+      "id": "fr",
+      "language": "French",
+      "market": "France",
+      "isDefault": true,
+      "publicationWindows": [
+        { "start": "09:00", "end": "13:00", "weight": 2 },
+        { "start": "16:00", "end": "20:00", "weight": 3 }
+      ]
+    },
+    {
+      "id": "en",
+      "language": "English",
+      "market": "United States",
+      "isDefault": false,
+      "publicationWindows": [
+        { "start": "15:00", "end": "18:00", "weight": 2 },
+        { "start": "22:00", "end": "02:00", "weight": 3 }
+      ]
+    }
+  ],
+  "sources": {
+    "seeds": ["insulation", "heat pumps", "renovation grants"],
+    "allowDomains": ["www.ademe.fr", "energy.ec.europa.eu", "example.org"],
+    "denyDomains": ["unverified.example"],
+    "requireAttribution": true
+  },
+  "adapters": {
+    "cms": { "type": "file", "options": { "file": "content.json" } },
+    "ai": {
+      "type": "${AI_ADAPTER:-mock}",
+      "options": {
+        "endpoint": "${AI_ENDPOINT:-https://api.example.org/v1/chat/completions}",
+        "apiKey": "${AI_API_KEY:-dry-run-key}"
+      }
+    },
+    "search": { "type": "fixture", "options": { "topicsFile": "fixtures/topics.json", "serpFile": "fixtures/serp.json" } },
+    "analytics": { "type": "file", "options": { "file": "fixtures/analytics.json" } },
+    "media": { "type": "local-catalog", "options": { "catalogFile": "fixtures/media.json" } },
+    "distribution": { "type": "json-outbox", "options": { "file": "distribution-outbox.json" } }
+  },
+  "ai": {
+    "model": "${AI_MODEL:-editorial-model}",
+    "translationModel": "${AI_TRANSLATION_MODEL:-translation-model}",
+    "temperature": 0.3,
+    "maxCallsPerDay": 40,
+    "maxTokensPerDay": 120000,
+    "maxAttemptsPerItem": 2,
+    "maxCorrectionsPerItem": 1,
+    "retryDelayMs": 15000,
+    "circuitBreakerFailures": 3,
+    "circuitBreakerCooldownMs": 3600000
+  },
+  "seo": {
+    "enabled": true,
+    "minTitleLength": 20,
+    "maxTitleLength": 70,
+    "minDescriptionLength": 90,
+    "maxDescriptionLength": 165,
+    "competitorCount": 5,
+    "refreshLookbackDays": 180,
+    "minimumImpressionsForRefresh": 100,
+    "protectedPaths": ["/legal", "/sponsored"]
+  },
+  "images": {
+    "minWidth": 1200,
+    "minHeight": 675,
+    "maxBytes": 5000000,
+    "allowedMimeTypes": ["image/jpeg", "image/png", "image/webp"],
+    "requireDistinctSources": true
+  },
+  "publishing": {
+    "minDelayMinutes": 7,
+    "maxDelayMinutes": 20,
+    "requireCompleteTranslations": false,
+    "timezone": "Europe/Paris"
+  },
+  "workers": {
+    "generationIntervalMs": 900000,
+    "publicationIntervalMs": 300000,
+    "seoIntervalMs": 21600000,
+    "lockTtlMs": 7200000
+  },
+  "paths": {
+    "data": "${DATA_DIR:-data}",
+    "state": "${STATE_DIR:-.state}",
+    "temp": "${TEMP_DIR:-.tmp}",
+    "logs": "${LOG_DIR:-logs}"
+  }
+}

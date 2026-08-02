@@ -1,0 +1,18 @@
+[
+  {
+    "query": "heat pump efficiency",
+    "url": "https://example.org/reference/seasonal-performance",
+    "title": "Understanding seasonal performance",
+    "description": "A technical overview of seasonal performance factors.",
+    "position": 1,
+    "headings": ["Climate assumptions", "Emitter temperature", "Whole-building heat loss"]
+  },
+  {
+    "query": "renovation budget",
+    "url": "https://example.org/reference/cost-planning",
+    "title": "Cost planning for renovation",
+    "description": "A structured approach to renovation contingencies.",
+    "position": 2,
+    "headings": ["Survey uncertainty", "Access costs", "Contingency bands"]
+  }
+]

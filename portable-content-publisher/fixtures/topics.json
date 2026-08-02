@@ -1,0 +1,38 @@
+[
+  {
+    "id": "heat-pump-seasonal-efficiency",
+    "title": "Heat pump seasonal efficiency: what household estimates often miss",
+    "summary": "New public guidance clarifies how climate, emitter temperature and building insulation change real seasonal efficiency, making headline performance figures insufficient for household decisions.",
+    "sourceUrls": ["https://www.ademe.fr/", "https://energy.ec.europa.eu/"],
+    "keywords": ["heat pump efficiency", "renovation planning"],
+    "category": "energy",
+    "freshness": 92,
+    "demand": 88,
+    "authority": 96,
+    "discoveredAt": "2026-01-15T08:00:00.000Z"
+  },
+  {
+    "id": "insulation-moisture-risk",
+    "title": "Insulation upgrades and moisture risk: the checks required before work begins",
+    "summary": "A renovation sequence can improve thermal comfort while creating condensation risk when ventilation and wall composition are assessed separately rather than as one building system.",
+    "sourceUrls": ["https://www.ademe.fr/", "https://example.org/research"],
+    "keywords": ["insulation moisture", "ventilation assessment"],
+    "category": "materials",
+    "freshness": 80,
+    "demand": 84,
+    "authority": 90,
+    "discoveredAt": "2026-01-15T07:30:00.000Z"
+  },
+  {
+    "id": "renovation-budget-contingency",
+    "title": "Renovation budgets need a contingency line: how to size it without guessing",
+    "summary": "Cost ranges published by institutions are useful baselines, but surveys, access constraints and corrective work require an explicit contingency method before contractors are compared.",
+    "sourceUrls": ["https://energy.ec.europa.eu/", "https://example.org/methodology"],
+    "keywords": ["renovation budget", "project contingency"],
+    "category": "budget",
+    "freshness": 75,
+    "demand": 91,
+    "authority": 86,
+    "discoveredAt": "2026-01-14T18:00:00.000Z"
+  }
+]
