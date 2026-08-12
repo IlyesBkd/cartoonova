@@ -2,6 +2,10 @@ import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { BreadcrumbJsonLd, FAQJsonLd, ProductJsonLd, OrganizationJsonLd } from "@/components/structured-data";
+import { SITE_URL } from "@/lib/site";
+import { locales } from "@/i18n/config";
+
+const SHARE_IMAGE = `${SITE_URL}/simpson_photos_produit/0009_1.jpg`;
 // Simple SVG components to replace lucide-react
 const Check = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
@@ -39,22 +43,32 @@ const Heart = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const path = `/${locale}/portrait-personnalise-cartoon`;
+
   return {
     title: "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de votre Photo | Cartoonova",
     description: "Transformez vos photos en portraits personnalisés style cartoon ! Créez votre caricature unique en quelques clics. Idée cadeau originale parfaite. Qualité garantie, livraison rapide. Découvrez Cartoonova !",
-    metadataBase: new URL("https://cartoonova.fr"),
+    metadataBase: new URL(SITE_URL),
     alternates: {
-      canonical: "/portrait-personnalise-cartoon",
+      canonical: path,
+      languages: Object.fromEntries(
+        locales.map((l) => [l, `${SITE_URL}/${l}/portrait-personnalise-cartoon`])
+      ),
     },
     openGraph: {
       title: "Portrait Personnalisé Cartoon - Cartoonova",
       description: "Créez votre caricature personnalisée à partir de votre photo. Cadeau unique et original !",
-      url: "https://cartoonova.fr/portrait-personnalise-cartoon",
+      url: `${SITE_URL}${path}`,
       siteName: "Cartoonova",
       images: [
         {
-          url: "https://cartoonova.fr/og-portrait-cartoon.jpg",
+          url: SHARE_IMAGE,
           width: 1200,
           height: 630,
           alt: "Portrait personnalisé cartoon - Cartoonova",
@@ -67,7 +81,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: "Portrait Personnalisé Cartoon | Cartoonova",
       description: "Transformez vos photos en portraits cartoons uniques !",
-      images: ["https://cartoonova.fr/twitter-portrait-cartoon.jpg"],
+      images: [SHARE_IMAGE],
     },
     robots: {
       index: true,
@@ -83,7 +97,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function PortraitPersonnaliseCartoon() {
+export default async function PortraitPersonnaliseCartoon({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const pageUrl = `${SITE_URL}/${locale}/portrait-personnalise-cartoon`;
+
   const structuredData = {
     product: {
       name: "Portrait Personnalisé Cartoon",
@@ -93,19 +114,19 @@ export default function PortraitPersonnaliseCartoon() {
         priceCurrency: "EUR",
         price: "49",
         availability: "https://schema.org/InStock",
-        priceValidUntil: "2024-12-31",
+        priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
       },
-      image: "https://cartoonova.fr/portrait-cartoon-exemple.jpg",
+      image: SHARE_IMAGE,
     },
     organization: {
       name: "Cartoonova",
-      url: "https://cartoonova.fr",
-      logo: "https://cartoonova.fr/logo.png",
+      url: SITE_URL,
+      logo: `${SITE_URL}/logo.png`,
       description: "Spécialiste du portrait personnalisé style cartoon",
     },
     breadcrumb: [
-      { name: "Accueil", item: "https://cartoonova.fr" },
-      { name: "Portrait Personnalisé Cartoon", item: "https://cartoonova.fr/portrait-personnalise-cartoon" },
+      { name: "Accueil", item: `${SITE_URL}/${locale}` },
+      { name: "Portrait Personnalisé Cartoon", item: pageUrl },
     ],
     faq: [
       {

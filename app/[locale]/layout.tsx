@@ -9,8 +9,9 @@ import CurrencyProvider from "@/components/CurrencyProvider";
 import PostHogProvider from "@/components/PostHogProvider";
 import LayoutShell from "@/components/LayoutShell";
 import { getCurrencyFromCountry } from "@/lib/currency";
+import { SITE_URL } from "@/lib/site";
 
-const baseUrl = "https://www.cartoonova.com";
+const baseUrl = SITE_URL;
 
 export async function generateMetadata({
   params,
