@@ -3,10 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { getPublishedArticles } from "@/lib/blogDb";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 300;
 
-const baseUrl = "https://www.cartoonova.com";
+const baseUrl = SITE_URL;
 
 export async function generateMetadata({
   params,
@@ -19,7 +20,14 @@ export async function generateMetadata({
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    alternates: { canonical: `/${locale}/blog` },
+    alternates: {
+      canonical: `/${locale}/blog`,
+      types: {
+        "application/rss+xml": [
+          { url: `${baseUrl}/${locale}/blog/rss.xml`, title: t("metaTitle") },
+        ],
+      },
+    },
     openGraph: {
       title: t("metaTitle"),
       description: t("metaDescription"),

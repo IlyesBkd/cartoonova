@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildProductFeed, parseCurrency } from "@/lib/productFeed";
 import { locales, type Locale } from "@/i18n/config";
 
-// Les prix viennent de la base : jamais de rendu fige au build.
+// Catalogue Pinterest : meme format RSS que Google, a la disponibilite pres
+// ("in stock" et non "in_stock").
 export const dynamic = "force-dynamic";
 
 export async function GET(
@@ -17,7 +18,7 @@ export async function GET(
   const locale = rawLocale as Locale;
   const currency = parseCurrency(request.nextUrl.searchParams.get("currency"), locale);
 
-  const xml = await buildProductFeed({ locale, currency, variant: "google" });
+  const xml = await buildProductFeed({ locale, currency, variant: "pinterest" });
 
   return new NextResponse(xml, {
     status: 200,
