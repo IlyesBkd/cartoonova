@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
+import GiftDeadlineNote from "@/components/GiftDeadlineNote";
 
 const photos = [
   "/simpson_photos_produit/0009_1.jpg",
@@ -96,6 +97,10 @@ export default function Home() {
                   </a>
                 </div>
 
+                <div className="mt-6 flex justify-center lg:justify-start">
+                  <GiftDeadlineNote />
+                </div>
+
                 <div className="flex flex-wrap items-center gap-6 justify-center lg:justify-start mt-8 text-gray-500 text-sm">
                   <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>{t("satisfiedOrRefunded")}</span>
                   <span>{t("handDrawn")}</span>
@@ -149,7 +154,7 @@ export default function Home() {
               {collections.map((c, i) => (
                 <Link key={c.name} href={c.href} onClick={() => posthog.capture("collection_clicked", { collection: c.name, position: i, source: "homepage" })} className={`group relative bg-white rounded-2xl border-3 border-black overflow-hidden shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300`} style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * 1}deg)` }}>
                   <div className="aspect-[4/5] relative">
-                    <Image src={c.img} alt={c.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 45vw, 30vw" />
+                    <Image src={c.img} alt="" fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 45vw, 30vw" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                   </div>
                   <div className={`absolute bottom-0 left-0 right-0 p-4`}>
