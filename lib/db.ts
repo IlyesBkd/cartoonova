@@ -339,3 +339,197 @@ export async function updateAllPrices(data: PricesByCurrency): Promise<void> {
   await ensurePricesSchema();
   await sql`UPDATE prices SET data = ${JSON.stringify(data)}::jsonb WHERE id = 'singleton'`;
 }
+
+// ─── Newsletter ──────────────────────────────────────────────────────
+
+export interface NewsletterSubscriber {
+  id: number;
+  email: string;
+  locale: string | null;
+  source: string | null;
+  created_at: string;
+  unsubscribed_at: string | null;
+  /** Nombre d'emails de la sequence de bienvenue deja envoyes (0 = aucun). */
+  welcome_step: number;
+}
+
+let newsletterSchemaReady: Promise<void> | null = null;
+
+async function ensureNewsletterSchema(): Promise<void> {
+  if (newsletterSchemaReady) return newsletterSchemaReady;
+  newsletterSchemaReady = (async () => {
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id SERIAL PRIMARY KEY,
+        email TEXT UNIQUE NOT NULL,
+        locale TEXT,
+        source TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        unsubscribed_at TIMESTAMPTZ
+      )
+    `;
+    await sql`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS welcome_step INTEGER NOT NULL DEFAULT 0`;
+    await sql`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS welcome_last_sent_at TIMESTAMPTZ`;
+  })().catch((e) => {
+    newsletterSchemaReady = null;
+    throw e;
+  });
+  return newsletterSchemaReady;
+}
+
+/**
+ * Enregistre un email. Idempotent : une re-inscription du meme email met a jour
+ * la locale/source et annule une eventuelle desinscription, sans erreur.
+ * Retourne true si c'est une premiere inscription.
+ */
+export async function subscribeToNewsletter(params: {
+  email: string;
+  locale?: string | null;
+  source?: string | null;
+}): Promise<{ created: boolean }> {
+  await ensureNewsletterSchema();
+  const email = params.email.trim().toLowerCase();
+  const rows = await sql`
+    INSERT INTO newsletter_subscribers (email, locale, source)
+    VALUES (${email}, ${params.locale ?? null}, ${params.source ?? null})
+    ON CONFLICT (email) DO UPDATE SET
+      locale = COALESCE(EXCLUDED.locale, newsletter_subscribers.locale),
+      source = COALESCE(EXCLUDED.source, newsletter_subscribers.source),
+      unsubscribed_at = NULL
+    RETURNING (xmax = 0) AS created
+  `;
+  return { created: Boolean(rows[0]?.created) };
+}
+
+export async function getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
+  await ensureNewsletterSchema();
+  const rows = await sql`
+    SELECT * FROM newsletter_subscribers
+    WHERE unsubscribed_at IS NULL
+    ORDER BY created_at DESC
+  `;
+  return rows as unknown as NewsletterSubscriber[];
+}
+
+/**
+ * Abonnes en attente de l'etape `step` de la sequence de bienvenue, inscrits
+ * depuis au moins `days` jours. Un desabonnement sort definitivement de la file.
+ */
+export async function getSubscribersDueForWelcome(
+  step: number,
+  days: number
+): Promise<NewsletterSubscriber[]> {
+  await ensureNewsletterSchema();
+  const rows = await sql`
+    SELECT * FROM newsletter_subscribers
+    WHERE unsubscribed_at IS NULL
+      AND welcome_step = ${step - 1}
+      AND created_at < NOW() - (${days} * INTERVAL '1 day')
+    ORDER BY created_at ASC
+  `;
+  return rows as unknown as NewsletterSubscriber[];
+}
+
+/** Avance le compteur uniquement si l'etape attendue est bien la precedente. */
+export async function markWelcomeStepSent(email: string, step: number): Promise<void> {
+  await ensureNewsletterSchema();
+  await sql`
+    UPDATE newsletter_subscribers
+    SET welcome_step = ${step}, welcome_last_sent_at = NOW()
+    WHERE lower(email) = lower(${email}) AND welcome_step = ${step - 1}
+  `;
+}
+
+export async function unsubscribeFromNewsletter(email: string): Promise<void> {
+  await ensureNewsletterSchema();
+  // Upsert : un client qui se desabonne sans s'etre jamais inscrit doit quand
+  // meme entrer dans la liste de suppression, sinon les emails de cycle de vie
+  // continueraient de partir.
+  await sql`
+    INSERT INTO newsletter_subscribers (email, source, unsubscribed_at)
+    VALUES (${email.trim().toLowerCase()}, 'unsubscribe', NOW())
+    ON CONFLICT (email) DO UPDATE SET unsubscribed_at = NOW()
+  `;
+}
+
+// ─── Emails de cycle de vie (post-achat) ─────────────────────────────
+
+export interface LifecycleOrder {
+  id: string;
+  customer_email: string;
+  customer_name: string | null;
+  detected_country: string | null;
+  final_image_sent_at: string;
+}
+
+let lifecycleSchemaReady: Promise<void> | null = null;
+
+async function ensureLifecycleSchema(): Promise<void> {
+  if (lifecycleSchemaReady) return lifecycleSchemaReady;
+  lifecycleSchemaReady = (async () => {
+    await ensureNewsletterSchema();
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS review_request_sent_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS reorder_email_sent_at TIMESTAMPTZ`;
+  })().catch((e) => {
+    lifecycleSchemaReady = null;
+    throw e;
+  });
+  return lifecycleSchemaReady;
+}
+
+/** Commandes livrees depuis au moins `days` jours et jamais relancees pour un avis. */
+export async function getOrdersDueForReviewRequest(days: number): Promise<LifecycleOrder[]> {
+  await ensureLifecycleSchema();
+  const rows = await sql`
+    SELECT id, customer_email, customer_name, detected_country, final_image_sent_at
+    FROM orders o
+    WHERE o.final_image_sent_at IS NOT NULL
+      AND o.final_image_sent_at < NOW() - (${days} * INTERVAL '1 day')
+      AND o.review_request_sent_at IS NULL
+      AND o.customer_email IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM newsletter_subscribers n
+        WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
+      )
+    ORDER BY o.final_image_sent_at ASC
+  `;
+  return rows as unknown as LifecycleOrder[];
+}
+
+/** Commandes livrees depuis au moins `days` jours et jamais relancees pour un autre style. */
+export async function getOrdersDueForReorderEmail(days: number): Promise<LifecycleOrder[]> {
+  await ensureLifecycleSchema();
+  const rows = await sql`
+    SELECT DISTINCT ON (lower(o.customer_email))
+      o.id, o.customer_email, o.customer_name, o.detected_country, o.final_image_sent_at
+    FROM orders o
+    WHERE o.final_image_sent_at IS NOT NULL
+      AND o.final_image_sent_at < NOW() - (${days} * INTERVAL '1 day')
+      AND o.reorder_email_sent_at IS NULL
+      AND o.customer_email IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM newsletter_subscribers n
+        WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
+      )
+    ORDER BY lower(o.customer_email), o.final_image_sent_at DESC
+  `;
+  return rows as unknown as LifecycleOrder[];
+}
+
+export async function markReviewRequestSent(orderId: string): Promise<void> {
+  await ensureLifecycleSchema();
+  await sql`UPDATE orders SET review_request_sent_at = NOW() WHERE id = ${orderId}::uuid`;
+}
+
+/**
+ * Marque toutes les commandes de ce client, pas seulement celle qui a declenche
+ * l'envoi : sinon un client ayant plusieurs anciennes commandes recevrait la
+ * meme relance une fois par commande.
+ */
+export async function markReorderEmailSent(email: string): Promise<void> {
+  await ensureLifecycleSchema();
+  await sql`
+    UPDATE orders SET reorder_email_sent_at = NOW()
+    WHERE lower(customer_email) = lower(${email}) AND reorder_email_sent_at IS NULL
+  `;
+}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { PRODUCT_COLOR_SCHEMES, type ProductColorScheme } from "@/components/ProductColorProvider";
+import NewsletterForm from "@/components/NewsletterForm";
 
 const DEFAULT_COLORS: ProductColorScheme = {
   gradient: "from-amber-400 to-yellow-400",
@@ -25,6 +26,7 @@ const SOCIAL_LINKS = [
 export default function FooterCartoon() {
   const t = useTranslations("footer");
   const tn = useTranslations("nav");
+  const tGift = useTranslations("giftPage");
   const pathname = usePathname();
 
   const segments = pathname.split("/").filter(Boolean);
@@ -42,6 +44,11 @@ export default function FooterCartoon() {
             <p className="text-sm text-black/70 font-bold leading-relaxed mb-5 max-w-xs">
               {t("madeWith")}
             </p>
+            <div className="mb-5 max-w-sm">
+              <h4 className="font-black text-sm text-black uppercase tracking-wider mb-1">{t("newsletter")}</h4>
+              <p className="text-sm font-bold text-black/70 leading-relaxed mb-3">{t("newsletterSub")}</p>
+              <NewsletterForm source="footer" />
+            </div>
             {SOCIAL_LINKS.length > 0 && (
               <div className="flex items-center gap-3">
                 {SOCIAL_LINKS.map((social) => (
@@ -59,6 +66,7 @@ export default function FooterCartoon() {
             <ul className="flex flex-col gap-2 text-sm font-bold text-black/70">
               <li><Link href="/simpson" className="hover:text-black transition-colors">{t("createPortrait")}</Link></li>
               <li><Link href="/collections" className="hover:text-black transition-colors">{tn("portfolio")}</Link></li>
+              <li><Link href="/cadeau" className="hover:text-black transition-colors">{tGift("section")}</Link></li>
               <li><Link href="/#avis" className="hover:text-black transition-colors">{t("clientReviews")}</Link></li>
               <li><Link href="/contact" className="hover:text-black transition-colors">{tn("contact")}</Link></li>
             </ul>

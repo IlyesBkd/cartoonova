@@ -363,3 +363,358 @@ export const posterConfirmationPage: Record<Lang, {
     sending: "Invio in corso...",
   },
 };
+
+// ─── Review request email (sent a few days after delivery) ───────────
+export const reviewRequestEmail: Record<Lang, {
+  subject: string;
+  title: string;
+  greeting: (name: string | null) => string;
+  body: string;
+  ask: string;
+  cta: string;
+  thanks: string;
+  team: string;
+}> = {
+  fr: {
+    subject: "Votre portrait vous plaît ?",
+    title: "Votre avis nous aide vraiment",
+    greeting: (name) => name ? `Bonjour ${name},` : "Bonjour,",
+    body: "Votre portrait est entre vos mains depuis quelques jours. On espère qu'il a fait son effet !",
+    ask: "Nous sommes une jeune boutique : un mot honnête sur votre expérience — et, si vous le voulez bien, une photo du portrait chez vous — aide énormément les personnes qui hésitent. Vous n'avez qu'à répondre à cet email.",
+    cta: "Répondre et donner mon avis",
+    thanks: "Merci beaucoup 🎨",
+    team: "L'équipe Cartoonova",
+  },
+  en: {
+    subject: "How do you like your portrait?",
+    title: "Your feedback really helps",
+    greeting: (name) => name ? `Hello ${name},` : "Hello,",
+    body: "Your portrait has been with you for a few days now. We hope it landed well!",
+    ask: "We're a young shop: an honest word about your experience — and, if you're up for it, a photo of the portrait at home — helps a lot of hesitant people decide. Just reply to this email.",
+    cta: "Reply with my feedback",
+    thanks: "Thank you so much 🎨",
+    team: "The Cartoonova Team",
+  },
+  es: {
+    subject: "¿Qué te parece tu retrato?",
+    title: "Tu opinión nos ayuda mucho",
+    greeting: (name) => name ? `Hola ${name},` : "Hola,",
+    body: "Hace unos días que tienes tu retrato. ¡Esperamos que haya causado buena impresión!",
+    ask: "Somos una tienda joven: unas palabras honestas sobre tu experiencia — y, si te apetece, una foto del retrato en tu casa — ayudan muchísimo a quien duda. Solo tienes que responder a este email.",
+    cta: "Responder y dar mi opinión",
+    thanks: "Muchas gracias 🎨",
+    team: "El equipo Cartoonova",
+  },
+  de: {
+    subject: "Wie gefällt Ihnen Ihr Portrait?",
+    title: "Ihre Rückmeldung hilft uns wirklich",
+    greeting: (name) => name ? `Hallo ${name},` : "Hallo,",
+    body: "Ihr Portrait ist seit einigen Tagen bei Ihnen. Wir hoffen, es hat Eindruck gemacht!",
+    ask: "Wir sind ein junger Shop: ein ehrliches Wort zu Ihrer Erfahrung — und, wenn Sie mögen, ein Foto des Portraits bei Ihnen zu Hause — hilft Unentschlossenen enorm. Antworten Sie einfach auf diese E-Mail.",
+    cta: "Antworten und Feedback geben",
+    thanks: "Vielen Dank 🎨",
+    team: "Das Cartoonova-Team",
+  },
+  it: {
+    subject: "Ti piace il tuo ritratto?",
+    title: "La tua opinione ci aiuta davvero",
+    greeting: (name) => name ? `Ciao ${name},` : "Ciao,",
+    body: "Il tuo ritratto è con te da qualche giorno. Speriamo abbia fatto colpo!",
+    ask: "Siamo una bottega giovane: due parole sincere sulla tua esperienza — e, se ti va, una foto del ritratto a casa tua — aiutano molto chi è indeciso. Ti basta rispondere a questa email.",
+    cta: "Rispondere e lasciare la mia opinione",
+    thanks: "Grazie mille 🎨",
+    team: "Il team Cartoonova",
+  },
+};
+
+// ─── Welcome sequence (3 emails after newsletter signup) ─────────────
+export interface WelcomeStep {
+  subject: string;
+  title: string;
+  paragraphs: string[];
+  cta: string;
+  ctaPath: string;
+  unsubscribe: string;
+  team: string;
+}
+
+export const welcomeSequence: Record<Lang, [WelcomeStep, WelcomeStep, WelcomeStep]> = {
+  fr: [
+    {
+      subject: "Bienvenue chez Cartoonova",
+      title: "Ravis de vous compter parmi nous",
+      paragraphs: [
+        "Cartoonova, c'est un atelier : vous envoyez une photo, un illustrateur la redessine à la main dans le style de votre choix — Simpson, One Piece, Dragon Ball, Ghibli, Rick &amp; Morty ou Disney.",
+        "Le dessin est réalisé en 24 h. Si vous choisissez une impression (poster ou toile), comptez 3 à 5 jours ouvrés de plus pour la fabrication et la livraison. La version numérique, elle, part par email.",
+        "Vous recevrez deux autres messages de notre part : un sur le choix de la photo, un sur le style à choisir selon la personne. Rien d'autre, et jamais de spam.",
+      ],
+      cta: "Découvrir les styles",
+      ctaPath: "/collections",
+      unsubscribe: "Me désinscrire",
+      team: "L'équipe Cartoonova",
+    },
+    {
+      subject: "La photo qui donne le meilleur portrait",
+      title: "Comment choisir votre photo",
+      paragraphs: [
+        "C'est la question qu'on nous pose le plus souvent, et c'est ce qui fait le plus de différence sur le résultat final.",
+        "Ce qui marche : un visage net et bien éclairé, de face ou légèrement de trois quarts, sans lunettes de soleil ni casquette qui cache le regard. La lumière du jour près d'une fenêtre vaut mieux que n'importe quel flash.",
+        "Ce qui complique le travail : les photos floues, très sombres, prises de loin, ou fortement filtrées. Pour un portrait de groupe, mieux vaut plusieurs photos individuelles nettes qu'une seule photo de groupe lointaine — l'illustrateur les réunit ensuite.",
+        "Dans le doute, envoyez la photo : on vous dit franchement si elle convient avant de commencer.",
+      ],
+      cta: "Commander mon portrait",
+      ctaPath: "/collections",
+      unsubscribe: "Me désinscrire",
+      team: "L'équipe Cartoonova",
+    },
+    {
+      subject: "Quel style pour quelle personne ?",
+      title: "Choisir le bon style",
+      paragraphs: [
+        "Six styles, six effets très différents. Le bon choix dépend surtout de la personne à qui vous l'offrez.",
+        "Simpson : le plus universel, celui qui fait rire tout le monde, idéal pour une famille ou un couple. One Piece : l'avis de recherche, parfait pour un ado ou un fan de manga. Dragon Ball : l'énergie, très apprécié en cadeau entre amis.",
+        "Ghibli : le plus doux et le plus décoratif, celui qui s'accroche dans un salon. Rick &amp; Morty : l'humour décalé, pour quelqu'un qui n'aime pas les cadeaux sages. Disney : la version conte de fées, qui fonctionne très bien pour un enfant ou un mariage.",
+        "Si vous hésitez encore, répondez à cet email en décrivant la personne : on vous oriente.",
+      ],
+      cta: "Voir les six styles",
+      ctaPath: "/collections",
+      unsubscribe: "Me désinscrire",
+      team: "L'équipe Cartoonova",
+    },
+  ],
+  en: [
+    {
+      subject: "Welcome to Cartoonova",
+      title: "Glad to have you here",
+      paragraphs: [
+        "Cartoonova is a studio: you send a photo, an illustrator redraws it by hand in the style you pick — Simpsons, One Piece, Dragon Ball, Ghibli, Rick &amp; Morty or Disney.",
+        "The artwork is done within 24 hours. If you choose a print (poster or canvas), add 3 to 5 business days for production and delivery. The digital version is sent by email.",
+        "You'll get two more emails from us: one about choosing your photo, one about picking the right style for the person. Nothing else, and never spam.",
+      ],
+      cta: "See the styles",
+      ctaPath: "/collections",
+      unsubscribe: "Unsubscribe",
+      team: "The Cartoonova Team",
+    },
+    {
+      subject: "The photo that makes the best portrait",
+      title: "How to choose your photo",
+      paragraphs: [
+        "It's the question we get most often, and it's what makes the biggest difference to the final result.",
+        "What works: a sharp, well-lit face, straight on or slightly at an angle, with no sunglasses or cap hiding the eyes. Daylight near a window beats any flash.",
+        "What makes it harder: blurry, very dark, distant or heavily filtered photos. For a group portrait, several sharp individual photos beat one distant group shot — the illustrator brings them together afterwards.",
+        "When in doubt, send the photo: we'll tell you honestly whether it works before starting.",
+      ],
+      cta: "Order my portrait",
+      ctaPath: "/collections",
+      unsubscribe: "Unsubscribe",
+      team: "The Cartoonova Team",
+    },
+    {
+      subject: "Which style for which person?",
+      title: "Picking the right style",
+      paragraphs: [
+        "Six styles, six very different effects. The right pick mostly depends on who you're giving it to.",
+        "Simpsons: the most universal, the one that makes everyone laugh, ideal for a family or a couple. One Piece: the wanted poster, perfect for a teenager or a manga fan. Dragon Ball: pure energy, a favourite between friends.",
+        "Ghibli: the softest and most decorative, the one that ends up on a living room wall. Rick &amp; Morty: offbeat humour, for someone who doesn't like safe gifts. Disney: the fairy-tale version, which works beautifully for a child or a wedding.",
+        "Still hesitating? Reply to this email describing the person and we'll point you somewhere.",
+      ],
+      cta: "See all six styles",
+      ctaPath: "/collections",
+      unsubscribe: "Unsubscribe",
+      team: "The Cartoonova Team",
+    },
+  ],
+  es: [
+    {
+      subject: "Bienvenido a Cartoonova",
+      title: "Nos alegra tenerte aquí",
+      paragraphs: [
+        "Cartoonova es un taller: envías una foto y un ilustrador la vuelve a dibujar a mano en el estilo que elijas — Simpson, One Piece, Dragon Ball, Ghibli, Rick &amp; Morty o Disney.",
+        "El dibujo se realiza en 24 h. Si eliges una impresión (póster o lienzo), añade de 3 a 5 días hábiles para la fabricación y el envío. La versión digital se envía por email.",
+        "Recibirás dos emails más: uno sobre cómo elegir la foto y otro sobre qué estilo escoger según la persona. Nada más, y nunca spam.",
+      ],
+      cta: "Descubrir los estilos",
+      ctaPath: "/collections",
+      unsubscribe: "Darme de baja",
+      team: "El equipo Cartoonova",
+    },
+    {
+      subject: "La foto que da el mejor retrato",
+      title: "Cómo elegir tu foto",
+      paragraphs: [
+        "Es la pregunta que más nos hacen, y es lo que más influye en el resultado final.",
+        "Lo que funciona: una cara nítida y bien iluminada, de frente o ligeramente de perfil, sin gafas de sol ni gorra que tape la mirada. La luz del día junto a una ventana supera a cualquier flash.",
+        "Lo que complica el trabajo: fotos borrosas, muy oscuras, tomadas de lejos o con muchos filtros. Para un retrato de grupo, mejor varias fotos individuales nítidas que una foto de grupo lejana — el ilustrador las reúne después.",
+        "Si tienes dudas, envía la foto: te diremos con franqueza si sirve antes de empezar.",
+      ],
+      cta: "Pedir mi retrato",
+      ctaPath: "/collections",
+      unsubscribe: "Darme de baja",
+      team: "El equipo Cartoonova",
+    },
+    {
+      subject: "¿Qué estilo para qué persona?",
+      title: "Elegir el estilo adecuado",
+      paragraphs: [
+        "Seis estilos, seis efectos muy distintos. La elección depende sobre todo de a quién se lo regalas.",
+        "Simpson: el más universal, el que hace reír a todos, ideal para una familia o una pareja. One Piece: el cartel de búsqueda, perfecto para un adolescente o un fan del manga. Dragon Ball: pura energía, muy apreciado entre amigos.",
+        "Ghibli: el más suave y decorativo, el que acaba colgado en el salón. Rick &amp; Morty: humor gamberro, para quien no quiere un regalo prudente. Disney: la versión cuento de hadas, que funciona muy bien para un niño o una boda.",
+        "¿Sigues dudando? Responde a este email describiendo a la persona y te orientamos.",
+      ],
+      cta: "Ver los seis estilos",
+      ctaPath: "/collections",
+      unsubscribe: "Darme de baja",
+      team: "El equipo Cartoonova",
+    },
+  ],
+  de: [
+    {
+      subject: "Willkommen bei Cartoonova",
+      title: "Schön, dass Sie da sind",
+      paragraphs: [
+        "Cartoonova ist ein Atelier: Sie schicken ein Foto, ein Illustrator zeichnet es von Hand neu — im Stil Ihrer Wahl: Simpsons, One Piece, Dragon Ball, Ghibli, Rick &amp; Morty oder Disney.",
+        "Die Zeichnung entsteht innerhalb von 24 Stunden. Bei einem Druck (Poster oder Leinwand) kommen 3 bis 5 Werktage für Herstellung und Versand dazu. Die digitale Fassung kommt per E-Mail.",
+        "Sie erhalten noch zwei E-Mails von uns: eine zur Wahl des Fotos, eine zur Wahl des passenden Stils. Mehr nicht, und niemals Spam.",
+      ],
+      cta: "Stile entdecken",
+      ctaPath: "/collections",
+      unsubscribe: "Abmelden",
+      team: "Das Cartoonova-Team",
+    },
+    {
+      subject: "Das Foto, aus dem das beste Portrait wird",
+      title: "So wählen Sie Ihr Foto",
+      paragraphs: [
+        "Das ist die häufigste Frage — und der größte Hebel für das Endergebnis.",
+        "Was funktioniert: ein scharfes, gut ausgeleuchtetes Gesicht, frontal oder leicht seitlich, ohne Sonnenbrille oder Mütze über den Augen. Tageslicht am Fenster schlägt jeden Blitz.",
+        "Was die Arbeit erschwert: unscharfe, sehr dunkle, weit entfernte oder stark gefilterte Fotos. Für ein Gruppenportrait sind mehrere scharfe Einzelfotos besser als eine entfernte Gruppenaufnahme — der Illustrator fügt sie zusammen.",
+        "Im Zweifel: schicken Sie das Foto. Wir sagen Ihnen ehrlich, ob es passt, bevor wir anfangen.",
+      ],
+      cta: "Portrait bestellen",
+      ctaPath: "/collections",
+      unsubscribe: "Abmelden",
+      team: "Das Cartoonova-Team",
+    },
+    {
+      subject: "Welcher Stil für wen?",
+      title: "Den richtigen Stil wählen",
+      paragraphs: [
+        "Sechs Stile, sechs sehr unterschiedliche Wirkungen. Die Wahl hängt vor allem davon ab, wem Sie es schenken.",
+        "Simpsons: der universellste, bringt alle zum Lachen, ideal für Familie oder Paar. One Piece: der Steckbrief, perfekt für Jugendliche und Manga-Fans. Dragon Ball: pure Energie, beliebt unter Freunden.",
+        "Ghibli: der sanfteste und dekorativste, der im Wohnzimmer landet. Rick &amp; Morty: schräger Humor, für alle, die keine braven Geschenke mögen. Disney: die Märchenfassung, wunderbar für Kinder oder eine Hochzeit.",
+        "Noch unschlüssig? Antworten Sie auf diese E-Mail und beschreiben Sie die Person — wir helfen weiter.",
+      ],
+      cta: "Alle sechs Stile ansehen",
+      ctaPath: "/collections",
+      unsubscribe: "Abmelden",
+      team: "Das Cartoonova-Team",
+    },
+  ],
+  it: [
+    {
+      subject: "Benvenuto in Cartoonova",
+      title: "Felici di averti qui",
+      paragraphs: [
+        "Cartoonova è un atelier: mandi una foto e un illustratore la ridisegna a mano nello stile che scegli — Simpson, One Piece, Dragon Ball, Ghibli, Rick &amp; Morty o Disney.",
+        "Il disegno è realizzato in 24 ore. Se scegli una stampa (poster o tela), aggiungi da 3 a 5 giorni lavorativi per produzione e consegna. La versione digitale arriva per email.",
+        "Riceverai altre due email da noi: una su come scegliere la foto, una su quale stile scegliere in base alla persona. Nient'altro, e mai spam.",
+      ],
+      cta: "Scoprire gli stili",
+      ctaPath: "/collections",
+      unsubscribe: "Disiscrivermi",
+      team: "Il team Cartoonova",
+    },
+    {
+      subject: "La foto da cui nasce il ritratto migliore",
+      title: "Come scegliere la tua foto",
+      paragraphs: [
+        "È la domanda che ci fanno più spesso, ed è ciò che incide di più sul risultato finale.",
+        "Cosa funziona: un viso nitido e ben illuminato, frontale o leggermente di tre quarti, senza occhiali da sole o cappellino che coprano lo sguardo. La luce del giorno vicino a una finestra batte qualsiasi flash.",
+        "Cosa complica il lavoro: foto sfocate, molto scure, scattate da lontano o molto filtrate. Per un ritratto di gruppo, meglio più foto individuali nitide che una sola foto di gruppo lontana — l'illustratore le unisce dopo.",
+        "Nel dubbio, mandaci la foto: ti diciamo con sincerità se va bene prima di iniziare.",
+      ],
+      cta: "Ordinare il mio ritratto",
+      ctaPath: "/collections",
+      unsubscribe: "Disiscrivermi",
+      team: "Il team Cartoonova",
+    },
+    {
+      subject: "Quale stile per quale persona?",
+      title: "Scegliere lo stile giusto",
+      paragraphs: [
+        "Sei stili, sei effetti molto diversi. La scelta dipende soprattutto da chi lo riceve.",
+        "Simpson: il più universale, quello che fa ridere tutti, ideale per una famiglia o una coppia. One Piece: il manifesto da ricercato, perfetto per un adolescente o un fan dei manga. Dragon Ball: pura energia, molto apprezzato tra amici.",
+        "Ghibli: il più delicato e decorativo, quello che finisce appeso in salotto. Rick &amp; Morty: umorismo irriverente, per chi non ama i regali prudenti. Disney: la versione fiaba, perfetta per un bambino o un matrimonio.",
+        "Ancora indeciso? Rispondi a questa email descrivendo la persona e ti diamo una dritta.",
+      ],
+      cta: "Vedere i sei stili",
+      ctaPath: "/collections",
+      unsubscribe: "Disiscrivermi",
+      team: "Il team Cartoonova",
+    },
+  ],
+};
+
+// ─── Re-order email (sent months after delivery) ─────────────────────
+export const reorderEmail: Record<Lang, {
+  subject: string;
+  title: string;
+  greeting: (name: string | null) => string;
+  body: string;
+  cta: string;
+  unsubscribe: string;
+  thanks: string;
+  team: string;
+}> = {
+  fr: {
+    subject: "Une autre idée cadeau signée Cartoonova ?",
+    title: "Un autre portrait, un autre style",
+    greeting: (name) => name ? `Bonjour ${name},` : "Bonjour,",
+    body: "Un anniversaire, un mariage, un départ qui arrive ? Nos autres styles — Simpson, One Piece, Dragon Ball, Ghibli, Rick & Morty, Disney — font le même effet avec une toute autre ambiance.",
+    cta: "Voir les styles",
+    unsubscribe: "Ne plus recevoir ce type d'email",
+    thanks: "À très vite 🎨",
+    team: "L'équipe Cartoonova",
+  },
+  en: {
+    subject: "Another gift idea from Cartoonova?",
+    title: "Another portrait, another style",
+    greeting: (name) => name ? `Hello ${name},` : "Hello,",
+    body: "A birthday, a wedding, a farewell coming up? Our other styles — Simpsons, One Piece, Dragon Ball, Ghibli, Rick & Morty, Disney — land just as well with a completely different mood.",
+    cta: "Browse the styles",
+    unsubscribe: "Stop receiving these emails",
+    thanks: "See you soon 🎨",
+    team: "The Cartoonova Team",
+  },
+  es: {
+    subject: "¿Otra idea de regalo de Cartoonova?",
+    title: "Otro retrato, otro estilo",
+    greeting: (name) => name ? `Hola ${name},` : "Hola,",
+    body: "¿Un cumpleaños, una boda, una despedida a la vista? Nuestros otros estilos — Simpson, One Piece, Dragon Ball, Ghibli, Rick & Morty, Disney — funcionan igual de bien con un ambiente totalmente distinto.",
+    cta: "Ver los estilos",
+    unsubscribe: "Dejar de recibir estos emails",
+    thanks: "Hasta pronto 🎨",
+    team: "El equipo Cartoonova",
+  },
+  de: {
+    subject: "Noch eine Geschenkidee von Cartoonova?",
+    title: "Ein weiteres Portrait, ein anderer Stil",
+    greeting: (name) => name ? `Hallo ${name},` : "Hallo,",
+    body: "Ein Geburtstag, eine Hochzeit, ein Abschied steht an? Unsere anderen Stile — Simpsons, One Piece, Dragon Ball, Ghibli, Rick & Morty, Disney — wirken genauso gut, nur mit ganz anderer Stimmung.",
+    cta: "Stile ansehen",
+    unsubscribe: "Diese E-Mails abbestellen",
+    thanks: "Bis bald 🎨",
+    team: "Das Cartoonova-Team",
+  },
+  it: {
+    subject: "Un'altra idea regalo firmata Cartoonova?",
+    title: "Un altro ritratto, un altro stile",
+    greeting: (name) => name ? `Ciao ${name},` : "Ciao,",
+    body: "Un compleanno, un matrimonio, un saluto in arrivo? Gli altri nostri stili — Simpson, One Piece, Dragon Ball, Ghibli, Rick & Morty, Disney — fanno lo stesso effetto con un'atmosfera del tutto diversa.",
+    cta: "Vedere gli stili",
+    unsubscribe: "Non ricevere più queste email",
+    thanks: "A presto 🎨",
+    team: "Il team Cartoonova",
+  },
+};
