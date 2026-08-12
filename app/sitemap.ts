@@ -1,8 +1,10 @@
 import { MetadataRoute } from "next";
 import { locales, defaultLocale } from "@/i18n/config";
 import { getAllPublishedArticleRefs } from "@/lib/blogDb";
+import { SITE_URL } from "@/lib/site";
+import { allGiftSlugs } from "@/lib/giftOccasions";
 
-const baseUrl = "https://www.cartoonova.com";
+const baseUrl = SITE_URL;
 
 type ChangeFrequency = "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
 
@@ -23,6 +25,7 @@ const pages: PageDef[] = [
   { path: "/disney", changeFrequency: "weekly", priority: 0.9 },
   { path: "/portrait-personnalise-cartoon", changeFrequency: "weekly", priority: 0.85 },
   { path: "/blog", changeFrequency: "daily", priority: 0.8 },
+  { path: "/cadeau", changeFrequency: "monthly", priority: 0.8 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
   { path: "/a-propos", changeFrequency: "yearly", priority: 0.4 },
   { path: "/cgv", changeFrequency: "yearly", priority: 0.3 },
@@ -45,6 +48,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             locales.map((l) => [l, `${baseUrl}/${l}${page.path}`])
           ),
         },
+      });
+    }
+  }
+
+  // Pages « un style pour une occasion »
+  for (const locale of locales) {
+    for (const slug of allGiftSlugs(locale)) {
+      entries.push({
+        url: `${baseUrl}/${locale}/cadeau/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.7,
       });
     }
   }
