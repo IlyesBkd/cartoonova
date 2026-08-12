@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode, type CSSProperties } from "react";
 import Image from "next/image";
 import CheckoutModal from "@/components/CheckoutModal";
+import type { PrintKey } from "@/lib/pricing";
+import GiftDeadlineNote from "@/components/GiftDeadlineNote";
 import type { Prices } from "@/lib/types";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
 import { upload } from "@vercel/blob/client";
 import { useProductTracking, PRODUCT_CONFIGS } from "@/hooks/useProductTracking";
-import { ProductJsonLd, PRODUCT_STYLE_META } from "@/components/structured-data";
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ASSETS
-═══════════════════════════════════════════════════════════════════════════ */
 const BACKGROUNDS: { src: string; key: string }[] = [];
 
 const GALLERY_PHOTOS = [
@@ -26,10 +24,8 @@ const GALLERY_PHOTOS = [
   "/rickandmorty/Photo_produits/il_794xN.4866606302_i42x.png",
 ];
 
+const HERO_SLIDES = GALLERY_PHOTOS.slice(0, 5);
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   ANIMATED PRICE — count-up/down fluide
-═══════════════════════════════════════════════════════════════════════════ */
 function AnimatedPrice({ value, formatter }: { value: number; formatter: (n: number) => string }) {
   const [displayed, setDisplayed] = useState(value);
   const ref = useRef(value);
@@ -51,31 +47,74 @@ function AnimatedPrice({ value, formatter }: { value: number; formatter: (n: num
   return <>{formatter(Math.round(displayed * 100) / 100)}</>;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   CONFETTI — upload celebration
-═══════════════════════════════════════════════════════════════════════════ */
-function Confetti({ active }: { active: boolean }) {
-  if (!active) return null;
+function Pill({ children }: { children: ReactNode }) {
+  return <span className="bg-white border-[2.5px] border-black rounded-full px-3 py-1.5 inline-block" style={{ boxShadow: "0 2px 0 #000" }}>{children}</span>;
+}
+function Chip({ children, highlight }: { children: ReactNode; highlight?: boolean }) {
+  return <span className={`text-xs font-bold px-2.5 py-1 rounded-full border-2 border-black ${highlight ? "bg-[var(--cn-yellow)]" : "bg-white"}`}>{children}</span>;
+}
+function Step({ n, title, extra, children }: { n: string; title: string; extra?: ReactNode; children: ReactNode }) {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden z-20">
-      {[...Array(20)].map((_, i) => (
-        <div key={i} className="absolute w-2 h-2 rounded-full animate-confetti" style={{ left: `${10 + Math.random() * 80}%`, backgroundColor: ["#FACC15", "#FB923C", "#34D399", "#60A5FA", "#F472B6"][i % 5], animationDelay: `${Math.random() * 0.5}s`, animationDuration: `${1 + Math.random() * 1}s` }} />
+    <div className="cn-card flat bg-white p-5">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[var(--cn-yellow)] border-[2.5px] border-black flex items-center justify-center font-display text-sm" style={{ boxShadow: "0 2px 0 #000" }}>{n}</div>
+          <h3 className="font-display text-xl">{title}</h3>
+        </div>
+        {extra}
+      </div>
+      {children}
+    </div>
+  );
+}
+function Counter({ label, icon, value, min, max, hint, onChange }: { label: string; icon: string; value: number; min: number; max: number; hint?: string; onChange: (v: number) => void }) {
+  return (
+    <div className="cn-card flat bg-white p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-2xl">{icon}</span>
+        <span className="font-display text-base">{label}</span>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <button onClick={() => onChange(Math.max(min, value - 1))} disabled={value <= min} className="w-11 h-11 rounded-full bg-[var(--cn-yellow)] border-[2.5px] border-black font-display text-2xl press disabled:opacity-40 disabled:cursor-not-allowed" style={{ boxShadow: "0 3px 0 #000" }}>−</button>
+        <div className="font-display text-4xl tabular-nums">{value}</div>
+        <button onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} className="w-11 h-11 rounded-full bg-[var(--cn-yellow)] border-[2.5px] border-black font-display text-2xl press disabled:opacity-40 disabled:cursor-not-allowed" style={{ boxShadow: "0 3px 0 #000" }}>+</button>
+      </div>
+      {hint && <div className="text-[11px] font-bold text-[var(--cn-ink-soft)] mt-2 text-center">{hint}</div>}
+    </div>
+  );
+}
+function FloatingReview({ style, text, name, stars }: { style: CSSProperties; text: string; name: string; stars: number }) {
+  return (
+    <div className="absolute floaty cn-card flat px-4 py-3 max-w-[220px] bg-white z-10" style={style}>
+      <div className="flex text-[var(--cn-yellow-deep)] leading-none text-sm mb-1">{"★".repeat(stars)}</div>
+      <div className="text-sm font-bold leading-tight">&ldquo;{text}&rdquo;</div>
+      <div className="text-xs text-[var(--cn-ink-soft)] mt-1">— {name} <span className="text-[var(--cn-mint)]">✓</span></div>
+    </div>
+  );
+}
+function Confetti() {
+  const dots = Array.from({ length: 22 }).map((_, i) => ({
+    top: `${(i * 47) % 90 + 5}%`,
+    left: `${(i * 113) % 95 + 2}%`,
+    color: ["#fff", "#1E4FB5", "#FF6B5B", "#1A1A1A", "#6FD8B5"][i % 5],
+    r: (i * 33) % 360,
+  }));
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {dots.map((d, i) => (
+        <div key={i} className="confetti-dot" style={{ top: d.top, left: d.left, background: d.color, transform: `rotate(${d.r}deg)` }} />
       ))}
     </div>
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MAIN COMPONENT
-═══════════════════════════════════════════════════════════════════════════ */
 export default function ProductPage() {
-  const t = useTranslations("rickandmorty");
-  const socialProofNames = useTranslations("socialProof").raw("names") as string[];
+  const t = useTranslations("product");
   const tp = useTranslations("product");
+  const socialProofNames = useTranslations("socialProof").raw("names") as string[];
   const { formatRaw: formatPrice, currency } = useCurrency();
   const { trackOptionSelected, trackPhotoUploaded, trackCheckoutStarted } = useProductTracking(PRODUCT_CONFIGS.rickandmorty);
 
-  // Core state
   const [format, setFormat] = useState<"portrait" | "fullbody">("portrait");
   const [people, setPeople] = useState(1);
   const [animals, setAnimals] = useState(0);
@@ -87,96 +126,79 @@ export default function ProductPage() {
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-  const [activePhoto, setActivePhoto] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  // Accordion
-  const [activeStep, setActiveStep] = useState(0);
-
-  // Gift mode
-  const [isGift, setIsGift] = useState(false);
-  const [giftMessage, setGiftMessage] = useState("");
-
-  // Send photo later
-  const [sendPhotoLater, setSendPhotoLater] = useState(false);
-
-  // Upload celebration
+  const [activeHero, setActiveHero] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [description, setDescription] = useState("");
+  const [dragOver, setDragOver] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-
-  // Social proof toast
   const [toastVisible, setToastVisible] = useState(false);
   const [toastName, setToastName] = useState("");
 
-  // Refs
-  const heroRef = useRef<HTMLElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const configRef = useRef<HTMLElement>(null);
 
-  // Translated backgrounds
-  const backgrounds = BACKGROUNDS.map((bg) => ({ ...bg, label: tp(bg.key as "bgBar") }));
-
+  const backgrounds = BACKGROUNDS.map((bg) => ({ ...bg, label: t(bg.key as "bgBar") }));
   const faqData = [
-    { q: tp("faqQ1"), a: tp("faqA1") },
-    { q: tp("faqQ2"), a: tp("faqA2") },
-    { q: tp("faqQ3"), a: tp("faqA3") },
-    { q: tp("faqQ4"), a: tp("faqA4") },
-    { q: tp("faqQ5"), a: tp("faqA5") },
+    { q: t("faqQ1"), a: t("faqA1") },
+    { q: t("faqQ2"), a: t("faqA2") },
+    { q: t("faqQ3"), a: t("faqA3") },
+    { q: t("faqQ4"), a: t("faqA4") },
+    { q: t("faqQ5"), a: t("faqA5") },
   ];
-
   const reviews = [
-    { name: tp("review1Name"), text: tp("review1Text") },
-    { name: tp("review2Name"), text: tp("review2Text") },
-    { name: tp("review3Name"), text: tp("review3Text") },
-    { name: tp("review4Name"), text: tp("review4Text") },
-    { name: tp("review5Name"), text: tp("review5Text") },
-    { name: tp("review6Name"), text: tp("review6Text") },
+    { name: t("review1Name"), text: t("review1Text") },
+    { name: t("review2Name"), text: t("review2Text") },
+    { name: t("review3Name"), text: t("review3Text") },
+    { name: t("review4Name"), text: t("review4Text") },
+    { name: t("review5Name"), text: t("review5Text") },
+    { name: t("review6Name"), text: t("review6Text") },
   ];
 
   useEffect(() => { fetch(`/api/prices?currency=${currency}`).then((r) => r.json()).then(setPrices); }, [currency]);
-
   useEffect(() => {
-    const interval = setInterval(() => setActivePhoto((p) => (p + 1) % 6), 4000);
-    return () => clearInterval(interval);
+    const i = setInterval(() => setActiveHero((p) => (p + 1) % HERO_SLIDES.length), 3400);
+    return () => clearInterval(i);
   }, []);
-
   useEffect(() => {
-    const show = () => { setToastName(socialProofNames[Math.floor(Math.random() * socialProofNames.length)]); setToastVisible(true); setTimeout(() => setToastVisible(false), 4000); };
+    if (!socialProofNames?.length) return;
+    const show = () => {
+      setToastName(socialProofNames[Math.floor(Math.random() * socialProofNames.length)]);
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 8000);
+    };
+    const initial = setTimeout(show, 4000);
     const interval = setInterval(show, 35000);
-    const initial = setTimeout(show, 12000);
-    return () => { clearInterval(interval); clearTimeout(initial); };
-  }, []);
+    return () => { clearTimeout(initial); clearInterval(interval); };
+  }, [socialProofNames]);
 
   const prints = prices ? [
-    { img: "/rickandmorty/Add-Ons/digital.png", label: t("digital"), price: prices.digital },
-    { img: "/rickandmorty/Add-Ons/poster.png", label: t("posterOption"), price: prices.posterSimple },
-    { img: "/rickandmorty/Add-Ons/portrait_sur_toile.png", label: t("canvas"), price: prices.canvas },
-    { img: "/rickandmorty/Add-Ons/portrait_encadré.png", label: t("poster"), price: prices.poster },
+    { img: "/rickandmorty/Add-Ons/digital.png", key: "digital", label: t("digital"), sub: tp("digitalSub"), addon: prices.digital, displayPrice: prices.digital + prices.base, badge: tp("fastestBadge") },
+    { img: "/rickandmorty/Add-Ons/poster.png", key: "posterSimple", label: t("posterOption"), sub: tp("posterSimpleSub"), addon: prices.posterSimple, displayPrice: prices.posterSimple + prices.base, badge: "" },
+    { img: "/rickandmorty/Add-Ons/portrait_sur_toile.png", key: "canvas", label: t("canvas"), sub: tp("canvasSub"), addon: prices.canvas, displayPrice: prices.canvas + prices.base, badge: tp("bestsellerBadge") },
+    { img: "/rickandmorty/Add-Ons/portrait_encadré.png", key: "framed", label: t("poster"), sub: tp("framedSub"), addon: prices.poster, displayPrice: prices.poster + prices.base, badge: "" },
   ] : [];
 
-  const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.price ?? 0) : 0;
+  const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.addon ?? 0) : 0;
 
-  const orderDescription = `${format === "fullbody" ? t("fullbody") : t("portrait")} · ${people} pers.${animals > 0 ? ` + ${animals} animal${animals > 1 ? "s" : ""}` : ""} · ${prints[selectedPrint]?.label || t("digital")}${isGift ? " · 🎁 Cadeau" : ""}`;
-
+  const hasDecor = backgrounds.length > 0;
   const previewBgIndex = hoveredBg !== null ? hoveredBg : selectedBg;
+  const previewSrc = hasDecor ? backgrounds[previewBgIndex].src : GALLERY_PHOTOS[activeHero % GALLERY_PHOTOS.length];
+  const previewLabel = hasDecor ? backgrounds[previewBgIndex].label : "";
+  const currentBgKey = hasDecor ? backgrounds[selectedBg].key : "default";
+  const currentBgLabel = hasDecor ? backgrounds[selectedBg].label : "";
+  const orderDescription = `${format === "fullbody" ? t("fullbody") : t("portrait")} · ${people} ${t("people")} ${animals > 0 ? ` + ${animals} ${t("animals")}${animals > 1 ? "s" : ""}` : ""} · ${prints[selectedPrint]?.label || t("digital")}`;
 
-  const stepSummaries = [
-    format === "fullbody" ? "Corps entier" : "Portrait",
-    `${people} pers.${animals > 0 ? ` + ${animals} animal${animals > 1 ? "s" : ""}` : ""}`,
-    uploadedPhotos.length > 0 ? `${uploadedPhotos.length} photo${uploadedPhotos.length > 1 ? "s" : ""}` : sendPhotoLater ? "Envoi après commande" : "—",
-    prints[selectedPrint]?.label || "Digital",
-  ];
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+  const handleUpload = async (files: FileList | null) => {
+    if (!files?.length) return;
     setUploading(true);
     setUploadError("");
     try {
       const urls: string[] = [];
-      for (const file of files) {
+      for (const file of Array.from(files).slice(0, 8)) {
         const blob = await upload(`orders/${Date.now()}-${file.name}`, file, { access: "public", handleUploadUrl: "/api/upload" });
         urls.push(blob.url);
       }
-      setUploadedPhotos((prev) => [...prev, ...urls]);
+      setUploadedPhotos((prev) => [...prev, ...urls].slice(0, 8));
       trackPhotoUploaded(urls.length);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 2500);
@@ -184,292 +206,390 @@ export default function ProductPage() {
       setUploadError(t("uploadError"));
     } finally {
       setUploading(false);
-      e.target.value = "";
     }
   };
 
-  const scrollToConfig = useCallback(() => { configRef.current?.scrollIntoView({ behavior: "smooth" }); }, []);
-  const goNextStep = useCallback((c: number) => { setActiveStep(Math.min(c + 1, 3)); }, []);
+  const scrollToConfig = useCallback(() => {
+    configRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
-  const STEPS = [
-    { num: 1, title: tp("formatLabel"), icon: "👤" },
-    { num: 2, title: tp("peopleLabel") + " & " + tp("animalsLabel"), icon: "👥" },
-    { num: 3, title: tp("guaranteeStep1Title"), icon: "📸" },
-    { num: 4, title: tp("deliveryLabel"), icon: "📦" },
-  ];
+  const onAddToCart = () => {
+    trackCheckoutStarted(total, currency, { format, people, animals, background: currentBgKey, printOption: prints[selectedPrint]?.label || "digital" });
+    setShowCheckout(true);
+  };
 
   return (
     <>
-      <ProductJsonLd product={{
-        name: PRODUCT_STYLE_META.rickandmorty.name,
-        description: PRODUCT_STYLE_META.rickandmorty.description,
-        brand: "Cartoonova",
-        image: PRODUCT_STYLE_META.rickandmorty.image,
-        sku: PRODUCT_STYLE_META.rickandmorty.sku,
-        offers: {
-          priceCurrency: currency,
-          price: String(prices?.base ?? 49),
-          availability: "https://schema.org/InStock",
-          priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-        },
-        aggregateRating: { ratingValue: 4.9, reviewCount: 2500 },
-      }} />
-      <div className="min-h-screen bg-lime-50 text-gray-900 overflow-x-hidden">
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Caveat+Brush&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
 
-        {/* SOCIAL PROOF LIVE TOAST */}
-        <div className={`fixed bottom-24 lg:bottom-6 left-4 z-50 transition-all duration-500 ${toastVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"}`}>
-          <div className="bg-white rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] px-4 py-3 flex items-center gap-3 max-w-xs">
-            <div className="w-8 h-8 rounded-full bg-lime-400 border-2 border-black flex items-center justify-center text-sm">🎨</div>
-            <div>
-              <p className="text-xs font-bold text-gray-900">{toastName}</p>
-              <p className="text-[10px] text-gray-500">{tp("socialProof")}</p>
-            </div>
-            <span className="text-[10px] text-gray-400 ml-auto whitespace-nowrap">{tp("justNow")}</span>
-          </div>
-        </div>
+      <style>{`
+        :root {
+          --cn-yellow: #FFD426;
+          --cn-yellow-deep: #F5B800;
+          --cn-ink: #1A1A1A;
+          --cn-ink-soft: #2D2D2D;
+          --cn-paper: #FFF9E8;
+          --cn-paper-warm: #FFF1C7;
+          --cn-sky-1: #FFEFA3;
+          --cn-sky-2: #B8E0FF;
+          --cn-sky-3: #DDF4FF;
+          --cn-blue-deep: #1E4FB5;
+          --cn-coral: #FF6B5B;
+          --cn-mint: #6FD8B5;
+        }
+        .cn-root { background: var(--cn-paper); color: var(--cn-ink); font-family: 'Nunito', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+        .cn-root * { -webkit-tap-highlight-color: transparent; }
+        .font-display { font-family: 'Bagel Fat One', 'Lilita One', system-ui, sans-serif; letter-spacing: 0.005em; font-weight: 400; }
+        .font-hand { font-family: 'Caveat Brush', system-ui, sans-serif; font-weight: 400; }
+        .cn-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border: 3px solid #111; background: var(--cn-yellow); color: var(--cn-ink); font-family: 'Bagel Fat One', system-ui, sans-serif; font-size: 1.05rem; padding: 0.85rem 1.5rem; border-radius: 999px; box-shadow: 0 5px 0 0 #111; transition: transform 120ms ease, box-shadow 120ms ease; cursor: pointer; user-select: none; }
+        .cn-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 0 #111; }
+        .cn-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 0 #111; }
+        .cn-btn.lg { padding: 1.1rem 2rem; font-size: 1.25rem; }
+        .cn-btn.xl { padding: 1.35rem 2.6rem; font-size: 1.5rem; }
+        .cn-btn.ghost { background: #fff; }
+        .cn-btn.dark { background: var(--cn-ink); color: var(--cn-yellow); }
+        .cn-card { border: 3px solid #111; border-radius: 24px; background: #fff; box-shadow: 0 6px 0 0 #111; }
+        .cn-card.flat { box-shadow: 0 3px 0 0 #111; }
+        .sky-bg { background: radial-gradient(ellipse at 18% 12%, rgba(255,255,255,0.62), transparent 45%), radial-gradient(ellipse at 82% 80%, rgba(255,255,255,0.58), transparent 50%), linear-gradient(160deg, var(--cn-sky-3) 0%, var(--cn-sky-2) 45%, var(--cn-sky-1) 100%); }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .marquee-track { animation: marquee 28s linear infinite; }
+        @keyframes float-y { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-8px) rotate(var(--r,0deg)); } }
+        .floaty { animation: float-y 4.2s ease-in-out infinite; }
+        @keyframes toast-in { 0% { transform: translate(-8px,14px) scale(.92); opacity: 0; } 60% { transform: translate(0,-2px) scale(1.02); opacity: 1; } 100% { transform: translate(0,0) scale(1); opacity: 1; } }
+        .toast-in { animation: toast-in 420ms cubic-bezier(.2,.9,.3,1.2) both; }
+        @keyframes price-flash { 0% { transform: scale(1); color: var(--cn-ink); } 35% { transform: scale(1.12); color: var(--cn-blue-deep); } 100% { transform: scale(1); color: var(--cn-ink); } }
+        .price-flash { animation: price-flash 480ms ease; }
+        .faq-chev { transition: transform 240ms cubic-bezier(.4,0,.2,1); }
+        .faq-open .faq-chev { transform: rotate(45deg); }
+        .faq-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 320ms ease; }
+        .faq-open .faq-panel { grid-template-rows: 1fr; }
+        .faq-panel > div { overflow: hidden; }
+        @keyframes hero-pop { 0% { transform: scale(.96) rotate(-1deg); opacity: 0; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+        .hero-pop { animation: hero-pop 600ms cubic-bezier(.2,.9,.3,1.2); }
+        .doodle-underline { position: relative; display: inline-block; }
+        .doodle-underline svg { position: absolute; left: -4%; right: -4%; bottom: -14px; width: 108%; height: 18px; }
+        .drop-active { background: var(--cn-paper-warm) !important; border-color: var(--cn-blue-deep) !important; }
+        .tile-selected { outline: 4px solid var(--cn-yellow); outline-offset: 3px; position: relative; }
+        .tile-selected::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 28px; height: 28px; background: var(--cn-yellow); border: 3px solid #111; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-family: 'Bagel Fat One', sans-serif; font-size: 14px; color: var(--cn-ink); box-shadow: 0 2px 0 #111; }
+        .section-label { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--cn-ink); color: var(--cn-yellow); font-family: 'Bagel Fat One', sans-serif; padding: 0.35rem 0.9rem; border-radius: 999px; font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; }
+        .press { transition: transform 100ms ease; }
+        .press:active { transform: scale(.97); }
+        @keyframes spin-slow { to { transform: rotate(360deg); } }
+        .spin-slow { animation: spin-slow 18s linear infinite; }
+        .confetti-dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #111; }
+        @keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0); opacity: 1; } 100% { transform: translateY(400px) rotate(720deg); opacity: 0; } }
+        .animate-confetti { animation: confetti-fall 2s ease-out forwards; }
+      `}</style>
 
+      <div className="cn-root sky-bg min-h-screen">
         {/* ═══ HERO ═══ */}
-        <section ref={heroRef} className="relative bg-lime-50 overflow-hidden">
-          {/* Decorative cartoon elements */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-16 -left-6 w-20 h-20 rounded-full bg-lime-300/20 blur-sm" />
-            <div className="absolute top-32 right-8 w-12 h-12 rounded-full bg-pink-300/15" />
-            <div className="absolute bottom-20 left-[15%] w-16 h-16 rounded-full bg-blue-300/15" />
-            <div className="absolute top-40 right-[20%] w-8 h-8 rounded-full bg-lime-400/20" />
-          </div>
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-6 lg:pt-4 lg:pb-10">
-            <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 items-start">
-              {/* Image */}
-              <div className="relative order-1">
-                <div className="relative aspect-[4/5] max-w-lg mx-auto rounded-2xl overflow-hidden border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-                  <Image src={GALLERY_PHOTOS[activePhoto]} alt="Portrait Rick and Morty personnalisé" fill className="object-cover transition-all duration-700" priority sizes="(max-width: 768px) 92vw, 44vw" />
-                </div>
-                <div className="flex gap-2 justify-center mt-4">
-                  {GALLERY_PHOTOS.slice(0, 6).map((photo, i) => (
-                    <button key={i} onClick={() => setActivePhoto(i)} className={`w-14 h-14 rounded-lg overflow-hidden border-2 border-black transition-all duration-200 ${activePhoto === i ? "bg-lime-400 scale-110 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" : "opacity-60 hover:opacity-90 hover:scale-105"}`}>
-                      <Image src={photo} alt="" width={56} height={56} className="object-cover w-full h-full" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* Copy */}
-              <div className="order-2 text-center lg:text-left lg:pt-6">
-                <div className="inline-flex items-center gap-2 mb-5 bg-white border-2 border-black rounded-full px-3 py-1.5 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                  <div className="flex">{[...Array(5)].map((_, i) => <span key={i} className="text-lime-500 text-base">★</span>)}</div>
-                  <span className="text-gray-700 text-sm font-semibold">{tp("rating")}</span>
-                  <span className="text-gray-400">·</span>
-                  <span className="text-gray-500 text-sm">{tp("portraitsCount")}</span>
-                </div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.1] mb-4 uppercase">
-                  {t("heroTitle1")} <span className="text-lime-500 inline-block -rotate-1">{t("heroTitle2")}</span>
-                </h1>
-                <p className="text-gray-500 text-base lg:text-lg max-w-md mx-auto lg:mx-0 mb-6 leading-relaxed">
-                  {tp("heroDescription")}
-                </p>
-                <div className="flex items-center gap-3 justify-center lg:justify-start mb-7">
-                  <span className="text-4xl font-black text-gray-900">{formatPrice(prices?.base || 14)}</span>
-                  <span className="text-xl text-gray-400 line-through font-medium">{formatPrice((prices?.base || 14) * 2)}</span>
-                  <span className="text-xs font-black text-white bg-red-500 px-2.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] inline-block -rotate-3">-50%</span>
-                </div>
-                <button onClick={scrollToConfig} className="group w-full sm:w-auto bg-lime-400 text-black font-black text-lg px-12 py-4 rounded-xl border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[5px] active:translate-y-[5px] transition-all">
-                  <span className="flex items-center justify-center gap-2">
-                    {isGift ? tp("giftThisPortrait") : tp("createMyPortrait")}
-                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                  </span>
-                </button>
-                <div className="flex flex-wrap items-center gap-5 justify-center lg:justify-start mt-6 text-gray-500 text-sm">
-                  <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>{tp("satisfiedOrRefundedShort")}</span>
-                  <span>{tp("handDrawnIcon")}</span>
-                  <span>{tp("delivered48h")}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Social proof bar */}
-          <div className="bg-gray-900 py-3.5 border-y-3 border-black">
-            <div className="max-w-5xl mx-auto px-4 flex items-center justify-center gap-4 sm:gap-8 lg:gap-14 flex-wrap">
-              {[{ v: "2,500+", l: tp("portraitsCreated") }, { v: "4.9★", l: tp("averageRating") }, { v: "48h", l: tp("delivery") }, { v: "100%", l: tp("satisfactionGuarantee") }].map((s, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="text-lime-500 font-black text-lg sm:text-xl">{s.v}</span>
-                  <span className="text-gray-300 text-xs sm:text-sm font-medium">{s.l}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══ GUARANTEE VISUAL ═══ */}
-        <section className="py-10 bg-lime-50">
-          <div className="max-w-4xl mx-auto px-4 grid grid-cols-3 gap-5 text-center">
-            {[
-              { icon: "📸", title: tp("guaranteeStep1Title"), desc: tp("guaranteeStep1Desc"), rotate: "-rotate-1" },
-              { icon: "🎨", title: tp("guaranteeStep2Title"), desc: tp("guaranteeStep2Desc"), rotate: "rotate-1" },
-              { icon: "✅", title: tp("guaranteeStep3Title"), desc: tp("guaranteeStep3Desc"), rotate: "-rotate-1" },
-            ].map((s, i) => (
-              <div key={i} className={`flex flex-col items-center bg-lime-100 border-2 border-black rounded-2xl p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${s.rotate} hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all`}>
-                <div className="w-14 h-14 rounded-full bg-lime-400 border-2 border-black flex items-center justify-center text-2xl mb-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{s.icon}</div>
-                <p className="font-black text-gray-900 text-sm uppercase">{s.title}</p>
-                <p className="text-gray-500 text-xs mt-0.5">{s.desc}</p>
-              </div>
+        <section className="relative pt-8 pb-20 overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none">
+            {[{ top: "12%", left: "6%", s: 1.0 }, { top: "22%", left: "78%", s: 0.7 }, { top: "60%", left: "2%", s: 0.8 }, { top: "72%", left: "88%", s: 1.1 }, { top: "40%", left: "46%", s: 0.5 }].map((c, i) => (
+              <svg key={i} className="absolute" viewBox="0 0 80 36" style={{ top: c.top, left: c.left, width: 140 * c.s, opacity: 0.85 }}>
+                <g fill="#fff"><ellipse cx="20" cy="22" rx="20" ry="12" /><ellipse cx="42" cy="18" rx="22" ry="14" /><ellipse cx="64" cy="24" rx="16" ry="10" /></g>
+              </svg>
             ))}
           </div>
-        </section>
 
-        {/* ═══ CONFIGURATOR — Accordion progressif ═══ */}
-        <section ref={configRef} className="relative py-10 sm:py-14 bg-lime-50">
-          {/* Decorative cartoon elements */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-10 right-[5%] w-24 h-24 rounded-full bg-lime-300/15" />
-            <div className="absolute bottom-20 left-[3%] w-16 h-16 rounded-full bg-pink-300/10" />
-          </div>
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Progress bar */}
-            <div className="flex items-center gap-1 mb-8 max-w-lg mx-auto lg:mx-0">
-              {STEPS.map((_, i) => (
-                <div key={i} className="flex-1"><div className={`h-1.5 rounded-full transition-all duration-500 ${i <= activeStep ? "bg-lime-400" : "bg-gray-200"}`} /></div>
-              ))}
-              <span className="text-xs text-gray-400 ml-2 tabular-nums">{activeStep + 1}/4</span>
+          <div className="max-w-7xl mx-auto px-6 relative">
+            <div className="text-sm font-bold text-[var(--cn-ink-soft)] mb-6 flex items-center gap-2">
+              <span className="opacity-60">{tp("universe")}</span>
+              <span className="opacity-60">›</span>
+              <span>{tp("simpsonStyle")}</span>
             </div>
 
-            <div className="grid lg:grid-cols-5 gap-6 lg:gap-10">
-              {/* Left: Accordion */}
-              <div className="lg:col-span-3 space-y-2.5">
-                {STEPS.map((step, idx) => {
-                  const isOpen = activeStep === idx;
-                  const isDone = activeStep > idx;
-                  return (
-                    <div key={idx} className={`rounded-2xl border-2 border-black transition-all duration-300 ${isOpen ? "bg-white shadow-[5px_5px_0px_0px_rgba(250,204,21,0.6)]" : isDone ? "bg-green-50/80 shadow-[3px_3px_0px_0px_rgba(34,197,94,0.3)]" : "bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]"}`}>
-                      <button onClick={() => setActiveStep(idx)} className="w-full flex items-center gap-3 px-5 py-4 text-left">
-                        <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black transition-all ${isDone ? "bg-green-500 text-white shadow-sm" : isOpen ? "bg-lime-400 text-black shadow-sm" : "bg-gray-100 text-gray-400"}`}>{isDone ? "✓" : step.num}</span>
-                        <span className={`font-bold text-sm flex-1 ${isOpen ? "text-gray-900" : isDone ? "text-gray-700" : "text-gray-500"}`}>{step.icon} {step.title}</span>
-                        {isDone && <span className="text-xs text-green-700 font-semibold bg-green-100 px-2.5 py-1 rounded-full">{stepSummaries[idx]}</span>}
-                        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180 text-lime-500" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                      </button>
-                      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"}`}>
-                        <div className="px-5 pb-5 pt-1">
-                          {/* STEP 0: Format */}
-                          {idx === 0 && (<div>
-                            <div className="grid grid-cols-2 gap-3">
-                              {([{ key: "portrait" as const, label: tp("portraitBust"), extra: tp("included"), icon: "👤" }, { key: "fullbody" as const, label: tp("fullbodyLabel"), extra: prices ? `+${formatPrice(prices.fullbodyExtra)}` : "", icon: "🧍" }]).map((o) => (
-                                <button key={o.key} onClick={() => { setFormat(o.key); trackOptionSelected("format", o.key, o.key === "fullbody" ? (prices?.fullbodyExtra || 0) : 0); }} className={`relative text-center rounded-xl p-4 transition-all border-2 border-black ${format === o.key ? "bg-lime-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" : "bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,0.15)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]"}`}>
-                                  <span className="text-2xl block mb-2">{o.icon}</span>
-                                  <p className="font-bold text-gray-900 text-sm">{o.label}</p>
-                                  <p className="text-xs text-lime-600 font-semibold mt-1">{o.extra}</p>
-                                </button>
-                              ))}
-                            </div>
-                            <button onClick={() => goNextStep(0)} className="mt-4 w-full bg-lime-400 text-black font-black text-sm py-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all uppercase">{tp("continue")}</button>
-                          </div>)}
-                          {/* STEP 1: People & Animals */}
-                          {idx === 1 && (<div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-700 font-medium">{tp("numberOfPeople")}</span>
-                              <div className="flex items-center gap-2">
-                                <button onClick={() => setPeople(Math.max(1, people - 1))} className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition-colors">−</button>
-                                <span className="w-10 h-9 rounded-lg bg-lime-400 text-black font-bold flex items-center justify-center">{people}</span>
-                                <button onClick={() => setPeople(Math.min(6, people + 1))} className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition-colors">+</button>
-                              </div>
-                            </div>
-                            <p className="text-[11px] text-gray-400">{tp("firstPersonIncluded")} · +{prices ? formatPrice(prices.extraPerson) : ""}{tp("extraPersonPrice")}</p>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-700 font-medium">{tp("numberOfPets")}</span>
-                              <div className="flex items-center gap-2">
-                                <button onClick={() => setAnimals(Math.max(0, animals - 1))} className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition-colors">−</button>
-                                <span className="w-10 h-9 rounded-lg bg-lime-400 text-black font-bold flex items-center justify-center">{animals}</span>
-                                <button onClick={() => setAnimals(Math.min(4, animals + 1))} className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold flex items-center justify-center transition-colors">+</button>
-                              </div>
-                            </div>
-                            <p className="text-[11px] text-gray-400">+{prices ? formatPrice(prices.extraAnimal) : ""}{tp("extraPetPrice")}</p>
-                            <button onClick={() => goNextStep(1)} className="w-full bg-lime-400 text-black font-black text-sm py-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all uppercase">{tp("continue")}</button>
-                          </div>)}
-                          {/* STEP 2: Upload photo */}
-                          {idx === 2 && (<div className="relative">
-                            <Confetti active={showConfetti} />
-                            {!sendPhotoLater && (<div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-lime-400 hover:bg-lime-100/30 transition-all">
-                              <input type="file" id="photos-upload" multiple accept="image/jpeg,image/png,image/webp" onChange={handleUpload} className="hidden" />
-                              <label htmlFor="photos-upload" className="flex flex-col items-center gap-3 cursor-pointer">
-                                <div className="w-14 h-14 rounded-xl bg-lime-400 flex items-center justify-center"><svg className="w-7 h-7 text-black" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 3 3 0 013.438 3.42A3.75 3.75 0 0118 19.5H6.75z" /></svg></div>
-                                <div><p className="text-gray-900 font-bold text-sm">{tp("dragPhotosHere")}</p><p className="text-xs text-gray-400">{tp("fileTypes")}</p></div>
-                                <span className="bg-gray-900 text-white font-bold text-xs px-5 py-2.5 rounded-lg hover:bg-gray-800 transition-colors">{tp("chooseFile")}</span>
-                              </label>
-                              {uploading && (<div className="mt-4 flex flex-col items-center gap-2"><div className="w-10 h-10 border-3 border-gray-200 border-t-yellow-400 rounded-full animate-spin" /><p className="text-sm text-gray-500 font-medium">{tp("uploadInProgress")}</p></div>)}
-                              {uploadError && <p className="mt-3 text-xs text-red-500 bg-red-50 p-2 rounded-lg">{uploadError}</p>}
-                              {uploadedPhotos.length > 0 && !uploading && (<div className="mt-4 p-3 bg-green-50 rounded-lg">
-                                <p className="text-green-700 font-bold text-sm mb-2">{tp("uploadSuccess")}</p>
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                  {uploadedPhotos.map((url, i) => (<div key={i} className="relative group"><img src={url} alt="" className="w-14 h-14 rounded-lg object-cover border-2 border-green-200" /><button onClick={() => setUploadedPhotos((prev) => prev.filter((_, idx2) => idx2 !== i))} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity">✕</button></div>))}
-                                </div>
-                              </div>)}
-                            </div>)}
-                            <div className="mt-3 space-y-1.5">
-                              <p className="text-[11px] text-gray-400 flex items-center gap-1.5">{tp("photosDeletedAfter30Days")}</p>
-                              <p className="text-[11px] text-gray-400 flex items-center gap-1.5">{tp("mostSelfiesWork")}</p>
-                            </div>
-                            <button onClick={() => setSendPhotoLater(!sendPhotoLater)} className={`mt-3 w-full text-left text-sm p-3 rounded-lg border-2 transition-all ${sendPhotoLater ? "border-lime-400 bg-lime-100" : "border-gray-200 bg-gray-50 hover:border-gray-300"}`}>
-                              <span className="font-semibold text-gray-700">{tp("sendLater")}</span>
-                              <span className="block text-[11px] text-gray-400 mt-0.5">{tp("sendLaterDesc")}</span>
-                            </button>
-                            <button onClick={() => goNextStep(2)} className="mt-3 w-full bg-lime-400 text-black font-black text-sm py-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all uppercase">{tp("continue")}</button>
-                          </div>)}
-                          {/* STEP 3: Print Options + Gift */}
-                          {idx === 3 && (<div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                              {prints.map((o, i) => (
-                                <button key={i} onClick={() => { setSelectedPrint(i); trackOptionSelected("print", o.label, o.price); }} className={`relative rounded-xl overflow-hidden border-2 transition-all ${selectedPrint === i ? "border-lime-400 bg-lime-50 shadow-sm" : "border-gray-200 bg-white hover:border-gray-300"}`}>
-                                  <div className="aspect-square relative"><Image src={o.img} alt={o.label} fill className="object-cover" sizes="120px" /></div>
-                                  <div className="p-2 text-center"><p className="font-bold text-gray-900 text-xs">{o.label}</p><p className="text-lime-500 font-bold text-xs">{o.price === 0 ? tp("included") : `+${formatPrice(o.price)}`}</p></div>
-                                </button>
-                              ))}
-                            </div>
-                            <div className="mt-4">
-                              <button onClick={() => setIsGift(!isGift)} className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${isGift ? "border-lime-400 bg-lime-100" : "border-gray-200 bg-gray-50 hover:border-gray-300"}`}>
-                                <span className="text-xl">🎁</span>
-                                <div className="text-left flex-1"><p className="font-bold text-gray-900 text-sm">{tp("giftOption")}</p><p className="text-[11px] text-gray-400">{tp("giftDesc")}</p></div>
-                                <div className={`w-10 h-6 rounded-full transition-colors flex items-center ${isGift ? "bg-lime-400 justify-end" : "bg-gray-200 justify-start"}`}><div className="w-5 h-5 rounded-full bg-white shadow mx-0.5" /></div>
-                              </button>
-                              {isGift && <textarea value={giftMessage} onChange={(e) => setGiftMessage(e.target.value)} placeholder={tp("giftMessagePlaceholder")} className="mt-2 w-full border border-gray-200 rounded-lg p-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-lime-400 resize-none" rows={2} />}
-                            </div>
-                            {/* Speech bubble review */}
-                            <div className="mt-4 relative bg-white rounded-2xl border-2 border-black p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                              <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white border-r-2 border-b-2 border-black rotate-45" />
-                              <div className="flex">{[...Array(5)].map((_, j) => <span key={j} className="text-lime-500 text-xs">★</span>)}</div>
-                              <p className="text-gray-700 text-xs mt-1 italic">&ldquo;{reviews[1]?.text}&rdquo;</p>
-                              <p className="text-gray-500 text-[10px] mt-1 font-bold">— {reviews[1]?.name} ✅</p>
-                            </div>
-                          </div>)}
+            <div className="grid md:grid-cols-[1.1fr_1fr] gap-10 items-center">
+              <div className="relative">
+                <h1 className="font-display text-[clamp(2.6rem,6vw,5.2rem)] leading-[0.95] mb-3">
+                  {t("heroTitle1")}{" "}
+                  <span className="doodle-underline text-[var(--cn-yellow-deep)]">
+                    {t("heroTitle2")}
+                    <svg viewBox="0 0 220 18" preserveAspectRatio="none"><path d="M2 12 Q 60 2 110 10 T 218 8" stroke="#1A1A1A" strokeWidth="6" strokeLinecap="round" fill="none" /></svg>
+                  </span>
+                </h1>
+                <p className="text-lg md:text-xl text-[var(--cn-ink-soft)] font-semibold mb-8 max-w-xl">
+                  {t("heroSubtitle")}
+                  <span className="bg-[var(--cn-yellow)] px-1.5 rounded-md mx-1 whitespace-nowrap">{tp("delivered48h")}</span>
+                  {tp("satisfiedOrRefunded")}.
+                </p>
+
+                <div className="flex flex-wrap gap-4 items-center mb-6">
+                  <button className="cn-btn xl" onClick={scrollToConfig}>
+                    {tp("orderCta")}
+                    <span className="text-2xl ml-1">→</span>
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-3">
+                      {GALLERY_PHOTOS.slice(0, 4).map((src, i) => (
+                        <div key={i} className="w-9 h-9 rounded-full border-[2.5px] border-black overflow-hidden relative">
+                          <Image src={src} alt="" fill className="object-cover" sizes="36px" />
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  );
-                })}
+                    <div className="leading-tight">
+                      <div className="flex text-[var(--cn-yellow-deep)] text-lg leading-none">★★★★★</div>
+                      <div className="text-sm font-bold">4,9/5 · 2 540 {tp("verifiedReviews")}</div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
-              {/* Right: Sticky Summary (desktop) */}
-              <div className="hidden lg:block lg:col-span-2">
-                <div className="sticky top-20">
-                  <div className="bg-gray-900 rounded-2xl p-6 text-white shadow-2xl">
-                    <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-5">
-                      <Image src={GALLERY_PHOTOS[0]} alt={tp("exampleWork")} fill className="object-cover transition-all duration-300" sizes="300px" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                      <div className="absolute bottom-3 left-3"><p className="text-white/70 text-[10px] uppercase tracking-wider font-medium">{tp("exampleWork")}</p><p className="text-white font-bold text-sm">{t("customizeHighlight")}</p></div>
-                    </div>
-                    <div className="space-y-2.5 text-sm mb-5">
-                      <div className="flex justify-between"><span className="text-gray-400">{tp("formatLabel")}</span><span className="font-semibold">{format === "fullbody" ? tp("fullbodyLabel") : tp("portrait")}</span></div>
-                      <div className="flex justify-between"><span className="text-gray-400">{tp("peopleLabel")}</span><span className="font-semibold">{people}</span></div>
-                      {animals > 0 && <div className="flex justify-between"><span className="text-gray-400">{tp("animalsLabel")}</span><span className="font-semibold">{animals}</span></div>}
-                      <div className="flex justify-between"><span className="text-gray-400">{tp("deliveryLabel")}</span><span className="font-semibold">{prints[selectedPrint]?.label || tp("digital")}</span></div>
-                      {isGift && <div className="flex justify-between"><span className="text-gray-400">{tp("giftLabel")}</span><span className="font-semibold text-lime-500">{tp("giftYes")}</span></div>}
-                    </div>
-                    <div className="border-t border-white/10 pt-4 mb-5">
-                      <div className="flex items-end justify-between">
-                        <div><span className="text-gray-400 text-xs uppercase tracking-wider">{tp("total")}</span><span className="ml-2 text-sm text-gray-500 line-through">{formatPrice(total + 20)}</span></div>
-                        <span className="text-4xl font-black text-lime-500"><AnimatedPrice value={total} formatter={formatPrice} /></span>
+              <div className="relative h-[480px] md:h-[560px]">
+                <svg className="absolute inset-0 m-auto spin-slow" viewBox="0 0 600 600" style={{ width: "110%", height: "110%" }}>
+                  <g fill="none" stroke="#1A1A1A" strokeWidth="3" strokeDasharray="2 18" strokeLinecap="round" opacity="0.18">
+                    <circle cx="300" cy="300" r="260" />
+                  </g>
+                </svg>
+
+                <div className="absolute inset-x-4 inset-y-0 cn-card overflow-hidden bg-white">
+                  <div className="relative w-full h-full">
+                    {HERO_SLIDES.map((src, i) => (
+                      <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === activeHero ? "hero-pop opacity-100" : "opacity-0 pointer-events-none"}`}>
+                        <Image src={src} alt="Portrait rickandmorty personnalisé" fill className="object-cover" priority={i === 0} sizes="(max-width: 768px) 92vw, 44vw" />
                       </div>
+                    ))}
+                    <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-10">
+                      {HERO_SLIDES.map((_, i) => (
+                        <button key={i} onClick={() => setActiveHero(i)} aria-label={`Slide ${i + 1}`} className="h-2.5 rounded-full border-2 border-black transition-all" style={{ background: i === activeHero ? "#FFD426" : "#fff", width: i === activeHero ? 22 : 10 }} />
+                      ))}
                     </div>
-                    <button onClick={() => { setShowCheckout(true); trackCheckoutStarted(total, currency, { format, people, animals, background: backgrounds[selectedBg]?.label || "Standard", printOption: prints[selectedPrint]?.label || "Digital" }); }} className="w-full bg-lime-400 text-black font-black text-lg py-5 rounded-xl border-2 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[5px] active:translate-y-[5px] transition-all uppercase">
-                      {isGift ? tp("giftThisPortrait") : tp("orderNowArrow")}
+                  </div>
+                </div>
+
+                <FloatingReview style={{ bottom: "6%", right: "-4%", "--r": "4deg" } as CSSProperties} text={reviews[1]?.text || ""} name={reviews[1]?.name || ""} stars={5} />
+
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 border-y-[3px] border-black bg-[var(--cn-ink)] text-[var(--cn-yellow)] overflow-hidden">
+            <div className="flex marquee-track whitespace-nowrap py-3 font-display text-xl">
+              {Array.from({ length: 2 }).map((_, k) => (
+                <div key={k} className="flex items-center gap-10 px-5">
+                  <span>+2 540 {tp("portraitsDelivered")}</span><span className="opacity-50">●</span>
+                  <span>{tp("delivery48h")}</span><span className="opacity-50">●</span>
+                  <span>{tp("handDrawn")}</span><span className="opacity-50">●</span>
+                  <span>{tp("satisfiedOrRefunded")}</span><span className="opacity-50">●</span>
+                  <span>{tp("freeRevisions")}</span><span className="opacity-50">●</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ HOW IT WORKS ═══ */}
+        <section className="py-12 relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-8">
+              <div className="section-label mb-3">{tp("howItWorks")}</div>
+              <h2 className="font-display text-[clamp(1.8rem,3vw,2.6rem)] leading-tight">{tp("howItWorksTitle")}</h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4 relative">
+              <svg className="hidden md:block absolute top-[54px] left-[14%] right-[14%] h-7 pointer-events-none" viewBox="0 0 800 30" preserveAspectRatio="none">
+                <path d="M 10 18 Q 200 -6 400 18 T 790 16" stroke="#1A1A1A" strokeWidth="3" strokeDasharray="2 9" fill="none" strokeLinecap="round" />
+              </svg>
+              {[
+                { icon: "📸", title: tp("guaranteeStep1Title"), desc: tp("guaranteeStep1Desc"), tint: "#A8D8FF" },
+                { icon: "🎨", title: tp("guaranteeStep2Title"), desc: tp("guaranteeStep2Desc"), tint: "#FFE08A" },
+                { icon: "✅", title: tp("guaranteeStep3Title"), desc: tp("guaranteeStep3Desc"), tint: "#FFC5DE" },
+              ].map((s, i) => (
+                <div key={i} className="cn-card p-5 md:p-6 text-center bg-white relative">
+                  <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-[var(--cn-ink)] text-[var(--cn-yellow)] flex items-center justify-center font-display text-base border-[2.5px] border-black" style={{ boxShadow: "0 2px 0 #000" }}>{i + 1}</div>
+                  <div className="w-14 h-14 mx-auto mb-3 rounded-full border-[2.5px] border-black flex items-center justify-center text-3xl" style={{ background: s.tint, boxShadow: "0 3px 0 #000" }}>{s.icon}</div>
+                  <h3 className="font-display text-xl mb-1.5">{s.title}</h3>
+                  <p className="text-sm text-[var(--cn-ink-soft)] font-semibold">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══ CONFIGURATOR ═══ */}
+        <section ref={configRef} id="configurator" className="py-20 border-t-[3px] border-black">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-10">
+              <div className="section-label mb-4">{tp("configurator")}</div>
+              <h2 className="font-display text-[clamp(2rem,4vw,3.4rem)] leading-tight">{tp("composeYourPortrait")}</h2>
+              <p className="text-[var(--cn-ink-soft)] font-semibold mt-3">{tp("guidedSteps")}</p>
+            </div>
+
+            <div className="grid lg:grid-cols-[1.05fr_1fr] gap-8">
+              {/* LIVE PREVIEW */}
+              <div className="hidden md:block lg:sticky lg:top-6 lg:self-start">
+                <div className="cn-card overflow-hidden bg-white relative">
+                  <div className="relative aspect-[4/5]">
+                    <Image src={previewSrc} alt={previewLabel || "Aperçu"} fill className="object-cover transition-all duration-300" sizes="(max-width: 1024px) 92vw, 540px" />
+                    {hasDecor && (
+                      <div className="absolute top-3 left-3 bg-white border-[2.5px] border-black rounded-full px-3 py-1 text-xs font-bold" style={{ boxShadow: "0 2px 0 #000" }}>
+                        {tp("decorChip")} · {previewLabel}
+                      </div>
+                    )}
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                      <div className="bg-black/70 text-white text-[10px] font-mono px-2 py-1 rounded">{tp("illustrativePreview")}</div>
+                    </div>
+                    {showConfetti && (
+                      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        {[...Array(20)].map((_, i) => (
+                          <div key={i} className="absolute w-2 h-2 rounded-full animate-confetti" style={{ left: `${10 + Math.random() * 80}%`, top: "10%", backgroundColor: ["#FACC15", "#FB923C", "#34D399", "#60A5FA", "#F472B6"][i % 5], animationDelay: `${Math.random() * 0.5}s` }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="border-t-[3px] border-black p-4 flex flex-wrap gap-2 bg-[var(--cn-paper-warm)]">
+                    <Chip>{format === "portrait" ? tp("portrait") : tp("fullbody")}</Chip>
+                    <Chip>{people} {people > 1 ? tp("peoplePlural") : tp("peopleSingular")}</Chip>
+                    {animals > 0 && <Chip>{animals} {animals > 1 ? tp("animalsPlural") : tp("animalsSingular")}</Chip>}
+                    {hasDecor && <Chip>{currentBgLabel}</Chip>}
+                    <Chip highlight>{prints[selectedPrint]?.label || t("digital")}</Chip>
+                  </div>
+                </div>
+                <div className="mt-4 text-sm font-bold text-[var(--cn-ink-soft)] text-center">
+                  ⏱ {tp("estimatedDelay")} : <span className="text-black">{tp("digital48h")}</span> · {tp("print57Days")}
+                </div>
+              </div>
+
+              {/* STEPS */}
+              <div className="space-y-6">
+                <Step n="01" title={tp("framingStep")}>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(["portrait", "fullbody"] as const).map((f) => (
+                      <button key={f} onClick={() => { setFormat(f); trackOptionSelected("format", f); }} className={`cn-card flat bg-white text-left overflow-hidden press ${format === f ? "tile-selected" : ""}`}>
+                        <div className="aspect-[5/3] bg-[var(--cn-paper-warm)] flex items-center justify-center text-5xl">{f === "portrait" ? "👤" : "🧍"}</div>
+                        <div className="px-3 py-2.5 border-t-[2.5px] border-black">
+                          <div className="font-display">{f === "portrait" ? tp("portrait") : tp("fullbody")}</div>
+                          <div className="text-xs font-bold text-[var(--cn-ink-soft)]">{f === "portrait" ? tp("portraitSub") : tp("fullbodySub")}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </Step>
+
+                <Step n="02" title={tp("whoOnPortrait")}>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Counter
+                      label={tp("peopleLabel")} icon="🧍"
+                      value={people} min={1} max={8}
+                      hint={prices ? `+${formatPrice(prices.extraPerson)}${tp("perExtraPerson")}` : ""}
+                      onChange={(v) => { setPeople(v); trackOptionSelected("people", v, prices ? prices.extraPerson : 0); }}
+                    />
+                    <Counter
+                      label={tp("animalsLabel")} icon="🐾"
+                      value={animals} min={0} max={4}
+                      hint={prices ? `+${formatPrice(prices.extraAnimal)}${tp("perAnimal")}` : ""}
+                      onChange={(v) => { setAnimals(v); trackOptionSelected("animals", v, prices ? prices.extraAnimal : 0); }}
+                    />
+                  </div>
+                </Step>
+
+                {hasDecor && (
+                  <Step n="03" title={tp("decorStep")} extra={<span className="text-xs font-bold text-[var(--cn-ink-soft)]">{tp("hoverToPreview")}</span>}>
+                    <div className="grid grid-cols-3 gap-3">
+                      {backgrounds.map((d, i) => (
+                        <button
+                          key={d.key}
+                          onMouseEnter={() => setHoveredBg(i)}
+                          onMouseLeave={() => setHoveredBg(null)}
+                          onClick={() => { setSelectedBg(i); trackOptionSelected("background", d.key); }}
+                          className={`relative cn-card flat overflow-hidden press text-left ${selectedBg === i ? "tile-selected" : ""}`}
+                        >
+                          <div className="aspect-square relative">
+                            <Image src={d.src} alt="" fill className="object-cover" sizes="160px" />
+                          </div>
+                          <div className="px-2 py-1.5 border-t-[2.5px] border-black bg-white">
+                            <div className="font-display text-[13px] leading-tight">{d.label}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </Step>
+                )}
+
+                <Step n="04" title={tp("uploadStep")} extra={<span className="text-xs font-bold text-[var(--cn-ink-soft)]">{tp("uploadMax8")}</span>}>
+                  <div
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={(e) => { e.preventDefault(); setDragOver(false); handleUpload(e.dataTransfer.files); }}
+                    className={`cn-card flat px-5 py-7 text-center bg-[var(--cn-paper-warm)] transition ${dragOver ? "drop-active" : ""}`}
+                    style={{ borderStyle: "dashed" }}
+                  >
+                    <div className="text-5xl mb-2">📸</div>
+                    <div className="font-display text-xl">{tp("dragHere")}</div>
+                    <div className="text-sm font-bold text-[var(--cn-ink-soft)] mb-4">{tp("orWord")}</div>
+                    <button onClick={() => fileInputRef.current?.click()} className="cn-btn" disabled={uploading}>
+                      {uploading ? tp("uploading") : tp("choosePhoto")}
                     </button>
-                    <div className="flex items-center justify-center gap-5 mt-3.5 text-gray-400 text-xs"><span>{tp("securePayment")}</span><span>{tp("satisfiedOrRefundedShort")}</span></div>
+                    <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={(e) => handleUpload(e.target.files)} className="hidden" />
+                    <div className="text-xs text-[var(--cn-ink-soft)] font-bold mt-3">{tp("uploadHint")}</div>
+                    {uploadError && <div className="text-xs font-bold text-red-600 mt-2">{uploadError}</div>}
+                  </div>
+                  {uploadedPhotos.length > 0 && (
+                    <div className="mt-3 grid grid-cols-4 sm:grid-cols-6 gap-2">
+                      {uploadedPhotos.map((url, i) => (
+                        <div key={i} className="relative aspect-square cn-card flat overflow-hidden">
+                          <Image src={url} alt="" fill className="object-cover" sizes="100px" unoptimized />
+                          <button onClick={() => setUploadedPhotos((prev) => prev.filter((_, j) => j !== i))} className="absolute top-1 right-1 w-6 h-6 bg-white border-2 border-black rounded-full font-bold text-xs leading-none">×</button>
+                        </div>
+                      ))}
+                      {uploadedPhotos.length < 8 && (
+                        <button onClick={() => fileInputRef.current?.click()} className="aspect-square cn-card flat bg-white flex items-center justify-center font-display text-3xl text-[var(--cn-ink-soft)]">+</button>
+                      )}
+                    </div>
+                  )}
+                </Step>
+
+                <Step n="05" title={tp("noteForArtist")} extra={<span className="text-xs font-bold text-[var(--cn-ink-soft)]">{tp("optional")}</span>}>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value.slice(0, 400))}
+                    rows={4}
+                    className="w-full cn-card flat px-4 py-3 font-body text-base placeholder:text-[var(--cn-ink-soft)] outline-none resize-none"
+                    placeholder={tp("notePlaceholder")}
+                  />
+                  <div className="text-xs text-[var(--cn-ink-soft)] font-bold mt-1 text-right">{description.length} / 400</div>
+                </Step>
+
+                <Step n="06" title={tp("printSupportStep")}>
+                  <div className="grid grid-cols-2 gap-3">
+                    {prints.map((sp, i) => (
+                      <button key={sp.key} onClick={() => { setSelectedPrint(i); trackOptionSelected("print", sp.label, sp.addon); }} className={`cn-card flat overflow-hidden text-left press relative ${selectedPrint === i ? "tile-selected" : ""}`}>
+                        {sp.badge && (<div className="absolute top-2 left-2 bg-[var(--cn-coral)] text-white border-2 border-black rounded-full px-2 py-0.5 text-[10px] font-display z-10">{sp.badge}</div>)}
+                        <div className="aspect-[5/3] bg-[var(--cn-paper-warm)] relative">
+                          <Image src={sp.img} alt="" fill className="object-contain p-3" sizes="240px" />
+                        </div>
+                        <div className="px-3 py-2.5 border-t-[2.5px] border-black bg-white flex items-center justify-between">
+                          <div>
+                            <div className="font-display text-base leading-tight">{sp.label}</div>
+                            <div className="text-[11px] text-[var(--cn-ink-soft)] font-bold">{sp.sub}</div>
+                          </div>
+                          <div className="font-display text-lg">{formatPrice(sp.displayPrice)}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </Step>
+
+                <div className="cn-card flat bg-white p-5">
+                  <div className="font-display text-lg mb-3">{tp("summary")}</div>
+                  <div className="space-y-1.5 text-sm font-semibold">
+                    <div className="flex justify-between"><span>{tp("portrait")} · {prints[selectedPrint]?.label || t("digital")}</span><span>{prices ? formatPrice(prints[selectedPrint]?.displayPrice ?? prices.base) : "—"}</span></div>
+                    {format === "fullbody" && prices && <div className="flex justify-between"><span>+ {tp("fullbody")}</span><span>+{formatPrice(prices.fullbodyExtra)}</span></div>}
+                    {people > 1 && prices && <div className="flex justify-between"><span>+{people - 1} {tp("peoplePlural")}</span><span>+{formatPrice((people - 1) * prices.extraPerson)}</span></div>}
+                    {animals > 0 && prices && <div className="flex justify-between"><span>+{animals} {animals > 1 ? tp("animalsPlural") : tp("animalsSingular")}</span><span>+{formatPrice(animals * prices.extraAnimal)}</span></div>}
+                    <div className="flex justify-between text-[var(--cn-ink-soft)]"><span>{tp("revisionsIncluded")}</span><span>{tp("included")}</span></div>
+                    <div className="border-t-[2px] border-black my-2" />
+                    <div className="flex justify-between pt-1"><span className="font-display text-lg">{tp("total")}</span><span className="font-display text-2xl"><AnimatedPrice value={total} formatter={formatPrice} /></span></div>
+                  </div>
+                  <button onClick={onAddToCart} disabled={!prices} className="cn-btn lg w-full mt-4">
+                    {tp("addToCart")} · <AnimatedPrice value={total} formatter={formatPrice} />
+                    <span className="text-2xl ml-1">→</span>
+                  </button>
+                  <div className="text-xs font-bold text-[var(--cn-ink-soft)] text-center mt-2">{tp("paymentReassurance")}</div>
+                  <div className="mt-3 flex justify-center">
+                    <GiftDeadlineNote />
                   </div>
                 </div>
               </div>
@@ -477,30 +597,20 @@ export default function ProductPage() {
           </div>
         </section>
 
-        {/* MOBILE STICKY BOTTOM BAR */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white border-t border-gray-200 px-4 py-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
-          <div className="flex items-center justify-between gap-3">
-            <div><p className="text-xs text-gray-500">{tp("total")}</p><p className="text-xl font-black text-gray-900"><AnimatedPrice value={total} formatter={formatPrice} /></p></div>
-            <button onClick={() => { setShowCheckout(true); trackCheckoutStarted(total, currency, { format, people, animals, background: backgrounds[selectedBg]?.label || "Standard", printOption: prints[selectedPrint]?.label || "Digital" }); }} className="flex-1 max-w-xs bg-lime-400 hover:bg-lime-500 text-black font-black text-sm py-3.5 rounded-xl transition-all animate-subtle-pulse">
-              {isGift ? tp("giftThisPortrait") : tp("orderArrow")}
-            </button>
-          </div>
-        </div>
-
         {/* ═══ GALLERY ═══ */}
-        <section className="py-12 sm:py-16 bg-lime-50 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-4 right-[10%] w-20 h-20 rounded-full bg-lime-300/10" />
-            <div className="absolute bottom-10 left-[5%] w-14 h-14 rounded-full bg-blue-300/10" />
-          </div>
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 text-center mb-2 uppercase"><span className="inline-block -rotate-1">{tp("ourWork")}</span></h2>
-            <p className="text-gray-500 text-sm text-center mb-8">{tp("ourWorkSubtitle")}</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
-              {GALLERY_PHOTOS.map((photo, i) => (
-                <div key={i} className={`group bg-white p-2 pb-6 border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-2 hover:shadow-[7px_7px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer ${i < 2 ? "sm:col-span-2 sm:row-span-2" : ""}`} style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (1 + i % 3)}deg)` }}>
-                  <div className={`relative rounded overflow-hidden border border-black ${i < 2 ? "aspect-square" : "aspect-[3/4]"}`}>
-                    <Image src={photo} alt={`${tp("realizationAlt")} ${i + 1}`} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes={i < 2 ? "(max-width: 768px) 45vw, 33vw" : "(max-width: 768px) 45vw, 16vw"} />
+        <section className="py-20 border-y-[3px] border-black">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="section-label mb-4">{tp("galleryLabel")}</div>
+              <h2 className="font-display text-[clamp(2rem,4vw,3.4rem)] leading-tight">{tp("galleryTitle")}</h2>
+              <p className="text-[var(--cn-ink-soft)] font-semibold mt-3">{tp("gallerySub")}</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {GALLERY_PHOTOS.map((src, i) => (
+                <div key={i} className="group cn-card overflow-hidden bg-white press cursor-pointer relative" style={{ transform: `rotate(${(i % 4 - 1.5) * 0.6}deg)` }}>
+                  <div className="relative aspect-square">
+                    <Image src={src} alt="" fill className="object-cover transition-transform duration-300 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" />
+                    <div className="absolute top-2 right-2 bg-[var(--cn-yellow)] border-2 border-black rounded-full px-2 py-0.5 text-[10px] font-display">★ {(4.7 + (i % 4) * 0.07).toFixed(1)}</div>
                   </div>
                 </div>
               ))}
@@ -509,36 +619,46 @@ export default function ProductPage() {
         </section>
 
         {/* ═══ REVIEWS ═══ */}
-        <section className="py-12 sm:py-16 bg-lime-50">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 uppercase"><span className="inline-block rotate-1">{tp("whatClientsSay")}</span></h2>
-              <div className="flex items-center justify-center gap-2 mt-3">
-                <div className="flex gap-0.5">{[...Array(5)].map((_, i) => <span key={i} className="text-lime-500 text-lg">★</span>)}</div>
-                <span className="text-gray-700 text-base font-bold">4.9/5</span>
-                <span className="text-gray-400">·</span>
-                <span className="text-gray-500 text-sm">{tp("verifiedReviewsCount")}</span>
-              </div>
-            </div>
-            {/* Star review */}
-            <div className="bg-white border-2 border-black rounded-2xl p-6 mb-6 shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center font-black text-white text-lg">{reviews[0]?.name.charAt(0)}</div>
-                <div>
-                  <p className="font-black text-gray-900">{reviews[0]?.name}</p>
-                  <div className="flex items-center gap-1">{[...Array(5)].map((_, j) => <span key={j} className="text-lime-500 text-sm">★</span>)}<span className="text-green-600 text-xs font-semibold ml-1.5 bg-green-100 px-1.5 py-0.5 rounded">{tp("verified")}</span></div>
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid md:grid-cols-[auto_1fr] gap-12 items-center mb-12">
+              <div className="text-center md:text-left">
+                <div className="section-label mb-4">{tp("reviewsLabel")}</div>
+                <div className="flex items-end gap-4 justify-center md:justify-start">
+                  <div className="font-display text-[7rem] leading-[0.85] text-[var(--cn-ink)]">4,9</div>
+                  <div className="text-3xl font-display text-[var(--cn-ink-soft)] mb-3">/5</div>
                 </div>
+                <div className="flex text-[var(--cn-yellow-deep)] text-3xl leading-none mt-1 justify-center md:justify-start">★★★★★</div>
+                <div className="font-bold mt-2">{tp("basedOn")} <span className="bg-[var(--cn-yellow)] px-1.5 rounded">2 540 {tp("verifiedReviews")}</span></div>
               </div>
-              <p className="text-gray-700 text-base leading-relaxed">&ldquo;{reviews[0]?.text}&rdquo;</p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {reviews.slice(1).map((review, i) => (
-                <div key={i} className="bg-white rounded-xl p-5 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                  <div className="flex items-center gap-2.5 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lime-400 to-green-400 flex items-center justify-center font-bold text-white text-sm">{review.name.charAt(0)}</div>
-                    <div><p className="font-bold text-gray-900 text-sm">{review.name}</p><div className="flex items-center gap-0.5">{[...Array(5)].map((_, j) => <span key={j} className="text-lime-500 text-sm">★</span>)}<span className="text-gray-400 text-xs ml-1.5">{tp("verified")}</span></div></div>
+              <div className="grid grid-cols-5 gap-2 max-w-md mx-auto md:mx-0">
+                {[{ n: 5, pct: 92 }, { n: 4, pct: 6 }, { n: 3, pct: 1.5 }, { n: 2, pct: 0.3 }, { n: 1, pct: 0.2 }].map((r) => (
+                  <div key={r.n} className="contents">
+                    <div className="text-sm font-bold col-span-1">{r.n} ★</div>
+                    <div className="col-span-3 h-3 bg-white border-[2px] border-black rounded-full overflow-hidden">
+                      <div className="h-full bg-[var(--cn-yellow)]" style={{ width: `${r.pct}%` }} />
+                    </div>
+                    <div className="text-sm font-bold col-span-1 text-right">{r.pct}%</div>
                   </div>
-                  <p className="text-gray-600 text-sm leading-relaxed">{review.text}</p>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {reviews.map((r, i) => (
+                <div key={i} className="cn-card flat p-5 bg-white">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-11 h-11 rounded-full border-[2.5px] border-black flex items-center justify-center font-display text-lg" style={{ background: ["#A8D8FF", "#FFE08A", "#FFC5DE", "#B6F0C7", "#D8C2FF", "#FFB8A8"][i % 6] }}>
+                      {r.name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-display text-base leading-tight">{r.name}</div>
+                      <div className="text-xs text-[var(--cn-ink-soft)] font-bold">{tp("verified")}</div>
+                    </div>
+                    <div className="text-[10px] font-bold bg-[var(--cn-mint)] border-2 border-black rounded-full px-2 py-0.5">✓ {tp("verified")}</div>
+                  </div>
+                  <div className="flex text-[var(--cn-yellow-deep)] text-lg leading-none mb-2">★★★★★</div>
+                  <p className="text-[var(--cn-ink-soft)] font-semibold text-[15px] leading-snug">&ldquo;{r.text}&rdquo;</p>
                 </div>
               ))}
             </div>
@@ -546,77 +666,87 @@ export default function ProductPage() {
         </section>
 
         {/* ═══ FAQ ═══ */}
-        <section className="py-12 sm:py-16 bg-lime-50">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 text-center mb-8 uppercase"><span className="inline-block -rotate-1">{tp("frequentQuestions")}</span></h2>
-            <div className="space-y-3">
-              {faqData.map((faq, i) => (
-                <div key={i} className={`bg-white rounded-xl border-2 border-black overflow-hidden transition-all duration-200 ${openFaq === i ? "shadow-[4px_4px_0px_0px_rgba(250,204,21,0.8)]" : "shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]"}`}>
-                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left">
-                    <span className="font-bold text-gray-900 text-sm sm:text-base">{faq.q}</span>
-                    <span className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-200 ${openFaq === i ? "bg-lime-400 text-black rotate-180" : "bg-gray-100 text-gray-400"}`}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                    </span>
+        <section className="py-20 border-y-[3px] border-black">
+          <div className="max-w-3xl mx-auto px-6">
+            <div className="text-center mb-10">
+              <div className="section-label mb-4">FAQ</div>
+              <h2 className="font-display text-[clamp(2rem,4vw,3.4rem)] leading-tight">{tp("frequentQuestions")}</h2>
+            </div>
+            <div className="space-y-4">
+              {faqData.map((f, i) => (
+                <div key={i} className={`cn-card flat bg-white overflow-hidden ${openFaq === i ? "faq-open" : ""}`}>
+                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between gap-4 text-left px-5 py-5 font-display text-lg md:text-xl">
+                    <span>{f.q}</span>
+                    <span className="faq-chev w-9 h-9 shrink-0 rounded-full bg-[var(--cn-yellow)] border-[2.5px] border-black flex items-center justify-center text-2xl leading-none" style={{ boxShadow: "0 2px 0 #000" }}>+</span>
                   </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? "max-h-96" : "max-h-0"}`}><p className="px-5 pb-5 text-gray-500 text-sm sm:text-base leading-relaxed">{faq.a}</p></div>
+                  <div className="faq-panel">
+                    <div>
+                      <div className="px-5 pb-5 text-[var(--cn-ink-soft)] font-semibold leading-relaxed">{f.a}</div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Wavy separator */}
-        <svg viewBox="0 0 1440 40" className="w-full -mb-1 text-lime-500" preserveAspectRatio="none"><path fill="currentColor" d="M0,20 C360,0 720,40 1080,20 C1260,10 1380,30 1440,20 L1440,40 L0,40 Z" /></svg>
-
         {/* ═══ FINAL CTA ═══ */}
-        <section className="relative py-14 sm:py-20 bg-lime-400 overflow-hidden border-t-3 border-black">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-8 left-[8%] w-16 h-16 rounded-full bg-white/20" />
-            <div className="absolute bottom-12 right-[10%] w-24 h-12 rounded-full bg-white/15" />
-          </div>
-          <div className="max-w-3xl mx-auto px-4 text-center relative">
-            <div className="flex items-center justify-center gap-1 mb-4">{[...Array(5)].map((_, i) => <span key={i} className="text-black text-lg">★</span>)}<span className="text-black/70 font-bold text-sm ml-2">4.9/5 — 2,500+ portraits</span></div>
-            <h2 className="text-3xl sm:text-4xl font-black text-black mb-3 uppercase"><span className="inline-block -rotate-1">{tp("readyToEnterRickAndMorty")}</span></h2>
-            <p className="text-base text-black/60 mb-8 max-w-lg mx-auto">{tp("joinClients")}</p>
-            <button onClick={scrollToConfig} className="inline-flex items-center gap-2 bg-black text-lime-500 font-black text-lg px-10 py-5 rounded-xl border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[6px] active:translate-y-[6px] transition-all uppercase">
-              {tp("createMyPortrait")}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+        <section className="relative border-y-[4px] border-black overflow-hidden">
+          <Confetti />
+          <div className="relative max-w-6xl mx-auto px-6 py-20 text-center">
+            <div className="inline-block bg-black text-[var(--cn-yellow)] font-display rounded-full px-4 py-1.5 text-sm mb-6">+2 540 {tp("satisfiedClients")}</div>
+            <h2 className="font-display text-[clamp(2.4rem,6vw,5.4rem)] leading-[0.95] mb-4">{tp("ctaTitle")}</h2>
+            <p className="text-xl font-bold mb-8 text-[var(--cn-ink-soft)]">{tp("ctaSubtitle")}</p>
+            <div className="flex flex-wrap justify-center gap-3 mb-8 font-bold text-base">
+              <Pill>✏️ {tp("pillDrawnHand")}</Pill>
+              <Pill>⚡ {tp("pillDelivered48h")}</Pill>
+              <Pill>🔒 {tp("pillSatisfied")}</Pill>
+              <Pill>🇫🇷 {tp("madeInFrance")}</Pill>
+            </div>
+            <button className="cn-btn xl dark" onClick={scrollToConfig}>
+              {tp("orderCta")}
+              <span className="text-2xl ml-1">→</span>
             </button>
-            <p className="mt-5 text-sm text-black/40">{tp("handDrawnIcon")} · {tp("delivered48h")} · {tp("satisfiedOrRefunded")}</p>
+            <div className="text-sm font-bold text-[var(--cn-ink-soft)] mt-4">{tp("paymentReassurance")}</div>
           </div>
         </section>
 
-        <div className="h-20 lg:hidden" />
+        {/* ═══ SOCIAL PROOF TOAST ═══ */}
+        {toastVisible && toastName && (
+          <div className="hidden md:block fixed bottom-24 left-4 z-40">
+            <div className="cn-card flat bg-white px-4 py-3 flex items-center gap-3 max-w-[330px] toast-in">
+              <div className="w-11 h-11 rounded-full border-[2.5px] border-black overflow-hidden shrink-0 bg-[var(--cn-yellow)] flex items-center justify-center font-display">
+                {toastName.charAt(0)}
+              </div>
+              <div className="text-sm leading-tight flex-1">
+                <div className="font-bold"><span className="font-display text-base">{toastName}</span></div>
+                <div className="text-[var(--cn-ink-soft)]">{tp("socialProof")}</div>
+                <div className="text-xs text-[var(--cn-ink-soft)] opacity-70 mt-0.5">{tp("justNow")} · <span className="text-[var(--cn-mint)] font-bold">✓ {tp("verified")}</span></div>
+              </div>
+              <button onClick={() => setToastVisible(false)} className="text-[var(--cn-ink-soft)] hover:text-black text-lg w-6 h-6 flex items-center justify-center shrink-0">×</button>
+            </div>
+          </div>
+        )}
       </div>
 
-      <CheckoutModal
-        open={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        orderConfig={{
-          format,
-          people,
-          animals,
-          background: backgrounds[selectedBg]?.label || "Standard",
-          printOption: prints[selectedPrint]?.label || "Digital",
-          total,
-          description: orderDescription,
-          photoUrls: uploadedPhotos,
-          style: "rickandmorty",
-        }}
-      />
-
-      <style jsx global>{`
-        @keyframes confetti-fall {
-          0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(200px) rotate(720deg); opacity: 0; }
-        }
-        .animate-confetti { animation: confetti-fall 2s ease-out forwards; }
-        @keyframes subtle-pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.02); }
-        }
-        .animate-subtle-pulse { animation: subtle-pulse 4s ease-in-out infinite; }
-      `}</style>
+      {prices && (
+        <CheckoutModal
+          open={showCheckout}
+          orderConfig={{
+            format,
+            people,
+            animals,
+            background: currentBgKey,
+            printOption: prints[selectedPrint]?.label || t("digital"),
+            printKey: (prints[selectedPrint]?.key ?? "digital") as PrintKey,
+            total,
+            description: orderDescription + (description ? ` | ${description}` : ""),
+            photoUrls: uploadedPhotos,
+            style: "rickandmorty",
+          }}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
     </>
   );
 }

@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode, type CSSProperties } from "react";
 import Image from "next/image";
 import CheckoutModal from "@/components/CheckoutModal";
+import type { PrintKey } from "@/lib/pricing";
+import GiftDeadlineNote from "@/components/GiftDeadlineNote";
 import type { Prices } from "@/lib/types";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
@@ -192,7 +194,12 @@ export default function ProductPage() {
 
   const total = prices ? prices.base + (format === "fullbody" ? prices.fullbodyExtra : 0) + (people - 1) * prices.extraPerson + animals * prices.extraAnimal + (prints[selectedPrint]?.addon ?? 0) : 0;
 
+  const hasDecor = backgrounds.length > 0;
   const previewBgIndex = hoveredBg !== null ? hoveredBg : selectedBg;
+  const previewSrc = hasDecor ? backgrounds[previewBgIndex].src : GALLERY_PHOTOS[activeHero % GALLERY_PHOTOS.length];
+  const previewLabel = hasDecor ? backgrounds[previewBgIndex].label : "";
+  const currentBgKey = hasDecor ? backgrounds[selectedBg].key : "default";
+  const currentBgLabel = hasDecor ? backgrounds[selectedBg].label : "";
   const orderDescription = `${format === "fullbody" ? t("fullbody") : t("portrait")} · ${people} ${t("people")} ${animals > 0 ? ` + ${animals} ${t("animals")}${animals > 1 ? "s" : ""}` : ""} · ${prints[selectedPrint]?.label || t("digital")}`;
 
   const handleUpload = async (files: FileList | null) => {
@@ -221,7 +228,7 @@ export default function ProductPage() {
   }, []);
 
   const onAddToCart = () => {
-    trackCheckoutStarted(total, currency, { format, people, animals, background: backgrounds[selectedBg].key, printOption: prints[selectedPrint]?.label || "digital" });
+    trackCheckoutStarted(total, currency, { format, people, animals, background: currentBgKey, printOption: prints[selectedPrint]?.label || "digital" });
     setShowCheckout(true);
   };
 
@@ -429,10 +436,12 @@ export default function ProductPage() {
               <div className="hidden md:block lg:sticky lg:top-6 lg:self-start">
                 <div className="cn-card overflow-hidden bg-white relative">
                   <div className="relative aspect-[4/5]">
-                    <Image src={backgrounds[previewBgIndex].src} alt={backgrounds[previewBgIndex].label} fill className="object-cover transition-all duration-300" sizes="(max-width: 1024px) 92vw, 540px" />
-                    <div className="absolute top-3 left-3 bg-white border-[2.5px] border-black rounded-full px-3 py-1 text-xs font-bold" style={{ boxShadow: "0 2px 0 #000" }}>
-                      {tp("decorChip")} · {backgrounds[previewBgIndex].label}
-                    </div>
+                    <Image src={previewSrc} alt={previewLabel || "Aperçu"} fill className="object-cover transition-all duration-300" sizes="(max-width: 1024px) 92vw, 540px" />
+                    {hasDecor && (
+                      <div className="absolute top-3 left-3 bg-white border-[2.5px] border-black rounded-full px-3 py-1 text-xs font-bold" style={{ boxShadow: "0 2px 0 #000" }}>
+                        {tp("decorChip")} · {previewLabel}
+                      </div>
+                    )}
                     <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                       <div className="bg-black/70 text-white text-[10px] font-mono px-2 py-1 rounded">{tp("illustrativePreview")}</div>
                     </div>
@@ -448,7 +457,7 @@ export default function ProductPage() {
                     <Chip>{format === "portrait" ? tp("portrait") : tp("fullbody")}</Chip>
                     <Chip>{people} {people > 1 ? tp("peoplePlural") : tp("peopleSingular")}</Chip>
                     {animals > 0 && <Chip>{animals} {animals > 1 ? tp("animalsPlural") : tp("animalsSingular")}</Chip>}
-                    <Chip>{backgrounds[selectedBg].label}</Chip>
+                    {hasDecor && <Chip>{currentBgLabel}</Chip>}
                     <Chip highlight>{prints[selectedPrint]?.label || t("digital")}</Chip>
                   </div>
                 </div>
@@ -490,26 +499,28 @@ export default function ProductPage() {
                   </div>
                 </Step>
 
-                <Step n="03" title={tp("decorStep")} extra={<span className="text-xs font-bold text-[var(--cn-ink-soft)]">{tp("hoverToPreview")}</span>}>
-                  <div className="grid grid-cols-3 gap-3">
-                    {backgrounds.map((d, i) => (
-                      <button
-                        key={d.key}
-                        onMouseEnter={() => setHoveredBg(i)}
-                        onMouseLeave={() => setHoveredBg(null)}
-                        onClick={() => { setSelectedBg(i); trackOptionSelected("background", d.key); }}
-                        className={`relative cn-card flat overflow-hidden press text-left ${selectedBg === i ? "tile-selected" : ""}`}
-                      >
-                        <div className="aspect-square relative">
-                          <Image src={d.src} alt={d.label} fill className="object-cover" sizes="160px" />
-                        </div>
-                        <div className="px-2 py-1.5 border-t-[2.5px] border-black bg-white">
-                          <div className="font-display text-[13px] leading-tight">{d.label}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </Step>
+                {hasDecor && (
+                  <Step n="03" title={tp("decorStep")} extra={<span className="text-xs font-bold text-[var(--cn-ink-soft)]">{tp("hoverToPreview")}</span>}>
+                    <div className="grid grid-cols-3 gap-3">
+                      {backgrounds.map((d, i) => (
+                        <button
+                          key={d.key}
+                          onMouseEnter={() => setHoveredBg(i)}
+                          onMouseLeave={() => setHoveredBg(null)}
+                          onClick={() => { setSelectedBg(i); trackOptionSelected("background", d.key); }}
+                          className={`relative cn-card flat overflow-hidden press text-left ${selectedBg === i ? "tile-selected" : ""}`}
+                        >
+                          <div className="aspect-square relative">
+                            <Image src={d.src} alt="" fill className="object-cover" sizes="160px" />
+                          </div>
+                          <div className="px-2 py-1.5 border-t-[2.5px] border-black bg-white">
+                            <div className="font-display text-[13px] leading-tight">{d.label}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </Step>
+                )}
 
                 <Step n="04" title={tp("uploadStep")} extra={<span className="text-xs font-bold text-[var(--cn-ink-soft)]">{tp("uploadMax8")}</span>}>
                   <div
@@ -561,7 +572,7 @@ export default function ProductPage() {
                       <button key={sp.key} onClick={() => { setSelectedPrint(i); trackOptionSelected("print", sp.label, sp.addon); }} className={`cn-card flat overflow-hidden text-left press relative ${selectedPrint === i ? "tile-selected" : ""}`}>
                         {sp.badge && (<div className="absolute top-2 left-2 bg-[var(--cn-coral)] text-white border-2 border-black rounded-full px-2 py-0.5 text-[10px] font-display z-10">{sp.badge}</div>)}
                         <div className="aspect-[5/3] bg-[var(--cn-paper-warm)] relative">
-                          <Image src={sp.img} alt={sp.label} fill className="object-contain p-3" sizes="240px" />
+                          <Image src={sp.img} alt="" fill className="object-contain p-3" sizes="240px" />
                         </div>
                         <div className="px-3 py-2.5 border-t-[2.5px] border-black bg-white flex items-center justify-between">
                           <div>
@@ -591,6 +602,9 @@ export default function ProductPage() {
                     <span className="text-2xl ml-1">→</span>
                   </button>
                   <div className="text-xs font-bold text-[var(--cn-ink-soft)] text-center mt-2">{tp("paymentReassurance")}</div>
+                  <div className="mt-3 flex justify-center">
+                    <GiftDeadlineNote />
+                  </div>
                 </div>
               </div>
             </div>
@@ -736,8 +750,9 @@ export default function ProductPage() {
             format,
             people,
             animals,
-            background: backgrounds[selectedBg].key,
+            background: currentBgKey,
             printOption: prints[selectedPrint]?.label || t("digital"),
+            printKey: (prints[selectedPrint]?.key ?? "digital") as PrintKey,
             total,
             description: orderDescription + (description ? ` | ${description}` : ""),
             photoUrls: uploadedPhotos,

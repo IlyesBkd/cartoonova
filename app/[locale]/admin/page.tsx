@@ -6,6 +6,7 @@ import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
 import type { DbOrder, SupportMessage } from "@/lib/db";
+import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
@@ -28,7 +29,7 @@ const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<"orders" | "prices" | "analytics" | "support">("orders");
+  const [tab, setTab] = useState<"orders" | "prices" | "promos" | "analytics" | "support">("orders");
 
   // Orders
   const [orders, setOrders] = useState<DbOrder[]>([]);
@@ -366,6 +367,12 @@ export default function AdminPage() {
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "prices" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
           >
             <span>💰</span> Gestion des Prix
+          </button>
+          <button
+            onClick={() => setTab("promos")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "promos" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
+          >
+            <span>🎟️</span> Codes promo
           </button>
         </nav>
         <div className="p-4 border-t border-gray-700">
@@ -980,6 +987,8 @@ export default function AdminPage() {
         })()}
 
         {/* ═══ PRICES TAB ═══ */}
+        {tab === "promos" && <PromoCodesPanel password={password} />}
+
         {tab === "prices" && (
           <>
             <div className="mb-6">

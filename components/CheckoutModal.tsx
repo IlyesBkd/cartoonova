@@ -7,6 +7,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
+import type { PrintKey } from "@/lib/pricing";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -22,11 +23,21 @@ interface OrderConfig {
   animals: number;
   background: string;
   printOption: string;
+  /** Cle stable du support choisi — sert au calcul du prix cote serveur. */
+  printKey: PrintKey;
   total: number;
   description: string;
   photoUrls: string[];
   style: string;
 }
+
+/** Ce que le serveur a besoin de connaitre pour recalculer le prix lui-meme. */
+const pricingPayload = (orderConfig: OrderConfig) => ({
+  format: orderConfig.format,
+  people: orderConfig.people,
+  animals: orderConfig.animals,
+  printKey: orderConfig.printKey,
+});
 
 /* ─── Payment Form ────────────────────────────────────────────────── */
 function PaymentForm({
@@ -34,8 +45,6 @@ function PaymentForm({
   clientSecret,
   formData,
   orderConfig,
-  isDigital,
-  currency,
 }: {
   onClose: () => void;
   clientSecret: string;
@@ -51,8 +60,6 @@ function PaymentForm({
     phone?: string;
   };
   orderConfig: OrderConfig;
-  isDigital: boolean;
-  currency: string;
 }) {
   const t = useTranslations("checkout");
   const stripe = useStripe();
@@ -99,8 +106,8 @@ function PaymentForm({
         animals: orderConfig.animals,
         background: orderConfig.background,
         printOption: orderConfig.printOption,
-        total: orderConfig.total,
-        currency,
+        // Montant et devise ne sont pas transmis : le serveur les lit sur le
+        // PaymentIntent Stripe, seule source fiable de ce qui a ete paye.
         description: orderConfig.description,
         photoUrls: orderConfig.photoUrls,
         style: orderConfig.style,
@@ -334,6 +341,12 @@ export default function CheckoutModal({
   const [formError, setFormError] = useState("");
   const tCountry = useTranslations("checkout.countries");
 
+  // Code promo
+  const [promoInput, setPromoInput] = useState("");
+  const [promoChecking, setPromoChecking] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [applied, setApplied] = useState<{ code: string; discount: number; total: number } | null>(null);
+
   // Prefill country/phone prefix from the IP-detected country cookie
   useEffect(() => {
     const detected = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1]?.toUpperCase();
@@ -352,6 +365,9 @@ export default function CheckoutModal({
       setStep("info");
       setClientSecret("");
       setFormError("");
+      setPromoInput("");
+      setPromoError("");
+      setApplied(null);
       return;
     }
     posthog.capture("checkout_modal_opened", {
@@ -363,6 +379,43 @@ export default function CheckoutModal({
       animals: orderConfig.animals,
     });
   }, [open, orderConfig]);
+
+  const amountDue = applied ? applied.total : orderConfig.total;
+
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code || promoChecking) return;
+
+    setPromoChecking(true);
+    setPromoError("");
+
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderConfig: pricingPayload(orderConfig),
+          currency,
+          promoCode: code,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.valid) {
+        setApplied({ code, discount: data.discount, total: data.total });
+        posthog.capture("promo_code_applied", { code, discount: data.discount, style: orderConfig.style });
+      } else {
+        setApplied(null);
+        setPromoError(t("promoInvalid"));
+        posthog.capture("promo_code_rejected", { code, reason: data.reason ?? "unknown" });
+      }
+    } catch {
+      setApplied(null);
+      setPromoError(t("errorTechnical"));
+    } finally {
+      setPromoChecking(false);
+    }
+  };
 
   // Create Payment Intent when moving to payment step (NO DB insert here)
   const goToPayment = () => {
@@ -401,15 +454,26 @@ export default function CheckoutModal({
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        amount: Math.round(orderConfig.total * 100),
-        currency: currency.toLowerCase(),
+        orderConfig: pricingPayload(orderConfig),
+        currency,
+        promoCode: applied?.code ?? null,
         description: orderConfig.description,
+        style: orderConfig.style,
       }),
     })
       .then((r) => r.json())
       .then((data) => {
         if (data.clientSecret) {
           setClientSecret(data.clientSecret);
+          // Le serveur fait foi sur le montant : si le code a expire entre la
+          // verification et le paiement, l'affichage suit le montant reel.
+          if (typeof data.total === "number") {
+            setApplied(
+              data.promoCode
+                ? { code: data.promoCode, discount: data.discount, total: data.total }
+                : null
+            );
+          }
         } else {
           setFormError(t("errorPaymentInit"));
         }
@@ -424,7 +488,7 @@ export default function CheckoutModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
+    <div data-checkout-modal className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
 
       <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-br from-yellow-50 to-yellow-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transform transition-all duration-300 scale-100">
@@ -557,6 +621,52 @@ export default function CheckoutModal({
                 </>
               )}
 
+              <div>
+                <label className={labelClass} htmlFor="promo-code">{t("promoLabel")}</label>
+                <div className="flex gap-2">
+                  <input
+                    id="promo-code"
+                    type="text"
+                    value={promoInput}
+                    onChange={(e) => {
+                      setPromoInput(e.target.value.toUpperCase());
+                      setPromoError("");
+                    }}
+                    placeholder={t("promoPlaceholder")}
+                    autoComplete="off"
+                    className={`${inputClass} uppercase`}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyPromo}
+                    disabled={promoChecking || !promoInput.trim()}
+                    className="px-4 py-3 text-xs font-black uppercase bg-black text-white border-2 border-black rounded-xl disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {t("promoApply")}
+                  </button>
+                </div>
+                {applied && (
+                  <p className="mt-2 text-sm font-bold text-green-700">
+                    ✅ {t("promoApplied", { code: applied.code })} — −{formatPrice(applied.discount)}
+                  </p>
+                )}
+                {promoError && (
+                  <p className="mt-2 text-sm font-bold text-red-700" role="alert">{promoError}</p>
+                )}
+              </div>
+
+              <div className="bg-white border-2 border-black rounded-xl p-3 flex items-center justify-between">
+                <span className="text-xs font-black text-black/40 uppercase">{t("totalToPay")}</span>
+                <span className="text-xl font-black text-black">
+                  {applied && (
+                    <span className="text-sm font-bold text-black/40 line-through mr-2">
+                      {formatPrice(orderConfig.total)}
+                    </span>
+                  )}
+                  {formatPrice(amountDue)}
+                </span>
+              </div>
+
               {formError && (
                 <div className="bg-red-100 border-2 border-red-500 rounded-xl p-3 text-sm font-bold text-red-700 text-center">
                   {formError}
@@ -586,7 +696,7 @@ export default function CheckoutModal({
                   <div className="bg-white border-2 border-black rounded-xl p-4 mb-5 flex items-center justify-between">
                     <div>
                       <p className="text-xs font-black text-black/40 uppercase">{t("totalToPay")}</p>
-                      <p className="text-2xl font-black text-black">{formatPrice(orderConfig.total)}</p>
+                      <p className="text-2xl font-black text-black">{formatPrice(amountDue)}</p>
                     </div>
                     <p className="text-xs font-bold text-black/40">{email}</p>
                   </div>
@@ -642,8 +752,6 @@ export default function CheckoutModal({
                         phone: `${phonePrefix} ${phone}`.trim(),
                       }}
                       orderConfig={orderConfig}
-                      isDigital={isDigital}
-                      currency={currency.toLowerCase()}
                     />
                   </Elements>
                 </>
