@@ -300,7 +300,7 @@
     "optional": "optionnel",
     "orderCta": "Commander mon portrait",
     "orWord": "ou bien",
-    "paymentReassurance": "Paiement sécurisé · 3x sans frais · Retouches gratuites",
+    "paymentReassurance": "Paiement sécurisé · Retouches gratuites",
     "peoplePlural": "personnes",
     "peopleSingular": "personne",
     "pillDelivered48h": "Livré 24 h",
@@ -336,6 +336,11 @@
     "or": "OU",
     "cardPayment": "Paiement par carte",
     "totalToPay": "Total à payer",
+    "promoLabel": "Code promo",
+    "promoPlaceholder": "Votre code",
+    "promoApply": "Appliquer",
+    "promoApplied": "Code {code} appliqué",
+    "promoInvalid": "Ce code n'est pas valable pour cette commande.",
     "emailAddress": "📧 Adresse email *",
     "emailPlaceholder": "votre@email.com",
     "firstName": "Prénom *",
@@ -430,9 +435,34 @@
     "step2Of2": "Étape 2/2",
     "orderByGuidance": "Cadeau pour une date précise ? Comptez 24h de dessin + 3 à 5 jours ouvrés d'impression et livraison."
   },
+  "giftPage": {
+    "section": "Idées cadeaux",
+    "home": "Accueil",
+    "whyTitle": "Pourquoi ça marche",
+    "faqTitle": "Questions fréquentes",
+    "ctaTitle": "Prêt à commander ?",
+    "ctaButton": "Créer mon portrait",
+    "ctaNote": "Dessiné à la main · aperçu avant impression · retouches gratuites",
+    "otherOccasions": "Le même style pour une autre occasion",
+    "otherStyles": "Un autre style pour la même occasion",
+    "metaSuffix": "Cartoonova"
+  },
+  "gift": {
+    "generic": "Cadeau pour une date précise ? Comptez environ {days} jours ouvrés entre la commande et la réception.",
+    "deadline": "{event} : commandez avant le {date} pour recevoir à temps.",
+    "event_christmas": "Noël",
+    "event_valentines": "Saint-Valentin"
+  },
+  "exitIntent": {
+    "title": "Vous partez déjà ?",
+    "subtitle": "Laissez-nous votre email : nouveaux styles, idées cadeaux et offres. Pas de spam, désinscription en un clic.",
+    "dismiss": "Non merci"
+  },
   "footer": {
     "newsletter": "Restez dans la boucle !",
     "newsletterSub": "Offres exclusives et nouveautés cartoon directement dans votre boîte mail.",
+    "newsletterSuccess": "C'est noté ! On vous écrit bientôt.",
+    "newsletterError": "Inscription impossible pour le moment. Réessayez dans un instant.",
     "subscribe": "S'inscrire",
     "emailPlaceholder": "Votre email...",
     "shop": "Boutique",

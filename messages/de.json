@@ -300,7 +300,7 @@
     "optional": "optional",
     "orderCta": "Mein Porträt bestellen",
     "orWord": "oder",
-    "paymentReassurance": "Sichere Zahlung · Jetzt kaufen, später zahlen · Kostenlose Korrekturen",
+    "paymentReassurance": "Sichere Zahlung · Kostenlose Korrekturen",
     "peoplePlural": "Personen",
     "peopleSingular": "Person",
     "pillDelivered48h": "Lieferung in 24 Std.",
@@ -336,6 +336,11 @@
     "or": "ODER",
     "cardPayment": "Kartenzahlung",
     "totalToPay": "Zu zahlender Betrag",
+    "promoLabel": "Gutscheincode",
+    "promoPlaceholder": "Ihr Code",
+    "promoApply": "Einlösen",
+    "promoApplied": "Code {code} eingelöst",
+    "promoInvalid": "Dieser Code gilt nicht für diese Bestellung.",
     "emailAddress": "📧 E-Mail-Adresse *",
     "emailPlaceholder": "ihre@email.com",
     "firstName": "Vorname *",
@@ -430,9 +435,34 @@
     "step2Of2": "Schritt 2/2",
     "orderByGuidance": "Brauchst du es zu einem bestimmten Datum? Rechne mit 24h für die Zeichnung + 3 bis 5 Werktagen für Druck und Lieferung."
   },
+  "giftPage": {
+    "section": "Geschenkideen",
+    "home": "Startseite",
+    "whyTitle": "Warum es funktioniert",
+    "faqTitle": "Häufige Fragen",
+    "ctaTitle": "Bereit zu bestellen?",
+    "ctaButton": "Mein Portrait erstellen",
+    "ctaNote": "Handgezeichnet · Vorschau vor dem Druck · kostenlose Korrekturen",
+    "otherOccasions": "Derselbe Stil für einen anderen Anlass",
+    "otherStyles": "Ein anderer Stil für denselben Anlass",
+    "metaSuffix": "Cartoonova"
+  },
+  "gift": {
+    "generic": "Geschenk für ein bestimmtes Datum? Rechnen Sie mit rund {days} Werktagen zwischen Bestellung und Erhalt.",
+    "deadline": "{event}: bis zum {date} bestellen, damit es rechtzeitig ankommt.",
+    "event_christmas": "Weihnachten",
+    "event_valentines": "Valentinstag"
+  },
+  "exitIntent": {
+    "title": "Schon weg?",
+    "subtitle": "Lassen Sie uns Ihre E-Mail da: neue Stile, Geschenkideen und Angebote. Kein Spam, Abmeldung mit einem Klick.",
+    "dismiss": "Nein, danke"
+  },
   "footer": {
     "newsletter": "Bleiben Sie auf dem Laufenden!",
     "newsletterSub": "Exklusive Angebote und Cartoon-Neuigkeiten direkt in Ihr Postfach.",
+    "newsletterSuccess": "Geschafft! Wir melden uns bald.",
+    "newsletterError": "Die Anmeldung hat gerade nicht geklappt. Bitte versuchen Sie es gleich noch einmal.",
     "subscribe": "Abonnieren",
     "emailPlaceholder": "Ihre E-Mail...",
     "shop": "Shop",

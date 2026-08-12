@@ -300,7 +300,7 @@
     "optional": "opzionale",
     "orderCta": "Ordina il mio ritratto",
     "orWord": "oppure",
-    "paymentReassurance": "Pagamento sicuro · Compra ora, paga dopo · Ritocchi gratuiti",
+    "paymentReassurance": "Pagamento sicuro · Ritocchi gratuiti",
     "peoplePlural": "persone",
     "peopleSingular": "persona",
     "pillDelivered48h": "Consegna in 24 h",
@@ -336,6 +336,11 @@
     "or": "OPPURE",
     "cardPayment": "Pagamento con carta",
     "totalToPay": "Totale da pagare",
+    "promoLabel": "Codice sconto",
+    "promoPlaceholder": "Il tuo codice",
+    "promoApply": "Applica",
+    "promoApplied": "Codice {code} applicato",
+    "promoInvalid": "Questo codice non è valido per questo ordine.",
     "emailAddress": "📧 Indirizzo email *",
     "emailPlaceholder": "tua@email.com",
     "firstName": "Nome *",
@@ -430,9 +435,34 @@
     "step2Of2": "Passo 2/2",
     "orderByGuidance": "Ti serve per una data precisa? Calcola 24h per il disegno + 3-5 giorni lavorativi per stampa e consegna."
   },
+  "giftPage": {
+    "section": "Idee regalo",
+    "home": "Home",
+    "whyTitle": "Perché funziona",
+    "faqTitle": "Domande frequenti",
+    "ctaTitle": "Pronto a ordinare?",
+    "ctaButton": "Creare il mio ritratto",
+    "ctaNote": "Disegnato a mano · anteprima prima della stampa · ritocchi gratuiti",
+    "otherOccasions": "Lo stesso stile per un'altra occasione",
+    "otherStyles": "Un altro stile per la stessa occasione",
+    "metaSuffix": "Cartoonova"
+  },
+  "gift": {
+    "generic": "Regalo per una data precisa? Calcola circa {days} giorni lavorativi tra l'ordine e la consegna.",
+    "deadline": "{event}: ordina entro il {date} per riceverlo in tempo.",
+    "event_christmas": "Natale",
+    "event_valentines": "San Valentino"
+  },
+  "exitIntent": {
+    "title": "Già in partenza?",
+    "subtitle": "Lasciaci la tua email: nuovi stili, idee regalo e offerte. Niente spam, disiscrizione in un clic.",
+    "dismiss": "No, grazie"
+  },
   "footer": {
     "newsletter": "Resta aggiornato!",
     "newsletterSub": "Offerte esclusive e novità cartoon direttamente nella tua casella.",
+    "newsletterSuccess": "Fatto! Ti scriveremo presto.",
+    "newsletterError": "Iscrizione non riuscita al momento. Riprova tra un istante.",
     "subscribe": "Iscriviti",
     "emailPlaceholder": "La tua email...",
     "shop": "Negozio",

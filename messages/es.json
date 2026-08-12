@@ -300,7 +300,7 @@
     "optional": "opcional",
     "orderCta": "Pedir mi retrato",
     "orWord": "o",
-    "paymentReassurance": "Pago seguro · Paga después · Retoques gratis",
+    "paymentReassurance": "Pago seguro · Retoques gratis",
     "peoplePlural": "personas",
     "peopleSingular": "persona",
     "pillDelivered48h": "Entrega en 24 h",
@@ -336,6 +336,11 @@
     "or": "O",
     "cardPayment": "Pago con tarjeta",
     "totalToPay": "Total a pagar",
+    "promoLabel": "Código promocional",
+    "promoPlaceholder": "Tu código",
+    "promoApply": "Aplicar",
+    "promoApplied": "Código {code} aplicado",
+    "promoInvalid": "Este código no es válido para este pedido.",
     "emailAddress": "📧 Dirección de email *",
     "emailPlaceholder": "tu@email.com",
     "firstName": "Nombre *",
@@ -430,9 +435,34 @@
     "step2Of2": "Paso 2/2",
     "orderByGuidance": "¿Lo necesitas para una fecha concreta? Cuenta 24h de dibujo + 3 a 5 días hábiles de impresión y envío."
   },
+  "giftPage": {
+    "section": "Ideas de regalo",
+    "home": "Inicio",
+    "whyTitle": "Por qué funciona",
+    "faqTitle": "Preguntas frecuentes",
+    "ctaTitle": "¿Listo para pedirlo?",
+    "ctaButton": "Crear mi retrato",
+    "ctaNote": "Dibujado a mano · vista previa antes de imprimir · retoques gratis",
+    "otherOccasions": "El mismo estilo para otra ocasión",
+    "otherStyles": "Otro estilo para la misma ocasión",
+    "metaSuffix": "Cartoonova"
+  },
+  "gift": {
+    "generic": "¿Regalo para una fecha concreta? Calcula unos {days} días hábiles entre el pedido y la recepción.",
+    "deadline": "{event}: pide antes del {date} para recibirlo a tiempo.",
+    "event_christmas": "Navidad",
+    "event_valentines": "San Valentín"
+  },
+  "exitIntent": {
+    "title": "¿Ya te vas?",
+    "subtitle": "Déjanos tu email: nuevos estilos, ideas de regalo y ofertas. Sin spam, puedes darte de baja en un clic.",
+    "dismiss": "No, gracias"
+  },
   "footer": {
     "newsletter": "¡Mantente al día!",
     "newsletterSub": "Ofertas exclusivas y novedades cartoon directamente en tu bandeja.",
+    "newsletterSuccess": "¡Listo! Te escribiremos pronto.",
+    "newsletterError": "No hemos podido registrarte ahora mismo. Inténtalo de nuevo en un momento.",
     "subscribe": "Suscribirse",
     "emailPlaceholder": "Tu email...",
     "shop": "Tienda",

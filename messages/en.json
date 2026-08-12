@@ -300,7 +300,7 @@
     "optional": "optional",
     "orderCta": "Order my portrait",
     "orWord": "or",
-    "paymentReassurance": "Secure payment · Buy now, pay later · Free revisions",
+    "paymentReassurance": "Secure payment · Free revisions",
     "peoplePlural": "people",
     "peopleSingular": "person",
     "pillDelivered48h": "24h delivery",
@@ -336,6 +336,11 @@
     "or": "OR",
     "cardPayment": "Card payment",
     "totalToPay": "Total to pay",
+    "promoLabel": "Promo code",
+    "promoPlaceholder": "Your code",
+    "promoApply": "Apply",
+    "promoApplied": "Code {code} applied",
+    "promoInvalid": "This code isn't valid for this order.",
     "emailAddress": "📧 Email address *",
     "emailPlaceholder": "your@email.com",
     "firstName": "First name *",
@@ -430,9 +435,34 @@
     "step2Of2": "Step 2/2",
     "orderByGuidance": "Need it for a specific date? Allow 24h for the drawing + 3 to 5 business days for printing and delivery."
   },
+  "giftPage": {
+    "section": "Gift ideas",
+    "home": "Home",
+    "whyTitle": "Why it works",
+    "faqTitle": "Frequently asked questions",
+    "ctaTitle": "Ready to order?",
+    "ctaButton": "Create my portrait",
+    "ctaNote": "Hand-drawn · preview before printing · free revisions",
+    "otherOccasions": "The same style for another occasion",
+    "otherStyles": "Another style for the same occasion",
+    "metaSuffix": "Cartoonova"
+  },
+  "gift": {
+    "generic": "Gift for a specific date? Allow about {days} business days between order and delivery.",
+    "deadline": "{event}: order by {date} to receive it in time.",
+    "event_christmas": "Christmas",
+    "event_valentines": "Valentine's Day"
+  },
+  "exitIntent": {
+    "title": "Leaving already?",
+    "subtitle": "Leave us your email: new styles, gift ideas and offers. No spam, unsubscribe in one click.",
+    "dismiss": "No thanks"
+  },
   "footer": {
     "newsletter": "Stay in the loop!",
     "newsletterSub": "Exclusive offers and cartoon news straight to your inbox.",
+    "newsletterSuccess": "You're in! We'll be in touch soon.",
+    "newsletterError": "We couldn't sign you up right now. Please try again in a moment.",
     "subscribe": "Subscribe",
     "emailPlaceholder": "Your email...",
     "shop": "Shop",
