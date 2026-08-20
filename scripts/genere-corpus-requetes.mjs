@@ -42,6 +42,7 @@ const OCCASION_MOTS = {
   es: { anniversaire: "cumpleaños", noel: "navidad", "saint-valentin": "san valentín", "fete-des-meres": "día de la madre", mariage: "boda", depart: "jubilación" },
   de: { anniversaire: "geburtstag", noel: "weihnachten", "saint-valentin": "valentinstag", "fete-des-meres": "muttertag", mariage: "hochzeit", depart: "ruhestand" },
   it: { anniversaire: "compleanno", noel: "natale", "saint-valentin": "san valentino", "fete-des-meres": "festa della mamma", mariage: "matrimonio", depart: "pensionamento" },
+  nl: { anniversaire: "verjaardag", noel: "kerst", "saint-valentin": "valentijnsdag", "fete-des-meres": "moederdag", mariage: "bruiloft", depart: "pensioen" },
 };
 
 /** Supports d'impression proposes au configurateur. */
@@ -51,6 +52,7 @@ const FORMAT_MOTS = {
   es: ["póster", "lienzo", "enmarcado", "digital"],
   de: ["poster", "leinwand", "gerahmt", "digital"],
   it: ["poster", "tela", "incorniciato", "digitale"],
+  nl: ["poster", "canvas", "ingelijst", "digitaal"],
 };
 
 /** Destinataires : c'est la que se joue la longue traine commerciale. */
@@ -60,6 +62,7 @@ const DESTINATAIRE_MOTS = {
   es: ["pareja", "familia", "niños", "mejor amiga", "compañero de trabajo", "perro"],
   de: ["paar", "familie", "kinder", "beste freundin", "kollegen", "hund"],
   it: ["coppia", "famiglia", "bambini", "migliore amica", "collega", "cane"],
+  nl: ["koppel", "gezin", "kinderen", "beste vriendin", "collega", "hond"],
 };
 
 /* ─── motifs de requete, par langue ────────────────────────────────────── */
@@ -161,6 +164,26 @@ const MOTIFS_STYLE = {
     ["longue_traine", I, (s) => `trasformare foto in ${s}`],
     ["longue_traine", I, (s) => `come disegnarsi come ${s}`],
   ],
+  nl: [
+    // « laten tekenen » — faire dessiner — est au neerlandais ce que
+    // « zeichnen lassen » est a l'allemand : la formulation de la commande sur
+    // mesure. Elle ne se devine pas depuis le francais.
+    ["pivot", T, (s) => `${s} portret laten tekenen`],
+    ["pivot", T, (s) => `gepersonaliseerd ${s} portret`],
+    ["variante", T, (s) => `${s} karikatuur laten maken`],
+    ["variante", T, (s) => `${s} tekening naar foto`],
+    ["variante", T, (s) => `${s} portret op maat`],
+    ["variante", T, (s) => `${s} poster gepersonaliseerd`],
+    ["variante", T, (s) => `${s} portret cadeau`],
+    ["variante", T, (s) => `${s} portret kopen`],
+    ["variante", T, (s) => `${s} cartoon portret`],
+    ["longue_traine", T, (s) => `handgetekend ${s} portret`],
+    ["longue_traine", T, (s) => `${s} familieportret gepersonaliseerd`],
+    ["longue_traine", T, (s) => `${s} portret van foto laten maken`],
+    ["longue_traine", T, (s) => `${s} portret bestellen`],
+    ["variante", I, (s) => `jezelf als ${s} figuur`],
+    ["longue_traine", I, (s) => `foto omzetten naar ${s}`],
+  ],
 };
 
 /** Motifs croisant un univers et une occasion. */
@@ -170,6 +193,7 @@ const MOTIFS_OCCASION = {
   es: [(s, o) => `regalo ${o} retrato ${s}`, (s, o) => `retrato ${s} para ${o}`, (s, o) => `idea regalo ${o} ${s}`],
   de: [(s, o) => `${s} porträt geschenk ${o}`, (s, o) => `${o} geschenk ${s} porträt`, (s, o) => `geschenkidee ${o} ${s}`],
   it: [(s, o) => `regalo ${o} ritratto ${s}`, (s, o) => `ritratto ${s} per ${o}`, (s, o) => `idea regalo ${o} ${s}`],
+  nl: [(s, o) => `${s} portret cadeau ${o}`, (s, o) => `${o} cadeau ${s} portret`, (s, o) => `cadeau-idee ${o} ${s}`],
 };
 
 const MOTIFS_FORMAT = {
@@ -178,6 +202,7 @@ const MOTIFS_FORMAT = {
   es: (s, f) => `retrato ${s} personalizado ${f}`,
   de: (s, f) => `${s} porträt personalisiert ${f}`,
   it: (s, f) => `ritratto ${s} personalizzato ${f}`,
+  nl: (s, f) => `${s} portret gepersonaliseerd ${f}`,
 };
 
 const MOTIFS_DESTINATAIRE = {
@@ -186,6 +211,7 @@ const MOTIFS_DESTINATAIRE = {
   es: (s, d) => `retrato ${s} personalizado ${d}`,
   de: (s, d) => `${s} porträt für ${d}`,
   it: (s, d) => `ritratto ${s} personalizzato ${d}`,
+  nl: (s, d) => `${s} portret voor ${d}`,
 };
 
 /** Requetes sans univers : elles visent la page pilier ou le catalogue. */
@@ -235,6 +261,15 @@ const MOTIFS_GENERIQUES = {
     ["longue_traine", I, "trasformare foto in cartone animato", "pilier"],
     ["variante", T, "stili di ritratti personalizzati", "catalogue"],
   ],
+  nl: [
+    ["pivot", T, "portret laten tekenen", "pilier"],
+    ["pivot", T, "gepersonaliseerd cartoonportret", "pilier"],
+    ["variante", T, "karikatuur laten maken van foto", "pilier"],
+    ["variante", T, "handgetekend portret naar foto", "pilier"],
+    ["longue_traine", T, "familieportret laten tekenen", "pilier"],
+    ["longue_traine", I, "foto omzetten naar cartoon", "pilier"],
+    ["variante", T, "cartoon portret stijlen", "catalogue"],
+  ],
 };
 
 /**
@@ -261,6 +296,7 @@ const MOTIFS_CONCURRENT = {
   es: [(m) => `${m} opiniones`, (m) => `alternativa a ${m}`],
   de: [(m) => `${m} erfahrungen`, (m) => `${m} alternative`],
   it: [(m) => `${m} recensioni`, (m) => `alternativa a ${m}`],
+  nl: [(m) => `${m} ervaringen`, (m) => `${m} alternatief`],
 };
 
 /* ─── generation ───────────────────────────────────────────────────────── */

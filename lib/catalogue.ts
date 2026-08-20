@@ -25,6 +25,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     es: "Retratos Manga",
     de: "Manga-Portraits",
     it: "Ritratti Manga",
+    nl: "Manga Portretten",
   },
   cartoon: {
     fr: "Portrait Cartoon",
@@ -32,6 +33,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     es: "Retratos Cartoon",
     de: "Cartoon-Portraits",
     it: "Ritratti Cartoon",
+    nl: "Cartoon Portretten",
   },
   comics: {
     fr: "Portrait Comics",
@@ -39,6 +41,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     es: "Retratos Comics",
     de: "Comics-Portraits",
     it: "Ritratti Comics",
+    nl: "Comics Portretten",
   },
   cinema: {
     fr: "Portrait Cinéma",
@@ -46,6 +49,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     es: "Retratos Cine",
     de: "Kino-Portraits",
     it: "Ritratti Cinema",
+    nl: "Film Portretten",
   },
 };
 
@@ -57,10 +61,10 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
  * d'action. Le nom complet reste affiché en titre du panneau ouvert.
  */
 export const NOMS_CATEGORIE_COURT: Record<Categorie, Record<Locale, string>> = {
-  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga" },
-  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon" },
-  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics" },
-  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema" },
+  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga" },
+  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon" },
+  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics" },
+  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films" },
 };
 
 export interface Decor {
@@ -119,6 +123,7 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
   es: (u) => `Retrato ${u} Personalizado`,
   de: (u) => `Personalisiertes ${u} Porträt`,
   it: (u) => `Ritratto ${u} Personalizzato`,
+  nl: (u) => `Gepersonaliseerd ${u} Portret`,
 };
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
@@ -132,6 +137,8 @@ const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
     `Verwandle dein Foto in ein handgezeichnetes ${u}-Porträt. Vorschau in 48 Std., unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
   it: (u) =>
     `Trasforma la tua foto in un ritratto ${u} disegnato a mano. Anteprima in 48 h, ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
+  nl: (u) =>
+    `Laat je foto omtoveren tot een handgetekend ${u} portret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */
@@ -811,6 +818,13 @@ const GABARIT_SLUG: Record<Locale, Record<TypeProduit, (u: string) => string>> =
     portrait: (u) => `ritratto-${u}-personalizzato`,
     affiche: (u) => `poster-${u}-personalizzato`,
     carte: (u) => `carta-${u}-personalizzata`,
+  },
+  /* « portret » est un het-woord : l'adjectif reste sans -e. « poster » et
+     « kaart » sont des de-woorden et le prennent. */
+  nl: {
+    portrait: (u) => `gepersonaliseerd-${u}-portret`,
+    affiche: (u) => `gepersonaliseerde-${u}-poster`,
+    carte: (u) => `gepersonaliseerde-${u}-kaart`,
   },
 };
 

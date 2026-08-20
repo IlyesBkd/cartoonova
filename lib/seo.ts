@@ -97,4 +97,5 @@ export const OG_LOCALE: Record<Locale, string> = {
   es: "es_ES",
   de: "de_DE",
   it: "it_IT",
+  nl: "nl_NL",
 };

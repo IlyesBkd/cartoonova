@@ -771,7 +771,158 @@ const it: OccasionTable = {
   },
 };
 
-export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it };
+/* Neerlandais. Ecrit pour un acheteur neerlandais, pas traduit du francais :
+   le ton y est direct, tutoie, et se passe des formules de politesse que le
+   francais tient pour obligatoires. Les dates aussi different — la fete des
+   meres tombe le deuxieme dimanche de mai aux Pays-Bas. */
+const nl: OccasionTable = {
+  anniversaire: {
+    slug: "verjaardag",
+    label: "een verjaardag",
+    headline: (style) => `${style} voor een verjaardag`,
+    intro:
+      "Een verjaardag komt elk jaar terug, en dat is precies het probleem: op een gegeven moment heb je alle cadeaus wel gehad. Een met de hand getekend portret valt op omdat het geen tweede keer gegeven kan worden — het begint bij één specifieke foto, van díé persoon.",
+    bullets: [
+      "Niemand anders kan hetzelfde geven: de tekening begint bij jouw foto.",
+      "Het hangt straks aan de muur, in tegenstelling tot de meeste verjaardagscadeaus.",
+      "De tekening is in 2 dagen klaar, dus ook laat bestellen komt nog goed.",
+    ],
+    faq: [
+      {
+        question: "Hoe lang van tevoren moet ik bestellen voor een verjaardag?",
+        answer:
+          "Voor de digitale versie: reken op 2 dagen. Voor een poster of canvas ongeveer 5 werkdagen tussen bestelling en ontvangst — 2 dagen tekenen, daarna 3 werkdagen drukken en verzenden.",
+      },
+      {
+        question: "Kunnen er meerdere personen op het portret staan?",
+        answer:
+          "Ja. Je kunt extra personen en huisdieren toevoegen. Lever bij voorkeur een scherpe foto van elke persoon aan, in plaats van één groepsfoto van veraf.",
+      },
+    ],
+  },
+  noel: {
+    slug: "kerstcadeau",
+    label: "Kerst",
+    headline: (style) => `${style} als kerstcadeau`,
+    intro:
+      "Met Kerst is het probleem niet een cadeau vinden, maar er een vinden dat in januari niet in een kast verdwijnt. Een met de hand getekend familieportret hang je op, en het blijft herinneren aan een bepaald jaar.",
+    bullets: [
+      "Een cadeau dat je voor iedereen uitpakt en waar over gepraat wordt.",
+      "Ideaal voor ouders of grootouders die ‘niets nodig hebben’.",
+      "De digitale versie blijft tot het laatste moment mogelijk.",
+    ],
+    faq: [
+      {
+        question: "Tot wanneer kan ik bestellen om het voor Kerst te ontvangen?",
+        answer:
+          "De uiterste besteldatum staat tijdens de kerstperiode op de site. Reken in de praktijk op ongeveer 5 werkdagen voor een geleverde print, en 2 dagen voor de digitale versie.",
+      },
+      {
+        question: "Kan ik iets geven dat nog niet binnen is?",
+        answer:
+          "Ja: geef de digitale versie op de dag zelf en laat de print daarna bezorgen. Veel last-minute bestellingen gaan precies zo.",
+      },
+    ],
+  },
+  "saint-valentin": {
+    slug: "valentijnsdag",
+    label: "Valentijnsdag",
+    headline: (style) => `${style} voor Valentijnsdag`,
+    intro:
+      "Bloemen zijn na een week weg. Een portret van jullie samen, getekend vanaf een foto die iets betekent, blijft aan de muur hangen.",
+    bullets: [
+      "Begint bij jullie eigen foto — geen standaardillustratie.",
+      "Werkt ook als jullie zelden samen op de foto staan: lever twee losse foto's aan.",
+      "De digitale versie komt per e-mail, dus de verrassing blijft heel.",
+    ],
+    faq: [
+      {
+        question: "Kunnen we met z'n tweeën op het portret?",
+        answer:
+          "Ja, dat is de meest gevraagde variant. Twee losse foto's volstaan; de tekenaar zet jullie samen in beeld.",
+      },
+      {
+        question: "Wanneer moet ik uiterlijk bestellen voor 14 februari?",
+        answer:
+          "Voor een print ongeveer 5 werkdagen van tevoren. Voor de digitale versie volstaan 2 dagen.",
+      },
+    ],
+  },
+  "fete-des-meres": {
+    slug: "moederdag",
+    label: "Moederdag",
+    headline: (style) => `${style} voor Moederdag`,
+    intro:
+      "Moederdag valt niet overal op dezelfde dag — in Nederland en België op de tweede zondag van mei. Een getekend portret van de kinderen, of van het hele gezin, is een cadeau dat ze echt ophangt.",
+    bullets: [
+      "Met de kinderen erop, of het hele gezin samen.",
+      "Huisdieren mogen mee — vaak is dat precies wat het portret maakt.",
+      "Klaar in 2 dagen, dus ook haalbaar als je het bijna vergeten was.",
+    ],
+    faq: [
+      {
+        question: "Kunnen alleen de kinderen erop staan?",
+        answer:
+          "Ja. Veel bestellingen zijn precies dat: alleen de kinderen, getekend in de stijl die zij zelf leuk vinden.",
+      },
+      {
+        question: "Wanneer is Moederdag?",
+        answer:
+          "In Nederland en België op de tweede zondag van mei. De uiterste besteldatum staat rond die periode op de site.",
+      },
+    ],
+  },
+  mariage: {
+    slug: "huwelijkscadeau",
+    label: "een bruiloft",
+    headline: (style) => `${style} als huwelijkscadeau`,
+    intro:
+      "Op een verlanglijst staat zelden iets persoonlijks. Een portret van het paar, getekend vanaf hun eigen foto, valt op tussen het servies en de enveloppen.",
+    bullets: [
+      "Persoonlijker dan wat er op de lijst staat.",
+      "Werkt met een verlovingsfoto of met een foto van de dag zelf.",
+      "Ook achteraf te geven, zodra de trouwfoto's binnen zijn.",
+    ],
+    faq: [
+      {
+        question: "Kan ik het portret na de bruiloft bestellen?",
+        answer:
+          "Ja, en dat werkt vaak beter: je gebruikt dan een echte trouwfoto in plaats van een oudere.",
+      },
+      {
+        question: "Kunnen getuigen of familie erbij?",
+        answer:
+          "Ja, je kunt extra personen toevoegen. Lever van iedereen een aparte, duidelijke foto aan voor een scherp resultaat.",
+      },
+    ],
+  },
+  depart: {
+    slug: "afscheidscadeau",
+    label: "een afscheid",
+    headline: (style) => `${style} als afscheidscadeau`,
+    intro:
+      "Een collega die weggaat krijgt meestal een kaart en een bos bloemen. Een getekend portret — van die persoon of van het hele team — is wat er straks op het nieuwe bureau blijft staan.",
+    bullets: [
+      "Van één collega of van het hele team.",
+      "Iedereen kan meebetalen: één bestelling, één cadeau.",
+      "In 2 dagen klaar, ook als het afscheid snel geregeld moet worden.",
+    ],
+    faq: [
+      {
+        question: "Kan het hele team op het portret?",
+        answer:
+          "Ja. Reken op een duidelijke foto per persoon; een groepsfoto van veraf geeft een minder scherp resultaat.",
+      },
+      {
+        question: "Kunnen we er een boodschap bij doen?",
+        answer:
+          "Je kunt bij de bestelling een notitie achterlaten met wat je graag wilt. De tekenaar houdt daar rekening mee.",
+      },
+    ],
+  },
+};
+
+export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl };
 
 export interface GiftPageParams {
   styleSlug: string;

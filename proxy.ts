@@ -27,6 +27,10 @@ const countryLocaleMap: Record<string, (typeof locales)[number]> = {
   DE: "de", AT: "de", LI: "de",
   ES: "es", AR: "es", MX: "es", CL: "es", CO: "es", PE: "es", VE: "es", UY: "es", PY: "es", BO: "es", EC: "es", DO: "es", GT: "es", CR: "es", PA: "es", HN: "es", NI: "es", SV: "es", CU: "es",
   IT: "it", SM: "it", VA: "it",
+  /* Pas de BE ici : la Belgique reste sur le francais. La Flandre parle
+     neerlandais mais cherche massivement en anglais ; a rouvrir quand Search
+     Console montrera une demande flamande reelle. */
+  NL: "nl",
 };
 
 const CURRENCY_COOKIE = "cartoonova_currency";

@@ -15,6 +15,12 @@ const countryToLang: Record<string, Lang>= {
  // English (default)
  US: "en", GB: "en", CA: "en", AU: "en", NZ: "en", IE: "en", ZA: "en",
  IN: "en", SG: "en", PH: "en", NG: "en", KE: "en",
+ /* Pays-Bas : le site est en neerlandais depuis l'ajout de la locale nl,
+    mais ces gabarits d'e-mail ne le sont pas encore. On declare donc
+    l'anglais explicitement plutot que de laisser le repli l'y amener par
+    accident — et pour que ce soit cette ligne, et non un comportement par
+    defaut, qu'on modifie le jour ou les e-mails seront traduits. */
+ NL: "en",
 };
 
 export function getLangFromCountry(country: string | null | undefined): Lang {
