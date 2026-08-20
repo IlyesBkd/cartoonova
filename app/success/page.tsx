@@ -4,6 +4,8 @@ import { getOrderByPaymentId, updateOrderStatus } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
 import SuccessClient from "@/app/success/SuccessClient";
 import { getLangFromCountry, confirmationEmail } from "@/lib/email-i18n";
+import { orderTrackingToken } from "@/lib/emailToken";
+import { SITE_URL } from "@/lib/site";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -50,6 +52,13 @@ async function sendOrderConfirmation(order: DbOrder) {
               <p style="font-size: 18px; font-weight: bold; color: #000;">${t.artistsWorking}</p>
               <p style="font-size: 16px; color: #000;">${t.deliveryTime}</p>
             </div>
+            <!-- Lien de suivi : sans lui, le client n'a aucun moyen de verifier
+                 l'avancement et chaque question part au support. -->
+            <div style="text-align: center; margin: 28px 0 8px;">
+              <a href="${SITE_URL}/suivi/${orderTrackingToken(order.id)}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
+                ${t.trackOrder}
+              </a>
+            </div>
           </div>
           <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
             <p>${t.thanks}</p>
@@ -84,6 +93,23 @@ async function sendDiscordNotification(order: DbOrder) {
             { name: "👥 Personnes", value: opts.animals > 0 ? `${opts.people} + ${opts.animals} animaux` : opts.people.toString(), inline: true },
             { name: "🖼️ Option", value: opts.printOption, inline: true },
             { name: "💰 Total", value: `${order.total_price} ${order.currency}`, inline: true },
+            // Les consignes cadeau doivent sauter aux yeux : elles changent a
+            // qui et quand le portrait doit partir.
+            ...(opts.gift
+              ? [
+                  {
+                    name: "🎁 Cadeau",
+                    value: [
+                      opts.gift.recipientEmail ? `Envoyer à : ${opts.gift.recipientEmail}` : null,
+                      opts.gift.deliverAfter ? `Pas avant le : ${opts.gift.deliverAfter}` : null,
+                      opts.gift.message ? `Message : ${opts.gift.message}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join("\n"),
+                    inline: false,
+                  },
+                ]
+              : []),
           ],
           footer: { text: "Cartoonova • Paiement réussi" },
           timestamp: new Date().toISOString(),
@@ -174,6 +200,7 @@ export default async function SuccessPage(props: {
       <SuccessClient
         order={order}
         isNewConversion={isNewConversion}
+        trackingUrl={`/suivi/${orderTrackingToken(order.id)}`}
       />
     );
   } catch (error) {

@@ -80,14 +80,14 @@ export default function ConfirmClient({
               onChange={(e) => setNote(e.target.value)}
               placeholder={t.changesPlaceholder}
               rows={4}
-              className="w-full border-2 border-black rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+              className="w-full rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
           <div className="flex flex-col gap-3">
             <button
               onClick={() => respond("changes", note)}
               disabled={sending !== null || note.trim().length === 0}
-              className="w-full bg-amber-400 text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full bg-amber-400 text-black font-black uppercase px-6 py-3 rounded-full hover: hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
             >
               {sending === "changes" ? t.sending : t.changesSubmit}
             </button>
@@ -105,14 +105,14 @@ export default function ConfirmClient({
           <button
             onClick={() => respond("confirm")}
             disabled={sending !== null}
-            className="w-full bg-yellow-400 text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
+            className="w-full bg-soleil text-black font-black uppercase px-6 py-3 rounded-full hover: hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
           >
             {sending === "confirm" ? t.sending : t.confirmButton}
           </button>
           <button
             onClick={() => setShowChangesForm(true)}
             disabled={sending !== null}
-            className="w-full bg-white text-black font-black uppercase px-6 py-3 rounded-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
+            className="w-full bg-white text-black font-black uppercase px-6 py-3 rounded-full hover: hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all disabled:opacity-50 cursor-pointer"
           >
             {t.changesButton}
           </button>

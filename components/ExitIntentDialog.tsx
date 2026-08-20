@@ -83,35 +83,35 @@ export default function ExitIntentDialog() {
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={close} />
+    <div className="modale" style={{ zIndex: 110 }}>
+      <div className="modale__voile" onClick={close} />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="exit-intent-title"
-        className="relative w-full max-w-md bg-gradient-to-br from-yellow-50 to-yellow-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-6"
+        className="modale__boite" style={{ maxWidth: 460, padding: 28 }}
       >
         <button
           type="button"
           onClick={close}
           aria-label={t("dismiss")}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black text-white font-black leading-none border-2 border-black"
+          className="modale__fermer" style={{ position: "absolute", top: 14, right: 14, background: "var(--cendre)" }}
         >
           ×
         </button>
 
-        <h2 id="exit-intent-title" className="text-2xl font-black text-black mb-2 pr-8">
+        <h2 id="exit-intent-title" style={{ fontSize: 25, marginBottom: 8, paddingRight: 34 }}>
           {t("title")}
         </h2>
-        <p className="text-sm font-bold text-black/70 leading-relaxed mb-4">{t("subtitle")}</p>
+        <p style={{ color: "var(--encre-doux)", margin: "0 0 18px" }}>{t("subtitle")}</p>
 
         <NewsletterForm source="exit_intent" />
 
         <button
           type="button"
           onClick={close}
-          className="mt-3 text-xs font-bold text-black/50 underline hover:text-black transition-colors"
+          style={{ marginTop: 14, border: 0, background: "none", cursor: "pointer", font: "inherit", fontSize: 13, color: "var(--encre-doux)", textDecoration: "underline" }}
         >
           {t("dismiss")}
         </button>

@@ -166,6 +166,43 @@ export function OrganizationJsonLd({ organization }: OrganizationJsonLdProps) {
   );
 }
 
+interface ArticleJsonLdProps {
+  article: {
+    headline: string;
+    description: string;
+    image: string;
+    url: string;
+    datePublished: string;
+    dateModified: string;
+  };
+}
+
+export function ArticleJsonLd({ article }: ArticleJsonLdProps) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.headline,
+    "description": article.description,
+    "image": [article.image],
+    "datePublished": article.datePublished,
+    "dateModified": article.dateModified,
+    "mainEntityOfPage": { "@type": "WebPage", "@id": article.url },
+    "author": { "@type": "Organization", "name": "Cartoonova" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Cartoonova",
+      "logo": { "@type": "ImageObject", "url": "https://www.cartoonova.com/favicon_io/apple-touch-icon.png" },
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
 interface FAQItem {
   question: string;
   answer: string;

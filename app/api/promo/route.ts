@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPromoCode, listPromoCodes, setPromoActive, type PromoKind } from "@/lib/promoCodes";
 import { currencies, type Currency } from "@/lib/currency";
+import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
 function unauthorized(req: NextRequest): boolean {
-  return req.headers.get("x-admin-password") !== process.env.ADMIN_PASSWORD;
+  return refuserSiPasAdmin(req) !== null;
 }
 
 export async function GET(req: NextRequest) {

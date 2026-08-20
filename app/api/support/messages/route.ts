@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupportMessages, markSupportMessageRead } from "@/lib/db";
+import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const password = req.headers.get("x-admin-password");
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refus = refuserSiPasAdmin(req);
+  if (refus) return refus;
 
   try {
     const messages = await getSupportMessages();
@@ -20,10 +19,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const password = req.headers.get("x-admin-password");
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refus = refuserSiPasAdmin(req);
+  if (refus) return refus;
 
   try {
     const { id }: { id: number } = await req.json();

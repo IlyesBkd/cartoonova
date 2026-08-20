@@ -1,0 +1,1916 @@
+/* =========================================================================
+   PONT APPLICATION
+   Ajouts nécessaires au site réel que le paquet de design ne couvre pas :
+   logo image à la place du mot-marque, menu replié mobile, sélecteur de
+   langue et de devise, dépôt de fichiers actif, substituts de visuels.
+
+   Aucune valeur de `toonjaune.css` n'est modifiée ici. Ce fichier n'ajoute
+   que des composants absents du paquet, bâtis sur les mêmes jetons.
+   ========================================================================= */
+
+/* ---------- logo image dans le slot .marque ----------
+   Le paquet posait un mot-marque typographique de 26 px. Le logo Cartoonova est
+   un lettrage de ratio ~2:1 : 40 px de haut lui donnent la même présence
+   optique. `flex: none` est indispensable — sans lui l'en-tête, qui est un
+   flex, écrase le logo jusqu'à le faire disparaître sur mobile. */
+.marque { flex: none; display: flex; align-items: center; }
+.marque img { height: 40px; width: auto; display: block; }
+
+/* ---------- barre promo / utilitaire ----------
+   Trois colonnes plutôt qu'un texte centré : le message garde le centre exact
+   de la page (la première colonne, vide, équilibre la troisième) et les liens
+   secondaires se rangent à droite. */
+/* Le paquet posait la gouttière sur la barre elle-même (padding: 11px 24px).
+   Elle contient désormais une .enveloppe, qui porte déjà cette gouttière :
+   cumulées, la barre était décalée de 24px par rapport à l'en-tête. */
+.promo { padding-inline: 0; }
+.promo__grille {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+}
+.promo__message { margin: 0; }
+.promo__liens { display: flex; justify-content: flex-end; gap: 22px; }
+.promo__liens a {
+  color: rgba(255, 255, 255, .82); text-decoration: none;
+  font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.promo__liens a:hover { color: var(--papier); text-decoration: underline; }
+/* Le lien de l'accroche elle-même reste doré ; ceux de la barre secondaire
+   sont volontairement discrets, ils ne portent pas l'offre. */
+.promo__message a { color: var(--soleil); font-weight: 700; text-decoration: none; }
+.promo__message a:hover { text-decoration: underline; }
+
+/* ---------- outils d'en-tête (langue / devise) ---------- */
+.entete__outils { display: flex; align-items: center; gap: 10px; }
+.outil {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 2px solid var(--encre-voile); background: var(--papier);
+  border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  font-family: var(--texte); font-weight: 600; font-size: 14px; color: var(--encre);
+  transition: border-color .15s ease;
+}
+.outil:hover { border-color: var(--encre-doux); }
+.outil svg { width: 12px; height: 12px; transition: transform .18s ease; }
+.outil[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.menu-flottant {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 60;
+  background: var(--papier); border-radius: var(--rayon);
+  box-shadow: var(--ombre-forte); border: 1px solid var(--encre-voile);
+  padding: 8px; min-width: 210px; display: grid; gap: 2px;
+}
+.menu-flottant b {
+  font-family: var(--titre); font-size: 11.5px; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--encre-doux);
+  padding: 8px 12px 4px; display: block;
+}
+.menu-flottant button {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  border: 0; background: none; cursor: pointer; border-radius: 11px;
+  padding: 9px 12px; font-family: var(--texte); font-weight: 600;
+  font-size: 14.5px; color: var(--encre); text-align: left;
+}
+.menu-flottant button:hover { background: var(--cendre); }
+.menu-flottant button[aria-current="true"] { background: var(--creme); }
+
+/* Code de langue ou de devise, à la place du drapeau émoji : un drapeau ne
+   désigne pas une langue, et son dessin change d'un appareil à l'autre. */
+.code-langue {
+  font-family: var(--titre); font-weight: 800; font-size: 11px;
+  letter-spacing: .06em; color: var(--encre-doux);
+  background: var(--cendre); border-radius: 6px;
+  padding: 3px 6px; line-height: 1; flex: none;
+}
+.menu-flottant button[aria-current="true"] .code-langue {
+  background: var(--soleil); color: var(--encre);
+}
+
+/* ---------- menu replié (sous 1000px, là où .nav disparaît) ---------- */
+.burger {
+  display: none; width: 44px; height: 44px; flex: none;
+  border: 2px solid var(--encre-voile); background: var(--papier);
+  border-radius: 14px; cursor: pointer;
+  align-items: center; justify-content: center; flex-direction: column; gap: 5px;
+}
+.burger span {
+  display: block; width: 19px; height: 2.5px; border-radius: 2px;
+  background: var(--encre); transition: transform .22s ease, opacity .18s ease;
+}
+.burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+
+.replie {
+  display: none; border-top: 1px solid var(--encre-voile);
+  background: var(--papier); padding: 14px 0 22px;
+}
+.replie.ouvert { display: block; }
+.replie nav { display: grid; gap: 2px; }
+.replie nav a {
+  text-decoration: none; font-weight: 600; font-size: 16px;
+  padding: 12px 14px; border-radius: 12px;
+}
+.replie nav a:hover { background: var(--cendre); }
+.replie .bouton { width: 100%; justify-content: center; margin-top: 14px; }
+.replie__outils { margin-top: 16px; }
+
+/* Familles de styles en accordéon dans le repli : les 36 fiches déroulées d'un
+   bloc donnaient une colonne de 36 lignes qu'il fallait traverser pour
+   atteindre le bouton d'action. */
+.replie__famille { border-bottom: 1px solid var(--encre-voile); }
+.replie__declencheur {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  border: 0; background: none; cursor: pointer; padding: 14px;
+  font-family: var(--texte); font-weight: 700; font-size: 16px; color: var(--encre);
+  text-align: left;
+}
+.replie__declencheur svg { width: 12px; height: 12px; flex: none; transition: transform .18s ease; }
+.replie__declencheur[aria-expanded="true"] svg { transform: rotate(180deg); }
+.replie__styles {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px; padding: 2px 0 16px;
+}
+.replie__style {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 8px 10px; border-radius: 12px;
+  border: 1px solid var(--encre-voile); font-size: 14.5px; font-weight: 600;
+  text-decoration: none;
+}
+.replie__style:hover { background: var(--cendre); }
+.replie__style .nav__style__vignette { width: 34px; height: 34px; border-radius: 9px; }
+.replie__tout {
+  grid-column: 1 / -1; text-align: center; padding: 11px;
+  border-radius: 12px; background: var(--creme);
+  font-size: 14.5px; font-weight: 700; text-decoration: none;
+}
+
+/* ---------- menus déroulants par famille (bureau) ----------
+   Le menu unique « Styles » déversait les 36 fiches d'un seul panneau à quatre
+   colonnes. Structure de cartoontoi.fr reprise ici : un menu par famille, et
+   un panneau large plutôt qu'une liste nue — vignette de chaque style, compte
+   de la famille, mise en avant du best-seller.
+
+   Le panneau s'ancre sur .entete__grille et non sur son déclencheur : à 720px
+   de large, centré sous « Cinéma » (le dernier menu), il sortait de l'écran à
+   droite. Ancré sur la grille, il occupe la même bande que le reste du site
+   quel que soit le menu ouvert. */
+.entete__grille { position: relative; }
+.nav { align-items: center; gap: 24px; min-width: 0; }
+/* Le bouton d'action est un élément flex comme les autres : à l'étroit, il se
+   laissait comprimer et « Commander mon portrait » passait sur deux lignes en
+   débordant de sa pilule. Il ne cède plus — c'est la barre de navigation qui
+   rend la place, et le burger prend le relais avant d'en arriver là. */
+.entete__grille > .bouton { flex: none; white-space: nowrap; }
+.nav__groupe { position: static; display: flex; align-items: center; }
+.nav__declencheur {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 0; background: none; cursor: pointer;
+  padding: 25px 0; position: relative;
+  font-family: var(--texte); font-weight: 600; font-size: 16px; color: var(--encre);
+  white-space: nowrap;
+}
+/* Le survol doit rester « accroché » pendant le trajet vers le panneau : le
+   déclencheur couvre toute la hauteur de la barre, il n'y a plus de bande
+   morte entre son libellé et le bord inférieur de l'en-tête. */
+.nav__declencheur::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: 18px; height: 2px;
+  background: var(--soleil); transition: right .22s ease;
+}
+.nav__declencheur:hover::after,
+.nav__declencheur[aria-expanded="true"]::after { right: 0; }
+.nav__declencheur svg { width: 11px; height: 11px; transition: transform .18s ease; }
+.nav__declencheur[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+.nav__panneau {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 60;
+  background: var(--papier); border-radius: 0 0 var(--rayon-lg) var(--rayon-lg);
+  box-shadow: var(--ombre-forte); border: 1px solid var(--encre-voile); border-top: 0;
+  padding: 26px 28px 22px;
+  display: grid; grid-template-columns: minmax(0, 1fr) 252px; gap: 30px;
+  animation: nav-panneau .18s ease both;
+}
+@keyframes nav-panneau {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav__panneau { animation: none; }
+}
+.nav__colonne { min-width: 0; }
+.nav__tete {
+  display: flex; align-items: baseline; gap: 10px;
+  padding-bottom: 12px; margin-bottom: 14px;
+  border-bottom: 1px solid var(--encre-voile);
+}
+.nav__tete h5 {
+  font-family: var(--titre); font-size: 15px; font-weight: 800;
+  color: var(--encre); margin: 0;
+}
+.nav__tete span { font-size: 13px; font-weight: 600; color: var(--encre-doux); }
+
+.nav__liste {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 10px;
+}
+.nav__style {
+  display: flex; align-items: center; gap: 11px; min-width: 0;
+  padding: 7px 9px; border-radius: 13px; text-decoration: none;
+  transition: background-color .14s ease;
+}
+.nav__style:hover { background: var(--cendre); }
+.nav__style__vignette {
+  width: 42px; height: 42px; flex: none; border-radius: 11px; overflow: hidden;
+  background: var(--creme); display: grid; place-items: center;
+}
+.nav__style__vignette img { width: 100%; height: 100%; object-fit: cover; }
+/* Substitut quand la fiche n'a encore aucun visuel déposé : l'initiale, et non
+   un carré vide qui ferait croire à une image cassée. */
+.nav__style__vignette i {
+  font-family: var(--titre); font-style: normal; font-weight: 800;
+  font-size: 17px; color: var(--accent-texte);
+}
+.nav__style__nom {
+  font-size: 14.5px; font-weight: 600; color: var(--encre);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.nav__style__fleche {
+  width: 13px; height: 13px; margin-left: auto; flex: none;
+  color: var(--encre-doux); opacity: 0; transform: translateX(-4px);
+  transition: opacity .14s ease, transform .14s ease;
+}
+.nav__style:hover .nav__style__fleche { opacity: 1; transform: translateX(0); }
+
+.nav__pied {
+  margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--encre-voile);
+}
+.nav__tout {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 14.5px; text-decoration: none; color: var(--accent-texte);
+}
+.nav__tout svg { width: 15px; height: 15px; transition: transform .16s ease; }
+.nav__tout:hover svg { transform: translateX(3px); }
+
+/* Mise en avant : la carte qui distingue un menu premium d'une liste de liens. */
+.nav__vedette {
+  position: relative; display: block; text-decoration: none;
+  border-radius: var(--rayon); overflow: hidden; background: var(--creme);
+  border: 1px solid var(--encre-voile);
+}
+.nav__vedette__visuel { display: block; aspect-ratio: 1; background: var(--creme); }
+.nav__vedette__visuel img { width: 100%; height: 100%; object-fit: cover; }
+.nav__vedette__visuel i {
+  display: grid; place-items: center; height: 100%;
+  font-family: var(--titre); font-style: normal; font-weight: 800;
+  font-size: 44px; color: var(--accent-texte);
+}
+.nav__vedette__badge {
+  position: absolute; top: 12px; left: 12px;
+  background: var(--soleil); color: var(--encre);
+  font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  padding: 4px 9px; border-radius: 999px;
+}
+.nav__vedette__nom {
+  display: block; padding: 12px 14px 0;
+  font-family: var(--titre); font-weight: 800; font-size: 15px; line-height: 1.2;
+}
+.nav__vedette__cta {
+  display: block; padding: 6px 14px 14px;
+  font-size: 13.5px; font-weight: 700; color: var(--accent-texte);
+}
+.nav__vedette:hover .nav__vedette__cta { text-decoration: underline; }
+
+/* Voile de profondeur. Posé hors de <header> pour rester SOUS elle : à
+   l'intérieur, il assombrissait la barre collante elle-même. */
+.nav__voile {
+  position: fixed; inset: 0; z-index: 39;
+  background: rgba(42, 37, 82, .34);
+  opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s;
+}
+.nav__voile--visible { opacity: 1; visibility: visible; }
+/* La barre promo n'est pas collante : sans rang propre, le voile la couvrait. */
+.promo { position: relative; z-index: 41; }
+
+/* ---------- repli mobile : seuils ----------
+   La rangée principale ne porte plus que les quatre menus de famille (~330px)
+   à côté du logo, du sélecteur et du bouton d'action : le seuil du paquet
+   (1000px) redevient tenable. Le repli porte tout le catalogue, famille par
+   famille, plus les liens de la barre utilitaire. */
+@media (max-width: 1080px) {
+  .nav { display: none; }
+  .burger { display: flex; }
+  .entete__grille { gap: 14px; }
+  /* Les liens secondaires rejoignent le repli en même temps que le menu :
+     gardés seuls dans la barre utilitaire, ils écrasaient l'accroche. */
+  .promo__liens { display: none; }
+  .promo__grille { display: block; }
+}
+@media (max-width: 860px) {
+  .entete__outils { display: none; }
+}
+@media (max-width: 620px) {
+  .entete__grille > .bouton { display: none; }
+}
+@media (max-width: 480px) {
+  .replie__styles { grid-template-columns: 1fr; }
+}
+
+/* ---------- avis illustrés : rail adapté au nombre de photos ----------
+   Le paquet fixait `flex: 0 0 calc(25% - 20px)` : quatre cartes, toujours. Une
+   fiche qui n'a que trois photos client (carte Pokémon…) les posait à gauche
+   et laissait 309px de blanc à droite du rail. La base se calcule maintenant
+   sur le nombre réel, plafonnée à 400px pour qu'une ou deux cartes ne
+   s'étirent pas en bandeau — au-delà, `safe center` les recentre.
+
+   `safe` et non `center` seul : le rail défile horizontalement sur mobile, et
+   un contenu centré qui déborde rend son début inatteignable. Les navigateurs
+   qui ignorent le mot-clé abandonnent la déclaration et gardent l'alignement
+   à gauche, ce qui est le comportement voulu dans ce cas.
+
+   Sous 1001px les deux paliers du paquet (50%, puis 80% en défilement)
+   reprennent la main : d'où le `min-width` plutôt qu'une règle nue, qui
+   l'emporterait sur eux par simple ordre de cascade. */
+@media (min-width: 1001px) {
+  .avis-rail { justify-content: safe center; }
+  .avis-carte {
+    flex-basis: min(calc((100% - (var(--cartes, 4) - 1) * 26px) / var(--cartes, 4)), 400px);
+  }
+}
+/* Les cartes d'un rail ont toutes la hauteur de la plus haute, mais la bulle,
+   elle, gardait la hauteur de son texte : un avis plus long décalait sa queue
+   vers le bas et la rangée finissait en escalier. La bulle absorbe la
+   hauteur restante, les queues se réalignent. */
+.avis-bulle { flex: 1 0 auto; }
+
+/* ---------- dépôt de fichiers actif ---------- */
+.depot { cursor: pointer; transition: border-color .16s ease, background-color .16s ease; }
+.depot:hover, .depot.survol { border-color: var(--soleil); background: var(--creme); }
+.depot__erreur { color: #C8202F; font-weight: 600; font-size: 13.5px; margin-top: 10px; }
+.depot-apercus { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
+.depot-apercu {
+  position: relative; width: 68px; height: 68px; border-radius: 12px;
+  overflow: hidden; border: 2px solid var(--encre-voile);
+}
+.depot-apercu img { width: 100%; height: 100%; object-fit: cover; min-height: 0; }
+.depot-apercu button {
+  position: absolute; top: 3px; right: 3px; width: 20px; height: 20px;
+  border-radius: 50%; border: 0; background: rgba(42, 37, 82, .82); color: #fff;
+  cursor: pointer; font-size: 13px; line-height: 1; display: grid; place-items: center;
+}
+.depot-ajout {
+  width: 68px; height: 68px; border-radius: 12px; cursor: pointer;
+  border: 2px dashed var(--encre-voile); background: var(--papier);
+  font-family: var(--titre); font-size: 24px; color: var(--encre-doux);
+}
+
+/* ---------- substituts de visuels (produits sans photo livrée) ---------- */
+.substitut {
+  display: grid; place-items: center; text-align: center; padding: 18px;
+  background: linear-gradient(145deg, var(--creme) 0%, var(--soleil-pale) 100%);
+  color: var(--encre); font-family: var(--titre); font-weight: 800;
+  line-height: 1.15; letter-spacing: -.01em;
+}
+.substitut span { display: block; max-width: 12ch; font-size: clamp(15px, 2.2vw, 26px); }
+.substitut small {
+  display: block; margin-top: 9px; font-family: var(--texte);
+  font-weight: 600; font-size: 11.5px; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--encre-doux);
+}
+.carte__image.substitut { aspect-ratio: 1 / 1; }
+.galerie__vue.substitut { aspect-ratio: 1 / 1; border-radius: var(--rayon-lg); }
+.vignette .substitut { width: 68px; height: 68px; padding: 4px; }
+.vignette .substitut span { font-size: 10px; }
+.vignette .substitut small { display: none; }
+
+/* ---------- titre du visuel de galerie ----------
+   Il était incrusté dans l'image en français. Détouré, il revient en texte,
+   dans la typographie du système : traduit avec le site, indexé, et lu par un
+   lecteur d'écran. */
+.galerie__legende {
+  font-family: var(--titre); font-weight: 800;
+  font-size: clamp(19px, 2.1vw, 26px); line-height: 1.15;
+  text-align: center; color: var(--encre);
+  margin: 0 0 16px; letter-spacing: -.01em;
+}
+.galerie__legende .accent { font-family: var(--accent); font-weight: 700; }
+
+/* ---------- catalogue ---------- */
+.catalogue-groupe + .catalogue-groupe { margin-top: clamp(44px, 6vw, 72px); }
+.catalogue-groupe > h3 {
+  font-size: clamp(22px, 2.4vw, 30px); margin-bottom: 22px;
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  scroll-margin-top: 150px;
+}
+.catalogue-groupe > h3 small {
+  font-family: var(--texte); font-weight: 600; font-size: 14px; color: var(--encre-doux);
+}
+
+/* Barre de tri collante, calée sous l'en-tête qui l'est déjà.
+   Le fond est opaque : sans lui les cartes défileraient au travers. */
+.barre-tri {
+  position: sticky; top: 74px; z-index: 30;
+  background: var(--papier); border-bottom: 1px solid var(--encre-voile);
+}
+@media (max-width: 720px) { .barre-tri { top: 64px; } }
+.barre-tri__contenu {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  padding: 14px 0;
+}
+.barre-tri .filtres { margin-bottom: 0; justify-content: flex-start; flex: 1; }
+
+.filtres { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; }
+.filtre {
+  border: 2px solid var(--encre-voile); background: var(--papier); cursor: pointer;
+  border-radius: 999px; padding: 9px 18px; font-family: var(--texte);
+  font-weight: 600; font-size: 15px; color: var(--encre); white-space: nowrap;
+  transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+.filtre:hover { border-color: var(--encre-doux); }
+.filtre[aria-pressed="true"] { background: var(--encre); border-color: var(--encre); color: var(--papier); }
+
+.recherche {
+  display: flex; align-items: center; gap: 9px; flex: none;
+  border: 2px solid var(--encre-voile); border-radius: 999px;
+  padding: 0 14px; background: var(--papier); min-width: 240px;
+  transition: border-color .15s ease;
+}
+.recherche:focus-within { border-color: var(--soleil); }
+.recherche svg { width: 17px; height: 17px; color: var(--encre-doux); flex: none; }
+.recherche input {
+  border: 0; outline: 0; background: none; padding: 10px 0; width: 100%;
+  font-family: var(--texte); font-weight: 500; font-size: 15px; color: var(--encre);
+}
+.recherche input::placeholder { color: var(--encre-doux); opacity: .75; }
+.recherche button {
+  border: 0; background: none; cursor: pointer; color: var(--encre-doux);
+  font-size: 17px; line-height: 1; padding: 4px; flex: none;
+}
+.recherche button:hover { color: var(--encre); }
+
+.catalogue-compte {
+  color: var(--encre-doux); font-weight: 600; font-size: 15px;
+  margin: 0 0 clamp(22px, 3vw, 32px);
+}
+
+.catalogue-vide { text-align: center; padding: clamp(40px, 7vw, 80px) 0; }
+.catalogue-vide h3 { font-size: clamp(22px, 2.6vw, 30px); margin-bottom: 10px; }
+.catalogue-vide p { color: var(--encre-doux); margin: 0 0 24px; }
+
+/* Survol : la carte montre son second visuel. Deux images superposées, pas de
+   changement de gabarit — la grille ne bouge pas d'un pixel. */
+.carte__visuel { position: relative; overflow: hidden; }
+.carte__visuel .carte__image { display: block; }
+.carte__image--survol {
+  position: absolute; inset: 0; opacity: 0;
+  transition: opacity .32s ease;
+}
+.carte:hover .carte__image--survol { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .carte__image--survol { transition: none; }
+  .carte:hover .carte__image--survol { opacity: 0; }
+}
+
+.carte__marqueurs {
+  position: absolute; top: 12px; left: 12px; z-index: 2;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+}
+.marqueur-carte {
+  background: rgba(255, 255, 255, .94); border-radius: 999px;
+  padding: 5px 12px; font-size: 11.5px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--encre);
+  box-shadow: 0 2px 8px rgba(42, 37, 82, .12);
+}
+.marqueur-carte--soleil { background: var(--soleil); }
+
+/* Sous 860px les pastilles s'empileraient et la barre collante occuperait la
+   moitié de l'écran. Elles passent en rangée défilante, débordant jusqu'aux
+   bords (l'enveloppe réserve 24px de chaque côté), et la recherche prend
+   toute la largeur. */
+@media (max-width: 860px) {
+  /* flex-wrap: wrap doit repasser à nowrap ici : hérité de la règle de base,
+     combiné à flex-direction: column il autorise une seconde « colonne »
+     plutôt que de contraindre les enfants à la largeur du parent — c'est ce
+     qui faisait exploser .filtres à sa largeur de contenu (892px) malgré
+     min-width:0 et overflow-x:auto sur lui. */
+  .barre-tri__contenu { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 10px; padding: 12px 0; }
+  .barre-tri .filtres {
+    /* Sans min-width:0, un enfant flex dans un parent flex-direction:column
+       ne peut pas descendre sous la largeur intrinsèque de son contenu — ici
+       la somme des boutons en nowrap (892px sur un écran de 390px). La boîte
+       grandit alors elle-même, et overflow-x:auto n'a plus rien à clipper.
+       Même piège que celui déjà réglé sur les grilles (voir systeme/README). */
+    min-width: 0;
+    flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
+    margin-inline: -24px; padding: 2px 24px; scroll-padding-inline: 24px;
+  }
+  .barre-tri .filtres::-webkit-scrollbar { display: none; }
+  .recherche { width: 100%; min-width: 0; }
+}
+
+/* ---------- galerie produit : vignettes défilantes sur mobile ----------
+   Le paquet pose .galerie__vignettes en display:flex sans wrap ni overflow :
+   6 miniatures de 74px (+ 5 espaces de 10px) totalisent ~494px, largement
+   au-delà d'un écran de 390px. Sans butée, le débordement se propage à la
+   page entière — et avec lui, l'iframe de fraude de Stripe (min-width:100%
+   en position:fixed) qui se cale sur cette largeur gonflée. Même correctif
+   que la barre de tri du catalogue : on fait défiler plutôt que déborder. */
+@media (max-width: 860px) {
+  .galerie__vignettes {
+    overflow-x: auto; scrollbar-width: none; padding-bottom: 2px;
+  }
+  .galerie__vignettes::-webkit-scrollbar { display: none; }
+  .galerie__vignettes > * { flex: none; }
+}
+
+/* ---------- prose (pages légales, article, à propos) ---------- */
+.prose { max-width: 76ch; margin-inline: auto; }
+.prose h1 { font-size: clamp(30px, 3.6vw, 42px); margin: 0 0 8px; }
+.prose > p:first-of-type { color: var(--encre-doux); font-size: 15px; margin-bottom: 34px; }
+.prose section + section { margin-top: 34px; }
+.prose h2 { font-size: clamp(24px, 2.6vw, 32px); margin: 40px 0 14px; }
+.prose h3 { font-size: 20px; margin: 30px 0 10px; }
+.prose p, .prose li { color: var(--encre-doux); }
+.prose p { margin: 0 0 16px; }
+.prose ul, .prose ol { margin: 0 0 18px; padding-left: 22px; display: grid; gap: 8px; }
+.prose a { color: var(--soleil-fonce); font-weight: 600; }
+.prose strong { color: var(--encre); }
+.prose hr { border: 0; border-top: 1px solid var(--encre-voile); margin: 34px 0; }
+
+/* ---------- petits blocs partagés ---------- */
+.note-cadeau {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: var(--soleil-pale); border-radius: 999px; padding: 9px 17px;
+  font-size: 14px; font-weight: 600; color: var(--encre);
+}
+.champ-ligne {
+  width: 100%; border: 2px solid var(--encre-voile); border-radius: 14px;
+  padding: 13px 15px; font-family: var(--texte); font-size: 15px;
+  color: var(--encre); background: var(--papier);
+}
+.champ-ligne:focus { outline: 2px solid var(--soleil); outline-offset: 1px; border-color: transparent; }
+.champ-ligne::placeholder { color: var(--encre-doux); opacity: .7; }
+
+.etiquette {
+  display: inline-block; background: var(--soleil-pale); border-radius: 8px;
+  padding: 3px 10px; font-size: 12.5px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+
+/* ---------- témoignages sans vidéo (visuel seul) ---------- */
+.videoo--fixe { cursor: default; }
+.videoo--fixe .videoo__play { display: none; }
+.videoo img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; }
+
+/* ---------- modale (tunnel de commande, intention de sortie) ----------
+   Le paquet ne couvre pas la modale : elle appartient au site. Bâtie sur les
+   mêmes jetons pour que le tunnel ne rompe pas avec le reste.
+
+   La boîte est une colonne flex à trois étages fixes — en-tête, corps qui
+   défile, pied d'action — et non un bloc unique en overflow. Avant, le bouton
+   de paiement était au bas d'un formulaire de dix champs : sur un téléphone
+   il fallait traverser toute l'adresse postale pour le retrouver, et le total
+   disparaissait dès le premier défilement. */
+.modale {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.modale__voile {
+  position: absolute; inset: 0;
+  background: rgba(20, 17, 45, .62); backdrop-filter: blur(4px);
+}
+.modale__boite {
+  position: relative; width: 100%; max-width: 580px; max-height: min(92vh, 920px);
+  display: flex; flex-direction: column; overflow: hidden;
+  /* Crème et non blanc : les blocs blancs posés dedans se détachent, comme
+     les cartes se détachent de la toile beige du site. */
+  background: var(--creme);
+  border-radius: var(--rayon-lg); box-shadow: var(--ombre-forte);
+}
+.modale__entete {
+  flex: none; background: var(--soleil); padding: 15px 18px;
+  display: flex; align-items: center; gap: 13px;
+}
+.modale__entete-icone {
+  width: 42px; height: 42px; border-radius: 14px; flex: none;
+  background: rgba(255, 255, 255, .55); color: var(--encre);
+  display: grid; place-items: center;
+}
+.modale__entete-texte { min-width: 0; flex: 1; }
+.modale__titre {
+  font-family: var(--titre); font-weight: 800; font-size: 16.5px;
+  margin: 0; line-height: 1.15; color: var(--encre);
+}
+.modale__sous {
+  margin: 2px 0 0; font-size: 13px; font-weight: 600;
+  color: rgba(42, 37, 82, .72);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.modale__compteur {
+  flex: none; font-family: var(--titre); font-weight: 800; font-size: 11.5px;
+  letter-spacing: .06em; text-transform: uppercase; color: rgba(42, 37, 82, .62);
+  white-space: nowrap;
+}
+.modale__fermer {
+  width: 36px; height: 36px; border-radius: 50%; border: 0; flex: none;
+  background: rgba(255, 255, 255, .7); color: var(--encre); cursor: pointer;
+  display: grid; place-items: center; transition: background-color .15s ease;
+}
+.modale__fermer:hover { background: var(--papier); }
+/* Avancement du tunnel. Le libellé « Étape 1 sur 2 » disait déjà où on en
+   était, mais rien ne le montrait — une barre se lit sans être lue. */
+.modale__jauge { flex: none; height: 3px; background: rgba(42, 37, 82, .16); }
+.modale__jauge span {
+  display: block; height: 100%; background: var(--encre);
+  transition: width .35s ease;
+}
+.modale__corps {
+  flex: 1; min-height: 0; overflow-y: auto;
+  padding: 18px; display: grid; gap: 13px; align-content: start;
+}
+.modale__pied {
+  flex: none; background: var(--papier); border-top: 1px solid var(--encre-voile);
+  padding: 13px 18px calc(13px + env(safe-area-inset-bottom, 0px));
+  display: grid; gap: 9px;
+}
+.modale__pied .bouton { width: 100%; justify-content: center; }
+.modale__total {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.modale__total span {
+  font-family: var(--titre); font-weight: 800; font-size: 11.5px;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--encre-doux);
+}
+.modale__total b { font-family: var(--titre); font-weight: 800; font-size: 23px; }
+.modale__total s {
+  font-family: var(--texte); font-size: 14px; font-weight: 600;
+  color: var(--encre-doux); margin-right: 9px;
+}
+/* Le formulaire de paiement est l'etage central de la boite : il defile, son
+   pied ne bouge pas. Sans cette chaine flex, le <form> serait un bloc de
+   hauteur naturelle et la boite entiere deborderait. */
+.paiement-forme { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.modale__pied-duo { display: flex; gap: 10px; }
+.modale__pied-duo .bouton:first-child { flex: 1; }
+.modale__pied-duo .bouton:last-child { flex: 2; }
+.modale__rassurance {
+  margin: 0; text-align: center; font-size: 12.5px; font-weight: 600;
+  color: var(--encre-doux);
+}
+/* Sous 420px, « Vos informations » et « Étape 1/2 » se disputaient la même
+   ligne et le titre cassait en deux. La jauge dit déjà où on en est. */
+@media (max-width: 420px) {
+  .modale__compteur { display: none; }
+  .modale__titre { font-size: 15.5px; }
+  .modale__entete { padding: 13px 14px; gap: 11px; }
+  .modale__corps, .modale__pied { padding-left: 14px; padding-right: 14px; }
+}
+.modale__succes { text-align: center; padding: 24px 8px 8px; }
+.modale__succes h3 { font-size: 22px; margin: 0 0 10px; }
+.modale__succes p { margin: 0 0 8px; color: var(--encre-doux); font-size: 15px; }
+.modale__succes strong { color: var(--encre); }
+
+/* Récapitulatif de commande : la photo envoyée par le client, son support et
+   le prix. La photo n'était nulle part dans le tunnel — c'est pourtant la
+   seule chose qui prouve qu'on est en train d'acheter LE bon portrait. */
+.recap-commande {
+  display: flex; align-items: center; gap: 13px;
+  background: var(--papier); border: 1px solid var(--encre-voile);
+  border-radius: var(--rayon); padding: 13px;
+}
+.recap-commande__photo {
+  width: 62px; height: 62px; flex: none; border-radius: 14px;
+  overflow: hidden; background: var(--cendre); display: grid; place-items: center;
+}
+.recap-commande__photo img { width: 100%; height: 100%; object-fit: cover; }
+.recap-commande__corps { flex: 1; min-width: 0; }
+.recap-commande__support {
+  font-family: var(--titre); font-weight: 800; font-size: 15px; line-height: 1.2;
+}
+.recap-commande__detail {
+  margin: 3px 0 0; font-size: 12.5px; font-weight: 500; color: var(--encre-doux);
+  line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.recap-commande__prix { flex: none; text-align: right; }
+.recap-commande__prix b {
+  display: block; font-family: var(--titre); font-weight: 800; font-size: 22px;
+}
+.recap-commande__prix s { font-size: 13px; color: var(--encre-doux); font-weight: 600; }
+
+.bloc {
+  background: var(--papier); border: 1px solid var(--encre-voile);
+  border-radius: var(--rayon); padding: 16px;
+}
+.bloc--creme { background: var(--creme); border-color: transparent; }
+.bloc--ligne { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.bloc__tete {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 13px;
+  font-family: var(--titre); font-weight: 800; font-size: 14px; color: var(--encre);
+}
+
+/* Groupes de champs. Les paires étiquette/champ étaient espacées par des
+   utilitaires Tailwind (`space-y-2`, `grid-cols-2`) hérités d'un design
+   précédent : deux systèmes de mise en page dans le même formulaire. */
+.champ-groupe { display: grid; gap: 5px; }
+.champ-groupe .champ-etiquette { margin-bottom: 0; }
+.champ-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.champ-duo--prefixe { grid-template-columns: 104px 1fr; }
+.champ-avec-bouton { display: flex; gap: 9px; }
+.champ-avec-bouton .champ-ligne { min-width: 0; }
+@media (max-width: 460px) {
+  .champ-duo { grid-template-columns: 1fr; }
+  .champ-duo--prefixe { grid-template-columns: 104px 1fr; }
+}
+
+/* Messages d'état. Le rouge Tailwind (`bg-red-100 border-red-500`) ne venait
+   d'aucun jeton et jurait avec l'indigo ; le vert non plus. */
+.alerte {
+  display: flex; align-items: flex-start; gap: 9px;
+  border-radius: 14px; padding: 11px 13px;
+  font-size: 13.5px; font-weight: 600; line-height: 1.4;
+}
+.alerte svg { flex: none; margin-top: 1px; }
+.alerte--erreur { background: #FDEDEE; color: #9B1C24; border: 1px solid rgba(200, 32, 47, .26); }
+.alerte--succes { background: #F2FBEC; color: #3D7621; border: 1px solid rgba(63, 122, 34, .24); }
+
+.separateur-ou {
+  display: flex; align-items: center; gap: 13px;
+  font-family: var(--titre); font-weight: 800; font-size: 11.5px;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--encre-doux);
+}
+.separateur-ou::before, .separateur-ou::after {
+  content: ""; flex: 1; height: 1px; background: var(--encre-voile);
+}
+
+.modale__chargement { text-align: center; padding: 34px 0; }
+.modale__chargement p {
+  margin: 0; font-weight: 700; font-size: 14px; color: var(--encre-doux);
+}
+
+/* ---------- clavardage ----------
+   Mise en page reprise du messager Richpanel qui tourne sur turnedyellow.com.
+   Les valeurs ne sont pas devinées : elles sortent de la configuration publique
+   du locataire (widgetconfig.richpanel.com/turnedyellow8711.json) et d'un relevé
+   Playwright des styles calculés sur la page réelle.
+
+     lanceur : pastille À LIBELLÉ de 113 × 44, rayon 60, ombre 0 5px 40px/.16,
+       à 20 px des deux bords — `badgeType: "label"` dans leur config ; elle ne
+       disparaît pas à l'ouverture, elle bascule sur une croix ;
+     panneau : 375 de large, quasi toute la hauteur (chez eux 860 sur 900),
+       rayon 12, ombre à deux couches 0 18px 48px/.12 + 0 2px 8px/.08 ;
+     en-tête PLEIN de 214 px en dégradé 135° du clair vers le foncé de la
+       couleur de marque (#005FB8 → #003566 chez eux), qui se replie à 75 px dès
+       que la conversation est ouverte — c'est le geste signature ;
+     surtitre (« Welcome to ») en 13 px gras, puis salutation, puis accroche,
+       puis pastille translucide « délai de réponse » ;
+     cartes blanches à filet, la première remontant de 24 px pour chevaucher la
+       couture de l'en-tête, sous un intertitre « Liens rapides » ;
+     bulles à coin coupé (5 px du côté de l'émetteur) ;
+     saisie en pilule de 26 px, bouton d'envoi rond qui ne se remplit qu'une
+       fois du texte tapé.
+
+   Seule la mise en page est empruntée : les couleurs restent nos jetons. Leur
+   fond de panneau est un #F8F5F1 froid — nous prenons --fond, qui joue chez
+   nous exactement le même rôle de toile sous les cartes blanches. */
+
+/* La hauteur SUIT LE CONTENU sur l'accueil, et n'est fixée que pendant la
+   conversation. Chez eux le panneau fait toujours 860 sur 900 parce qu'il porte
+   un centre d'aide, une recherche et l'historique des commandes ; nos quatre
+   liens n'occupent que la moitié, et une hauteur fixe laissait 150 px de beige
+   mort sous la signature. Un fil de discussion, lui, doit occuper la place :
+   sinon la zone de saisie remonte au milieu du panneau à chaque message. */
+.clavardage {
+  width: min(calc(100vw - 32px), 375px);
+  /* 56 (lanceur) + 12 (gouttière) + 20 (bas) + 20 (haut) = 108 */
+  height: auto; max-height: min(calc(100vh - 108px), 780px);
+  background: var(--fond); border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(42, 37, 82, .14), 0 2px 8px rgba(42, 37, 82, .09);
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.clavardage--conversation { height: min(calc(100vh - 108px), 780px); }
+
+/* --- en-tête plein, replié en barre une fois la conversation ouverte --- */
+.clavardage__entete {
+  flex: 0 0 214px; height: 214px; padding: 18px 20px 0;
+  background-image: linear-gradient(135deg, #3B3470, #221D45);
+  color: var(--papier); display: flex; flex-direction: column;
+  transition: flex-basis .3s ease-out, height .3s ease-out, padding .3s ease-out;
+}
+.clavardage__entete--compact {
+  flex-basis: 75px; height: 75px; padding: 0 14px;
+  flex-direction: row; align-items: center; gap: 11px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .clavardage__entete { transition: none; }
+}
+
+.clavardage__barre {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; min-height: 30px; margin-bottom: 10px;
+}
+/* Surtitre : chez eux « Welcome to » en 13 px gras, posé au-dessus du logo de
+   marque. C'est ce qui empêche l'en-tête de démarrer sur un vide. */
+.clavardage__surtitre {
+  font-size: 13px; font-weight: 700; line-height: 1.25; margin: 0 0 2px;
+  color: rgba(255, 255, 255, .72);
+}
+.clavardage__marque {
+  font-family: var(--titre); font-weight: 800; font-size: 19px; margin: 0;
+  line-height: 1.15;
+}
+.clavardage__fermer, .clavardage__retour {
+  width: 28px; height: 28px; flex: none; border: 0; border-radius: 8px; padding: 0;
+  background: rgba(255, 255, 255, .12); color: rgba(255, 255, 255, .82);
+  display: grid; place-items: center; cursor: pointer;
+  transition: background-color .16s ease, color .16s ease;
+}
+.clavardage__fermer:hover, .clavardage__retour:hover {
+  background: rgba(255, 255, 255, .22); color: var(--papier);
+}
+
+/* Le budget vertical de l'en-tête est fixe (214 px) et la pastille de délai
+   doit tenir AU-DESSUS des 24 px que la carte flottante vient recouvrir. Tout
+   ce qui la précède doit donc rentrer dans 190 px moins la hauteur de la
+   pastille : 18 (marge haute) + 40 (surtitre et marque) + 10 + 30 (salutation)
+   + 8 + 21 (accroche) + 10 + 42 (pastille) = 179. Il reste 11 px de jeu.
+   Chaque marge ci-dessous est comptée dans ce budget — ne pas la gonfler sans
+   reprendre le calcul, sinon la carte vient mordre la pastille. */
+.clavardage__salut {
+  font-family: var(--titre); font-weight: 800; font-size: 26px; line-height: 1.15;
+  margin: 0 0 8px;
+}
+.clavardage__accroche {
+  font-size: 14.5px; line-height: 1.45; font-weight: 500; margin: 0 0 10px;
+  color: rgba(255, 255, 255, .78);
+}
+
+/* Pastille « délai de réponse » : la promesse de service est posée dans
+   l'en-tête, avant même la première question. */
+.clavardage__delai {
+  display: flex; align-items: center; gap: 10px;
+  min-height: 40px; padding: 7px 14px; border-radius: 10px;
+  background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .18);
+  font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .9);
+}
+.clavardage__delai span { flex: 1; min-width: 0; }
+.clavardage__equipe { display: flex; flex: none; }
+/* Fond OPAQUE et non translucide : sur le dégradé de l'en-tête, un blanc à 34 %
+   laissait passer l'indigo et les initiales devenaient trois taches grises. */
+.clavardage__tete {
+  width: 26px; height: 26px; margin-left: -8px; border-radius: 999px;
+  border: 1.5px solid var(--papier); background: var(--soleil-pale);
+  display: grid; place-items: center;
+  font-family: var(--titre); font-weight: 800; font-size: 11px; color: var(--encre);
+}
+.clavardage__tete:first-child { margin-left: 0; }
+
+/* Identité de l'agent, visible seulement dans l'en-tête replié. */
+.clavardage__agent { flex: 1; min-width: 0; }
+.clavardage__agent b {
+  display: block; font-family: var(--titre); font-weight: 800; font-size: 15px;
+}
+.clavardage__agent span {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 500; color: rgba(255, 255, 255, .72);
+}
+.clavardage__pastille {
+  width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; flex: none;
+}
+
+/* --- corps : cartes posées sur la toile --- */
+/* La carte d'entrée chevauche la couture de l'en-tête : c'est elle qui relie
+   les deux zones. Elle est SŒUR du conteneur de défilement, pas dedans — une
+   marge négative à l'intérieur d'un `overflow: auto` se fait rogner net. */
+.clavardage__flottant {
+  flex: none; position: relative; z-index: 3;
+  margin-top: -24px; padding: 0 20px;
+}
+/* `flex: 1 1 auto` et non `flex: 1` : avec une base à 0 %, dans un panneau à
+   hauteur automatique, le conteneur s'écrase à zéro. */
+.clavardage__corps {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  padding: 14px 20px 20px; display: flex; flex-direction: column; gap: 14px;
+}
+/* Sans ça, sur un écran court, le conteneur ne défile pas : il ÉCRASE ses
+   enfants. La carte des liens se comprimait et son `overflow: hidden` coupait
+   le dernier lien en pleine ligne, la signature venant se poser dessus. */
+.clavardage__corps > * { flex: none; }
+.clavardage__carte {
+  background: var(--papier); border: 1px solid var(--encre-voile);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(42, 37, 82, .04);
+}
+.clavardage__carte--flottante { box-shadow: 0 6px 18px rgba(42, 37, 82, .10); }
+
+.clavardage__lien {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 14px 16px; min-height: 68px;
+  border: 0; border-bottom: 1px solid var(--encre-voile);
+  background: none; cursor: pointer; text-align: left;
+  font-family: var(--texte); color: var(--encre);
+  transition: background-color .16s ease;
+}
+.clavardage__lien:last-child { border-bottom: 0; }
+.clavardage__lien:hover, .clavardage__lien:focus-visible {
+  background: var(--creme); outline: none;
+}
+.clavardage__lien--sans-sous { min-height: 58px; }
+.clavardage__lien-icone {
+  width: 36px; height: 36px; min-width: 36px; border-radius: 9px;
+  background: var(--creme); border: 1px solid var(--encre-voile);
+  display: grid; place-items: center; color: var(--encre-doux);
+}
+.clavardage__lien--principal .clavardage__lien-icone {
+  background: var(--soleil); border-color: var(--soleil-fonce); color: var(--encre);
+}
+.clavardage__lien-texte { flex: 1; min-width: 0; }
+/* `display: block` : ce sont des <span>, sans quoi titre et sous-titre se
+   collent sur la même ligne. */
+.clavardage__lien-titre {
+  display: block; font-size: 15px; font-weight: 700; line-height: 1.4; margin: 0;
+}
+.clavardage__lien-sous {
+  display: block; font-size: 13px; font-weight: 500; line-height: 1.4;
+  color: var(--encre-doux); margin: 4px 0 0;
+}
+.clavardage__chevron { flex: none; color: var(--encre-doux); opacity: .88; }
+
+/* Intertitre « Liens rapides » : leur config le nomme `quickLinkTitle`, il
+   sépare la carte d'entrée de la liste des sujets. */
+.clavardage__intertitre {
+  font-family: var(--titre); font-weight: 800; font-size: 12.5px;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--encre-doux); margin: 4px 0 -6px 2px;
+}
+.clavardage__signature {
+  text-align: center; font-size: 13px; font-weight: 400;
+  color: var(--encre-doux); margin: 0; padding-bottom: 2px;
+}
+
+/* --- formulaire d'e-mail, servi comme une carte du corps --- */
+.clavardage__accueil {
+  padding: 20px 18px; display: flex; flex-direction: column; gap: 12px;
+}
+.clavardage__accueil h3 {
+  font-family: var(--titre); font-weight: 800; font-size: 20px; line-height: 1.25;
+  margin: 0;
+}
+.clavardage__accueil p {
+  font-size: 14px; font-weight: 500; line-height: 1.5;
+  color: var(--encre-doux); margin: 0;
+}
+
+/* --- fil de conversation --- */
+.clavardage__fil {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  padding: 18px 16px; display: flex; flex-direction: column; gap: 12px;
+}
+/* Les messages se posent EN BAS du fil, comme dans toute messagerie : sans ça
+   une conversation de deux répliques flotte en haut avec un vide sous elle.
+   `margin-top: auto` sur la première bulle plutôt que `justify-content:
+   flex-end`, qui rend le début du fil inatteignable une fois qu'il déborde. */
+.clavardage__fil > :first-child { margin-top: auto; }
+/* Même raison que pour le corps : une bulle ne se comprime pas, le fil défile. */
+.clavardage__fil > * { flex: none; }
+.bulle {
+  max-width: 88%; align-self: flex-start;
+  padding: 11px 14px; font-size: 15px; font-weight: 500; line-height: 1.65;
+  background: var(--papier); color: var(--encre);
+  border: 1px solid var(--encre-voile);
+  border-radius: 5px 14px 14px 14px;
+  box-shadow: 0 1px 2px rgba(42, 37, 82, .04);
+}
+.bulle--moi {
+  align-self: flex-end; padding: 9px 13px;
+  background: var(--soleil-pale); border-color: rgba(42, 37, 82, .06);
+  border-radius: 14px 14px 5px 14px; box-shadow: none;
+}
+.clavardage__frappe { display: flex; align-items: center; gap: 5px; }
+.clavardage__frappe i {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--encre-doux);
+  animation: clavardage-frappe 1.4s ease-in-out infinite;
+}
+.clavardage__frappe i:nth-child(2) { animation-delay: .2s; }
+.clavardage__frappe i:nth-child(3) { animation-delay: .4s; }
+@keyframes clavardage-frappe {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clavardage__frappe i { animation: none; }
+}
+
+/* --- saisie en pilule --- */
+.clavardage__saisie { flex: none; padding: 12px; }
+.clavardage__pilule {
+  display: flex; align-items: center; gap: 6px;
+  min-height: 48px; padding: 6px 6px 6px 18px;
+  background: var(--papier); border: 1px solid var(--encre-voile);
+  border-radius: 26px; box-shadow: 0 4px 14px rgba(42, 37, 82, .04);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.clavardage__pilule:focus-within {
+  border-color: rgba(42, 37, 82, .28); box-shadow: 0 4px 18px rgba(42, 37, 82, .09);
+}
+.clavardage__pilule input {
+  flex: 1; min-width: 0; border: 0; outline: none; background: none;
+  font-family: var(--texte); font-size: 15px; font-weight: 500; color: var(--encre);
+}
+.clavardage__pilule input::placeholder { color: var(--encre-doux); }
+/* Le bouton d'envoi reste fantôme tant qu'il n'y a rien à envoyer ; il ne se
+   remplit qu'au premier caractère tapé. */
+.clavardage__envoi {
+  width: 36px; height: 36px; flex: none; border: 0; border-radius: 50%; padding: 0;
+  background: transparent; color: var(--encre-doux); cursor: pointer;
+  display: grid; place-items: center;
+  transition: background-color .18s ease, color .18s ease, transform .12s ease;
+}
+.clavardage__envoi--actif { background: var(--encre); color: var(--papier); }
+.clavardage__envoi--actif:hover { background: #3B3470; }
+.clavardage__envoi:active { transform: scale(.96); }
+.clavardage__envoi:disabled { cursor: default; }
+
+/* --- lanceur ---
+   Pastille À LIBELLÉ, et non pastille ronde : leur config pose
+   `control.badgeType: "label"`, et le relevé donne 113 × 44 au rayon de 60 avec
+   une ombre unique, large et très diffuse (0 5px 40px / .16) — rien à voir avec
+   l'ombre courte d'un bouton ordinaire, c'est ce qui la fait flotter.
+   Elle reste en place à l'ouverture et bascule sur une croix. */
+/* Le fond est CLAIR, et non l'indigo de leur pastille flottante : le dessin de
+   la tête porte un contour noir et deux aplats blancs. Posé sur un fond sombre,
+   sa silhouette se perd et les yeux deviennent les seules formes lisibles. Le
+   pictogramme impose sa surface. */
+.clavardage__lanceur {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 9px;
+  height: 56px; padding: 0 22px 0 9px; border-radius: 60px;
+  border: 1px solid var(--encre-voile);
+  background: var(--papier); color: var(--encre); cursor: pointer;
+  font-family: var(--texte); font-weight: 700; font-size: 15.5px; line-height: 1;
+  box-shadow: 0 5px 40px rgba(42, 37, 82, .22);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.clavardage__lanceur:hover {
+  transform: translateY(-1px); border-color: var(--encre-doux);
+  box-shadow: 0 8px 44px rgba(42, 37, 82, .26);
+}
+.clavardage__lanceur:active { transform: translateY(0) scale(.98); }
+/* Ouvert : la pastille se réduit à une croix ronde, toujours au même endroit. */
+.clavardage__lanceur--ouvert {
+  width: 56px; padding: 0; justify-content: center;
+}
+.clavardage__lanceur--ouvert .clavardage__lanceur-texte { display: none; }
+
+/* --- lien « Aide » de la barre d'en-tête ---
+   L'équivalent de leur `.live-chat-top` : même pictogramme, même libellé à
+   droite, et il ouvre le même panneau. Pas de fond : c'est un lien, pas un
+   bouton — l'en-tête porte déjà un CTA plein. */
+.lien-aide {
+  display: inline-flex; align-items: center; gap: 7px;
+  border: 0; background: none; padding: 4px 2px; cursor: pointer;
+  font-family: var(--texte); font-weight: 700; font-size: 14.5px;
+  color: var(--encre); white-space: nowrap;
+  transition: opacity .15s ease;
+}
+.lien-aide:hover { opacity: .72; text-decoration: underline; }
+@media (max-width: 900px) { .lien-aide span { display: none; } }
+
+/* L'en-tête garde ses 214 px sur mobile. Le réduire à 196 sans toucher à son
+   contenu poussait la pastille de délai sous la carte flottante. Seules les
+   gouttières se resserrent. */
+@media (max-width: 620px) {
+  .clavardage { width: calc(100vw - 24px); max-height: calc(100dvh - 108px); }
+  .clavardage--conversation { height: calc(100dvh - 108px); }
+  .clavardage__entete { padding: 16px 16px 0; }
+  .clavardage__flottant { padding: 0 16px; }
+  .clavardage__corps { padding: 14px 16px 16px; }
+  .clavardage__lien { padding: 12px 14px; min-height: 64px; }
+}
+
+.rotatif {
+  width: 46px; height: 46px; margin: 0 auto 16px; border-radius: 50%;
+  border: 4px solid var(--encre-voile); border-top-color: var(--soleil);
+  animation: rotation .9s linear infinite;
+}
+@keyframes rotation { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .rotatif { animation-duration: 3s; } }
+
+.champ-etiquette {
+  display: block; font-family: var(--titre); font-weight: 700; font-size: 12.5px;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--encre-doux);
+  margin-bottom: 6px;
+}
+
+/* ---------- coquille des pages secondaires ---------- */
+.page-tj { padding-bottom: clamp(40px, 6vw, 72px); }
+
+.rond-soleil {
+  width: 76px; height: 76px; border-radius: 50%; background: var(--soleil);
+  display: grid; place-items: center; margin: 0 auto 22px; color: var(--encre);
+}
+
+/* Deux utilitaires de couleur pour les pages converties depuis Tailwind. */
+.bg-soleil { background: var(--soleil); }
+.bg-creme { background: var(--creme); }
+
+.cta-cadeau {
+  background: var(--soleil); border-radius: var(--rayon-lg);
+  padding: clamp(26px, 4vw, 40px); text-align: center;
+  margin-bottom: clamp(34px, 5vw, 52px);
+}
+.cta-cadeau h2 { font-size: clamp(24px, 3vw, 34px); margin-bottom: 12px; }
+.cta-cadeau p { color: rgba(42, 37, 82, .78); margin: 0 0 22px; }
+
+/* ---------- pages secondaires : en-tête de page ---------- */
+.entete-page { background: var(--creme); padding: clamp(46px, 6vw, 78px) 0 clamp(38px, 5vw, 58px); text-align: center; }
+.entete-page h1 { font-size: clamp(32px, 4vw, 50px); }
+.entete-page p { color: var(--encre-doux); max-width: 56ch; margin: 16px auto 0; }
+
+/* ---------- bannière finale : fond réel ----------
+   Le paquet posait un substitut 3:1 (texte "3:1" visible) à la place de
+   l'image de fond réelle, famille + toile + téléphone incrustés dedans.
+   .cta-fin__visuel reste un div vide qui ne fait que réserver la colonne :
+   c'est ce même fond, en arrière-plan de tout le bloc, qui se voit à travers. */
+@media (min-width: 1000px) {
+  .cta-fin { background-image: url("/toonjaune/cta-fond.webp"); }
+}
+
+/* ---------- configurateur : numérotation automatique ----------
+   Le gabarit du paquet renumérotait les étapes visibles avec un script en fin
+   de page. Un compteur CSS fait la même chose sans JavaScript, et reste juste
+   quand une étape conditionnelle (arrière-plan) est absente. */
+.panneau { counter-reset: etape-conf; }
+.etape-conf { counter-increment: etape-conf; }
+.etape-conf__titre b::before { content: counter(etape-conf); }
+
+/* ---------- vignettes de choix (cadrage, support) ---------- */
+.vignette--texte {
+  display: grid; gap: 2px; padding: 12px 16px; line-height: 1.3;
+  min-width: 148px; text-align: left; font-family: var(--texte);
+}
+.vignette--texte .vignette__nom { font-weight: 700; font-size: 15px; color: var(--encre); }
+.vignette--texte .vignette__sous { font-size: 12.5px; color: var(--encre-doux); font-weight: 500; }
+.vignette--large { display: grid; justify-items: center; gap: 2px; padding-bottom: 11px; }
+.vignette--large .vignette__nom {
+  font-family: var(--texte); font-weight: 700; font-size: 15.5px;
+  color: var(--encre); line-height: 1.25; padding: 7px 10px 0;
+}
+.vignette--large .vignette__prix {
+  font-family: var(--texte); font-weight: 600; font-size: 14px; color: var(--encre-doux);
+}
+
+/* ---------- support d'impression : 4 cartes sur une seule ligne ----------
+   Le conteneur partage .vignettes (flex-wrap) avec le decor et le cadrage :
+   des que les trois premieres cartes depassaient la largeur du panneau de
+   quelques pixels, la quatrieme ("Portrait Encadre", la plus large) retombait
+   seule sur une deuxieme ligne. Une grille a 4 colonnes fixes force les 4 a
+   toujours tenir sur un seul rang — l'image de chaque carte est fluide
+   (voir .vignette--large img) et suit la largeur de sa colonne au lieu
+   d'imposer 92px. */
+.vignettes--supports {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+@media (max-width: 430px) {
+  /* En dessous de 430px (la plupart des mobiles en portrait) 4 colonnes
+     rendent "Portrait sur Toile" illisible sur trois lignes, collé au prix.
+     On revient à 2 x 2 plutôt que de casser la promesse "une ligne" sur les
+     écrans les plus courants. */
+  .vignettes--supports { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---------- options du configurateur : réparties et centrées ----------
+   Seule l'étape « support d'impression » était en grille. Les autres posaient
+   leurs choix en flex-wrap collé à gauche : les huit pastilles « personnes »,
+   les cinq « animaux », les deux cadrages et la rangée de décors s'arrêtaient
+   chacun à une largeur différente et laissaient une chute de blanc variable à
+   droite du panneau — quatre rangées d'options, quatre alignements. Chaque
+   groupe occupe désormais toute la largeur de son étape, à parts égales, et
+   son contenu est centré dans sa case. */
+.pastilles {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px;
+}
+.pastille { min-width: 0; padding: 11px 6px; }
+@media (max-width: 520px) {
+  /* Huit colonnes sur un écran de téléphone donneraient des pastilles de
+     34 px : on repasse en lignes, toujours à parts égales. */
+  .pastilles {
+    grid-auto-flow: row; grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+  }
+}
+
+.vignettes--cadrage {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
+}
+.vignettes--cadrage .vignette--texte {
+  min-width: 0; padding: 14px 12px; text-align: center; justify-items: center;
+}
+
+/* Les décors n'affichaient que leur image : leur nom vivait dans `title`, que
+   ni le tactile ni le clavier ne révèlent. Il passe sous la vignette, et la
+   rangée devient une grille fluide au lieu de carrés de 68 px alignés à
+   gauche. */
+.vignettes--decors {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px;
+}
+.vignette--decor { display: grid; justify-items: center; line-height: 1.3; }
+.vignette--decor img { width: 100%; height: auto; aspect-ratio: 1; }
+.vignette--decor .vignette__nom {
+  font-family: var(--texte); font-weight: 600; font-size: 13px; color: var(--encre);
+  padding: 7px 6px 9px; line-height: 1.25;
+}
+
+/* ---------- tableau comparatif ----------
+   Le paquet posait une illustration vectorielle dans ce slot. Rendu en HTML
+   au même gabarit pour rester traduisible, avec la même tenue à l'écran. */
+.compare {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  background: var(--papier); border-radius: var(--rayon-lg);
+  overflow: hidden; box-shadow: var(--ombre);
+}
+.compare th, .compare td {
+  padding: 17px 18px; text-align: center; font-size: 15.5px;
+  border-bottom: 1px solid var(--encre-voile);
+}
+.compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+.compare thead th {
+  font-family: var(--titre); font-weight: 800; font-size: 16px;
+  background: var(--cendre); color: var(--encre-doux);
+}
+.compare thead th.compare__nous { background: var(--soleil); color: var(--encre); }
+.compare tbody th[scope="row"] {
+  text-align: left; font-family: var(--texte); font-weight: 600; color: var(--encre);
+}
+.compare td.compare__nous { background: var(--creme); }
+.compare__oui, .compare__non {
+  display: grid; place-items: center; width: 28px; height: 28px;
+  border-radius: 50%; margin-inline: auto; font-weight: 700; font-size: 15px;
+}
+.compare__oui { background: var(--soleil); color: var(--encre); }
+.compare__non { background: var(--cendre); color: var(--encre-doux); }
+@media (max-width: 620px) {
+  .compare th, .compare td { padding: 13px 10px; font-size: 14px; }
+  .compare thead th { font-size: 14px; }
+}
+.compare thead th.compare__nous img { margin-inline: auto; }
+
+/* ---------- section "Restons Connectés" ----------
+   Reconstruite au pixel près d'après la section réelle du site de référence
+   (relevé via Playwright : styles calculés + captures desktop/mobile). */
+.socials-s {
+  position: relative; overflow: hidden;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 0 70px;
+}
+.social-grid1, .social-grid2 {
+  /* width:auto complète la hauteur en vw : sans lui next/image avertit que le
+     ratio est cassé (une seule des deux dimensions est reprise par le CSS). */
+  position: absolute; z-index: 1; height: 30vw; width: auto; object-fit: contain;
+}
+.social-grid1 { inset: 10% auto 0% -30%; }
+.social-grid2 { inset: 10% -30% 0% auto; }
+.socials-bg { position: absolute; z-index: 0; width: 100%; inset: 0% auto; }
+.nw-socials {
+  position: relative; z-index: 1;
+  display: flex; flex-flow: column; justify-content: center; align-items: center;
+  max-width: 340px; margin: 20px auto 0;
+}
+.spacer-60px { height: 60px; }
+.spacer-30px { height: 30px; }
+.cartoon-handle-w {
+  background-color: #FFD162; border-radius: 8px; margin-bottom: 10px;
+  padding: 4px 28px; font-size: 22px; font-weight: 700; transform: rotate(-4deg);
+}
+.cartoon-handle-w p { margin: 0; font-size: 20px; }
+/* « Restons Connectés » montait à 75px en 1440 : plus gros que le h1 du hero
+   (58px). Un teaser de réseaux sociaux ne peut pas être le plus gros titre de
+   la page. Il rejoint l'échelle de section, comme les autres h2. */
+.h2.socials {
+  font-family: var(--titre); font-weight: 800; color: #1E1A47;
+  letter-spacing: -1px; text-align: center; margin: 0;
+  font-size: var(--t-section); line-height: .95;
+}
+.paragraph-6 { margin: 10px 0 0; font-size: clamp(20px, 2vw, 26px); font-weight: 700; color: #4F4F61; }
+.image-118 { display: none; }
+
+@media (max-width: 991px) {
+  .spacer-60px { height: 50px; }
+  .spacer-30px { height: 24px; }
+  .social-grid1 { width: auto; height: 40vw; left: -50%; }
+  .social-grid2 { width: auto; height: 40vw; right: -50%; }
+}
+@media (max-width: 767px) {
+  .socials-s { justify-content: center; align-items: center; padding-bottom: 10px; }
+  .social-grid1, .social-grid2 { display: none; }
+  .nw-socials { width: 100%; max-width: none; }
+  .spacer-60px { height: 40px; }
+  .image-118 { width: 100%; height: auto; margin-top: 40px; display: block; border-radius: var(--rayon-lg); }
+  .socials-bg { width: 210%; max-width: none; top: 1%; }
+}
+@media (max-width: 479px) {
+  .h2.socials { text-align: center; max-width: 330px; margin-inline: auto; }
+  .image-118 { width: 140%; max-width: none; margin-top: 30px; }
+}
+@media (min-width: 1280px) {
+  .socials-s { padding-bottom: 80px; }
+  .social-grid1 { width: auto; height: 400px; top: 5%; left: -29%; }
+  .social-grid2 { width: auto; height: 400px; top: 5%; right: -29%; }
+}
+@media (min-width: 1440px) {
+  .socials-s { padding-bottom: 70px; }
+  .social-grid1 { width: auto; height: 25vw; top: 10%; left: -20%; }
+  .social-grid2 { width: auto; height: 25vw; top: 5%; bottom: auto; right: -20%; }
+  .cartoon-handle-w { font-size: 28px; }
+  .h2.socials { min-width: 440px; }
+}
+
+/* ---------- pied de page ----------
+   Reconstruit au pixel près d'après le pied de page réel du site de référence
+   (fond #2A2552 = --encre, mesuré via les styles calculés). */
+.footer {
+  background: var(--encre); color: #fff;
+  font-family: var(--texte); font-size: 16px; font-weight: 500; line-height: 1.6;
+  padding: 12px;
+}
+.footer__conteneur { max-width: 1400px; margin-inline: auto; padding-inline: 12px; }
+.footer__wrapper { display: flex; flex-direction: column; align-items: center; }
+.footer__logo { margin: 20px 0; text-align: center; }
+.footer-logo { width: 100%; max-width: 200px; height: auto; }
+.footer__block-list {
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px 10px;
+  width: 100%; max-width: 1200px; margin: 20px auto 0; padding: 0 20px;
+}
+.footer__block { margin: 0 10px; }
+.footer__block--newsletter { margin: auto 10px; text-align: center; }
+.footer__block p.bold { font-weight: 700; font-size: 16px; margin: 0 0 16px; }
+.footer__block ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+/* Les liens ne faisaient que 16px de haut : sous le minimum de 24px du critère
+   WCAG 2.2 « Target Size (Minimum) », et impossibles à viser au pouce. */
+.footer__block a {
+  color: #fff; text-decoration: none; font-size: 14px; font-weight: 500; opacity: .9;
+  display: inline-flex; align-items: center; min-height: 32px;
+}
+.footer__block a:hover { opacity: 1; text-decoration: underline; }
+
+.list_horiizontal { display: flex; gap: 16px; margin: 0 0 14px; padding: 0; justify-content: center; }
+.list1_item { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 500; }
+.checkmark.is-yellow { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: #FFBD46; flex: none; }
+
+.footer__newsletter-form .form-control {
+  position: relative; background: #fff; border-radius: 100px;
+  width: 400px; max-width: 100%; height: 60px;
+}
+.footer__newsletter-form .input.is-floating {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: none; outline: none; background: transparent;
+  padding: 16px 60px 0 20px; border-radius: 100px; font-size: 16px; color: #000;
+}
+.footer__newsletter-form .floating-label {
+  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+  color: #000; font-weight: 600; font-size: 16px; opacity: .55; pointer-events: none;
+  transition: top .15s ease, font-size .15s ease, opacity .15s ease;
+}
+.footer__newsletter-form .input.is-floating:focus ~ .floating-label,
+.footer__newsletter-form .input.is-floating:not(:placeholder-shown) ~ .floating-label {
+  top: 15px; font-size: 11px; opacity: .5;
+}
+.footer__newsletter-form .self-submit-button { position: absolute; right: 8px; top: 8px; bottom: 8px; }
+.footer__newsletter-form .circle-chevron {
+  width: 44px; height: 100%; aspect-ratio: 1;
+  display: grid; place-items: center; border: none; cursor: pointer;
+  background: var(--encre); color: #fff; border-radius: 50%;
+}
+.footer__newsletter-form .circle-chevron:hover { background: #1D2126; }
+
+.footer__aside { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-top: 40px; }
+.social-media { display: flex; gap: 12px; list-style: none; margin: 0; padding: 0; }
+.social-media .tap-area {
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--encre);
+}
+.footer__copyright p { margin: 0; font-size: 14px; color: rgba(255, 255, 255, .7); }
+
+@media (max-width: 999px) {
+  .footer { display: flex; flex-direction: column; align-items: center; padding: 12px; overflow-x: hidden; }
+  .footer__wrapper { gap: 20px; }
+  .footer__block-list { display: grid; grid-template-columns: 1fr 1fr; row-gap: 36px; column-gap: 3.3rem; justify-items: start; padding: 0; }
+  .footer__block--newsletter { order: -1; grid-column: 1 / -1; margin: 0 auto; justify-self: center; }
+  .footer-logo { margin-top: 12px; max-width: 150px; }
+  .footer__newsletter-form .form-control { width: 100%; min-width: 320px; }
+}
+
+/* ---------- galerie éventail ----------
+   Reprise au pixel près de la section réelle (index-ss-images.css) : 7 cartes
+   position:absolute centrées par le flex du parent, puis décalées chacune
+   par une rotation + translation en % (relative à leur propre taille). */
+.image-fan-section { padding: 0; overflow: hidden; }
+.image-fan-container { position: relative; display: flex; justify-content: center; align-items: center; height: 250px; margin-bottom: 40px; }
+.fan-image-card {
+  position: absolute; width: 170px; height: 180px; border-radius: 16px;
+  box-shadow: -6px 6px 60px #7171713d; backdrop-filter: blur(6px);
+  transition: transform .4s cubic-bezier(.165,.84,.44,1); cursor: pointer;
+  border: 5px solid #FFFFFF99;
+}
+.fan-image-card img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 12px; }
+.fan-image-card:nth-child(1) { transform: rotate(-11.8deg) translate(-200%) translateY(-10%); z-index: 1; }
+.fan-image-card:nth-child(2) { transform: rotate(-8.06deg) translate(-130%) translateY(-1%); z-index: 2; }
+.fan-image-card:nth-child(3) { transform: rotate(-3.29deg) translate(-60%) translateY(5%); z-index: 3; }
+.fan-image-card:nth-child(4) { transform: rotate(.32deg) translate(0) translateY(6%); z-index: 4; }
+.fan-image-card:nth-child(5) { transform: rotate(3.29deg) translate(60%) translateY(5%); z-index: 3; }
+.fan-image-card:nth-child(6) { transform: rotate(8.06deg) translate(130%) translateY(-1%); z-index: 2; }
+.fan-image-card:nth-child(7) { transform: rotate(11.8deg) translate(200%) translateY(-10%); z-index: 1; }
+.fan-image-card:hover { z-index: 10; }
+@media (max-width: 989px) {
+  .fan-image-card { width: 140px; height: 140px; }
+}
+@media (max-width: 749px) {
+  .fan-image-card { width: 122px; height: 130px; border-width: 3px; }
+  .image-fan-container { height: 185px; margin-bottom: 32px; }
+}
+@media (max-width: 639px) {
+  .image-fan-container { height: 140px; margin-bottom: 25px; }
+  .fan-image-card { width: 92px; height: 100px; }
+}
+@media (max-width: 479px) {
+  .fan-image-card { width: 80px; height: 90px; border-radius: 10px; }
+  .image-fan-container { height: 140px; margin-bottom: 15px; }
+}
+@media (max-width: 419px) {
+  .fan-image-card { width: 75px; height: 82px; border-radius: 8px; }
+  .image-fan-container { height: 120px; margin-bottom: 15px; }
+}
+@media (max-width: 389px) {
+  .fan-image-card { width: 68px; height: 72px; }
+}
+@media (max-width: 349px) {
+  .fan-image-card { width: 62px; height: 65px; }
+}
+
+/* ---------- "Dessiné à la main par de vrais artistes" ----------
+   Vidéo + bouton + étoiles repris au pixel près (index-ss-video.css +
+   ss-button-and-stars). Le halo doré est le même effet radial-gradient déjà
+   utilisé ailleurs (faq-visuel, cta-fin) plutôt qu'un SVG à filtre gaussien. */
+/* Fond crème : quatre sections blanches se suivaient (comparatif exclu) et se
+   confondaient en un seul bloc. Le rythme de padding rejoint .section. */
+.dessine {
+  position: relative; text-align: center; overflow: hidden;
+  background: var(--creme); padding: clamp(56px, 8vw, 104px) 0;
+}
+.dessine__halo {
+  content: ""; position: absolute; left: 50%; top: 30%;
+  /* 420px fixes débordaient de 15px sur un écran de 390 : la page gagnait un
+     scroll horizontal que seul overflow-x:hidden sur <body> masquait. */
+  width: min(420px, 90%); aspect-ratio: 1 / 1; height: auto;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(circle, var(--soleil) 0%, rgba(233,186,59,0) 68%);
+  filter: blur(40px); opacity: .55; z-index: 0;
+}
+/* Ce titre était la troisième police d'affichage de la page (Rebond en 60px,
+   à côté de Kefir et Atma) et le plus gros h2 du site. Il rejoint l'échelle. */
+.dessine__titre {
+  position: relative; z-index: 1; font-size: var(--t-section); font-weight: 800;
+  color: var(--encre); font-family: var(--titre);
+  margin: 0 auto 30px; max-width: 18ch; line-height: 1.08;
+}
+.dessine__video {
+  position: relative; z-index: 1; display: block; margin: 0 auto; max-width: 870px;
+  border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.1);
+  aspect-ratio: 870 / 454; cursor: pointer; background: #000;
+}
+.dessine__video video, .dessine__video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dessine__jouer {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 70px; height: 70px; border-radius: 50%; background: var(--soleil);
+  display: flex; align-items: center; justify-content: center; border: none; cursor: pointer;
+  transition: transform .2s ease;
+}
+.dessine__video:hover .dessine__jouer { transform: translate(-50%, -50%) scale(1.1); }
+/* #ECBF45 / #121212 étaient un second jaune et un second noir, à 3 points de
+   --soleil et --encre : invisibles séparément, incohérents côte à côte. */
+.dessine__bouton {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center;
+  gap: 10px; margin: 30px auto 15px; padding: 17px 34px; min-height: 48px;
+  background: var(--soleil); color: var(--encre);
+  font-family: var(--texte); font-weight: 700; font-size: var(--t-bouton);
+  border-radius: var(--rayon-bouton); text-decoration: none;
+  box-shadow: 0 6px 0 var(--soleil-fonce);
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+.dessine__bouton:hover { background: #F0C64F; transform: translateY(-2px); box-shadow: 0 8px 0 var(--soleil-fonce); }
+.dessine__avis { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; color: #0D0A1D; }
+@media (max-width: 479px) {
+  .dessine__bouton { width: 100%; padding: 15px 20px; }
+}
+
+/* Le bloc .hero__cta a été retiré de la page d'accueil : il dupliquait mot
+   pour mot la bannière .cta-fin de bas de page (même h2, même texte, mêmes
+   atouts, même bouton). Ses règles ont été supprimées avec lui. */
+
+/* ---------- carrousel de cartes style ----------
+   Reprise au pixel près du carrousel produit réel (scroll-carousel /
+   product-card) : 4 cartes 267px, fond pastel par carte, badges en pastille,
+   étoiles, prix en bouton indigo. Le prix barré du site de référence est
+   volontairement absent : on affiche le vrai prix Cartoonova (prixDepart),
+   pas un prix fictif qui contredirait celui affiché plus bas sur la page. */
+.carrousel-styles__piste {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 267px;
+  gap: 24px; overflow-x: auto; scroll-snap-type: x proximity;
+  justify-content: center;
+  /* Sous 1200px le rail devient scrollable : sans ces marges internes la
+     première et la dernière carte étaient tranchées net par le bord de
+     l'écran, sans aucun repère de fin de course. */
+  padding: 4px 4px 8px;
+  scroll-padding-inline: 4px;
+}
+.carte-style {
+  display: grid; grid-template-rows: auto auto; border-radius: 6px 6px 16px 16px;
+  overflow: hidden; text-decoration: none; color: inherit; scroll-snap-align: start;
+}
+/* largeur fluide : la carte suit grid-auto-columns au lieu de forcer 267px et
+   de faire déborder le rail quand la colonne est plus étroite */
+.carte-style__figure { width: 100%; aspect-ratio: 1 / 1; }
+.carte-style__figure img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px 6px 0 0; display: block; }
+.carte-style__info { padding: 8px 16px 16px; text-align: center; display: grid; gap: 4px; justify-items: center; }
+.carte-style__avis { display: flex; align-items: center; gap: 6px; }
+.carte-style__etoiles { display: flex; gap: 2px; color: rgb(255, 184, 19); }
+.carte-style__nb-avis { font-size: 12px; color: rgba(20, 20, 30, .6); }
+.carte-style__info h3 { font-size: 19px; font-weight: 700; margin: 0; color: var(--encre); }
+.carte-style__info p { font-size: 14px; color: rgba(20, 20, 30, .7); margin: 0; }
+.carte-style__prix {
+  display: inline-flex; align-items: center; justify-content: center; width: 90%;
+  margin-top: 8px; padding: 11px 8px; border-radius: 8px; background: #3E358C;
+  color: #fff; font-weight: 700; font-size: 14px; transition: background-color .2s ease, color .2s ease;
+}
+.carte-style:hover .carte-style__prix { background: #FFDA81; color: #000; }
+@media (max-width: 1240px) {
+  .carrousel-styles__piste { justify-content: flex-start; }
+}
+@media (max-width: 640px) {
+  /* la carte suivante dépasse volontairement : c'est ce qui signale
+     qu'on peut faire défiler */
+  .carrousel-styles__piste { grid-auto-columns: min(267px, 78vw); }
+}
+
+/* ---------- comment ça marche ----------
+   Structure et typographie reprises au pixel près de la section réelle
+   (index-ss-steps.css) : rangées 1fr/1fr alternées, gros chiffre filigrane,
+   bouton contour jaune. Les illustrations (mockup décor, upload, livraison)
+   sont une composition originale avec nos propres visuels — le texte y est
+   du vrai DOM traduisible, pas un texte figé dans une image comme sur le
+   site de référence, ce qui ne conviendrait pas à un site multilingue. */
+.hiw-rows { margin-top: 40px; }
+.hiw-step-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; position: relative;
+}
+.hiw-rows > .hiw-step-row + .hiw-step-row { margin-top: 60px; }
+.hiw-rows > .hiw-step-row:nth-child(2n) .hiw-step-image { order: 2; }
+.hiw-rows > .hiw-step-row:nth-child(2n) .hiw-step-content { order: 1; }
+.hiw-step-image-inner { border-radius: 30px; }
+.hiw-step-content { position: relative; }
+.hiw-step-content-wr { max-width: 412px; margin: 0 auto; position: relative; }
+.hiw-background-number {
+  position: absolute; top: -50px; right: 20px; z-index: -1;
+  font-family: var(--texte); font-weight: 400; font-size: 80px; line-height: 1.06;
+  background: linear-gradient(219.67deg, #E9BA3B -16.5%, rgba(233,186,59,0) 92.84%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+}
+/* Ce titre est un h3 : à 40px il passait devant le h2 « Comment ça marche ? »
+   (46px) et devant tous les autres titres de section. Ramené à --t-bloc, il
+   se range sous son h2 sans perdre son caractère (police accent conservée). */
+.hiw-step-heading {
+  margin: 0 0 10px; font-family: var(--accent); font-weight: 600; font-size: var(--t-bloc);
+  line-height: 1.24; color: #07090A;
+}
+.hiw-step-description { font-family: var(--texte); font-size: 17px; line-height: 1.5; color: #0D0A1D; margin: 0; }
+/* Même géométrie que .bouton--fantome : c'est la même action que le CTA du
+   hero, elle ne peut pas avoir un rayon et un corps différents. */
+.hiw-step-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: auto; margin-top: 26px; padding: 15px 30px; min-height: 48px;
+  border: 2px solid var(--soleil); border-radius: var(--rayon-bouton);
+  font-family: var(--texte); font-weight: 700; font-size: var(--t-bouton);
+  color: var(--encre); text-decoration: none;
+  transition: background-color .16s ease, border-color .16s ease;
+}
+.hiw-step-button:hover { background: var(--soleil-pale); border-color: var(--soleil-fonce); }
+
+/* mockups d'illustration (composition maison, mêmes proportions que l'original)
+   L'aspect 1/0.94 donnait une carte de ~536px de haut sur desktop pour un
+   contenu de ~150px : les trois quarts du bloc étaient du vide. 1/0.72 +
+   contenu agrandi rend la maquette crédible au lieu de flotter. */
+.hiw-mock {
+  position: relative; aspect-ratio: 1 / 0.72; background: var(--papier);
+  box-shadow: 5px 2px 9px rgba(123, 94, 92, .06); overflow: hidden;
+  display: flex; flex-direction: column;
+}
+/* La maquette « décor » ne contient qu'une barre, un libellé et cinq
+   vignettes : à l'aspect commun elle gardait 250px de blanc au milieu, les
+   vignettes collées en bas par margin-top:auto. Ratio propre + contenu
+   groupé en haut, comme un vrai sélecteur. */
+.hiw-mock--decor { aspect-ratio: auto; padding: clamp(18px, 2.2vw, 26px); gap: clamp(14px, 1.8vw, 20px); }
+.hiw-mock__barre { display: flex; gap: 7px; }
+.hiw-mock__barre span { width: 11px; height: 11px; border-radius: 50%; }
+.hiw-mock__barre span:nth-child(1) { background: #FF5F57; }
+.hiw-mock__barre span:nth-child(2) { background: #FEBC2E; }
+.hiw-mock__barre span:nth-child(3) { background: #28C840; }
+.hiw-mock__label { margin: 0; font-family: var(--texte); font-weight: 700; font-size: 16px; color: var(--encre); }
+/* grille fluide : cinq décors sur une seule ligne quelle que soit la largeur,
+   au lieu du flex-wrap qui laissait une vignette orpheline sur mobile */
+.hiw-mock__vignettes {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: clamp(8px, 1.2vw, 14px);
+}
+.hiw-mock__vignettes img {
+  width: 100%; height: auto; aspect-ratio: 1 / 1;
+  object-fit: cover; border-radius: 12px;
+}
+
+.hiw-mock--upload { align-items: center; justify-content: center; gap: 22px; background: var(--creme); }
+.hiw-mock__stack { position: relative; width: 130px; height: 100px; }
+.hiw-mock__photo { position: absolute; border-radius: 10px; object-fit: cover; box-shadow: 0 6px 14px rgba(0,0,0,.14); border: 4px solid var(--papier); }
+.hiw-mock__photo--1 { left: 0; top: 6px; transform: rotate(-8deg); z-index: 1; }
+.hiw-mock__photo--2 { left: 26px; top: 0; transform: rotate(6deg); z-index: 2; }
+.hiw-mock__zone {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 26px 34px; border: 2px dashed var(--soleil); border-radius: 18px;
+  /* 14px en #D4A32A sur blanc = 2,3:1. Or foncé : 4,9:1, AA validé. */
+  color: var(--accent-texte-petit); background: var(--papier);
+}
+.hiw-mock__zone span { font-family: var(--texte); font-weight: 700; font-size: 15px; }
+
+.hiw-mock--livraison { justify-content: flex-end; }
+.hiw-mock__photo-pleine { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hiw-mock__suivi {
+  position: relative; z-index: 1; margin: 16px; padding: 12px 14px; border-radius: 14px;
+  background: rgba(255,255,255,.94); backdrop-filter: blur(4px);
+  display: flex; flex-direction: column; gap: 6px; width: fit-content;
+}
+.hiw-mock__etape { display: flex; align-items: center; gap: 8px; font-family: var(--texte); font-weight: 600; font-size: 12.5px; color: var(--encre-doux); }
+.hiw-mock__puce { width: 8px; height: 8px; border-radius: 50%; background: var(--encre-voile); flex: none; }
+.hiw-mock__etape--actif { color: var(--encre); }
+.hiw-mock__etape--actif .hiw-mock__puce { background: #2FB35C; }
+.hiw-mock__carte {
+  position: relative; z-index: 1; margin: 0 16px 16px auto; padding: 10px 14px; border-radius: 12px;
+  background: var(--papier); box-shadow: var(--ombre); display: flex; flex-direction: column; gap: 2px;
+  font-family: var(--texte); width: fit-content;
+}
+.hiw-mock__carte span { font-size: 12px; color: var(--encre-doux); }
+.hiw-mock__carte strong { font-size: 15px; color: var(--encre); }
+
+/* Le corps des titres et des boutons vient maintenant des clamp() du système
+   (--t-bloc, --t-bouton) : plus besoin de le redéclarer par palier. Ne restent
+   ici que les changements de disposition. */
+@media (max-width: 1199px) {
+  .hiw-background-number { font-size: 65px; }
+}
+@media (max-width: 989px) {
+  .hiw-step-row { gap: 20px; }
+  .hiw-background-number { font-size: 55px; top: -40px; }
+}
+@media (max-width: 767px) {
+  .hiw-step-row { grid-template-columns: 1fr; }
+  .hiw-rows > .hiw-step-row:nth-child(2n) .hiw-step-image,
+  .hiw-rows > .hiw-step-row:nth-child(2n) .hiw-step-content { order: initial; }
+  .hiw-step-content-wr { text-align: center; margin-top: 16px; }
+  .hiw-step-heading { max-width: 100%; }
+  .hiw-background-number { position: relative; top: 0; right: 0; margin: 0 auto; display: block; max-width: fit-content; font-size: 48px; }
+  .hiw-step-button { width: 100%; }
+}
+
+
+/* =========================================================================
+   FICHE PRODUIT — corrections d'audit
+   Relevés Playwright sur /fr/simpson, 390 / 820 / 1440.
+   ========================================================================= */
+
+/* ---------- prix en tête de panneau ----------
+   Le seul prix de la page se trouvait sous les sept étapes du configurateur :
+   1732px du haut sur bureau, 2673px sur mobile. Il apparaît désormais sous
+   l'accroche, et suit les options en direct. */
+.panneau__prix {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin-top: 16px;
+}
+.panneau__prix strong {
+  font-family: var(--titre); font-weight: 800; font-size: 34px;
+  line-height: 1; color: var(--encre);
+}
+.panneau__prix span {
+  font-size: 13px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--encre-doux);
+}
+.panneau__prix .panneau__prixBarre {
+  font-family: var(--titre); font-size: 20px; font-weight: 600;
+  text-decoration: line-through; color: var(--encre-doux);
+  text-transform: none; letter-spacing: normal;
+}
+
+/* ---------- vignettes de galerie : boutons ----------
+   Étaient six <img onClick>, hors du parcours clavier. Le bouton ne doit
+   rien changer visuellement : on lui retire son habillage par défaut et on
+   reporte la bordure d'état qui vivait sur l'image. */
+.galerie__vignette {
+  padding: 0; border: 2px solid transparent; border-radius: 12px;
+  background: none; cursor: pointer; line-height: 0; flex: none;
+  overflow: hidden; transition: border-color .15s ease;
+}
+.galerie__vignette img {
+  width: 74px; height: 74px; object-fit: cover; display: block; min-height: 0;
+  border-radius: 10px;
+}
+.galerie__vignette:hover { border-color: var(--encre-voile); }
+.galerie__vignette[aria-pressed="true"] { border-color: var(--soleil); }
+.galerie__vignette:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
+
+/* ---------- zone de dépôt : bouton ----------
+   Passée de <div> à <button>, elle hérite des styles de bouton du navigateur :
+   on les neutralise pour retrouver exactement l'apparence précédente. */
+.depot {
+  display: block; width: 100%; margin: 0;
+  font-family: var(--texte); font-weight: 500; text-align: center;
+  -webkit-appearance: none; appearance: none;
+}
+.depot:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
+
+/* ---------- barre d'achat collante ----------
+   Prend le relais du bouton réel dès qu'il sort de l'écran par le haut.
+   `visibility` en plus de l'opacité : masquée, la barre ne doit pas capter
+   les clics ni le focus. */
+.barre-achat {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+  background: rgba(255, 255, 255, .96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--encre-voile);
+  box-shadow: 0 -8px 30px rgba(42, 37, 82, .12);
+  padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+  transform: translateY(100%); opacity: 0; visibility: hidden;
+  transition: transform .22s ease, opacity .22s ease, visibility .22s;
+}
+.barre-achat--visible { transform: translateY(0); opacity: 1; visibility: visible; }
+@media (prefers-reduced-motion: reduce) {
+  .barre-achat { transition: none; }
+}
+/* La marge à droite réserve la place du lanceur de clavardage (fixe, z-50,
+   à 20px du bord) : sans elle le bouton « Ajouter au panier » passait
+   dessous. Réserver l'espace plutôt que jouer au plus fort en z-index — la
+   bulle d'aide reste cliquable, et le bouton aussi. */
+.barre-achat__contenu {
+  width: min(100% - 32px, var(--largeur)); margin-inline: auto;
+  display: flex; align-items: center; gap: 16px;
+  padding-right: 140px;
+}
+.barre-achat__infos { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.barre-achat__titre {
+  font-family: var(--titre); font-weight: 800; font-size: 16px; color: var(--encre);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.barre-achat__recap {
+  font-size: 13px; color: var(--encre-doux); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.barre-achat__prix {
+  font-family: var(--titre); font-weight: 800; font-size: 24px;
+  color: var(--encre); flex: none;
+}
+.barre-achat__bouton { flex: none; padding-inline: 28px; }
+
+/* Sous 620px, titre et récap mangent la place du bouton : on ne garde que le
+   prix et l'action, la seule information dont on a besoin à cet endroit. */
+@media (max-width: 620px) {
+  /* le lanceur se réduit à une pastille ronde : moins de place à réserver */
+  .barre-achat__contenu { width: min(100% - 24px, var(--largeur)); gap: 12px; padding-right: 74px; }
+  .barre-achat__infos { display: none; }
+  .barre-achat__prix { font-size: 22px; }
+  .barre-achat__bouton { flex: 1; padding-inline: 16px; }
+}
+
+/* ---------- fil d'Ariane sur mobile ----------
+   « Accueil › Portrait Cartoon › Portrait Simpson Personnalisé » passait sur
+   deux lignes et coûtait 44px avant même la photo — assez pour repousser le
+   prix sous la ligne de flottaison. Une seule ligne, le nom courant tronqué :
+   le h1 le répète trois cents pixels plus bas. */
+@media (max-width: 620px) {
+  .fil {
+    display: flex; align-items: center; gap: 0;
+    white-space: nowrap; overflow: hidden; padding: 14px 0 4px;
+  }
+  .fil b { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+}
+
+/* ---------- étape obligatoire du configurateur ----------
+   Une seule l'est : l'envoi de photos. Sans photo, l'illustrateur n'a pas de
+   modèle — le serveur refuse désormais la commande, autant le dire avant. */
+.etape-conf__requis {
+  font-style: normal; font-weight: 700; color: var(--alerte-texte, #B3371A);
+  margin-left: -6px;
+}
+
+/* ---------- options cadeau du tunnel de paiement ----------
+   Repliées par défaut : qui achète pour soi ne voit qu'une ligne de plus. */
+.cadeau__bascule {
+  display: grid; grid-template-columns: auto 1fr; gap: 4px 12px;
+  width: 100%; text-align: left; cursor: pointer;
+  background: none; border: 0; padding: 0; font-family: var(--texte);
+}
+.cadeau__case {
+  grid-row: 1 / 3; align-self: center;
+  width: 24px; height: 24px; border-radius: 7px; flex: none;
+  border: 2px solid var(--encre-voile); background: var(--papier);
+  display: grid; place-items: center; color: var(--encre);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.cadeau__bascule[aria-expanded="true"] .cadeau__case {
+  border-color: var(--soleil); background: var(--soleil);
+}
+.cadeau__bascule:hover .cadeau__case { border-color: var(--encre-doux); }
+.cadeau__bascule:focus-visible { outline: 3px solid var(--encre); outline-offset: 3px; border-radius: 8px; }
+.cadeau__titre { font-weight: 700; font-size: 15.5px; color: var(--encre); }
+.cadeau__aide { font-size: 13px; color: var(--encre-doux); font-weight: 500; }
+.cadeau__champs {
+  display: grid; gap: 16px; margin-top: 18px;
+  padding-top: 18px; border-top: 1px solid var(--encre-voile);
+}
+.cadeau__note { font-size: 12.5px; color: var(--encre-doux); font-weight: 500; margin: 0; }
+
+/* ---------- page de suivi de commande ----------
+   Arrive depuis un e-mail, hors du segment [locale] : elle porte sa propre
+   coque et n'hérite ni de l'en-tête ni du pied de page. */
+.suivi {
+  min-height: 100vh; background: var(--cendre);
+  padding: clamp(20px, 5vw, 56px) 20px;
+  display: flex; justify-content: center; align-items: flex-start;
+}
+.suivi__carte {
+  width: min(100%, 620px); background: var(--papier);
+  border-radius: var(--rayon-lg); box-shadow: var(--ombre);
+  padding: clamp(24px, 4vw, 40px); display: grid; gap: 30px;
+}
+.suivi__carte--vide { gap: 12px; text-align: center; }
+.suivi__carte--vide hr { width: 100%; border: 0; border-top: 1px solid var(--encre-voile); margin: 8px 0; }
+.suivi__carte--vide h1 { font-size: 21px; }
+.suivi__carte--vide p { color: var(--encre-doux); font-size: 15px; margin: 0; }
+
+.suivi__tete { display: grid; gap: 6px; }
+.suivi__tete h1 { font-size: clamp(24px, 3.4vw, 32px); }
+.suivi__tete p { margin: 0; color: var(--encre-doux); font-size: 14.5px; font-weight: 600; }
+
+/* Avancement : la puce pleine marque ce qui est fait, l'anneau ce qui reste. */
+.suivi__etapes { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.suivi__etape {
+  position: relative; display: grid; grid-template-columns: auto 1fr;
+  gap: 14px; padding: 0 0 22px 0;
+}
+.suivi__etape:last-child { padding-bottom: 0; }
+.suivi__etape::before {
+  content: ""; position: absolute; left: 8px; top: 20px; bottom: 0;
+  width: 2px; background: var(--encre-voile);
+}
+.suivi__etape:last-child::before { display: none; }
+.suivi__puce {
+  width: 18px; height: 18px; border-radius: 50%; flex: none; margin-top: 2px;
+  border: 2px solid var(--encre-voile); background: var(--papier); z-index: 1;
+}
+.suivi__etape--faite .suivi__puce { background: var(--encre); border-color: var(--encre); }
+.suivi__etape--courante .suivi__puce {
+  background: var(--soleil); border-color: var(--soleil);
+  box-shadow: 0 0 0 4px rgba(233, 186, 59, .28);
+}
+.suivi__etape b { font-size: 16px; display: block; margin-bottom: 3px; }
+.suivi__etape p { margin: 0; font-size: 14.5px; color: var(--encre-doux); }
+.suivi__etape--avenir b, .suivi__etape--avenir p { opacity: .5; }
+
+.suivi__bloc {
+  border-top: 1px solid var(--encre-voile); padding-top: 24px;
+  display: grid; gap: 12px;
+}
+.suivi__bloc h2 { font-size: 18px; }
+.suivi__bloc > p { margin: 0; font-size: 14.5px; color: var(--encre-doux); }
+.suivi__portrait {
+  width: 100%; height: auto; border-radius: var(--rayon);
+  border: 6px solid var(--papier); box-shadow: var(--ombre);
+}
+
+.suivi__liste { margin: 0; display: grid; gap: 8px; }
+.suivi__liste > div {
+  display: flex; justify-content: space-between; gap: 16px;
+  font-size: 14.5px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--encre-voile);
+}
+.suivi__liste > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.suivi__liste dt { color: var(--encre-doux); font-weight: 600; }
+.suivi__liste dd { margin: 0; font-weight: 700; text-align: right; }
+.suivi__photos { margin: 0; font-size: 14px; color: var(--encre-doux); font-weight: 600; }
+
+.suivi__bloc--cadeau .suivi__message {
+  margin: 0; padding: 14px 16px; border-radius: var(--rayon);
+  background: var(--soleil-pale); font-size: 14.5px; line-height: 1.5;
+}
+.suivi__bloc--cadeau .suivi__message span {
+  display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--encre-doux); margin-bottom: 6px;
+}
+
+.suivi__aide {
+  border-top: 1px solid var(--encre-voile); padding-top: 22px;
+  font-size: 14.5px;
+}
+.suivi__aide b { display: block; margin-bottom: 5px; }
+.suivi__aide p { margin: 0; color: var(--encre-doux); }
+.suivi__aide a { color: var(--accent-texte-petit); font-weight: 700; }

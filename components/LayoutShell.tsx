@@ -5,28 +5,37 @@ import Navbar from "@/components/Navbar";
 import FooterCartoon from "@/components/FooterCartoon";
 import ChatWidget from "@/components/ChatWidget";
 import ExitIntentDialog from "@/components/ExitIntentDialog";
-import { PRODUCT_COLOR_SCHEMES } from "@/components/ProductColorProvider";
+import { SLUGS_PRODUIT } from "@/lib/catalogue";
+import type { EvenementAffiche } from "@/lib/evenements";
 
-const PRODUCT_SLUGS = Object.keys(PRODUCT_COLOR_SCHEMES);
-
-export default function LayoutShell({ children }: { children: React.ReactNode }) {
+export default function LayoutShell({
+  children,
+  /** Vignette de chaque style, calculee cote serveur — voir app/[locale]/layout.tsx. */
+  vignettes = {},
+  /** Temps fort du moment, ou null hors periode. */
+  evenement = null,
+}: {
+  children: React.ReactNode;
+  vignettes?: Record<string, string>;
+  evenement?: EvenementAffiche | null;
+}) {
   const pathname = usePathname();
-  const isBare = pathname.includes("/admin") || pathname.includes("/simpson-mockups");
+  const nu = pathname.includes("/admin") || pathname.includes("/simpson-mockups");
 
-  if (isBare) return <>{children}</>;
+  if (nu) return <>{children}</>;
 
-  const isProductPage = pathname
+  const surFicheProduit = pathname
     .split("/")
     .filter(Boolean)
-    .some((segment) => PRODUCT_SLUGS.includes(segment));
+    .some((segment) => SLUGS_PRODUIT.includes(segment));
 
   return (
     <>
-      <Navbar />
+      <Navbar vignettes={vignettes} evenement={evenement} />
       <main>{children}</main>
       <FooterCartoon />
       <ChatWidget />
-      {isProductPage && <ExitIntentDialog />}
+      {surFicheProduit && <ExitIntentDialog />}
     </>
   );
 }

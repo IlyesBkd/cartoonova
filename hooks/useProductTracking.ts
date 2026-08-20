@@ -96,31 +96,3 @@ export function useProductTracking(config: ProductConfig) {
     trackPurchaseCompleted,
   };
 }
-
-// Product configurations for all 6 products
-export const PRODUCT_CONFIGS: Record<string, ProductConfig> = {
-  simpson: {
-    productId: "cartoonova-simpson-base",
-    productName: "Custom Simpson Portrait",
-  },
-  onepiece: {
-    productId: "cartoonova-onepiece-wanted",
-    productName: "One Piece Wanted Poster",
-  },
-  dbz: {
-    productId: "cartoonova-dbz-portrait",
-    productName: "Dragon Ball Z Portrait",
-  },
-  ghibli: {
-    productId: "cartoonova-ghibli-portrait",
-    productName: "Studio Ghibli Portrait",
-  },
-  rickandmorty: {
-    productId: "cartoonova-rickandmorty-portrait",
-    productName: "Rick & Morty Portrait",
-  },
-  disney: {
-    productId: "cartoonova-disney-portrait",
-    productName: "Disney Portrait",
-  },
-};

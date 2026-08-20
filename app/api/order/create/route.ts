@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sql } from "@/lib/db";
 import { consumePromoCode } from "@/lib/promoCodes";
+import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -43,10 +44,18 @@ export async function POST(req: NextRequest) {
       photoUrls,
       style,
       detectedCountry,
+      gift,
     } = await req.json();
 
     if (!paymentIntentId || !email) {
       return NextResponse.json({ error: "Données manquantes." }, { status: 400 });
+    }
+
+    // Second verrou : cette route est appelee juste avant la confirmation du
+    // paiement, donc un refus ici arrete la commande avant le debit.
+    const photos = parsePhotoUrls(photoUrls);
+    if (photosInvalides(photos)) {
+      return NextResponse.json({ error: photos.error }, { status: 400 });
     }
 
     await ensureOrderPromoSchema();
@@ -62,12 +71,35 @@ export async function POST(req: NextRequest) {
 
     const customerName = [firstName, lastName].filter(Boolean).join(" ") || null;
 
+    /* Options cadeau. Champs libres saisis par le client : on borne la
+       longueur et on ne garde une date que si elle a la forme AAAA-MM-JJ,
+       pour ne pas stocker n'importe quoi dans le JSON de la commande. */
+    const texte = (v: unknown, max: number): string | null => {
+      if (typeof v !== "string") return null;
+      const propre = v.trim().slice(0, max);
+      return propre || null;
+    };
+    const cadeau =
+      gift && typeof gift === "object"
+        ? {
+            message: texte(gift.message, 300),
+            recipientEmail: texte(gift.recipientEmail, 160),
+            deliverAfter: /^\d{4}-\d{2}-\d{2}$/.test(String(gift.deliverAfter ?? ""))
+              ? String(gift.deliverAfter)
+              : null,
+          }
+        : null;
+    const estCadeau = Boolean(
+      cadeau && (cadeau.message || cadeau.recipientEmail || cadeau.deliverAfter)
+    );
+
     const options = JSON.stringify({
       format,
       people,
       animals,
       background,
       printOption,
+      gift: estCadeau ? cadeau : null,
       style: style || null,
       description,
       phone: phone || null,
@@ -77,7 +109,8 @@ export async function POST(req: NextRequest) {
       addressLine2: addressLine2 || null,
     });
 
-    const photoUrlsJson = JSON.stringify(photoUrls || []);
+    // Liste nettoyee par parsePhotoUrls : doublons retires, plafond applique.
+    const photoUrlsJson = JSON.stringify(photos);
 
     const rows = await sql`
       INSERT INTO orders (

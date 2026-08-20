@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncSupportInbox } from "@/lib/imapSync";
+import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
-  const password = req.headers.get("x-admin-password");
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refus = refuserSiPasAdmin(req);
+  if (refus) return refus;
 
   try {
     const result = await syncSupportInbox();

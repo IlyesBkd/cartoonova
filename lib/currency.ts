@@ -18,6 +18,8 @@ export const currencyNames: Record<Currency, string> = {
   AUD: "Australian Dollar",
 };
 
+// Drapeaux : ne servent plus qu'au back-office. L'interface publique affiche
+// le code de la devise, composé dans la fonte de titre.
 export const currencyFlags: Record<Currency, string> = {
   EUR: "🇪🇺",
   USD: "🇺🇸",

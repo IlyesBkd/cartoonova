@@ -8,12 +8,21 @@ import { convertPrice } from "./currency";
 export const sql = neon(process.env.DATABASE_URL!);
 
 // ─── Orders ──────────────────────────────────────────────────────────
+/** Options cadeau saisies au paiement. Absentes quand ce n'est pas un cadeau. */
+export interface GiftOptions {
+  message: string | null;
+  recipientEmail: string | null;
+  /** Date AAAA-MM-JJ avant laquelle le portrait ne doit pas etre envoye. */
+  deliverAfter: string | null;
+}
+
 export interface OrderOptions {
   format: string;
   people: number;
   animals: number;
   background: string;
   printOption: string;
+  gift?: GiftOptions | null;
   style?: string;
   description?: string;
   phone?: string;
@@ -54,6 +63,12 @@ export async function getOrderByPaymentId(paymentIntentId: string): Promise<DbOr
   const rows = await sql`
     SELECT * FROM orders WHERE payment_intent_id = ${paymentIntentId}
   `;
+  return (rows[0] as unknown as DbOrder) || null;
+}
+
+/** Lecture d'une commande par identifiant, pour la page de suivi client. */
+export async function getOrderById(orderId: string): Promise<DbOrder | null> {
+  const rows = await sql`SELECT * FROM orders WHERE id = ${orderId}::uuid`;
   return (rows[0] as unknown as DbOrder) || null;
 }
 
@@ -470,6 +485,7 @@ async function ensureLifecycleSchema(): Promise<void> {
     await ensureNewsletterSchema();
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS review_request_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS reorder_email_sent_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS abandoned_email_sent_at TIMESTAMPTZ`;
   })().catch((e) => {
     lifecycleSchemaReady = null;
     throw e;
@@ -514,6 +530,62 @@ export async function getOrdersDueForReorderEmail(days: number): Promise<Lifecyc
     ORDER BY lower(o.customer_email), o.final_image_sent_at DESC
   `;
   return rows as unknown as LifecycleOrder[];
+}
+
+/** Commande restee en PENDING : le client a saisi son e-mail puis n'a pas fini. */
+export interface AbandonedOrder {
+  id: string;
+  payment_intent_id: string;
+  customer_email: string;
+  customer_name: string | null;
+  detected_country: string | null;
+  total_price: number;
+  currency: string;
+  options: OrderOptions;
+  created_at: string;
+}
+
+/**
+ * Commandes abandonnees depuis au moins `hours` heures et jamais relancees.
+ *
+ * La fenetre haute (`maxDays`) evite de reveiller un panier vieux de six mois :
+ * passe un certain delai, la relance ressemble a du harcelement et le contexte
+ * d'achat a disparu.
+ */
+export async function getOrdersDueForAbandonedEmail(
+  hours: number,
+  maxDays: number
+): Promise<AbandonedOrder[]> {
+  await ensureLifecycleSchema();
+  const rows = await sql`
+    SELECT o.id, o.payment_intent_id, o.customer_email, o.customer_name,
+           o.detected_country, o.total_price, o.currency, o.options, o.created_at
+    FROM orders o
+    WHERE o.status = 'PENDING'
+      AND o.created_at < NOW() - (${hours} * INTERVAL '1 hour')
+      AND o.created_at > NOW() - (${maxDays} * INTERVAL '1 day')
+      AND o.abandoned_email_sent_at IS NULL
+      AND o.customer_email IS NOT NULL
+      -- Un client qui a fini par payer, meme sur une autre tentative, ne doit
+      -- pas recevoir « vous avez oublie quelque chose ».
+      AND NOT EXISTS (
+        SELECT 1 FROM orders p
+        WHERE lower(p.customer_email) = lower(o.customer_email)
+          AND p.status = 'PAID'
+          AND p.created_at >= o.created_at - INTERVAL '1 day'
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM newsletter_subscribers n
+        WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
+      )
+    ORDER BY o.created_at ASC
+  `;
+  return rows as unknown as AbandonedOrder[];
+}
+
+export async function markAbandonedEmailSent(orderId: string): Promise<void> {
+  await ensureLifecycleSchema();
+  await sql`UPDATE orders SET abandoned_email_sent_at = NOW() WHERE id = ${orderId}::uuid`;
 }
 
 export async function markReviewRequestSent(orderId: string): Promise<void> {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
+import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -9,7 +10,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderConfig, currency, promoCode, description, style } = body;
+    const { orderConfig, currency, promoCode, description, style, photoUrls } = body;
+
+    // Pas de photo, pas de PaymentIntent : sans modele l'illustrateur ne peut
+    // rien dessiner, et la commande arriverait impossible a honorer. C'est le
+    // premier des deux verrous — le second est a l'enregistrement en base.
+    const photos = parsePhotoUrls(photoUrls);
+    if (photosInvalides(photos)) {
+      return NextResponse.json({ error: photos.error }, { status: 400 });
+    }
 
     // Le montant n'est plus accepte depuis le navigateur : il est recalcule
     // ici a partir des prix en base, sinon n'importe qui pourrait payer 1 €

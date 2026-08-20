@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -8,13 +8,14 @@ import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
 import type { PrintKey } from "@/lib/pricing";
+import Icone from "@/components/tj/Icone";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 /* ─── Shared input style ──────────────────────────────────────────── */
 const inputClass =
-  "w-full px-4 py-3 text-sm font-bold bg-white border-2 border-black rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-black/30";
-const labelClass = "text-xs font-black text-black uppercase mb-1 block";
+  "champ-ligne";
+const labelClass = "champ-etiquette";
 
 /* ─── Types ───────────────────────────────────────────────────────── */
 interface OrderConfig {
@@ -31,6 +32,11 @@ interface OrderConfig {
   style: string;
 }
 
+/** Message lisible d'une erreur attrapee, quelle que soit sa forme. */
+function messageErreur(err: unknown): string {
+  return err instanceof Error && err.message ? err.message : "Une erreur technique est survenue.";
+}
+
 /** Ce que le serveur a besoin de connaitre pour recalculer le prix lui-meme. */
 const pricingPayload = (orderConfig: OrderConfig) => ({
   format: orderConfig.format,
@@ -45,9 +51,12 @@ function PaymentForm({
   clientSecret,
   formData,
   orderConfig,
+  montant,
 }: {
   onClose: () => void;
   clientSecret: string;
+  /** Montant du a payer, deja formate dans la devise du visiteur. */
+  montant: string;
   formData: {
     email: string;
     firstName?: string;
@@ -58,6 +67,11 @@ function PaymentForm({
     postalCode?: string;
     country?: string;
     phone?: string;
+    gift?: {
+      message: string | null;
+      recipientEmail: string | null;
+      deliverAfter: string | null;
+    } | null;
   };
   orderConfig: OrderConfig;
 }) {
@@ -112,6 +126,7 @@ function PaymentForm({
         photoUrls: orderConfig.photoUrls,
         style: orderConfig.style,
         detectedCountry,
+        gift: formData.gift ?? null,
       }),
     });
 
@@ -183,9 +198,9 @@ function PaymentForm({
       } else {
         console.log("[CARD] ℹ️ Ni error ni paymentIntent → Stripe a redirigé automatiquement");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("[CARD] 💥 Erreur critique:", err);
-      setError(err.message || "Une erreur technique est survenue.");
+      setError(messageErreur(err));
     } finally {
       setLoading(false);
     }
@@ -230,9 +245,9 @@ function PaymentForm({
         console.log("[EXPRESS] ⚠️ Pas d'erreur mais pas de redirect. Fallback redirect. PI:", piId);
         window.location.href = `/success?payment_intent=${piId}`;
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("[EXPRESS] 💥 Erreur Express:", err);
-      setError(err.message || "Une erreur technique est survenue.");
+      setError(messageErreur(err));
     } finally {
       setLoading(false);
     }
@@ -244,68 +259,81 @@ function PaymentForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {/* Express Checkout - Apple Pay / Google Pay natif */}
-      <div className="bg-white border-2 border-black rounded-xl p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-lg">⚡</span>
-          <h4 className="font-black text-black text-sm">{t("expressCheckout") || "Achat express"}</h4>
+    /* Le formulaire EST l'etage central de la modale : c'est lui qui defile,
+       et son pied reste visible. Avant, les deux boutons se trouvaient au bas
+       d'un bloc qui defilait avec le reste. */
+    <form onSubmit={handleSubmit} className="paiement-forme">
+      <div className="modale__corps">
+        <div className="recap-commande">
+          <span className="recap-commande__photo">
+            {orderConfig.photoUrls[0] ? (
+              /* Blob Vercel : hors du domaine configure pour l'optimiseur. */
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={orderConfig.photoUrls[0]} alt="" />
+            ) : (
+              <Icone nom="image" taille={22} />
+            )}
+          </span>
+          <div className="recap-commande__corps">
+            <div className="recap-commande__support">{orderConfig.printOption}</div>
+            <p className="recap-commande__detail">{formData.email}</p>
+          </div>
+          <div className="recap-commande__prix">
+            <b>{montant}</b>
+          </div>
         </div>
-        <ExpressCheckoutElement
-          onConfirm={async () => {
-            await handleExpressPayment();
-          }}
-        />
+
+        {/* Achat express : Apple Pay / Google Pay natifs. */}
+        <div className="bloc">
+          <div className="bloc__tete">
+            <Icone nom="eclair" taille={17} />
+            {t("expressCheckout")}
+          </div>
+          <ExpressCheckoutElement
+            onConfirm={async () => {
+              await handleExpressPayment();
+            }}
+          />
+        </div>
+
+        <div className="separateur-ou">{t("or")}</div>
+
+        <div className="bloc">
+          <div className="bloc__tete">
+            <Icone nom="carte-bancaire" taille={17} />
+            {t("cardPayment")}
+          </div>
+          <PaymentElement
+            options={{
+              fields: {
+                billingDetails: {
+                  email: "auto" as const,
+                  name: "auto" as const,
+                  phone: "auto" as const,
+                  address: "auto" as const,
+                },
+              },
+            }}
+          />
+        </div>
+
+        {error && (
+          <p className="alerte alerte--erreur" role="alert">
+            <Icone nom="alerte" taille={16} />
+            {error}
+          </p>
+        )}
       </div>
 
-      {/* Séparateur */}
-      <div className="flex items-center gap-4 my-2">
-        <div className="flex-1 h-px bg-black/20"></div>
-        <span className="text-xs font-black text-black/40 uppercase">{t("or") || "OU"}</span>
-        <div className="flex-1 h-px bg-black/20"></div>
-      </div>
-
-      {/* Payment Element - Carte classique */}
-      <div className="bg-white border-2 border-black rounded-xl p-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-lg">💳</span>
-          <h4 className="font-black text-black text-sm">{t("cardPayment") || "Paiement par carte"}</h4>
+      <div className="modale__pied">
+        <div className="modale__pied-duo">
+          <button type="button" onClick={onClose} className="bouton bouton--fantome">
+            {t("cancel")}
+          </button>
+          <button type="submit" disabled={!stripe || loading} className="bouton bouton--primaire">
+            {loading ? t("paymentInProgress") : t("payNow")}
+          </button>
         </div>
-        <PaymentElement
-          options={{
-            fields: {
-              billingDetails: {
-                email: 'auto' as const,
-                name: 'auto' as const,
-                phone: 'auto' as const,
-                address: 'auto' as const
-              }
-            }
-          }}
-        />
-      </div>
-
-      {error && (
-        <div className="bg-red-100 border-2 border-red-500 rounded-xl p-3 text-sm font-bold text-red-700 text-center">
-          {error}
-        </div>
-      )}
-
-      <div className="flex gap-3 mt-6">
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex-1 bg-white text-black font-black text-sm uppercase py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-        >
-          {t("cancel")}
-        </button>
-        <button
-          type="submit"
-          disabled={!stripe || loading}
-          className="flex-[2] bg-yellow-400 text-black font-black text-sm uppercase py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? t("paymentInProgress") : t("payNow")}
-        </button>
       </div>
     </form>
   );
@@ -341,6 +369,21 @@ export default function CheckoutModal({
   const [formError, setFormError] = useState("");
   const tCountry = useTranslations("checkout.countries");
 
+  // Options cadeau
+  const [estCadeau, setEstCadeau] = useState(false);
+  const [messageCadeau, setMessageCadeau] = useState("");
+  const [emailDestinataire, setEmailDestinataire] = useState("");
+  const [dateRemise, setDateRemise] = useState("");
+
+  /* Une date de remise dans le passe n'a pas de sens : le selecteur commence
+     demain. Calcule une fois au montage — `new Date()` au rendu changerait de
+     valeur a chaque passage et ferait diverger serveur et navigateur. */
+  const [demain] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  });
+
   // Code promo
   const [promoInput, setPromoInput] = useState("");
   const [promoChecking, setPromoChecking] = useState(false);
@@ -356,18 +399,36 @@ export default function CheckoutModal({
     }
   }, []);
 
-  const isDigital = orderConfig.printOption === "Digital";
+  /* Comparaison sur la cle du support, pas sur son libelle : `printOption` est
+     traduit, et vaut "Digitale" en italien. La comparaison au mot "Digital"
+     echouait donc, et le client italien devait remplir nom, adresse, ville,
+     code postal et telephone — 13 champs — pour recevoir un fichier par
+     e-mail. `printKey` est stable quelle que soit la langue. */
+  const isDigital = orderConfig.printKey === "digital";
   const { currency, formatRaw: formatPrice } = useCurrency();
+
+  /** Signature du montant pour lequel `clientSecret` a ete cree, "" si aucun. */
+  const signaturePreparee = useRef("");
+  /** Numero de la derniere requete lancee : une reponse plus ancienne est ignoree. */
+  const numeroRequete = useRef(0);
 
   // Reset on open/close + track modal open
   useEffect(() => {
     if (!open) {
       setStep("info");
       setClientSecret("");
+      // Le secret prepare meurt avec la modale : rouverte, la commande peut
+      // avoir change de support ou de devise.
+      signaturePreparee.current = "";
+      numeroRequete.current++;
       setFormError("");
       setPromoInput("");
       setPromoError("");
       setApplied(null);
+      setEstCadeau(false);
+      setMessageCadeau("");
+      setEmailDestinataire("");
+      setDateRemise("");
       return;
     }
     posthog.capture("checkout_modal_opened", {
@@ -380,7 +441,121 @@ export default function CheckoutModal({
     });
   }, [open, orderConfig]);
 
+  /* Une boite de dialogue doit se fermer a Echap, et la page derriere ne doit
+     pas defiler quand on fait defiler la modale. Ni l'un ni l'autre n'etait
+     gere : sur mobile, un doigt sur le formulaire emportait la fiche produit. */
+  const boiteRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const auClavier = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", auClavier);
+    const debordementInitial = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    boiteRef.current?.focus();
+    return () => {
+      document.removeEventListener("keydown", auClavier);
+      document.body.style.overflow = debordementInitial;
+    };
+  }, [open, onClose]);
+
   const amountDue = applied ? applied.total : orderConfig.total;
+
+  /* ─── preparation anticipee du paiement ───────────────────────────────
+     Le PaymentIntent etait cree au clic sur « Continuer vers le paiement » :
+     le client attendait alors l'aller-retour serveur (Stripe cree l'intent
+     cote API) AVANT que l'iframe de paiement ne commence seulement a se
+     monter. On le prepare maintenant des l'ouverture de la modale, pendant
+     qu'il remplit ses coordonnees.
+
+     Un intent vaut pour UN montant, et `/api/checkout` en cree un nouveau a
+     chaque appel — il n'en met aucun a jour. La signature ci-dessous retient
+     le montant pour lequel le secret courant a ete cree ; code promo compris.
+     Sans elle, un client qui saisit un code apres l'ouverture paierait le
+     montant plein via un secret perime. */
+  const signatureMontant = JSON.stringify({
+    ...pricingPayload(orderConfig),
+    currency,
+    promoCode: applied?.code ?? null,
+  });
+  const preparerPaiement = (signature: string): Promise<boolean> => {
+    const numero = ++numeroRequete.current;
+    // Pose des maintenant : une seconde passe de l'effet pendant que la
+    // requete est en vol ne doit pas creer un intent de plus.
+    signaturePreparee.current = signature;
+
+    return fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderConfig: pricingPayload(orderConfig),
+        currency,
+        promoCode: applied?.code ?? null,
+        description: orderConfig.description,
+        style: orderConfig.style,
+        // Le serveur refuse de creer un PaymentIntent sans photo.
+        photoUrls: orderConfig.photoUrls,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (numero !== numeroRequete.current) return false;
+        if (!data.clientSecret) {
+          signaturePreparee.current = "";
+          return false;
+        }
+        /* On retient le code que le serveur a REELLEMENT accorde, pas celui
+           qu'on lui a demande. Un code refuse (expire, inconnu) revient a
+           `promoCode: null` et l'intent est deja au montant plein : sans
+           cette correction, `setApplied(null)` juste en dessous faisait
+           repasser la signature a « sans promo », l'effet ne s'y retrouvait
+           plus et creait un troisieme intent pour rien. */
+        signaturePreparee.current = JSON.stringify({
+          ...pricingPayload(orderConfig),
+          currency,
+          promoCode: data.promoCode ?? null,
+        });
+        setClientSecret(data.clientSecret);
+        // Le serveur fait foi sur le montant : si le code a expire entre la
+        // verification et le paiement, l'affichage suit le montant reel.
+        if (typeof data.total === "number") {
+          setApplied(
+            data.promoCode
+              ? { code: data.promoCode, discount: data.discount, total: data.total }
+              : null
+          );
+        }
+        return true;
+      })
+      .catch(() => {
+        if (numero === numeroRequete.current) signaturePreparee.current = "";
+        return false;
+      });
+  };
+
+  /* Prepare a l'ouverture, puis a chaque fois que le montant change (code
+     promo applique ou retire). En silence : un echec ici ne doit rien
+     afficher a quelqu'un qui remplit encore son adresse — `goToPayment`
+     reessaiera et parlera, lui. */
+  useEffect(() => {
+    if (!open || signaturePreparee.current === signatureMontant) return;
+    preparerPaiement(signatureMontant);
+    // preparerPaiement est recreee a chaque rendu ; la garde de signature
+    // ci-dessus est ce qui empeche les appels en double, pas les dependances.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, signatureMontant]);
+
+  /* Le recapitulatif titre deja le support choisi : le repeter dans la ligne
+     de detail donnait « Portrait Encadré / Portrait · 1 personne · Namek ·
+     Portrait Encadré ». La note libre pour l'artiste, elle, est ajoutee apres
+     un « | » et doit rester intacte. */
+  const [optionsCommande, noteCommande] = orderConfig.description.split(" | ");
+  const detailCommande = optionsCommande
+    .split(" · ")
+    .filter((part) => part !== orderConfig.printOption)
+    .join(" · ");
 
   const applyPromo = async () => {
     const code = promoInput.trim();
@@ -440,6 +615,13 @@ export default function CheckoutModal({
       }
     }
 
+    // L'e-mail du destinataire est facultatif, mais s'il est saisi il doit etre
+    // valide : c'est la seule adresse qui recevra le portrait.
+    if (estCadeau && emailDestinataire.trim() && !emailDestinataire.includes("@")) {
+      setFormError(t("errorValidEmail"));
+      return;
+    }
+
     posthog.capture("checkout_info_completed", {
       style: orderConfig.style,
       value: orderConfig.total,
@@ -448,152 +630,162 @@ export default function CheckoutModal({
     });
 
     setStep("payment");
-    setLoadingIntent(true);
 
-    fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderConfig: pricingPayload(orderConfig),
-        currency,
-        promoCode: applied?.code ?? null,
-        description: orderConfig.description,
-        style: orderConfig.style,
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.clientSecret) {
-          setClientSecret(data.clientSecret);
-          // Le serveur fait foi sur le montant : si le code a expire entre la
-          // verification et le paiement, l'affichage suit le montant reel.
-          if (typeof data.total === "number") {
-            setApplied(
-              data.promoCode
-                ? { code: data.promoCode, discount: data.discount, total: data.total }
-                : null
-            );
-          }
-        } else {
-          setFormError(t("errorPaymentInit"));
-        }
-        setLoadingIntent(false);
-      })
-      .catch(() => {
-        setFormError(t("errorTechnical"));
-        setLoadingIntent(false);
-      });
+    // Prepare pendant la saisie et toujours valable pour ce montant : on
+    // enchaine directement sur le formulaire de carte, sans attente.
+    if (clientSecret && signaturePreparee.current === signatureMontant) return;
+
+    setLoadingIntent(true);
+    preparerPaiement(signatureMontant).then((pret) => {
+      setLoadingIntent(false);
+      if (pret) return;
+      /* Echec : on ramene a l'etape 1 pour montrer l'erreur. Avant, l'etape
+         de paiement restait affichee sans secret — et comme sa condition
+         d'attente est `loadingIntent || !clientSecret`, le rond tournait
+         indefiniment sur un tunnel deja mort. */
+      setStep("info");
+      setFormError(t("errorPaymentInit"));
+    });
   };
 
   if (!open) return null;
 
-  return (
-    <div data-checkout-modal className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-md" onClick={onClose} />
+  const titreEtape =
+    step === "success" ? t("orderConfirmed") : step === "payment" ? t("securePayment") : t("yourInfo");
+  const sousEtape =
+    step === "success"
+      ? t("thankYou")
+      : step === "payment"
+        ? t("paymentMethods")
+        : isDigital
+          ? t("digitalDelivery")
+          : t("physicalDelivery");
 
-      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-gradient-to-br from-yellow-50 to-yellow-100 border-4 border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transform transition-all duration-300 scale-100">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-yellow-400 to-yellow-300 border-b-4 border-black px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl animate-bounce">{step === "success" ? "🎉" : step === "payment" ? "💳" : "📋"}</span>
-            <div>
-              <p className="font-black text-black text-sm uppercase tracking-wide">
-                {step === "success" ? t("orderConfirmed") : step === "payment" ? t("securePayment") : t("yourInfo")}
-              </p>
-              <p className="text-xs font-bold text-black/60">
-                {step === "success" ? t("thankYou") : step === "payment" ? t("poweredByStripe") : isDigital ? t("digitalDelivery") : t("physicalDelivery")}
-              </p>
-            </div>
+  return (
+    <div data-checkout-modal className="modale animate-fadeIn">
+      <div className="modale__voile" onClick={onClose} />
+
+      <div
+        className="modale__boite"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modale-titre"
+        ref={boiteRef}
+      >
+        <div className="modale__entete">
+          <span className="modale__entete-icone">
+            <Icone
+              nom={step === "success" ? "fete" : step === "payment" ? "carte-bancaire" : "presse-papiers"}
+              taille={22}
+            />
+          </span>
+          <div className="modale__entete-texte">
+            <p className="modale__titre" id="modale-titre">{titreEtape}</p>
+            <p className="modale__sous">{sousEtape}</p>
           </div>
-          <div className="flex items-center gap-3">
-            {step !== "success" && (
-              <span className="text-xs font-black text-black/50 uppercase whitespace-nowrap">
-                {step === "info" ? t("step1Of2") : t("step2Of2")}
-              </span>
-            )}
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center font-black text-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer hover:bg-red-50"
-            >
-              ✕
-            </button>
-          </div>
+          {step !== "success" && (
+            <span className="modale__compteur">
+              {step === "info" ? t("step1Of2") : t("step2Of2")}
+            </span>
+          )}
+          <button type="button" onClick={onClose} className="modale__fermer" aria-label={t("close")}>
+            <Icone nom="croix" taille={15} />
+          </button>
         </div>
 
-        <div className="p-6">
-          {/* ─── STEP 1: INFO ─── */}
-          {step === "info" && (
-            <div className="flex flex-col gap-4">
-              {/* Order summary */}
-              <div className="bg-gradient-to-r from-white to-yellow-50 border-3 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-black text-black/40 uppercase tracking-wider">{t("totalToPay")}</p>
-                    <p className="text-3xl font-black text-black">{formatPrice(orderConfig.total)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-black/40 max-w-[200px]">{orderConfig.description}</p>
-                    <div className="mt-2 px-3 py-1 bg-yellow-400 border border-black rounded-full inline-block">
-                      <span className="text-xs font-black text-black uppercase">{orderConfig.printOption}</span>
-                    </div>
-                  </div>
+        {/* Avancement du tunnel : lisible sans être lu. */}
+        <div className="modale__jauge" aria-hidden="true">
+          <span style={{ width: step === "info" ? "50%" : "100%" }} />
+        </div>
+
+        {/* ─── STEP 1: INFO ─── */}
+        {step === "info" && (
+          <>
+            <div className="modale__corps">
+              {/* Recapitulatif. La photo envoyee par le client n'apparaissait
+                  nulle part dans le tunnel : c'est pourtant la seule chose qui
+                  prouve qu'on paie pour LE bon portrait. */}
+              <div className="recap-commande">
+                <span className="recap-commande__photo">
+                  {orderConfig.photoUrls[0] ? (
+                    /* Blob Vercel : hors du domaine configure pour l'optimiseur. */
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={orderConfig.photoUrls[0]} alt="" />
+                  ) : (
+                    <Icone nom="image" taille={22} />
+                  )}
+                </span>
+                <div className="recap-commande__corps">
+                  <div className="recap-commande__support">{orderConfig.printOption}</div>
+                  <p className="recap-commande__detail">
+                    {detailCommande}
+                    {noteCommande && ` — « ${noteCommande} »`}
+                  </p>
+                </div>
+                <div className="recap-commande__prix">
+                  {applied && <s>{formatPrice(orderConfig.total)}</s>}
+                  <b>{formatPrice(amountDue)}</b>
                 </div>
               </div>
 
               {!isDigital && (
-                <p className="text-xs font-bold text-black/50 text-center -mt-1">🎁 {t("orderByGuidance")}</p>
+                <p className="modale__rassurance">
+                  <Icone nom="cadeau" taille={13} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }} />
+                  {t("orderByGuidance")}
+                </p>
               )}
 
-              {/* Email — always required */}
-              <div className="space-y-2">
-                <label className={labelClass}>{t("emailAddress")}</label>
-                <input 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  placeholder={t("emailPlaceholder")} 
-                  className={`${inputClass} focus:ring-4 focus:ring-yellow-300 transition-all`}
+              <div className="champ-groupe">
+                <label className={labelClass} htmlFor="checkout-email">{t("emailAddress")}</label>
+                <input
+                  id="checkout-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t("emailPlaceholder")}
+                  className={inputClass}
                 />
               </div>
 
               {/* Physical-only fields */}
               {!isDigital && (
                 <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className={labelClass}>{t("firstName")}</label>
-                      <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={t("firstNamePlaceholder")} className={inputClass} />
+                  <div className="champ-duo">
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="checkout-prenom">{t("firstName")}</label>
+                      <input id="checkout-prenom" type="text" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder={t("firstNamePlaceholder")} className={inputClass} />
                     </div>
-                    <div>
-                      <label className={labelClass}>{t("lastName")}</label>
-                      <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={t("lastNamePlaceholder")} className={inputClass} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>{t("address")}</label>
-                    <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t("addressPlaceholder")} className={inputClass} />
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>{t("addressLine2")}</label>
-                    <input type="text" value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} placeholder={t("addressLine2Placeholder")} className={inputClass} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className={labelClass}>{t("city")}</label>
-                      <input type="text" value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("cityPlaceholder")} className={inputClass} />
-                    </div>
-                    <div>
-                      <label className={labelClass}>{t("postalCode")}</label>
-                      <input type="text" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder={t("postalCodePlaceholder")} className={inputClass} />
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="checkout-nom">{t("lastName")}</label>
+                      <input id="checkout-nom" type="text" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder={t("lastNamePlaceholder")} className={inputClass} />
                     </div>
                   </div>
 
-                  <div>
-                    <label className={labelClass}>{t("country")}</label>
-                    <select value={countryCode} onChange={(e) => { setCountryCode(e.target.value); setPhonePrefix(getCallingCode(e.target.value)); }} className={inputClass}>
+                  <div className="champ-groupe">
+                    <label className={labelClass} htmlFor="checkout-adresse">{t("address")}</label>
+                    <input id="checkout-adresse" type="text" autoComplete="address-line1" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t("addressPlaceholder")} className={inputClass} />
+                  </div>
+
+                  <div className="champ-groupe">
+                    <label className={labelClass} htmlFor="checkout-adresse2">{t("addressLine2")}</label>
+                    <input id="checkout-adresse2" type="text" autoComplete="address-line2" value={addressLine2} onChange={(e) => setAddressLine2(e.target.value)} placeholder={t("addressLine2Placeholder")} className={inputClass} />
+                  </div>
+
+                  <div className="champ-duo">
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="checkout-ville">{t("city")}</label>
+                      <input id="checkout-ville" type="text" autoComplete="address-level2" value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("cityPlaceholder")} className={inputClass} />
+                    </div>
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="checkout-cp">{t("postalCode")}</label>
+                      <input id="checkout-cp" type="text" autoComplete="postal-code" value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder={t("postalCodePlaceholder")} className={inputClass} />
+                    </div>
+                  </div>
+
+                  <div className="champ-groupe">
+                    <label className={labelClass} htmlFor="checkout-pays">{t("country")}</label>
+                    <select id="checkout-pays" autoComplete="country-name" value={countryCode} onChange={(e) => { setCountryCode(e.target.value); setPhonePrefix(getCallingCode(e.target.value)); }} className={inputClass}>
                       {[...COUNTRIES]
                         .sort((a, b) => tCountry(a.code).localeCompare(tCountry(b.code)))
                         .map((c) => (
@@ -602,10 +794,10 @@ export default function CheckoutModal({
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-[auto_1fr] gap-3">
-                    <div>
-                      <label className={labelClass}>{t("phonePrefix")}</label>
-                      <select value={phonePrefix} onChange={(e) => setPhonePrefix(e.target.value)} className={`${inputClass} w-24`}>
+                  <div className="champ-duo champ-duo--prefixe">
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="checkout-prefixe">{t("phonePrefix")}</label>
+                      <select id="checkout-prefixe" value={phonePrefix} onChange={(e) => setPhonePrefix(e.target.value)} className={inputClass}>
                         {[...new Set(COUNTRIES.map((c) => c.callingCode))]
                           .sort((a, b) => Number(a.replace("+", "")) - Number(b.replace("+", "")))
                           .map((code) => (
@@ -613,17 +805,17 @@ export default function CheckoutModal({
                           ))}
                       </select>
                     </div>
-                    <div>
-                      <label className={labelClass}>{t("phone")}</label>
-                      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("phonePlaceholder")} className={inputClass} />
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="checkout-tel">{t("phone")}</label>
+                      <input id="checkout-tel" type="tel" autoComplete="tel-national" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("phonePlaceholder")} className={inputClass} />
                     </div>
                   </div>
                 </>
               )}
 
-              <div>
+              <div className="champ-groupe">
                 <label className={labelClass} htmlFor="promo-code">{t("promoLabel")}</label>
-                <div className="flex gap-2">
+                <div className="champ-avec-bouton">
                   <input
                     id="promo-code"
                     type="text"
@@ -634,73 +826,154 @@ export default function CheckoutModal({
                     }}
                     placeholder={t("promoPlaceholder")}
                     autoComplete="off"
-                    className={`${inputClass} uppercase`}
+                    className={inputClass}
+                    style={{ textTransform: "uppercase" }}
                   />
                   <button
                     type="button"
                     onClick={applyPromo}
                     disabled={promoChecking || !promoInput.trim()}
-                    className="px-4 py-3 text-xs font-black uppercase bg-black text-white border-2 border-black rounded-xl disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    className="bouton bouton--fantome"
+                    style={{ padding: "12px 20px", fontSize: 15, minHeight: 0, flex: "none" }}
                   >
                     {t("promoApply")}
                   </button>
                 </div>
                 {applied && (
-                  <p className="mt-2 text-sm font-bold text-green-700">
-                    ✅ {t("promoApplied", { code: applied.code })} — −{formatPrice(applied.discount)}
+                  <p className="alerte alerte--succes">
+                    <Icone nom="coche" taille={15} />
+                    {t("promoApplied", { code: applied.code })} — −{formatPrice(applied.discount)}
                   </p>
                 )}
                 {promoError && (
-                  <p className="mt-2 text-sm font-bold text-red-700" role="alert">{promoError}</p>
+                  <p className="alerte alerte--erreur" role="alert">
+                    <Icone nom="alerte" taille={15} />
+                    {promoError}
+                  </p>
                 )}
               </div>
 
-              <div className="bg-white border-2 border-black rounded-xl p-3 flex items-center justify-between">
-                <span className="text-xs font-black text-black/40 uppercase">{t("totalToPay")}</span>
-                <span className="text-xl font-black text-black">
-                  {applied && (
-                    <span className="text-sm font-bold text-black/40 line-through mr-2">
-                      {formatPrice(orderConfig.total)}
-                    </span>
-                  )}
-                  {formatPrice(amountDue)}
-                </span>
+              {/* ─── OPTIONS CADEAU ───
+                  Toute la marque parle de cadeau — pages « idées cadeaux »,
+                  date limite de commande, occasions — mais au moment de payer
+                  rien n'était prévu pour offrir. Replié par défaut : ceux qui
+                  achètent pour eux ne voient qu'une ligne de plus. */}
+              <div className="bloc">
+                <button
+                  type="button"
+                  onClick={() => setEstCadeau((v) => !v)}
+                  aria-expanded={estCadeau}
+                  className="cadeau__bascule"
+                >
+                  <span className="cadeau__case" aria-hidden="true">
+                    {estCadeau && <Icone nom="coche" taille={13} />}
+                  </span>
+                  <span className="cadeau__titre">
+                    <Icone nom="cadeau" taille={15} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 7 }} />
+                    {t("giftToggle")}
+                  </span>
+                  <span className="cadeau__aide">{t("giftHint")}</span>
+                </button>
+
+                {estCadeau && (
+                  <div className="cadeau__champs">
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="cadeau-message">
+                        {t("giftMessageLabel")}
+                      </label>
+                      <textarea
+                        id="cadeau-message"
+                        value={messageCadeau}
+                        maxLength={300}
+                        onChange={(e) => setMessageCadeau(e.target.value)}
+                        placeholder={t("giftMessagePlaceholder")}
+                        className={inputClass}
+                        style={{ minHeight: 78, resize: "vertical" }}
+                      />
+                    </div>
+
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="cadeau-email">
+                        {t("giftRecipientLabel")}
+                      </label>
+                      <input
+                        id="cadeau-email"
+                        type="email"
+                        value={emailDestinataire}
+                        onChange={(e) => setEmailDestinataire(e.target.value)}
+                        placeholder="destinataire@email.com"
+                        autoComplete="off"
+                        className={inputClass}
+                      />
+                      <p className="cadeau__note">{t("giftRecipientHint")}</p>
+                    </div>
+
+                    <div className="champ-groupe">
+                      <label className={labelClass} htmlFor="cadeau-date">
+                        {t("giftDateLabel")}
+                      </label>
+                      <input
+                        id="cadeau-date"
+                        type="date"
+                        value={dateRemise}
+                        min={demain}
+                        onChange={(e) => setDateRemise(e.target.value)}
+                        className={inputClass}
+                      />
+                      <p className="cadeau__note">{t("giftDateHint")}</p>
+                    </div>
+                  </div>
+                )}
               </div>
+            </div>
 
+            {/* Pied fixe : le total et l'action ne quittent plus l'ecran. Sur
+                un support physique, le formulaire fait treize champs — le
+                bouton se trouvait tout en bas, apres le telephone. */}
+            <div className="modale__pied">
               {formError && (
-                <div className="bg-red-100 border-2 border-red-500 rounded-xl p-3 text-sm font-bold text-red-700 text-center">
+                <p className="alerte alerte--erreur" role="alert">
+                  <Icone nom="alerte" taille={16} />
                   {formError}
-                </div>
+                </p>
               )}
-
-              <button
-                onClick={goToPayment}
-                className="w-full bg-yellow-400 text-black font-black text-sm uppercase py-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-              >
+              <div className="modale__total">
+                <span>{t("totalToPay")}</span>
+                <b>
+                  {applied && <s>{formatPrice(orderConfig.total)}</s>}
+                  {formatPrice(amountDue)}
+                </b>
+              </div>
+              <button type="button" onClick={goToPayment} className="bouton bouton--primaire">
                 {t("continueToPayment")}
               </button>
-              <p className="text-center text-xs font-bold text-black/40">🔒 {t("securePayment")} · {t("poweredByStripe")}</p>
+              <p className="modale__rassurance">
+                <Icone nom="cadenas" taille={13} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }} />
+                {t("securePayment")} · {t("cardNeverStored")}
+              </p>
             </div>
-          )}
+          </>
+        )}
 
-          {/* ─── STEP 2: PAYMENT ─── */}
-          {step === "payment" && (
-            <>
-              {loadingIntent || !clientSecret ? (
-                <div className="text-center py-10">
-                  <div className="w-12 h-12 border-4 border-black border-t-yellow-400 rounded-full animate-spin mx-auto mb-4" />
-                  <p className="font-black text-black/60 text-sm uppercase">{t("loadingPayment")}</p>
+        {/* ─── STEP 2: PAYMENT ─── */}
+        {step === "payment" && (
+          <>
+            {loadingIntent || !clientSecret ? (
+              <div className="modale__corps">
+                <div className="modale__chargement">
+                  <div className="rotatif" />
+                  <p>{t("loadingPayment")}</p>
                 </div>
-              ) : (
-                <>
-                  <div className="bg-white border-2 border-black rounded-xl p-4 mb-5 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-black text-black/40 uppercase">{t("totalToPay")}</p>
-                      <p className="text-2xl font-black text-black">{formatPrice(amountDue)}</p>
-                    </div>
-                    <p className="text-xs font-bold text-black/40">{email}</p>
-                  </div>
-
+              </div>
+            ) : (
+              /* Habillage de l'iframe Stripe. Il portait encore le theme
+                 neo-brutaliste du site precedent : bordures noires de 2px,
+                 ombre portee dure « 4px 4px 0 noir », jaune #facc15 (celui de
+                 Tailwind, pas le notre) et une police Poppins que le site ne
+                 charge plus depuis le passage a ToonJaune — le cadre de
+                 paiement s'affichait donc dans une autre typographie, une
+                 autre couleur et un autre style que la modale qui l'entoure.
+                 Recale sur les jetons : #E9BA3B, encre #2A2552, rayon 14. */
                   <Elements
                     stripe={stripePromise}
                     options={{
@@ -708,30 +981,56 @@ export default function CheckoutModal({
                       appearance: {
                         theme: "flat",
                         variables: {
-                          colorBackground: "#ffffff",
-                          colorPrimary: "#facc15",
-                          colorText: "#000000",
-                          borderRadius: "8px",
-                          fontFamily: "Poppins, system-ui, sans-serif",
-                          fontWeightNormal: "600",
+                          colorBackground: "#FFFFFF",
+                          colorPrimary: "#E9BA3B",
+                          colorText: "#2A2552",
+                          colorTextSecondary: "#5A5578",
+                          colorDanger: "#C8202F",
+                          borderRadius: "14px",
+                          spacingUnit: "4px",
+                          /* Rebond est servi depuis /public : une iframe d'un
+                             autre domaine ne peut pas la charger sans en-tetes
+                             CORS. Pile systeme plutot qu'une police fantome. */
+                          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+                          fontWeightNormal: "500",
                         },
                         rules: {
                           ".Input": {
-                            border: "2px solid #000",
+                            border: "1.5px solid rgba(42, 37, 82, .18)",
                             boxShadow: "none",
+                            padding: "12px 14px",
                           },
                           ".Input:focus": {
-                            border: "2px solid #000",
-                            boxShadow: "4px 4px 0px 0px rgba(0,0,0,1)",
+                            border: "1.5px solid transparent",
+                            outline: "2px solid #E9BA3B",
+                            boxShadow: "none",
+                          },
+                          ".Label": {
+                            fontWeight: "700",
+                            fontSize: "12.5px",
+                            textTransform: "uppercase",
+                            letterSpacing: ".05em",
+                            color: "#5A5578",
                           },
                           ".AccordionItem": {
-                            border: "2px solid #000",
-                            borderRadius: "8px",
-                            marginBottom: "12px",
+                            border: "1.5px solid rgba(42, 37, 82, .18)",
+                            borderRadius: "14px",
+                            marginBottom: "10px",
+                            boxShadow: "none",
                           },
                           ".AccordionItem--selected": {
-                            backgroundColor: "#fefce8",
-                            border: "3px solid #000",
+                            backgroundColor: "#FFF9ED",
+                            border: "2px solid #E9BA3B",
+                          },
+                          ".Tab": {
+                            border: "1.5px solid rgba(42, 37, 82, .18)",
+                            borderRadius: "14px",
+                            boxShadow: "none",
+                          },
+                          ".Tab--selected": {
+                            backgroundColor: "#FFF9ED",
+                            border: "2px solid #E9BA3B",
+                            color: "#2A2552",
                           },
                         },
                       },
@@ -750,44 +1049,51 @@ export default function CheckoutModal({
                         postalCode,
                         country: tCountry(countryCode),
                         phone: `${phonePrefix} ${phone}`.trim(),
+                        gift: estCadeau
+                          ? {
+                              message: messageCadeau.trim() || null,
+                              recipientEmail: emailDestinataire.trim() || null,
+                              deliverAfter: dateRemise || null,
+                            }
+                          : null,
                       }}
                       orderConfig={orderConfig}
+                      montant={formatPrice(amountDue)}
                     />
                   </Elements>
-                </>
-              )}
-            </>
-          )}
+            )}
+          </>
+        )}
 
-          {/* ─── STEP 3: SUCCESS ─── */}
-          {step === "success" && (
-            <div className="text-center py-6">
+        {/* ─── STEP 3: SUCCESS ─── */}
+        {step === "success" && (
+          <>
+            <div className="modale__corps">
               {processing ? (
-                <>
-                  <div className="w-12 h-12 border-4 border-black border-t-yellow-400 rounded-full animate-spin mx-auto mb-4" />
-                  <p className="font-black text-black/60 text-sm uppercase">{t("savingOrder")}</p>
-                </>
+                <div className="modale__chargement">
+                  <div className="rotatif" />
+                  <p>{t("savingOrder")}</p>
+                </div>
               ) : (
-                <>
-                  <span className="text-6xl block mb-4">🎉</span>
-                  <h3 className="text-xl font-black text-black uppercase mb-2">{t("orderConfirmedTitle")}</h3>
-                  <p className="text-sm font-bold text-black/60 mb-2">
-                    {t("confirmationEmailSent")} <strong className="text-black">{email}</strong>.
+                <div className="modale__succes">
+                  <Icone nom="fete" taille={54} style={{ margin: "0 auto 16px", color: "var(--accent-texte)" }} />
+                  <h3>{t("orderConfirmedTitle")}</h3>
+                  <p>
+                    {t("confirmationEmailSent")} <strong>{email}</strong>.
                   </p>
-                  <p className="text-sm font-bold text-black/60 mb-6">
-                    {t("artistsAtWork")}
-                  </p>
-                  <button
-                    onClick={onClose}
-                    className="bg-yellow-400 text-black font-black text-sm uppercase px-8 py-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-                  >
-                    {t("close")}
-                  </button>
-                </>
+                  <p>{t("artistsAtWork")}</p>
+                </div>
               )}
             </div>
-          )}
-        </div>
+            {!processing && (
+              <div className="modale__pied">
+                <button type="button" onClick={onClose} className="bouton bouton--primaire">
+                  {t("close")}
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

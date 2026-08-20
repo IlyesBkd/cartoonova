@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { updateOrderFinalImage, markFinalImageSent, setOrderLastOutboundMessageId } from "@/lib/db";
 import { getLangFromCountry, finalImageEmail } from "@/lib/email-i18n";
+import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export async function POST(req: NextRequest) {
-  const password = req.headers.get("x-admin-password");
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refus = refuserSiPasAdmin(req);
+  if (refus) return refus;
 
   try {
     const { orderId, customerEmail, customerName, finalImageUrl, orderRef, saveOnly, detectedCountry } = await req.json();

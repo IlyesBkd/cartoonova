@@ -1,156 +1,450 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Icone, { type NomIcone } from "@/components/tj/Icone";
+import TeteAide from "@/components/tj/TeteAide";
+
+/** Événement d'ouverture, émis par le lien « Aide » de l'en-tête. */
+export const EVENEMENT_AIDE = "cartoonova:aide";
+
+/**
+ * Messager d'aide.
+ *
+ * La mise en page reprend celle du messager Richpanel utilisé sur
+ * turnedyellow.com : en-tête plein de 214 px qui se replie en barre de 75 px
+ * dès que la conversation démarre, carte d'entrée qui chevauche la couture,
+ * liste de sujets à filets, bulles à coin coupé, saisie en pilule. Les styles
+ * vivent dans `app/toonjaune-app.css`, section « clavardage ».
+ *
+ * Le fond n'a pas changé : e-mail d'abord, puis les messages partent sur
+ * /api/chat (webhook Discord).
+ */
+
+type Message = { de: "bot" | "moi"; texte: string };
+type Ecran = "accueil" | "email" | "fil";
+
+/** Sujets proposés sur l'accueil. Le premier ouvre la conversation nue. */
+const SUJETS: { id: string; icone: NomIcone; titre: string; sous: string }[] = [
+  {
+    id: "commande",
+    icone: "camion",
+    titre: "Où en est ma commande ?",
+    sous: "Suivi, délais et livraison",
+  },
+  {
+    id: "modification",
+    icone: "crayon",
+    titre: "Modifier ma commande",
+    sous: "Photo, style, texte ou adresse",
+  },
+  {
+    id: "retouche",
+    icone: "palette",
+    titre: "Demander une retouche",
+    sous: "Révisions illimitées avant impression",
+  },
+  {
+    id: "cadeau",
+    icone: "cadeau",
+    titre: "Commander pour une date précise",
+    sous: "Anniversaire, Noël, mariage",
+  },
+];
+
+/** Initiales des conseillers, pour les têtes qui se chevauchent dans l'en-tête. */
+const EQUIPE = ["L", "M", "S"];
 
 export default function ChatWidget() {
-  const [open, setOpen] = useState(false);
+  const [ouvert, setOuvert] = useState(false);
+  const [ecran, setEcran] = useState<Ecran>("accueil");
+  const [sujet, setSujet] = useState<string | null>(null);
   const [email, setEmail] = useState("");
-  const [emailConfirmed, setEmailConfirmed] = useState(false);
-  const [messages, setMessages] = useState<{ from: "bot" | "user"; text: string }[]>([]);
-  const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
+  const [erreurEmail, setErreurEmail] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [saisie, setSaisie] = useState("");
+  const [envoiEnCours, setEnvoiEnCours] = useState(false);
+  const [premierEnvoi, setPremierEnvoi] = useState(true);
 
-  const confirmEmail = () => {
-    if (!email.trim() || !email.includes("@")) return;
-    setEmailConfirmed(true);
-    setMessages([
-      { from: "bot", text: `Salut ! 👋 Bienvenue chez Cartoonova ! Comment puis-je vous aider ?` },
-    ]);
+  const filRef = useRef<HTMLDivElement>(null);
+  const champEmailRef = useRef<HTMLInputElement>(null);
+  const champSaisieRef = useRef<HTMLInputElement>(null);
+
+  /* Le fil colle au dernier message. */
+  useEffect(() => {
+    filRef.current?.scrollTo({ top: filRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, envoiEnCours]);
+
+  /* Le champ attendu prend le focus à chaque changement d'écran. */
+  useEffect(() => {
+    if (!ouvert) return;
+    if (ecran === "email") champEmailRef.current?.focus();
+    if (ecran === "fil") champSaisieRef.current?.focus();
+  }, [ouvert, ecran]);
+
+  /* Le lien de l'en-tête ouvre le panneau, comme leur `live-chat-top` déclenche
+     le bouton flottant. Un événement plutôt qu'un contexte : un seul émetteur,
+     un seul récepteur, et rien à faire remonter dans l'arbre. */
+  useEffect(() => {
+    const ouvrir = () => setOuvert(true);
+    window.addEventListener(EVENEMENT_AIDE, ouvrir);
+    return () => window.removeEventListener(EVENEMENT_AIDE, ouvrir);
+  }, []);
+
+  /* Échap ferme le panneau, comme n'importe quelle surface posée du site. */
+  useEffect(() => {
+    if (!ouvert) return;
+    const surTouche = (e: KeyboardEvent) => e.key === "Escape" && setOuvert(false);
+    window.addEventListener("keydown", surTouche);
+    return () => window.removeEventListener("keydown", surTouche);
+  }, [ouvert]);
+
+  const choisirSujet = (id: string | null) => {
+    setSujet(id);
+    setEcran(messages.length ? "fil" : "email");
   };
 
-  const send = async () => {
-    if (!input.trim() || sending) return;
-    const userMsg = input.trim();
-    setMessages((m) => [...m, { from: "user", text: userMsg }]);
-    setInput("");
-    setSending(true);
+  const validerEmail = () => {
+    const valeur = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valeur)) {
+      setErreurEmail(true);
+      return;
+    }
+    setErreurEmail(false);
+    const choisi = SUJETS.find((s) => s.id === sujet);
+    setMessages([
+      {
+        de: "bot",
+        texte: choisi
+          ? `Bonjour ! On regarde ça tout de suite : « ${choisi.titre} ». Donnez-nous le numéro de commande ou quelques détails, et on vous répond.`
+          : "Bonjour et bienvenue chez Cartoonova ! Dites-nous tout, on vous répond au plus vite.",
+      },
+    ]);
+    setEcran("fil");
+  };
+
+  const envoyer = async () => {
+    const texte = saisie.trim();
+    if (!texte || envoiEnCours) return;
+
+    setMessages((m) => [...m, { de: "moi", texte }]);
+    setSaisie("");
+    setEnvoiEnCours(true);
+
+    /* Le sujet choisi sur l'accueil accompagne le premier message : l'équipe
+       arrive dans Discord avec le contexte, sans champ supplémentaire côté API. */
+    const choisi = SUJETS.find((s) => s.id === sujet);
+    const corps = premierEnvoi && choisi ? `[${choisi.titre}] ${texte}` : texte;
+    setPremierEnvoi(false);
 
     try {
       await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, message: userMsg }),
+        body: JSON.stringify({ email, message: corps }),
       });
     } catch {
-      // silent fail
+      /* échec silencieux : le message reste affiché, l'équipe relance par e-mail */
     }
 
+    /* L'accusé de réception ne se dit qu'une fois : répété à l'identique sous
+       chaque message, il donnait l'impression d'un robot cassé. */
     setTimeout(() => {
       setMessages((m) => [
         ...m,
-        { from: "bot", text: "Merci pour votre message ! 📩 Notre équipe vous répondra très vite par email. À bientôt ! 😊" },
+        {
+          de: "bot",
+          texte: premierEnvoi
+            ? "Merci ! Votre message est bien arrivé, notre équipe vous répond par e-mail sous 2 h ouvrées."
+            : "C'est noté, on ajoute ça à votre demande.",
+        },
       ]);
-      setSending(false);
+      setEnvoiEnCours(false);
     }, 800);
   };
 
+  const enConversation = ecran !== "accueil";
+
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 pointer-events-none">
-      {/* Chat window */}
-      <div className={`pointer-events-auto transition-all duration-300 origin-bottom-right ${open ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}`}>
-        <div className="w-[280px] sm:w-[380px] bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="bg-yellow-400 border-b-4 border-black px-5 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white border-2 border-black flex items-center justify-center text-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                🎨
-              </div>
-              <div>
-                <p className="font-black text-black text-sm uppercase">Cartoonova</p>
-                <p className="text-xs font-bold text-black/60 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
-                  En ligne
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setOpen(false)}
-              className="w-8 h-8 rounded-lg bg-white border-2 border-black flex items-center justify-center font-black text-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 transition-all cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
+      {/* Panneau */}
+      {/* `slideInAnimation` chez eux : le panneau monte, il ne grandit pas. */}
+      <div
+        className={`pointer-events-auto transition-all duration-300 ${
+          ouvert ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!ouvert}
+      >
+        <div
+          className={`clavardage${ecran === "fil" ? " clavardage--conversation" : ""}`}
+          role="dialog"
+          aria-label="Aide Cartoonova"
+        >
+          <header className={`clavardage__entete${enConversation ? " clavardage__entete--compact" : ""}`}>
+            {enConversation ? (
+              <>
+                <button
+                  type="button"
+                  className="clavardage__retour"
+                  onClick={() => setEcran("accueil")}
+                  aria-label="Revenir à l'accueil de l'aide"
+                >
+                  <Fleche />
+                </button>
+                <div className="clavardage__agent">
+                  <b>Cartoonova</b>
+                  <span>
+                    <i className="clavardage__pastille" aria-hidden="true" />
+                    En ligne
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="clavardage__fermer"
+                  onClick={() => setOuvert(false)}
+                  aria-label="Fermer l'aide"
+                >
+                  <Icone nom="croix" taille={14} />
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="clavardage__barre">
+                  <div>
+                    <p className="clavardage__surtitre">Bienvenue chez</p>
+                    <p className="clavardage__marque">Cartoonova</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="clavardage__fermer"
+                    onClick={() => setOuvert(false)}
+                    aria-label="Fermer l'aide"
+                  >
+                    <Icone nom="croix" taille={14} />
+                  </button>
+                </div>
+                <p className="clavardage__salut">Bonjour 👋</p>
+                <p className="clavardage__accroche">Une question sur votre portrait ? On est là.</p>
+                <div className="clavardage__delai">
+                  <div className="clavardage__equipe" aria-hidden="true">
+                    {EQUIPE.map((initiale) => (
+                      <span key={initiale} className="clavardage__tete">
+                        {initiale}
+                      </span>
+                    ))}
+                  </div>
+                  <span>Réponse en moins de 2 h</span>
+                  <Horloge />
+                </div>
+              </>
+            )}
+          </header>
 
-          {!emailConfirmed ? (
-            /* Email gate */
-            <div className="p-6 flex flex-col items-center gap-4 bg-yellow-50">
-              <div className="w-16 h-16 rounded-full bg-yellow-400 border-2 border-black flex items-center justify-center text-3xl shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                💬
-              </div>
-              <p className="font-black text-black text-center uppercase text-sm">Avant de commencer, entrez votre email !</p>
-              <p className="text-xs font-bold text-black/50 text-center">Pour que notre équipe puisse vous répondre.</p>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && confirmEmail()}
-                placeholder="votre@email.com"
-                className="w-full px-4 py-3 text-sm font-bold bg-white border-2 border-black rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-black/30 text-center"
-              />
-              <button
-                onClick={confirmEmail}
-                className="w-full bg-yellow-400 text-black font-black text-sm uppercase px-6 py-3 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-              >
-                Démarrer le chat 🚀
-              </button>
-            </div>
-          ) : (
+          {ecran === "accueil" && (
             <>
-              {/* Messages */}
-              <div className="flex-1 max-h-[320px] overflow-y-auto p-4 flex flex-col gap-3 bg-yellow-50">
-                {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
-                    <div
-                      className={`max-w-[80%] px-4 py-2.5 text-sm font-bold leading-relaxed ${
-                        m.from === "user"
-                          ? "bg-yellow-400 text-black border-2 border-black rounded-2xl rounded-br-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                          : "bg-white text-black border-2 border-black rounded-2xl rounded-bl-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
-                      }`}
+              {/* Carte d'entrée : elle remonte sur l'en-tête, hors du défilement. */}
+              <div className="clavardage__flottant">
+                <div className="clavardage__carte clavardage__carte--flottante">
+                  <button
+                    type="button"
+                    className="clavardage__lien clavardage__lien--principal"
+                    onClick={() => choisirSujet(null)}
+                  >
+                    <span className="clavardage__lien-icone">
+                      <Icone nom="discussion" taille={18} />
+                    </span>
+                    <span className="clavardage__lien-texte">
+                      <span className="clavardage__lien-titre">Démarrer une conversation</span>
+                      <span className="clavardage__lien-sous">Une vraie personne vous répond</span>
+                    </span>
+                    <Chevron />
+                  </button>
+                </div>
+              </div>
+
+              <div className="clavardage__corps">
+                <p className="clavardage__intertitre">Liens rapides</p>
+                <div className="clavardage__carte">
+                  {SUJETS.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className="clavardage__lien"
+                      onClick={() => choisirSujet(s.id)}
                     >
-                      {m.text}
-                    </div>
+                      <span className="clavardage__lien-icone">
+                        <Icone nom={s.icone} taille={18} />
+                      </span>
+                      <span className="clavardage__lien-texte">
+                        <span className="clavardage__lien-titre">{s.titre}</span>
+                        <span className="clavardage__lien-sous">{s.sous}</span>
+                      </span>
+                      <Chevron />
+                    </button>
+                  ))}
+                </div>
+
+                <p className="clavardage__signature">Cartoonova — du lundi au samedi, 9 h – 19 h</p>
+              </div>
+            </>
+          )}
+
+          {/* Pas de carte flottante ici : la remontée de 24 px est calibrée sur
+              l'en-tête plein de 214 px. Sur l'en-tête replié de 75 px elle
+              recouvrait le nom et le bouton de retour. */}
+          {ecran === "email" && (
+            <div className="clavardage__corps">
+              <div className="clavardage__carte">
+                <div className="clavardage__accueil">
+                  <h3>Votre e-mail pour commencer</h3>
+                  <p>
+                    Il nous sert à vous répondre même si vous quittez la page. Aucun envoi
+                    publicitaire.
+                  </p>
+                  <input
+                    ref={champEmailRef}
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErreurEmail(false);
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && validerEmail()}
+                    placeholder="votre@email.com"
+                    className="champ-ligne"
+                    aria-invalid={erreurEmail}
+                    aria-label="Votre adresse e-mail"
+                  />
+                  {erreurEmail && (
+                    <p style={{ color: "#B3261E" }}>Cette adresse ne semble pas valide.</p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={validerEmail}
+                    className="bouton bouton--primaire"
+                    style={{ width: "100%", justifyContent: "center", fontSize: 16 }}
+                  >
+                    Continuer
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {ecran === "fil" && (
+            <>
+              <div className="clavardage__fil" ref={filRef}>
+                {messages.map((m, i) => (
+                  <div key={i} className={m.de === "moi" ? "bulle bulle--moi" : "bulle"}>
+                    {m.texte}
                   </div>
                 ))}
-                {sending && (
-                  <div className="flex justify-start">
-                    <div className="bg-white text-black/40 border-2 border-black rounded-2xl rounded-bl-sm shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] px-4 py-2.5 text-sm font-black">
-                      ● ● ●
-                    </div>
+                {envoiEnCours && (
+                  <div className="bulle clavardage__frappe" aria-label="Cartoonova est en train d'écrire">
+                    <i />
+                    <i />
+                    <i />
                   </div>
                 )}
               </div>
 
-              {/* Input */}
-              <div className="border-t-4 border-black p-3 bg-white flex items-center gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && send()}
-                  placeholder="Écrivez votre message..."
-                  className="flex-1 min-w-0 px-4 py-2.5 text-sm font-bold bg-yellow-50 border-2 border-black rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-black/30"
-                />
-                <button
-                  onClick={send}
-                  disabled={sending}
-                  className="w-10 h-10 rounded-xl bg-yellow-400 border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg className="w-5 h-5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
-                </button>
+              <div className="clavardage__saisie">
+                <div className="clavardage__pilule">
+                  <input
+                    ref={champSaisieRef}
+                    type="text"
+                    value={saisie}
+                    onChange={(e) => setSaisie(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && envoyer()}
+                    placeholder="Écrivez votre message…"
+                    aria-label="Votre message"
+                  />
+                  <button
+                    type="button"
+                    onClick={envoyer}
+                    disabled={!saisie.trim() || envoiEnCours}
+                    className={`clavardage__envoi${saisie.trim() && !envoiEnCours ? " clavardage__envoi--actif" : ""}`}
+                    aria-label="Envoyer le message"
+                  >
+                    <Icone nom="envoyer" taille={16} />
+                  </button>
+                </div>
               </div>
             </>
           )}
         </div>
       </div>
 
-      {/* Floating button */}
+      {/* Lanceur : pastille à libellé, qui bascule sur une croix à l'ouverture. */}
       <button
-        onClick={() => setOpen(!open)}
-        className={`pointer-events-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-black flex items-center justify-center text-xl sm:text-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all cursor-pointer ${open ? "bg-white" : "bg-yellow-400 animate-bounce"}`}
-        aria-label="Ouvrir le chat"
+        type="button"
+        onClick={() => setOuvert((o) => !o)}
+        className={`clavardage__lanceur${ouvert ? " clavardage__lanceur--ouvert" : ""}`}
+        aria-label={ouvert ? "Fermer l'aide" : "Ouvrir l'aide"}
+        aria-expanded={ouvert}
       >
-        {open ? "✕" : "💬"}
+        {ouvert ? <Icone nom="croix" taille={17} /> : <TeteAide taille={37} />}
+        <span className="clavardage__lanceur-texte">Live Chat</span>
       </button>
     </div>
+  );
+}
+
+/* --- pictogrammes propres au messager ---
+   Absents du jeu `Icone` ; même grille de 24 et même trait de 1,8. */
+
+function Chevron() {
+  return (
+    <svg
+      className="clavardage__chevron"
+      width={20}
+      height={20}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+function Fleche() {
+  return (
+    <svg
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M15 5l-7 7 7 7" />
+    </svg>
+  );
+}
+
+function Horloge() {
+  return (
+    <svg
+      width={14}
+      height={14}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ flex: "none", opacity: 0.75 }}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
   );
 }

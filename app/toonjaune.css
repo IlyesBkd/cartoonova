@@ -1,0 +1,908 @@
+/* =========================================================================
+   ToonJaune — JETONS
+   Polices, variables de couleur/échelle, styles de base.
+   C'est le seul fichier à toucher pour reskinner entièrement le système :
+   changez les valeurs de :root, tout le reste suit.
+   ========================================================================= */
+
+
+/* ---------- polices ---------- */
+@font-face { font-family: Kefir; src: url("/polices/kefir-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Kefir; src: url("/polices/kefir-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: Kefir; src: url("/polices/kefir-800.woff2") format("woff2");
+  font-weight: 800; font-style: normal; font-display: swap; }
+
+@font-face { font-family: Rebond; src: url("/polices/rebond-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Rebond; src: url("/polices/rebond-600.woff") format("woff");
+  font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: Rebond; src: url("/polices/rebond-700.woff") format("woff");
+  font-weight: 700; font-style: normal; font-display: swap; }
+
+@font-face { font-family: Atma; src: url("/polices/atma-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Atma; src: url("/polices/atma-600.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: Atma; src: url("/polices/atma-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap; }
+
+/* ---------- jetons ---------- */
+:root {
+  /* couleurs — chaque valeur est relevée sur l'un des deux sites */
+  --encre:        #2A2552;   /* CartoonToi : ancre */
+  --encre-doux:   #5A5578;
+  --encre-voile:  rgba(42, 37, 82, .12);
+  --soleil:       #E9BA3B;   /* TurnedYellow : action (les deux jaunes convergeaient) */
+  --soleil-fonce: #D4A32A;   /* ombre portée des boutons — jamais du texte */
+  /* Texte doré lisible : #D4A32A ne donnait que 2,2:1 sur crème (AA large en
+     exige 3). #AD7F12 monte à 3,3:1 sur crème et 3,6:1 sur blanc tout en
+     restant franchement doré. Utilisé partout où l'or porte du texte. */
+  --accent-texte: #AD7F12;
+  --accent-texte-petit: #96690A;  /* même or, sous 18px : 4,9:1 sur blanc */
+  --soleil-pale:  #FBEFCB;
+  --creme:        #FFF9ED;   /* fond chaud commun aux deux marques */
+  --menthe:       #E0FAFA;   /* CartoonToi : tint secondaire */
+  --papier:       #FFFFFF;   /* surfaces posées : cartes, panneaux, modale */
+
+  /* Fond de page. Le système était bâti sur du blanc pur : les cartes
+     blanches ne se détachaient de rien et la page entière tirait au froid
+     malgré une palette chaude. Le beige devient la toile, le blanc reste
+     réservé à ce qui est POSÉ dessus — c'est lui qui crée le relief.
+
+     Les trois neutres se lisent maintenant en profondeur :
+       --creme  (#FFF9ED) plus clair que la toile → bande éclairée
+       --fond   (#F6F0E4) la toile
+       --cendre (#EDE5D5) plus sombre que la toile → bande en retrait
+     --cendre était un gris froid (#F8F6F3) : sur du beige il virait au sale,
+     et surtout il passait AU-DESSUS de la toile, ce qui inversait le relief
+     des sections « en retrait ». Réchauffé et assombri, il retrouve son rôle. */
+  --fond:         #F6F0E4;
+  --cendre:       #EDE5D5;
+
+  /* typographie */
+  --titre:  Kefir, "Trebuchet MS", sans-serif;
+  --accent: Atma, "Comic Sans MS", cursive;   /* uniquement les mots accentués */
+  --texte:  Rebond, "Helvetica Neue", Arial, sans-serif;
+
+  /* échelle */
+  --pas: 8px;
+  --largeur: 1200px;
+  --rayon: 18px;
+  --rayon-lg: 28px;
+  --rayon-bouton: 999px;      /* un seul rayon de bouton sur tout le site */
+  --ombre: 0 10px 30px rgba(42, 37, 82, .10);
+  --ombre-forte: 0 18px 46px rgba(42, 37, 82, .16);
+
+  /* Échelle typographique : trois marches, pas neuf. Le h1 domine, tous les
+     titres de section partagent --t-section, tous les titres de carte
+     --t-carte. Toute exception doit se justifier. */
+  --t-hero:    clamp(36px, 4.3vw, 58px);
+  --t-section: clamp(30px, 3.6vw, 46px);
+  --t-bloc:    clamp(24px, 2.6vw, 32px);   /* sous-titre dans une section */
+  --t-carte:   clamp(18px, 1.5vw, 20px);
+  --t-bouton:  clamp(16px, 1.3vw, 18px);   /* un seul corps pour les CTA */
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--encre);
+  font-family: var(--texte);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+h1, h2, h3 {
+  font-family: var(--titre); font-weight: 800; line-height: 1.08; margin: 0;
+  /* Sans ça les titres laissaient des orphelins sur mobile : « Comment ça
+     marche ? » rejetait le « ? » seul sur sa ligne, « Cartoonisés… et ravis ! »
+     le « ! ». balance répartit les lignes au lieu de remplir la première. */
+  text-wrap: balance;
+}
+p { text-wrap: pretty; }
+
+/* Le mot accentué : c'est ici, et nulle part ailleurs, que la voix de
+   TurnedYellow entre dans la page. Discipline volontaire — utilisé partout,
+   Atma redeviendrait du bruit. */
+.accent { font-family: var(--accent); font-weight: 700; color: var(--accent-texte); }
+.accent--clair { color: var(--soleil); }
+
+.enveloppe { width: min(100% - 48px, var(--largeur)); margin-inline: auto; }
+.section { padding: clamp(56px, 8vw, 104px) 0; scroll-margin-top: 90px; }
+
+.oeil { /* accessible mais masqué visuellement */
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+/* =========================================================================
+   ToonJaune — COMPOSANTS
+   Boutons, en-tête, hero, cartes, étapes, FAQ, bandeaux, pied de page…
+   Dépend de jetons.css, à charger avant.
+   ========================================================================= */
+
+/* ---------- boutons ---------- */
+.bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: var(--texte); font-weight: 700; font-size: var(--t-bouton);
+  padding: 17px 34px; border-radius: var(--rayon-bouton); border: 0;
+  min-height: 48px;   /* cible tactile : 48px partout, y compris en-tête */
+  text-decoration: none; cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+.bouton--primaire { background: var(--soleil); color: var(--encre); box-shadow: 0 6px 0 var(--soleil-fonce); }
+.bouton--primaire:hover { background: #F0C64F; transform: translateY(-2px); box-shadow: 0 8px 0 var(--soleil-fonce); }
+.bouton--primaire:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--soleil-fonce); }
+.bouton--fantome { background: transparent; color: var(--encre); border: 2px solid var(--encre-voile); }
+.bouton--fantome:hover { border-color: var(--encre); }
+.bouton--clair { background: var(--papier); color: var(--encre); }
+/* Sur un fond doré, le jaune d'action ne ressort plus : la paire noir plein /
+   contour noir prend le relais. C'est le traitement de la bannière finale,
+   remonté au niveau du système pour que le hero puisse s'en servir aussi.
+   Noir sur or : 10,98:1. Contour à 28 % : la bordure reste perceptible et le
+   libellé, lui, est en noir plein. */
+.bouton--noir { background: #07090A; color: #fff; }
+.bouton--noir:hover { background: #1D2126; transform: translateY(-2px); }
+.bouton--contour {
+  background: transparent; color: #07090A;
+  border: 2px solid rgba(7, 9, 10, .28);
+}
+.bouton--contour:hover { border-color: #07090A; background: rgba(255, 255, 255, .35); }
+
+/* ---------- barre promo ----------
+   CartoonToi utilisait un bandeau ROUGE (#C8202F) qui ne dialoguait avec
+   aucune des deux marques. Remplacé par l'indigo + accent jaune : c'est la
+   décision d'unification la plus visible de la page. */
+.promo {
+  background: var(--encre); color: var(--papier);
+  font-size: 15px; font-weight: 600; text-align: center;
+  padding: 11px 24px; letter-spacing: .01em;
+}
+.promo b { color: var(--soleil); font-weight: 700; }
+
+/* ---------- en-tête ---------- */
+.entete {
+  position: sticky; top: 0; z-index: 40;
+  /* Légèrement chaude, et non blanc pur : la barre est posée sur une toile
+     beige, un blanc franc y ferait une bande froide en travers de la page. */
+  background: rgba(255, 253, 248, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--encre-voile);
+}
+.entete__grille {
+  display: flex; align-items: center; gap: 32px;
+  min-height: 74px;
+}
+.marque {
+  font-family: var(--titre); font-weight: 800; font-size: 26px;
+  text-decoration: none; letter-spacing: -.02em; white-space: nowrap;
+}
+.marque i { font-family: var(--accent); font-style: normal; color: var(--accent-texte); }
+
+/* Le menu de TurnedYellow passait à la ligne en 1440px — un vrai défaut.
+   Ici : une seule rangée, et repli propre en dessous de 1000px. */
+.nav { display: flex; gap: 26px; margin-left: auto; }
+/* Enfant direct, et non descendant : la barre porte désormais des panneaux
+   déroulants, dont chaque lien héritait de ce padding et du soulignement doré
+   au survol — un balayage jaune sur les 36 styles du menu. */
+.nav > a {
+  text-decoration: none; font-weight: 600; font-size: 16px;
+  padding: 6px 0; position: relative; white-space: nowrap;
+}
+.nav > a::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 2px;
+  background: var(--soleil); transition: right .22s ease;
+}
+.nav > a:hover::after { right: 0; }
+.entete .bouton { padding: 12px 24px; font-size: 16px; }
+
+/* ---------- hero ----------
+   Reprend la palette et la composition de la bannière finale .cta-fin — or,
+   texte à gauche, visuel à droite, bouton noir — mais en bande pleine largeur
+   et non en plaque encadrée : un hero se pose bord à bord sous l'en-tête,
+   c'est ce qui le distingue d'une bannière posée au milieu du flux.
+   Le dégradé couvre toute la fenêtre, le contenu reste aligné sur la grille
+   du site via .enveloppe, comme partout ailleurs. */
+.hero {
+  background: linear-gradient(135deg, #F7CE55 0%, #E9BA3B 55%, #E3AE2A 100%);
+  overflow: hidden;
+  padding: clamp(40px, 5vw, 78px) 0;
+}
+.hero__grille {
+  display: grid; grid-template-columns: 1fr 42%;
+  gap: clamp(28px, 4vw, 64px); align-items: center;
+}
+/* Les éléments de grille ont min-width:auto : sans ce min-width:0 la colonne
+   ne peut pas descendre sous la largeur intrinsèque de l'image (1024 px), la
+   grille déborde et overflow:hidden rogne le tout. */
+.hero__grille > *, .etapes > *, .styles-grille > *, .preuve__grille > *, .pied__grille > * {
+  min-width: 0;
+}
+/* Sur l'or, --soleil (les étoiles) et --encre-doux (le libellé) tombaient
+   respectivement à 1,0 et 3,8:1. Tout le texte de la plaque passe en noir,
+   avec l'opacité pour la hiérarchie plutôt qu'un éclaircissement de teinte. */
+.hero__oeil {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--accent); font-weight: 600; font-size: 20px;
+  color: rgba(7, 9, 10, .78); margin-bottom: 14px;
+}
+.hero__oeil .etoiles { color: #07090A; }
+.hero h1 { font-size: var(--t-hero); letter-spacing: -.02em; max-width: 15ch; color: #07090A; }
+/* Le mot accentué ne peut plus être doré sur de l'or : il garde sa police
+   (Atma) et passe à l'encre, 7,78:1 sur la plaque. */
+.hero h1 .accent { color: var(--encre); }
+.hero__texte {
+  font-size: clamp(17px, 1.3vw, 19px); color: rgba(7, 9, 10, .82);
+  max-width: 34ch; margin: 20px 0 28px;
+}
+.hero__actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.hero__note {
+  display: block; margin-top: 16px;
+  font-size: 15px; color: rgba(7, 9, 10, .7); font-weight: 600;
+}
+
+/* rangée d'atouts en ligne — reprise de TurnedYellow. Ce bloc sert aussi au
+   catalogue, sur fond clair : il garde ses pastilles --soleil-pale. */
+.atouts { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 34px; }
+.atout { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.atout span {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  background: var(--soleil-pale); border-radius: 50%; font-size: 15px;
+}
+/* Variante de la plaque dorée : la pastille crème derrière chaque icône se
+   noyait dans l'or. Icône nue en noir, et un filet pour asseoir la rangée. */
+.hero__grille .atouts {
+  gap: clamp(18px, 2.4vw, 32px); margin-top: 30px;
+  padding-top: 24px; border-top: 1px solid rgba(7, 9, 10, .16);
+}
+.hero__grille .atout { gap: 9px; color: rgba(7, 9, 10, .84); }
+.hero__grille .atout span {
+  width: auto; height: auto; background: none; border-radius: 0;
+  color: #07090A; line-height: 0;
+}
+
+.hero__visuel { position: relative; }
+/* Le fond de la photo est detoure (voir hero-famille-cartoon.webp) : la
+   famille flotte directement sur le degrade du hero, sans cadre ni jointure. */
+.hero__photo {
+  width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: contain;
+  transform: scale(1.1);
+}
+.etoiles { color: var(--soleil); letter-spacing: 2px; font-size: 15px; }
+
+/* ---------- bandeau défilant (signature CartoonToi) ---------- */
+.bandeau { background: var(--menthe); padding: 18px 0; overflow: hidden; }
+.bandeau__piste {
+  display: flex; gap: 14px; width: max-content;
+  animation: defile 34s linear infinite;
+}
+.bandeau:hover .bandeau__piste { animation-play-state: paused; }
+@keyframes defile { to { transform: translateX(-50%); } }
+.puce {
+  background: var(--papier); border-radius: 999px; padding: 10px 22px;
+  font-weight: 700; font-size: 15px; white-space: nowrap;
+  display: flex; align-items: center; gap: 9px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bandeau__piste { animation: none; }
+}
+
+/* ---------- titres de section ---------- */
+.chapeau { text-align: center; margin-bottom: clamp(36px, 5vw, 60px); }
+.chapeau h2 { font-size: var(--t-section); }
+.chapeau p { color: var(--encre-doux); margin: 14px auto 0; max-width: 46ch; }
+
+/* ---------- étapes numérotées (le meilleur atout de CartoonToi) ---------- */
+.etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.etape {
+  background: var(--papier); border: 2px solid var(--encre-voile);
+  border-radius: var(--rayon-lg); padding: 34px 30px 30px; position: relative;
+  transition: transform .18s ease, border-color .18s ease;
+}
+.etape:hover { transform: translateY(-4px); border-color: var(--soleil); }
+.etape__num {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--encre); color: var(--soleil);
+  display: grid; place-items: center;
+  font-family: var(--titre); font-weight: 800; font-size: 20px;
+  margin-bottom: 18px;
+}
+.etape h3 { font-size: 21px; margin-bottom: 9px; }
+.etape p { margin: 0; color: var(--encre-doux); font-size: 16px; }
+
+/* ---------- styles / collections ---------- */
+.styles-grille { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.carte {
+  background: var(--papier); border-radius: var(--rayon-lg);
+  overflow: hidden; box-shadow: var(--ombre); text-decoration: none;
+  display: flex; flex-direction: column;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.carte:hover { transform: translateY(-6px); box-shadow: var(--ombre-forte); }
+.carte__image { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; background: var(--cendre); }
+.carte__corps { padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.carte h3 { font-size: 20px; }
+.carte p { margin: 0; font-size: 15px; color: var(--encre-doux); flex: 1; }
+.carte__prix { font-weight: 700; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+.carte__prix i { font-style: normal; color: var(--encre-doux); font-weight: 600; font-size: 14px; }
+
+/* ---------- preuve sociale ---------- */
+.preuve { background: var(--encre); color: var(--papier); }
+.preuve__grille {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; text-align: center;
+}
+.preuve strong {
+  font-family: var(--titre); font-weight: 800; font-size: clamp(38px, 4.4vw, 56px);
+  color: var(--soleil); display: block; line-height: 1;
+}
+.preuve span { display: block; margin-top: 10px; font-weight: 600; opacity: .85; }
+
+/* ---------- FAQ ----------
+   Cartes accordéon reprises au pixel près de la section réelle (fond #f8f8f8
+   au repos, #fcf8eb ouvert, pastille ronde #e9ba3b) — <details name="faq">
+   assure qu'un seul volet reste ouvert à la fois, sans JavaScript. */
+.faq { max-width: 820px; margin-inline: auto; display: flex; flex-direction: column; gap: 15px; }
+.faq details { background: #F8F8F8; border-radius: 20px; overflow: hidden; }
+.faq details[open] { background: #FCF8EB; }
+.faq summary {
+  cursor: pointer; list-style: none;
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 30px 25px; font-family: var(--texte); font-weight: 600; font-size: 20px;
+  line-height: 1.18; color: #313131;
+}
+.faq details[open] summary { padding-bottom: 18px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+"; flex: none; width: 24px; height: 24px; min-width: 24px; border-radius: 50%;
+  background: #E9BA3B; color: #fff; font-size: 24px; line-height: 1; font-weight: 400;
+  display: grid; place-items: center;
+}
+.faq details[open] summary::after { content: "–"; }
+.faq p { margin: 0; padding: 0 25px 30px; color: #313131; font-family: var(--texte); font-size: 18px; line-height: 1.38; }
+@media (max-width: 640px) {
+  .faq summary { font-size: 18px; }
+  .faq p { font-size: 16px; }
+}
+
+/* ---------- appel final ---------- */
+.final { background: var(--creme); text-align: center; }
+.final h2 { font-size: clamp(32px, 4vw, 50px); }
+.final p { color: var(--encre-doux); max-width: 44ch; margin: 16px auto 30px; }
+
+/* ---------- adaptatif ---------- */
+@media (max-width: 1000px) {
+  .hero__grille { grid-template-columns: 1fr; }
+  /* La colonne visuelle passait avant le texte (order:-1) : sur un 390×844 le
+     h1 tombait à 599px et le bouton principal à 854px, soit HORS écran. Le
+     texte reprend sa place, l'image suit et dépasse juste sous la ligne de
+     flottaison — ce qui invite au scroll au lieu de cacher l'offre. */
+  .hero__visuel { order: initial; max-width: 420px; margin-inline: auto; }
+  .hero h1 { max-width: 100%; }
+  .hero__texte { max-width: 42ch; }
+  .styles-grille { grid-template-columns: repeat(2, 1fr); }
+  .nav { display: none; }
+}
+@media (max-width: 720px) {
+  .etapes { grid-template-columns: 1fr; }
+  .preuve__grille { grid-template-columns: 1fr; gap: 30px; }
+  .entete__grille { min-height: 64px; gap: 14px; }
+  .marque { font-size: 22px; }
+  /* le libellé passait sur deux lignes et gonflait l'en-tête */
+  .entete .bouton { padding: 10px 16px; font-size: 15px; white-space: nowrap; }
+  .hero { padding: clamp(30px, 7vw, 44px) 0; }
+  /* Étoiles + libellé côte à côte demandaient ~290px pour 294 disponibles :
+     le libellé cassait sur deux lignes et laissait les étoiles orphelines en
+     haut à gauche. Empilés, l'accroche reste un bloc net à toute largeur. */
+  .hero__oeil {
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 6px; font-size: 17px; margin-bottom: 12px;
+  }
+  .hero__oeil .etoiles { font-size: 14px; letter-spacing: 2px; }
+}
+@media (max-width: 520px) {
+  /* Une carte par ligne portait la section « Nos univers » à 2411px sur
+     mobile — 18 % de la page pour quatre vignettes. Deux colonnes ramènent
+     la section à une hauteur lisible sans rien retirer. */
+  .styles-grille { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .carte__corps { padding: 14px 12px 16px; }
+  .carte h3 { font-size: 17px; }
+  .carte p { font-size: 13.5px; }
+  .bouton { padding: 15px 26px; }
+  /* le hero garde ses deux actions l'une sous l'autre, pleine largeur */
+  .hero__actions { gap: 12px; }
+  .hero__actions .bouton { width: 100%; }
+}
+
+/* =========================================================================
+   SECTIONS AJOUTÉES
+   Reprises de CartoonToi (témoignages vidéo) et TurnedYellow (atouts, FAQ
+   illustrée, bannière finale, bande clients), redessinées dans le système —
+   recopier leur CSS d'origine aurait recréé le patchwork qu'on vient d'éliminer.
+   ========================================================================= */
+
+/* ---------- témoignages vidéo (CartoonToi) ---------- */
+.temoins__grille {
+  display: grid; grid-template-columns: .72fr 1fr;
+  gap: clamp(28px, 4vw, 56px); align-items: center;
+}
+.temoins__grille > * { min-width: 0; }
+.temoins__texte { text-align: center; }
+.temoins__texte .etoiles { font-size: 26px; letter-spacing: 4px; }
+.temoins__texte h2 { font-size: var(--t-section); margin: 14px 0 12px; }
+.temoins__texte p { color: var(--encre-doux); margin: 0; }
+
+.piste { position: relative; }
+.piste__rail {
+  display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; padding: 2px;
+}
+.piste__rail::-webkit-scrollbar { display: none; }
+.videoo {
+  flex: 0 0 calc(50% - 6px); position: relative; scroll-snap-align: start;
+  border-radius: var(--rayon); overflow: hidden; cursor: pointer;
+  background: var(--encre); aspect-ratio: 3 / 4;
+}
+.videoo video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.videoo__play {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(42, 37, 82, .18); transition: opacity .2s ease;
+}
+.videoo__play span {
+  width: 58px; height: 58px; border-radius: 50%; background: var(--papier);
+  display: grid; place-items: center; box-shadow: var(--ombre);
+  color: var(--encre); font-size: 20px; padding-left: 4px;
+}
+.videoo.joue .videoo__play { opacity: 0; pointer-events: none; }
+
+.fleche {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--encre); color: var(--papier);
+  display: grid; place-items: center; font-size: 20px;
+  box-shadow: var(--ombre); transition: background-color .16s ease;
+}
+.fleche:hover { background: #3B3470; }
+.fleche--g { left: -10px; }
+.fleche--d { right: -10px; }
+
+/* ---------- avis clients illustrés (CartoonToi, « multi-column ») ----------
+   Composition reprise telle quelle : photo 4/3 en haut, puis étoiles, titre,
+   avis, nom + badge « Achat Vérifié », et la bulle de discussion en pied.
+   Les trois SVG (étoiles, badge, bulle) sont ceux d'origine. */
+.avis-rail {
+  display: flex; gap: 26px; overflow-x: auto; padding: 4px 2px 14px;
+  scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+.avis-rail::-webkit-scrollbar { display: none; }
+.avis-carte {
+  flex: 0 0 calc(25% - 20px); scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: center;
+}
+/* Ces photos ne viennent pas toutes du meme moule : les six univers d'origine
+   sont des montages 4:3 calibres au pixel pres, mais les produits importes
+   (ex. Pokemon) livrent des visuels carres avec leur propre cadre. En
+   object-fit:cover, le carre etait rogne en haut et en bas pour tenir dans la
+   case 4:3 — le cadre du visuel, souvent son detail le plus soigne, disparaissait
+   en partie. En contain, la photo se voit en entier quel que soit son format ;
+   le fond neutre comble l'espace qui reste sur les cotes plutot que d'etirer
+   ou de couper. */
+.avis-carte > img {
+  width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain;
+  background: var(--cendre);
+  border-radius: var(--rayon); margin-bottom: 18px;
+  /* Pendant vertical du min-width des grilles : dans un flex en colonne les
+     enfants ont min-height:auto et ne peuvent pas descendre sous la hauteur
+     intrinsèque de l'image (750 px), ce qui annulait l'aspect-ratio. */
+  min-height: 0;
+}
+.avis-bulle {
+  background: #FCEAFF;                 /* la bulle d'origine */
+  border-radius: var(--rayon); padding: 22px 22px 18px;
+  text-align: center; width: 100%;
+}
+/* Les étoiles d'origine étaient en orange #FF8C00 : passées en currentColor
+   et pilotées par le jeton, la page n'a plus qu'une seule couleur d'accent. */
+.avis-bulle .svg-stars { line-height: 0; margin-bottom: 10px; color: var(--soleil); }
+.avis-bulle h3 { font-size: 19px; margin-bottom: 8px; }
+.avis-bulle p { margin: 0; font-size: 15px; color: var(--encre-doux); }
+.avis-signe {
+  margin-top: 14px; font-weight: 700; color: var(--encre);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  flex-wrap: wrap; font-size: 15px;
+}
+.avis-signe .verifie { font-weight: 600; color: var(--encre-doux); font-size: 13px; }
+/* la queue de la bulle : même teinte, décalée sous le bloc */
+.avis-queue { line-height: 0; width: 100%; display: flex; justify-content: flex-start; padding-left: 26px; }
+
+/* ---------- pourquoi nous choisir (TurnedYellow) ----------
+   Leur fond #E9BA3B est exactement notre --soleil : la section entrait dans
+   le système sans retouche de couleur. */
+.atouts-sec { background: var(--soleil); }
+.atouts-sec .chapeau h2 { font-size: var(--t-section); }
+.atouts-sec .chapeau p { color: rgba(42, 37, 82, .78); }
+.surtitre {
+  display: inline-block; font-family: var(--accent); font-size: 21px;
+  background: var(--encre); color: var(--soleil);
+  padding: 5px 18px; border-radius: 999px; margin-bottom: 16px;
+}
+.atouts-grille { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.atouts-grille > * { min-width: 0; }
+.atout-carte {
+  background: var(--papier); border-radius: var(--rayon-lg);
+  padding: 28px 24px 26px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.atout-carte__num {
+  font-family: var(--titre); font-weight: 800; font-size: 46px;
+  color: var(--soleil-pale); line-height: 1;
+  position: absolute; top: 14px; right: 20px;
+}
+.atout-carte img { width: 46px; height: 46px; object-fit: contain; }
+.atout-carte h3 { font-size: 19px; padding-right: 40px; }
+.atout-carte p { margin: 0; font-size: 15px; color: var(--encre-doux); }
+
+.preuve-ligne {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-top: 40px; flex-wrap: wrap; text-align: center;
+}
+.preuve-ligne img { height: 44px; width: auto; border-radius: 999px; }
+.preuve-ligne p { margin: 0; font-weight: 600; }
+.preuve-ligne strong { font-family: var(--titre); font-weight: 800; }
+
+/* ---------- FAQ illustrée (TurnedYellow) ---------- */
+.faq-illus {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px; align-items: center;
+}
+.faq-illus > * { min-width: 0; }
+.faq-visuel { position: relative; display: grid; place-items: center; }
+/* Leur halo était un SVG à filtre gaussien : un dégradé radial rend la même
+   chose pour quelques octets. */
+.faq-visuel::before {
+  content: ""; position: absolute; width: 78%; aspect-ratio: 1;
+  background: radial-gradient(circle, var(--soleil) 0%, rgba(233,186,59,0) 68%);
+  filter: blur(28px); opacity: .75; z-index: 0;
+}
+.faq-visuel img { position: relative; z-index: 1; border-radius: var(--rayon-lg); }
+
+/* ---------- bannière finale (TurnedYellow) ----------
+   Valeurs relevées sur la section en ligne : titre 48px/800, bouton noir
+   #07090A rayon 14px texte blanc, atouts 22,4px à 75 % d'opacité.
+   Les photos (famille, téléphone) sont incrustées dans l'image de fond —
+   c'est ce que je n'avais pas vu en ne lisant que le markup, où le
+   .cta-banner-image-wrapper est vide et ne sert qu'à réserver la place. */
+.cta-fin {
+  display: grid; grid-template-columns: 1fr 46%;
+  background-image: url("/toonjaune/large.svg");
+  background-size: cover; background-position: center;
+  border-radius: 26px; overflow: hidden;
+  align-items: center; min-height: 400px;
+}
+.cta-fin > * { min-width: 0; }
+.cta-fin__texte { padding: 40px clamp(20px, 3vw, 44px); }
+.cta-fin h2 {
+  font-size: var(--t-section); color: #07090A; margin-bottom: 12px;
+}
+.cta-fin h2 .accent { color: #07090A; }
+.cta-fin__texte > p {
+  font-size: 17px; color: rgba(7, 9, 10, .82); margin: 0 0 22px; max-width: 42ch;
+}
+/* Même géométrie que .bouton (rayon, corps, hauteur) : seule la couleur
+   change, parce que le fond de la bannière est déjà jaune. */
+.cta-fin__bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  background: #07090A; color: #fff; text-decoration: none;
+  font-family: var(--texte); font-weight: 700; font-size: var(--t-bouton);
+  padding: 17px 34px; min-height: 48px; border-radius: var(--rayon-bouton);
+  transition: transform .16s ease, background-color .16s ease;
+}
+.cta-fin__bouton:hover { background: #1D2126; transform: translateY(-2px); }
+.cta-fin__atouts { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 26px; }
+.cta-fin__atouts div {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; font-size: 15px; color: rgba(18, 18, 18, .78);
+}
+/* les pictogrammes portent leurs couleurs dans le tracé (#491306/#07090A,
+   contour #FFD060) : ce span ne sert plus qu'à retirer l'espace de ligne. */
+.cta-fin__atouts span { line-height: 0; }
+.cta-fin__visuel { align-self: stretch; }
+
+@media (max-width: 1000px) {
+  .temoins__grille, .faq-illus { grid-template-columns: 1fr; }
+  .atouts-grille { grid-template-columns: repeat(2, 1fr); }
+  .fleche--g { left: 2px; } .fleche--d { right: 2px; }
+  .faq-visuel { max-width: 460px; margin-inline: auto; }
+}
+@media (max-width: 1000px) {
+  .avis-carte { flex-basis: calc(50% - 13px); }
+  /* En dessous de 1000px le cadrage du fond coupe les personnages : on garde
+     le dégradé doré seul, le texte reste lisible. */
+  .cta-fin {
+    grid-template-columns: 1fr; min-height: 0;
+    background-image: linear-gradient(135deg, #F7CE55 0%, #E9BA3B 55%, #E3AE2A 100%);
+  }
+  .cta-fin__visuel { display: none; }
+}
+@media (max-width: 620px) {
+  .atouts-grille { grid-template-columns: 1fr; }
+  .videoo { flex-basis: 78%; }
+  .avis-carte { flex-basis: 80%; }
+}
+
+/* =========================================================================
+   ToonJaune — gabarit de page produit
+   Chargé APRÈS styles.css, dont il reprend tous les jetons.
+
+   Composition : le meilleur des trois modèles.
+     · configurateur numéroté, tuiles sombres, fil d'Ariane, date de livraison → CartoonToi
+     · preuve sociale AU-DESSUS du titre                                      → TurnedYellow
+     · pastille presse, paiement fractionné, vidéos près du CTA, bloc contact → Pépouze
+     · tableau comparatif, récit de marque, mentions presse                   → Pépouze
+   ========================================================================= */
+
+/* ---------- fil d'Ariane ---------- */
+.fil { padding: 18px 0 6px; font-size: 14px; color: var(--encre-doux); }
+.fil a { text-decoration: none; }
+.fil a:hover { text-decoration: underline; }
+.fil span { opacity: .5; margin: 0 7px; }
+.fil b { color: var(--encre); font-weight: 600; }
+
+/* ---------- zone d'achat : galerie | tuiles | panneau ---------- */
+.achat {
+  display: grid; grid-template-columns: minmax(0, 1fr) 132px minmax(0, 460px);
+  gap: 22px; align-items: start; padding-bottom: clamp(40px, 5vw, 70px);
+}
+.achat > * { min-width: 0; }
+
+/* Galerie et tuiles collantes : le configurateur est bien plus haut que la
+   galerie, sans ça un grand vide s'installe à gauche pendant le défilement.
+   C'est aussi ce que fait CartoonToi. */
+.galerie { position: sticky; top: 92px; }
+.tuiles { position: sticky; top: 92px; }
+.galerie__vue {
+  width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover;
+  border-radius: var(--rayon-lg); background: var(--cendre); min-height: 0;
+}
+/* pastille presse posée sur la galerie — l'idée de Pépouze, le seul des trois
+   à mettre une autorité tierce directement sur le visuel produit */
+.galerie__presse {
+  position: absolute; top: 16px; left: 16px; z-index: 2;
+  background: rgba(255, 255, 255, .94); border-radius: 999px;
+  padding: 7px 15px 7px 11px; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  box-shadow: var(--ombre);
+}
+.galerie__presse img { height: 17px; width: auto; }
+.galerie__vignettes { display: flex; gap: 10px; margin-top: 12px; }
+/* L'état sélectionné et la bordure vivent désormais sur le bouton parent
+   (.galerie__vignette, voir toonjaune-app.css) : l'image n'en porte plus,
+   sinon les deux se cumulaient. */
+.galerie__vignettes img {
+  width: 74px; height: 74px; object-fit: cover; border-radius: 10px;
+  min-height: 0; display: block;
+}
+
+/* ---------- tuiles d'arguments (CartoonToi) ---------- */
+.tuiles { display: grid; gap: 12px; }
+.tuile {
+  background: var(--encre); color: var(--papier); border-radius: 16px;
+  padding: 16px 10px; text-align: center;
+  display: grid; gap: 8px; justify-items: center;
+}
+.tuile svg { width: 26px; height: 26px; color: var(--soleil); }
+.tuile b { font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+.tuile--fort b { font-family: var(--titre); font-size: 22px; color: var(--soleil); }
+
+/* ---------- panneau d'achat ---------- */
+.panneau { display: grid; gap: 0; }
+
+/* preuve sociale placée AVANT le titre : l'ordre de TurnedYellow */
+.panneau__preuve {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  font-size: 14px; color: var(--encre-doux); font-weight: 600; margin-bottom: 10px;
+}
+.panneau__preuve .etoiles { font-size: 16px; }
+.panneau__preuve i { font-style: normal; opacity: .4; }
+
+.panneau h1 { font-size: clamp(26px, 2.6vw, 36px); line-height: 1.1; }
+.panneau__accroche { color: var(--encre-doux); margin: 12px 0 0; font-size: 16px; }
+.panneau__accroche a { color: var(--encre); font-weight: 600; }
+
+/* date de livraison — urgence honnête, adossée à une vraie date d'expédition,
+   contrairement au compte à rebours que je n'ai pas repris */
+.livraison {
+  display: flex; align-items: center; gap: 11px; margin: 20px 0 4px;
+  border: 1.5px dashed #8FC452; border-radius: 14px;
+  background: #F2FBEC; padding: 12px 16px; font-size: 14.5px; font-weight: 600;
+}
+.livraison svg { width: 20px; height: 20px; color: #5C9E33; flex: none; }
+
+/* ---------- configurateur numéroté (CartoonToi) ---------- */
+.etape-conf { padding: 22px 0 4px; border-bottom: 1px solid var(--encre-voile); }
+.etape-conf:last-of-type { border-bottom: 0; }
+.etape-conf__titre {
+  display: flex; align-items: center; gap: 11px; margin-bottom: 14px;
+  font-weight: 600; font-size: 15.5px;
+}
+.etape-conf__titre b {
+  width: 27px; height: 27px; border-radius: 50%; flex: none;
+  background: var(--encre); color: var(--soleil);
+  display: grid; place-items: center; font-family: var(--titre); font-size: 14px;
+}
+.etape-conf__titre em { font-style: normal; color: var(--encre-doux); font-weight: 500; }
+
+.pastilles { display: flex; gap: 8px; flex-wrap: wrap; }
+.pastille {
+  min-width: 46px; padding: 11px 14px; border-radius: 12px;
+  border: 2px solid var(--encre-voile); background: var(--papier);
+  font-weight: 600; font-size: 15px; cursor: pointer; text-align: center;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.pastille:hover { border-color: var(--encre-doux); }
+.pastille[aria-pressed="true"] { border-color: var(--encre); background: var(--creme); }
+
+.vignettes { display: flex; gap: 10px; flex-wrap: wrap; }
+.vignette {
+  border: 2px solid var(--encre-voile); border-radius: 12px; padding: 0;
+  background: none; cursor: pointer; overflow: hidden; position: relative;
+  line-height: 0; transition: border-color .15s ease;
+}
+.vignette img { width: 68px; height: 68px; object-fit: cover; min-height: 0; }
+.vignette:hover { border-color: var(--encre-doux); }
+.vignette[aria-pressed="true"] { border-color: var(--soleil); }
+/* Les 4 supports doivent tenir sur une seule ligne quelle que soit la largeur
+   du panneau : l'image ne peut donc plus avoir une largeur fixe (92px), elle
+   suit la largeur de sa colonne de grille — voir .vignettes--supports. */
+.vignette--large img { width: 100%; height: auto; aspect-ratio: 92 / 68; }
+.vignette__badge {
+  position: absolute; top: 4px; left: 4px; background: #C8202F; color: #fff;
+  font-size: 9px; font-weight: 700; letter-spacing: .04em;
+  padding: 2px 6px; border-radius: 5px; line-height: 1.5;
+}
+
+.depot {
+  border: 2px dashed var(--encre-voile); border-radius: 14px;
+  background: var(--cendre); padding: 22px; text-align: center;
+  color: var(--encre-doux); font-size: 15px;
+}
+.depot b { color: var(--encre); text-decoration: underline; cursor: pointer; }
+.champ {
+  width: 100%; border: 2px solid var(--encre-voile); border-radius: 14px;
+  padding: 13px 15px; font-family: var(--texte); font-size: 15px;
+  color: var(--encre); resize: vertical; min-height: 92px; background: var(--papier);
+}
+.champ:focus { outline: 2px solid var(--soleil); outline-offset: 1px; border-color: transparent; }
+
+/* ---------- récapitulatif + total ---------- */
+.recap { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0 0; }
+.recap span {
+  background: var(--cendre); border-radius: 999px; padding: 7px 15px;
+  font-size: 13.5px; font-weight: 600;
+}
+.total {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 18px 0 14px; padding-top: 18px; border-top: 1px solid var(--encre-voile);
+}
+.total__prix { font-family: var(--titre); font-weight: 800; font-size: 27px; }
+.total__barre { text-decoration: line-through; color: var(--encre-doux); font-weight: 600; }
+.total__gain {
+  margin-left: auto; background: #F2FBEC; color: #3F7A22;
+  border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 14px;
+}
+/* paiement fractionné affiché en clair — repris de Pépouze, absent des deux autres */
+.fractionne {
+  display: flex; align-items: center; gap: 9px; font-size: 14px;
+  color: var(--encre-doux); margin-bottom: 16px;
+}
+.fractionne b {
+  background: var(--encre); color: var(--papier); border-radius: 6px;
+  padding: 3px 8px; font-size: 12px; font-weight: 700; letter-spacing: .03em;
+}
+.ajouter {
+  width: 100%; justify-content: center; font-size: 19px; letter-spacing: .01em;
+}
+.garantie {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--encre-doux);
+}
+.garantie svg { width: 18px; height: 18px; color: var(--soleil); }
+
+/* ---------- vidéos rondes près du CTA (Pépouze) ---------- */
+.rondes { display: flex; gap: 18px; margin-top: 26px; justify-content: center; }
+.ronde { text-align: center; width: 92px; }
+.ronde span {
+  width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--creme); border: 2px solid var(--soleil); margin: 0 auto 7px;
+  font-size: 22px;
+}
+.ronde b { font-size: 12px; font-weight: 600; color: var(--encre-doux); line-height: 1.25; display: block; }
+
+/* ---------- bloc contact (Pépouze) ---------- */
+.contact {
+  margin-top: 24px; border: 1px solid var(--encre-voile); border-radius: 16px;
+  padding: 16px 18px; display: grid; gap: 8px; background: var(--papier);
+}
+.contact p { margin: 0; font-size: 14px; color: var(--encre-doux); }
+.contact a { font-weight: 700; text-decoration: none; }
+.contact a:hover { text-decoration: underline; }
+
+/* ---------- récit de marque (structure Pépouze) ---------- */
+.recit { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(28px, 4vw, 56px); align-items: center; }
+.recit > * { min-width: 0; }
+.recit img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--rayon-lg); min-height: 0; }
+.recit h2 { font-size: var(--t-section); margin-bottom: 14px; }
+.recit p { color: var(--encre-doux); margin: 0 0 14px; }
+.recit .marqueur {
+  display: inline-block; background: var(--soleil-pale); border-radius: 8px;
+  padding: 2px 9px; font-size: 12.5px; font-weight: 700; margin-bottom: 12px;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+
+/* ---------- tableau comparatif : illustration vectorielle ---------- */
+.compare-illu { display: block; max-width: 760px; margin: 0 auto; }
+.compare-illu img { width: 100%; height: auto; min-height: 0; }
+
+/* ---------- mentions presse (structure Pépouze) ---------- */
+.presse-sec { background: var(--creme); }
+.presse-grille {
+  display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 5vw, 70px);
+  max-width: 980px; margin-inline: auto;
+}
+.presse-grille > * { min-width: 0; }
+/* le filet vertical central, comme chez Pépouze */
+.presse-bloc + .presse-bloc { border-left: 1px solid var(--encre-voile); padding-left: clamp(30px, 5vw, 70px); }
+.presse-bloc { text-align: center; }
+.presse-bloc img {
+  height: 34px; width: auto; margin: 0 auto 22px;
+  opacity: .75; filter: grayscale(1);
+}
+.presse-bloc h3 { font-size: 19px; line-height: 1.3; margin-bottom: 12px; }
+.presse-bloc p { margin: 0; color: var(--encre-doux); font-size: 15.5px; }
+
+/* ---------- adaptatif ---------- */
+@media (max-width: 1100px) {
+  .achat { grid-template-columns: minmax(0, 1fr) minmax(0, 420px); }
+  /* les tuiles passent sous la galerie, en rangée */
+  .tuiles { grid-column: 1; grid-template-columns: repeat(4, 1fr); position: static; }
+  .tuile { padding: 13px 8px; }
+}
+@media (max-width: 860px) {
+  /* Une seule colonne : galerie, puis panneau, puis tuiles. Les quatre tuiles
+     de réassurance s'intercalaient entre la galerie et le panneau et
+     repoussaient le titre du produit à 911px — hors écran sur un 390×844.
+     Elles restent sur la page, après le prix et le configurateur. */
+  .achat { grid-template-columns: 1fr; }
+  .achat .galerie { order: 1; }
+  .achat .panneau { order: 2; }
+  .achat .tuiles  { order: 3; }
+  /* En une colonne, la photo carrée prenait toute la largeur : 772px de haut
+     sur une tablette de 820, et le prix passait juste sous la ligne de
+     flottaison. Plafonnée, elle reste généreuse et laisse voir l'offre. */
+  .achat .galerie { max-width: 520px; margin-inline: auto; width: 100%; }
+  .presse-grille { grid-template-columns: 1fr; gap: 34px; }
+  .presse-bloc + .presse-bloc {
+    border-left: 0; padding-left: 0;
+    border-top: 1px solid var(--encre-voile); padding-top: 34px;
+  }
+  .galerie { position: static; }
+  .recit { grid-template-columns: 1fr; }
+  .recit img { max-width: 460px; margin-inline: auto; }
+  .compare { display: block; overflow-x: auto; white-space: nowrap; }
+}
+@media (max-width: 520px) {
+  .tuiles { grid-template-columns: repeat(2, 1fr); }
+  .rondes { gap: 10px; }
+  .ronde { width: 78px; }
+  .ronde span { width: 62px; height: 62px; }
+}

@@ -1,0 +1,90 @@
+/* =========================================================================
+   ToonJaune — JETONS
+   Polices, variables de couleur/échelle, styles de base.
+   C'est le seul fichier à toucher pour reskinner entièrement le système :
+   changez les valeurs de :root, tout le reste suit.
+   ========================================================================= */
+
+
+/* ---------- polices ---------- */
+@font-face { font-family: Kefir; src: url("../polices/kefir-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Kefir; src: url("../polices/kefir-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: Kefir; src: url("../polices/kefir-800.woff2") format("woff2");
+  font-weight: 800; font-style: normal; font-display: swap; }
+
+@font-face { font-family: Rebond; src: url("../polices/rebond-500.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: Rebond; src: url("../polices/rebond-600.woff") format("woff");
+  font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: Rebond; src: url("../polices/rebond-700.woff") format("woff");
+  font-weight: 700; font-style: normal; font-display: swap; }
+
+@font-face { font-family: Atma; src: url("../polices/atma-400.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: Atma; src: url("../polices/atma-600.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: Atma; src: url("../polices/atma-700.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap; }
+
+/* ---------- jetons ---------- */
+:root {
+  /* couleurs — chaque valeur est relevée sur l'un des deux sites */
+  --encre:        #2A2552;   /* CartoonToi : ancre */
+  --encre-doux:   #5A5578;
+  --encre-voile:  rgba(42, 37, 82, .12);
+  --soleil:       #E9BA3B;   /* TurnedYellow : action (les deux jaunes convergeaient) */
+  --soleil-fonce: #D4A32A;
+  --soleil-pale:  #FBEFCB;
+  --creme:        #FFF9ED;   /* fond chaud commun aux deux marques */
+  --menthe:       #E0FAFA;   /* CartoonToi : tint secondaire */
+  --papier:       #FFFFFF;
+  --cendre:       #F8F6F3;   /* TurnedYellow : bande neutre */
+
+  /* typographie */
+  --titre:  Kefir, "Trebuchet MS", sans-serif;
+  --accent: Atma, "Comic Sans MS", cursive;   /* uniquement les mots accentués */
+  --texte:  Rebond, "Helvetica Neue", Arial, sans-serif;
+
+  /* échelle */
+  --pas: 8px;
+  --largeur: 1200px;
+  --rayon: 18px;
+  --rayon-lg: 28px;
+  --ombre: 0 10px 30px rgba(42, 37, 82, .10);
+  --ombre-forte: 0 18px 46px rgba(42, 37, 82, .16);
+}
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--texte);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+
+h1, h2, h3 { font-family: var(--titre); font-weight: 800; line-height: 1.08; margin: 0; }
+
+/* Le mot accentué : c'est ici, et nulle part ailleurs, que la voix de
+   TurnedYellow entre dans la page. Discipline volontaire — utilisé partout,
+   Atma redeviendrait du bruit. */
+.accent { font-family: var(--accent); font-weight: 700; color: var(--soleil-fonce); }
+.accent--clair { color: var(--soleil); }
+
+.enveloppe { width: min(100% - 48px, var(--largeur)); margin-inline: auto; }
+.section { padding: clamp(56px, 8vw, 104px) 0; scroll-margin-top: 90px; }
+
+.oeil { /* accessible mais masqué visuellement */
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

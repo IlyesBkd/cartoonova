@@ -1,65 +1,37 @@
 @import "tailwindcss";
 
-/* Safelist for dynamic product colors - these classes must be preserved */
-@layer utilities {
-  .hover\:bg-amber-100:hover { background-color: rgb(254 243 199); }
-  .hover\:bg-orange-100:hover { background-color: rgb(255 237 213); }
-  .hover\:bg-pink-100:hover { background-color: rgb(252 231 243); }
-  .hover\:bg-emerald-100:hover { background-color: rgb(209 250 229); }
-  .hover\:bg-lime-100:hover { background-color: rgb(236 252 203); }
-}
-
-@theme inline {
-  --color-primary: #ffd23a;
-  --color-primary-dark: #c39500;
-  --color-secondary: #45a6ff;
-  --color-accent: #9c3605;
-  --color-accent-light: #ee5208;
-  --color-bg: #ffffff;
-  --color-bg-alt: #fef9e7;
-  --color-text: #252525;
-  --color-text-muted: #606c9c;
-  --font-sans: var(--font-poppins), system-ui, sans-serif;
-}
+/* Système de design ToonJaune — repris tel quel du paquet `design-toonjaune`.
+   L'ordre compte : jetons, composants et produit sont concaténés dans
+   toonjaune.css, puis toonjaune-app.css ajoute ce que le site réel exige et
+   que le paquet ne couvre pas. Les deux passent APRÈS Tailwind pour que le
+   préflight ne reprenne pas la main sur les styles de base. */
+@import "./toonjaune.css";
+@import "./toonjaune-app.css";
 
 html {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Le corps de page est déjà entièrement défini par les jetons ToonJaune
+   (fond, couleur, famille, graisse, corps, interligne). Ne reste ici que ce
+   qui appartient à l'application. */
 body {
-  animation: fadeIn 0.3s ease-in-out;
+  overflow-x: hidden;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-body {
-  font-family: var(--font-sans);
-  color: var(--color-text);
-  background: var(--color-bg);
-  overflow-x: hidden;
-}
-
-.wave-divider {
-  width: 100%;
-  line-height: 0;
-  overflow: hidden;
-}
-
-.wave-divider svg {
-  width: 100%;
-  height: auto;
-  display: block;
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn { animation: none; }
 }

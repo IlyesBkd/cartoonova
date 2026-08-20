@@ -5,14 +5,13 @@ import {
   countUnclassifiedSupportMessages,
 } from "@/lib/db";
 import { classifySupportMessage } from "@/lib/aiClassify";
+import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 const BATCH_SIZE = 20;
 
 export async function POST(req: NextRequest) {
-  const password = req.headers.get("x-admin-password");
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refus = refuserSiPasAdmin(req);
+  if (refus) return refus;
 
   try {
     const batch = await getUnclassifiedSupportMessages(BATCH_SIZE);

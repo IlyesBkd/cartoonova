@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import posthog from "posthog-js";
+import Icone from "@/components/tj/Icone";
 
 type Status = "idle" | "loading" | "success" | "error";
 
 export default function NewsletterForm({
   source = "footer",
   className = "",
+  variant = "default",
 }: {
   source?: string;
   className?: string;
+  variant?: "default" | "pill";
 }) {
   const t = useTranslations("footer");
   const locale = useLocale();
@@ -45,9 +48,46 @@ export default function NewsletterForm({
 
   if (status === "success") {
     return (
-      <p className={`text-sm font-bold text-black ${className}`}>
-        ✅ {t("newsletterSuccess")}
+      <p className={`newsletter-ok ${className}`}>
+        <Icone nom="coche" taille={15} style={{ display: "inline-block", verticalAlign: "-3px", marginRight: 6 }} />{t("newsletterSuccess")}
       </p>
+    );
+  }
+
+  if (variant === "pill") {
+    return (
+      <form onSubmit={submit} className={`footer__newsletter-form ${className}`}>
+        <div className="form-control">
+          <input
+            id={`newsletter-email-${source}`}
+            type="email"
+            required
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (status === "error") setStatus("idle");
+            }}
+            placeholder=" "
+            autoComplete="email"
+            className="input is-floating"
+          />
+          <label htmlFor={`newsletter-email-${source}`} className="floating-label">
+            {t("emailPlaceholder")}
+          </label>
+          <div className="self-submit-button">
+            <button type="submit" disabled={status === "loading"} className="circle-chevron" aria-label={t("subscribe")}>
+              <svg width="5" height="8" viewBox="0 0 5 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="m.75 7 3-3-3-3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        {status === "error" && (
+          <p className="depot__erreur" role="alert">
+            {t("newsletterError")}
+          </p>
+        )}
+      </form>
     );
   }
 
@@ -68,18 +108,18 @@ export default function NewsletterForm({
           }}
           placeholder={t("emailPlaceholder")}
           autoComplete="email"
-          className="flex-1 min-w-0 px-3 py-2 rounded-full border-2 border-black bg-white text-sm font-bold text-black placeholder:text-black/40 focus:outline-none focus:ring-2 focus:ring-black"
+          className="champ-ligne" style={{ flex: 1, minWidth: 0, borderRadius: 999, padding: "11px 18px" }}
         />
         <button
           type="submit"
           disabled={status === "loading"}
-          className="px-4 py-2 rounded-full bg-black text-white text-sm font-black border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:shadow-none active:translate-y-1 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+          className="bouton bouton--primaire" style={{ padding: "11px 24px", fontSize: 16 }}
         >
           {t("subscribe")}
         </button>
       </div>
       {status === "error" && (
-        <p className="mt-2 text-xs font-bold text-red-800" role="alert">
+        <p className="depot__erreur" role="alert">
           {t("newsletterError")}
         </p>
       )}

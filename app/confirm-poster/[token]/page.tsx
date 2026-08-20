@@ -13,12 +13,12 @@ export default async function ConfirmPosterPage({
   if (!order) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-300 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 text-center space-y-2">
+        <div className="w-full max-w-md bg-white rounded-2xl p-6 text-center space-y-2">
           <h1 className="text-xl font-black text-black">Lien invalide ou expiré</h1>
           <p className="text-sm text-black/70">
             Ce lien de confirmation n&apos;est plus valide. Contactez-nous à info.cartoonova@gmail.com avec votre numéro de commande.
           </p>
-          <hr className="border-black/10 my-2" />
+          <hr className="/10 my-2" />
           <h1 className="text-xl font-black text-black">Invalid or expired link</h1>
           <p className="text-sm text-black/70">
             This confirmation link is no longer valid. Contact us at info.cartoonova@gmail.com with your order number.
@@ -35,7 +35,7 @@ export default async function ConfirmPosterPage({
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-300 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 space-y-4">
+        <div className="bg-white rounded-2xl p-6 space-y-4">
           <div className="text-center">
             <h1 className="text-xl font-black text-black uppercase">{t.heading(ref)}</h1>
             <p className="text-sm text-black/70 mt-2">{t.description}</p>
@@ -45,7 +45,7 @@ export default async function ConfirmPosterPage({
             <img
               src={order.final_image_url}
               alt="Cartoonova poster"
-              className="w-full rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              className="w-full rounded-xl"
             />
           )}
 

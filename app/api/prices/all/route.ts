@@ -3,6 +3,7 @@ import { getAllPrices, updateAllPrices } from "@/lib/db";
 import { currencies, type Currency } from "@/lib/currency";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { revalidatePath } from "next/cache";
+import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -11,12 +12,8 @@ const PRICE_FIELDS: (keyof PriceSet)[] = [
   "digital", "canvas", "poster", "posterSimple",
 ];
 
-function checkAuth(req: NextRequest): NextResponse | null {
-  const password = req.headers.get("x-admin-password");
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
-  return null;
+function checkAuth(req: Request): NextResponse | null {
+  return refuserSiPasAdmin(req);
 }
 
 function validatePayload(body: unknown): PricesByCurrency | string {

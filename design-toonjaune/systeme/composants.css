@@ -1,0 +1,457 @@
+/* =========================================================================
+   ToonJaune — COMPOSANTS
+   Boutons, en-tête, hero, cartes, étapes, FAQ, bandeaux, pied de page…
+   Dépend de jetons.css, à charger avant.
+   ========================================================================= */
+
+/* ---------- boutons ---------- */
+.bouton {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--texte); font-weight: 700; font-size: 18px;
+  padding: 17px 34px; border-radius: 999px; border: 0;
+  text-decoration: none; cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+.bouton--primaire { background: var(--soleil); color: var(--encre); box-shadow: 0 6px 0 var(--soleil-fonce); }
+.bouton--primaire:hover { background: #F0C64F; transform: translateY(-2px); box-shadow: 0 8px 0 var(--soleil-fonce); }
+.bouton--primaire:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--soleil-fonce); }
+.bouton--fantome { background: transparent; color: var(--encre); border: 2px solid var(--encre-voile); }
+.bouton--fantome:hover { border-color: var(--encre); }
+.bouton--clair { background: var(--papier); color: var(--encre); }
+
+/* ---------- barre promo ----------
+   CartoonToi utilisait un bandeau ROUGE (#C8202F) qui ne dialoguait avec
+   aucune des deux marques. Remplacé par l'indigo + accent jaune : c'est la
+   décision d'unification la plus visible de la page. */
+.promo {
+  background: var(--encre); color: var(--papier);
+  font-size: 15px; font-weight: 600; text-align: center;
+  padding: 11px 24px; letter-spacing: .01em;
+}
+.promo b { color: var(--soleil); font-weight: 700; }
+
+/* ---------- en-tête ---------- */
+.entete {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(255, 255, 255, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--encre-voile);
+}
+.entete__grille {
+  display: flex; align-items: center; gap: 32px;
+  min-height: 74px;
+}
+.marque {
+  font-family: var(--titre); font-weight: 800; font-size: 26px;
+  text-decoration: none; letter-spacing: -.02em; white-space: nowrap;
+}
+.marque i { font-family: var(--accent); font-style: normal; color: var(--soleil-fonce); }
+
+/* Le menu de TurnedYellow passait à la ligne en 1440px — un vrai défaut.
+   Ici : une seule rangée, et repli propre en dessous de 1000px. */
+.nav { display: flex; gap: 26px; margin-left: auto; }
+.nav a {
+  text-decoration: none; font-weight: 600; font-size: 16px;
+  padding: 6px 0; position: relative; white-space: nowrap;
+}
+.nav a::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 2px;
+  background: var(--soleil); transition: right .22s ease;
+}
+.nav a:hover::after { right: 0; }
+.entete .bouton { padding: 12px 24px; font-size: 16px; }
+
+/* ---------- hero ---------- */
+.hero { background: var(--creme); overflow: hidden; }
+.hero__grille {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 72px); align-items: center;
+  padding: clamp(44px, 6vw, 86px) 0;
+}
+/* Les éléments de grille ont min-width:auto : sans ce min-width:0 la colonne
+   ne peut pas descendre sous la largeur intrinsèque de l'image (1024 px), la
+   grille déborde et overflow:hidden rogne le tout. */
+.hero__grille > *, .etapes > *, .styles-grille > *, .preuve__grille > *, .pied__grille > * {
+  min-width: 0;
+}
+.hero__oeil {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--accent); font-weight: 600; font-size: 20px;
+  color: var(--encre-doux); margin-bottom: 14px;
+}
+.hero h1 { font-size: clamp(36px, 4.3vw, 58px); letter-spacing: -.02em; max-width: 14ch; }
+.hero__texte {
+  font-size: clamp(17px, 1.3vw, 19px); color: var(--encre-doux);
+  max-width: 30em; margin: 22px 0 30px;
+}
+.hero__actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.hero__note { font-size: 15px; color: var(--encre-doux); font-weight: 600; }
+
+/* rangée d'atouts en ligne — reprise de TurnedYellow */
+.atouts { display: flex; gap: 30px; flex-wrap: wrap; margin-top: 34px; }
+.atout { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.atout span {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  background: var(--soleil-pale); border-radius: 50%; font-size: 15px;
+}
+
+.hero__visuel { position: relative; }
+.hero__photo {
+  border-radius: var(--rayon-lg); box-shadow: var(--ombre-forte);
+  width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover;
+}
+.hero__pastille {
+  position: absolute; left: -18px; bottom: 34px;
+  background: var(--papier); border-radius: 18px; padding: 14px 20px;
+  box-shadow: var(--ombre); display: flex; align-items: center; gap: 12px;
+}
+.hero__pastille strong { font-family: var(--titre); font-size: 24px; display: block; line-height: 1; }
+.hero__pastille small { font-size: 13px; color: var(--encre-doux); font-weight: 600; }
+.etoiles { color: var(--soleil); letter-spacing: 2px; font-size: 15px; }
+
+/* ---------- bandeau défilant (signature CartoonToi) ---------- */
+.bandeau { background: var(--menthe); padding: 18px 0; overflow: hidden; }
+.bandeau__piste {
+  display: flex; gap: 14px; width: max-content;
+  animation: defile 34s linear infinite;
+}
+.bandeau:hover .bandeau__piste { animation-play-state: paused; }
+@keyframes defile { to { transform: translateX(-50%); } }
+.puce {
+  background: var(--papier); border-radius: 999px; padding: 10px 22px;
+  font-weight: 700; font-size: 15px; white-space: nowrap;
+  display: flex; align-items: center; gap: 9px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bandeau__piste { animation: none; }
+}
+
+/* ---------- titres de section ---------- */
+.chapeau { text-align: center; margin-bottom: clamp(36px, 5vw, 60px); }
+.chapeau h2 { font-size: clamp(30px, 3.6vw, 46px); }
+.chapeau p { color: var(--encre-doux); margin: 14px auto 0; max-width: 46ch; }
+
+/* ---------- étapes numérotées (le meilleur atout de CartoonToi) ---------- */
+.etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.etape {
+  background: var(--papier); border: 2px solid var(--encre-voile);
+  border-radius: var(--rayon-lg); padding: 34px 30px 30px; position: relative;
+  transition: transform .18s ease, border-color .18s ease;
+}
+.etape:hover { transform: translateY(-4px); border-color: var(--soleil); }
+.etape__num {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--encre); color: var(--soleil);
+  display: grid; place-items: center;
+  font-family: var(--titre); font-weight: 800; font-size: 20px;
+  margin-bottom: 18px;
+}
+.etape h3 { font-size: 21px; margin-bottom: 9px; }
+.etape p { margin: 0; color: var(--encre-doux); font-size: 16px; }
+
+/* ---------- styles / collections ---------- */
+.styles-grille { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.carte {
+  background: var(--papier); border-radius: var(--rayon-lg);
+  overflow: hidden; box-shadow: var(--ombre); text-decoration: none;
+  display: flex; flex-direction: column;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.carte:hover { transform: translateY(-6px); box-shadow: var(--ombre-forte); }
+.carte__image { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; background: var(--cendre); }
+.carte__corps { padding: 20px 22px 24px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.carte h3 { font-size: 20px; }
+.carte p { margin: 0; font-size: 15px; color: var(--encre-doux); flex: 1; }
+.carte__prix { font-weight: 700; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+.carte__prix i { font-style: normal; color: var(--encre-doux); font-weight: 600; font-size: 14px; }
+
+/* ---------- preuve sociale ---------- */
+.preuve { background: var(--encre); color: var(--papier); }
+.preuve__grille {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; text-align: center;
+}
+.preuve strong {
+  font-family: var(--titre); font-weight: 800; font-size: clamp(38px, 4.4vw, 56px);
+  color: var(--soleil); display: block; line-height: 1;
+}
+.preuve span { display: block; margin-top: 10px; font-weight: 600; opacity: .85; }
+
+/* ---------- FAQ ---------- */
+.faq { max-width: 820px; margin-inline: auto; }
+.faq details {
+  border-bottom: 1px solid var(--encre-voile); padding: 6px 0;
+}
+.faq summary {
+  cursor: pointer; list-style: none; padding: 20px 44px 20px 0;
+  font-family: var(--titre); font-weight: 700; font-size: 19px; position: relative;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border-radius: 50%; background: var(--soleil-pale);
+  display: grid; place-items: center; font-size: 20px; transition: transform .2s ease;
+}
+.faq details[open] summary::after { content: "−"; }
+.faq p { margin: 0 0 20px; color: var(--encre-doux); padding-right: 44px; }
+
+/* ---------- appel final ---------- */
+.final { background: var(--creme); text-align: center; }
+.final h2 { font-size: clamp(32px, 4vw, 50px); }
+.final p { color: var(--encre-doux); max-width: 44ch; margin: 16px auto 30px; }
+
+/* ---------- pied de page ---------- */
+/* La bande illustrée est l'idée la plus réussie de TurnedYellow : on la garde,
+   mais posée sur l'indigo de CartoonToi plutôt que sur leur jaune. */
+.bande-perso { background: var(--soleil); overflow: hidden; }
+.bande-perso img {
+  height: 150px; width: auto; margin: 0 auto; display: block;
+  transform: translateY(6px);
+}
+.pied { background: var(--encre); color: var(--papier); padding: 60px 0 30px; }
+.pied__grille {
+  display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 40px;
+}
+.pied h4 {
+  font-family: var(--titre); font-size: 15px; text-transform: uppercase;
+  letter-spacing: .08em; margin: 0 0 16px; color: var(--soleil);
+}
+.pied ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.pied a { text-decoration: none; opacity: .85; font-size: 16px; }
+.pied a:hover { opacity: 1; text-decoration: underline; }
+.pied__mot { font-family: var(--titre); font-weight: 800; font-size: 26px; margin-bottom: 12px; }
+.pied__mot i { font-family: var(--accent); font-style: normal; color: var(--soleil); }
+.pied__bas {
+  margin-top: 44px; padding-top: 22px; border-top: 1px solid rgba(255, 255, 255, .16);
+  display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  font-size: 14px; opacity: .75;
+}
+
+/* ---------- adaptatif ---------- */
+@media (max-width: 1000px) {
+  .hero__grille { grid-template-columns: 1fr; }
+  .hero__visuel { order: -1; max-width: 520px; margin-inline: auto; }
+  .styles-grille { grid-template-columns: repeat(2, 1fr); }
+  .pied__grille { grid-template-columns: 1fr 1fr; }
+  .nav { display: none; }
+}
+@media (max-width: 720px) {
+  .etapes { grid-template-columns: 1fr; }
+  .preuve__grille { grid-template-columns: 1fr; gap: 30px; }
+  .entete__grille { min-height: 64px; gap: 14px; }
+  .marque { font-size: 22px; }
+  /* le libellé passait sur deux lignes et gonflait l'en-tête */
+  .entete .bouton { padding: 10px 16px; font-size: 15px; white-space: nowrap; }
+  .hero__pastille { left: 8px; bottom: 12px; padding: 11px 15px; }
+}
+@media (max-width: 520px) {
+  .styles-grille { grid-template-columns: 1fr; }
+  .pied__grille { grid-template-columns: 1fr; }
+  .bouton { padding: 15px 26px; font-size: 17px; }
+}
+
+/* =========================================================================
+   SECTIONS AJOUTÉES
+   Reprises de CartoonToi (témoignages vidéo) et TurnedYellow (atouts, FAQ
+   illustrée, bannière finale, bande clients), redessinées dans le système —
+   recopier leur CSS d'origine aurait recréé le patchwork qu'on vient d'éliminer.
+   ========================================================================= */
+
+/* ---------- témoignages vidéo (CartoonToi) ---------- */
+.temoins__grille {
+  display: grid; grid-template-columns: .72fr 1fr;
+  gap: clamp(28px, 4vw, 56px); align-items: center;
+}
+.temoins__grille > * { min-width: 0; }
+.temoins__texte { text-align: center; }
+.temoins__texte .etoiles { font-size: 26px; letter-spacing: 4px; }
+.temoins__texte h2 { font-size: clamp(28px, 3.2vw, 40px); margin: 14px 0 12px; }
+.temoins__texte p { color: var(--encre-doux); margin: 0; }
+
+.piste { position: relative; }
+.piste__rail {
+  display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; padding: 2px;
+}
+.piste__rail::-webkit-scrollbar { display: none; }
+.videoo {
+  flex: 0 0 calc(50% - 6px); position: relative; scroll-snap-align: start;
+  border-radius: var(--rayon); overflow: hidden; cursor: pointer;
+  background: var(--encre); aspect-ratio: 3 / 4;
+}
+.videoo video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.videoo__play {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: rgba(42, 37, 82, .18); transition: opacity .2s ease;
+}
+.videoo__play span {
+  width: 58px; height: 58px; border-radius: 50%; background: var(--papier);
+  display: grid; place-items: center; box-shadow: var(--ombre);
+  color: var(--encre); font-size: 20px; padding-left: 4px;
+}
+.videoo.joue .videoo__play { opacity: 0; pointer-events: none; }
+
+.fleche {
+  position: absolute; top: 50%; transform: translateY(-50%); z-index: 2;
+  width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
+  background: var(--encre); color: var(--papier);
+  display: grid; place-items: center; font-size: 20px;
+  box-shadow: var(--ombre); transition: background-color .16s ease;
+}
+.fleche:hover { background: #3B3470; }
+.fleche--g { left: -10px; }
+.fleche--d { right: -10px; }
+
+/* ---------- avis clients illustrés (CartoonToi, « multi-column ») ----------
+   Composition reprise telle quelle : photo 4/3 en haut, puis étoiles, titre,
+   avis, nom + badge « Achat Vérifié », et la bulle de discussion en pied.
+   Les trois SVG (étoiles, badge, bulle) sont ceux d'origine. */
+.avis-rail {
+  display: flex; gap: 26px; overflow-x: auto; padding: 4px 2px 14px;
+  scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+.avis-rail::-webkit-scrollbar { display: none; }
+.avis-carte {
+  flex: 0 0 calc(25% - 20px); scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: center;
+}
+.avis-carte > img {
+  width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover;
+  border-radius: var(--rayon); margin-bottom: 18px;
+  /* Pendant vertical du min-width des grilles : dans un flex en colonne les
+     enfants ont min-height:auto et ne peuvent pas descendre sous la hauteur
+     intrinsèque de l'image (750 px), ce qui annulait l'aspect-ratio. */
+  min-height: 0;
+}
+.avis-bulle {
+  background: #FCEAFF;                 /* la bulle d'origine */
+  border-radius: var(--rayon); padding: 22px 22px 18px;
+  text-align: center; width: 100%;
+}
+/* Les étoiles d'origine étaient en orange #FF8C00 : passées en currentColor
+   et pilotées par le jeton, la page n'a plus qu'une seule couleur d'accent. */
+.avis-bulle .svg-stars { line-height: 0; margin-bottom: 10px; color: var(--soleil); }
+.avis-bulle h3 { font-size: 19px; margin-bottom: 8px; }
+.avis-bulle p { margin: 0; font-size: 15px; color: var(--encre-doux); }
+.avis-signe {
+  margin-top: 14px; font-weight: 700; color: var(--encre);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  flex-wrap: wrap; font-size: 15px;
+}
+.avis-signe .verifie { font-weight: 600; color: var(--encre-doux); font-size: 13px; }
+/* la queue de la bulle : même teinte, décalée sous le bloc */
+.avis-queue { line-height: 0; width: 100%; display: flex; justify-content: flex-start; padding-left: 26px; }
+
+/* ---------- pourquoi nous choisir (TurnedYellow) ----------
+   Leur fond #E9BA3B est exactement notre --soleil : la section entrait dans
+   le système sans retouche de couleur. */
+.atouts-sec { background: var(--soleil); }
+.atouts-sec .chapeau h2 { font-size: clamp(30px, 3.6vw, 44px); }
+.atouts-sec .chapeau p { color: rgba(42, 37, 82, .78); }
+.surtitre {
+  display: inline-block; font-family: var(--accent); font-size: 21px;
+  background: var(--encre); color: var(--soleil);
+  padding: 5px 18px; border-radius: 999px; margin-bottom: 16px;
+}
+.atouts-grille { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+.atouts-grille > * { min-width: 0; }
+.atout-carte {
+  background: var(--papier); border-radius: var(--rayon-lg);
+  padding: 28px 24px 26px; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.atout-carte__num {
+  font-family: var(--titre); font-weight: 800; font-size: 46px;
+  color: var(--soleil-pale); line-height: 1;
+  position: absolute; top: 14px; right: 20px;
+}
+.atout-carte img { width: 46px; height: 46px; object-fit: contain; }
+.atout-carte h3 { font-size: 19px; padding-right: 40px; }
+.atout-carte p { margin: 0; font-size: 15px; color: var(--encre-doux); }
+
+.preuve-ligne {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-top: 40px; flex-wrap: wrap; text-align: center;
+}
+.preuve-ligne img { height: 44px; width: auto; border-radius: 999px; }
+.preuve-ligne p { margin: 0; font-weight: 600; }
+.preuve-ligne strong { font-family: var(--titre); font-weight: 800; }
+
+/* ---------- FAQ illustrée (TurnedYellow) ---------- */
+.faq-illus {
+  display: grid; grid-template-columns: .85fr 1fr;
+  gap: clamp(30px, 5vw, 64px); align-items: center;
+}
+.faq-illus > * { min-width: 0; }
+.faq-visuel { position: relative; display: grid; place-items: center; }
+/* Leur halo était un SVG à filtre gaussien : un dégradé radial rend la même
+   chose pour quelques octets. */
+.faq-visuel::before {
+  content: ""; position: absolute; width: 78%; aspect-ratio: 1;
+  background: radial-gradient(circle, var(--soleil) 0%, rgba(233,186,59,0) 68%);
+  filter: blur(28px); opacity: .75; z-index: 0;
+}
+.faq-visuel img { position: relative; z-index: 1; border-radius: var(--rayon-lg); }
+
+/* ---------- bannière finale (TurnedYellow) ----------
+   Valeurs relevées sur la section en ligne : titre 48px/800, bouton noir
+   #07090A rayon 14px texte blanc, atouts 22,4px à 75 % d'opacité.
+   Les photos (famille, téléphone) sont incrustées dans l'image de fond —
+   c'est ce que je n'avais pas vu en ne lisant que le markup, où le
+   .cta-banner-image-wrapper est vide et ne sert qu'à réserver la place. */
+.cta-fin {
+  display: grid; grid-template-columns: 1fr 46%;
+  background-image: url("../substituts/large.svg");
+  background-size: cover; background-position: center;
+  border-radius: 26px; overflow: hidden;
+  align-items: center; min-height: 400px;
+}
+.cta-fin > * { min-width: 0; }
+.cta-fin__texte { padding: 40px clamp(20px, 3vw, 44px); }
+.cta-fin h2 {
+  font-size: clamp(30px, 3.6vw, 48px); color: #07090A; margin-bottom: 12px;
+}
+.cta-fin h2 .accent { color: #07090A; }
+.cta-fin__texte > p {
+  font-size: 17px; color: rgba(7, 9, 10, .82); margin: 0 0 22px; max-width: 42ch;
+}
+.cta-fin__bouton {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #07090A; color: #fff; text-decoration: none;
+  font-family: var(--texte); font-weight: 700; font-size: clamp(17px, 1.5vw, 22px);
+  padding: 15px 34px; border-radius: 14px;
+  transition: transform .16s ease, background-color .16s ease;
+}
+.cta-fin__bouton:hover { background: #1D2126; transform: translateY(-2px); }
+.cta-fin__bouton svg { color: var(--soleil); }
+.cta-fin__atouts { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 26px; }
+.cta-fin__atouts div {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 600; font-size: 15px; color: rgba(18, 18, 18, .78);
+}
+/* sur le fond doré les pictogrammes sombres d'origine se lisent tels quels :
+   plus besoin de pastille, contrairement à la version sur indigo */
+.cta-fin__atouts span { line-height: 0; color: #07090A; }
+.cta-fin__visuel { align-self: stretch; }
+
+@media (max-width: 1000px) {
+  .temoins__grille, .faq-illus { grid-template-columns: 1fr; }
+  .atouts-grille { grid-template-columns: repeat(2, 1fr); }
+  .fleche--g { left: 2px; } .fleche--d { right: 2px; }
+  .faq-visuel { max-width: 460px; margin-inline: auto; }
+}
+@media (max-width: 1000px) {
+  .avis-carte { flex-basis: calc(50% - 13px); }
+  /* En dessous de 1000px le cadrage du fond coupe les personnages : on garde
+     le dégradé doré seul, le texte reste lisible. */
+  .cta-fin {
+    grid-template-columns: 1fr; min-height: 0;
+    background-image: linear-gradient(135deg, #F7CE55 0%, #E9BA3B 55%, #E3AE2A 100%);
+  }
+  .cta-fin__visuel { display: none; }
+}
+@media (max-width: 620px) {
+  .atouts-grille { grid-template-columns: 1fr; }
+  .videoo { flex-basis: 78%; }
+  .avis-carte { flex-basis: 80%; }
+}
