@@ -32,6 +32,16 @@ export default async function RootLayout({
 
   return (
     <html lang={langue}>
+      <head>
+        {/* Les deux seules fontes du premier ecran : Kefir 800 porte h1/h2/h3,
+            Rebond 500 le corps de texte. Sans prechargement, le navigateur ne
+            les decouvre qu'apres avoir analyse la feuille de style — et sur le
+            catalogue comme sur la page pilier, l'element du LCP est
+            justement le h1. Les sept autres graisses restent chargees a la
+            demande : precharger ce qui ne sert pas retarde ce qui sert. */}
+        <link rel="preload" href="/polices/kefir-800.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/polices/rebond-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body>
         {/* Google Ads — gtag.js */}
         <Script

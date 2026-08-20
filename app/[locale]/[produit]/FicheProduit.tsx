@@ -5,7 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { upload } from "@vercel/blob/client";
-import CheckoutModal from "@/components/CheckoutModal";
+import dynamic from "next/dynamic";
+
+/* 1 100 lignes qui n'entrent en jeu qu'apres un clic sur « commander ». En
+   import statique, elles pesaient sur le premier rendu de chaque fiche —
+   celui qui decide du LCP. */
+const CheckoutModal = dynamic(() => import("@/components/CheckoutModal"), { ssr: false });
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
 import Etoiles from "@/components/tj/Etoiles";
 import BadgeVerifie from "@/components/tj/BadgeVerifie";

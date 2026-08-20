@@ -124,10 +124,16 @@ export default async function GiftOccasionPage({
 
           <div className="grid md:grid-cols-2 gap-8 items-start mb-12">
             <div style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: "var(--rayon-lg)", overflow: "hidden", boxShadow: "var(--ombre)" }}>
+              {/* `priority` parce que c'est l'element du LCP. Sans lui, le
+                  navigateur ne decouvrait cette image que 3,2 s apres la fin
+                  du HTML : elle est en `fill`, donc sa taille depend d'une
+                  mise en page que le scanner de prechargement ne connait pas
+                  encore. Mesure : LCP 5 824 ms sur ce gabarit. */}
               <Image
                 src={product.image}
                 alt={`${styleName} — ${occasion.label}`}
                 fill
+                priority
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
               />

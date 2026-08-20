@@ -878,6 +878,19 @@ export function slugsProduitDe(locale: Locale): string[] {
   return CATALOGUE_EN_LIGNE.map((p) => slugProduit(p, locale));
 }
 
+/**
+ * Tous les slugs de fiche, toutes langues confondues.
+ *
+ * Sert a reconnaitre une fiche produit depuis un chemin sans savoir dans
+ * quelle langue on se trouve — la coque de mise en page, par exemple, qui
+ * n'affiche la relance de sortie que sur une fiche. `SLUGS_PRODUIT` seul ne
+ * suffit plus depuis que les slugs sont localises : il ne contient que la
+ * forme francaise et laisserait passer /en/custom-naruto-portrait.
+ */
+export const SLUGS_PRODUIT_TOUTES_LANGUES: readonly string[] = [
+  ...new Set(locales.flatMap((l) => CATALOGUE_EN_LIGNE.map((p) => slugProduit(p, l)))),
+];
+
 /** Le produit phare, ou `undefined` s'il a ete depublie. */
 export function produitPhare(): Produit | undefined {
   return produitParSlug(SLUG_PHARE);
