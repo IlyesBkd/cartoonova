@@ -2,7 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import type { Prices, PriceSet, PricesByCurrency } from "./types";
 import { DEFAULT_PRICES, DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
-import { convertPrice } from "./currency";
+import { convertPrice, currencies, exchangeRates } from "./currency";
 
 // ─── SQL Connection ──────────────────────────────────────────────────
 export const sql = neon(process.env.DATABASE_URL!);
@@ -308,13 +308,16 @@ async function ensurePricesSchema(): Promise<void> {
       Object.fromEntries(
         Object.entries(eur).map(([k, v]) => [k, k === "digital" ? v : Math.ceil((v as number) * rate)])
       ) as unknown as PriceSet;
-    const seeded: PricesByCurrency = {
-      EUR: eur,
-      USD: scale(1.08),
-      GBP: scale(0.86),
-      CAD: scale(1.48),
-      AUD: scale(1.66),
-    };
+    /* Les taux venaient d'etre recopies ici, en dur, a cote de ceux de
+       lib/currency.ts. Deux tables pour la meme chose finissent par diverger,
+       et c'est le prix affiche qui en paie le prix. Une seule source, et le
+       jeu se remplit tout seul quand une devise s'ajoute. */
+    const seeded = Object.fromEntries(
+      currencies.map((devise) => [
+        devise,
+        devise === "EUR" ? eur : scale(exchangeRates[devise]),
+      ])
+    ) as PricesByCurrency;
     await sql`UPDATE prices SET data = ${JSON.stringify(seeded)}::jsonb WHERE id = 'singleton'`;
   })().catch((e) => {
     pricesSchemaReady = null;

@@ -922,7 +922,157 @@ const nl: OccasionTable = {
   },
 };
 
-export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl };
+/* Polonais. Le marche polonais achete en ligne massivement et compare
+   beaucoup : le texte y est plus concret et moins lyrique qu'en francais.
+   « Na zamowienie » — sur commande — est la formule qui signale le sur-mesure,
+   comme « laten tekenen » en neerlandais. */
+const pl: OccasionTable = {
+  anniversaire: {
+    slug: "urodziny",
+    label: "urodziny",
+    headline: (style) => `${style} na urodziny`,
+    intro:
+      "Urodziny wracają co roku i na tym polega problem: w pewnym momencie pomysły się kończą. Ręcznie rysowany portret wyróżnia się dlatego, że nie da się go podarować dwa razy — powstaje z jednego konkretnego zdjęcia, tej jednej osoby.",
+    bullets: [
+      "Nikt inny nie podaruje tego samego: rysunek powstaje z Twojego zdjęcia.",
+      "Zawiśnie na ścianie, w przeciwieństwie do większości prezentów urodzinowych.",
+      "Rysunek jest gotowy w 2 dni, więc spóźnialscy też zdążą.",
+    ],
+    faq: [
+      {
+        question: "Z jakim wyprzedzeniem zamówić portret na urodziny?",
+        answer:
+          "Wersja cyfrowa: 2 dni. Plakat lub obraz na płótnie: około 5 dni roboczych od zamówienia do odbioru — 2 dni rysowania, potem 3 dni robocze na druk i wysyłkę.",
+      },
+      {
+        question: "Czy na portrecie może być kilka osób?",
+        answer:
+          "Tak. Możesz dodać kolejne osoby i zwierzęta. Najlepiej przesłać ostre zdjęcie każdej osoby osobno, zamiast jednego zdjęcia grupowego z daleka.",
+      },
+    ],
+  },
+  noel: {
+    slug: "prezent-na-swieta",
+    label: "Święta",
+    headline: (style) => `${style} na prezent świąteczny`,
+    intro:
+      "W Święta problemem nie jest znalezienie prezentu, tylko znalezienie takiego, który w styczniu nie wyląduje w szafie. Ręcznie rysowany portret rodzinny się wiesza — i przypomina o konkretnym roku.",
+    bullets: [
+      "Prezent, który rozpakowuje się przy wszystkich i o którym się rozmawia.",
+      "Idealny dla rodziców i dziadków, którzy „niczego nie potrzebują”.",
+      "Wersja cyfrowa jest możliwa do ostatniej chwili.",
+    ],
+    faq: [
+      {
+        question: "Do kiedy zamówić, żeby zdążyć przed Świętami?",
+        answer:
+          "Ostateczny termin pojawia się na stronie w okresie świątecznym. W praktyce: około 5 dni roboczych na wydruk z dostawą, 2 dni na wersję cyfrową.",
+      },
+      {
+        question: "Czy mogę podarować portret, którego jeszcze nie mam?",
+        answer:
+          "Tak: wręcz wersję cyfrową w dniu Świąt, a wydruk zamów z dostawą później. Wiele zamówień na ostatnią chwilę wygląda właśnie tak.",
+      },
+    ],
+  },
+  "saint-valentin": {
+    slug: "walentynki",
+    label: "Walentynki",
+    headline: (style) => `${style} na Walentynki`,
+    intro:
+      "Kwiaty znikają po tygodniu. Portret we dwoje, narysowany z Waszego zdjęcia, zostaje na ścianie.",
+    bullets: [
+      "Powstaje z Waszego własnego zdjęcia — żadnej gotowej ilustracji.",
+      "Działa nawet, jeśli rzadko jesteście razem na zdjęciach: wystarczą dwa osobne.",
+      "Wersja cyfrowa przychodzi mailem, więc niespodzianka zostaje niespodzianką.",
+    ],
+    faq: [
+      {
+        question: "Czy na portrecie możemy być we dwoje?",
+        answer:
+          "Tak, to najczęściej zamawiany wariant. Wystarczą dwa osobne zdjęcia — rysownik połączy Was w jednym kadrze.",
+      },
+      {
+        question: "Do kiedy zamówić na 14 lutego?",
+        answer: "Na wydruk: około 5 dni roboczych wcześniej. Na wersję cyfrową wystarczą 2 dni.",
+      },
+    ],
+  },
+  "fete-des-meres": {
+    slug: "dzien-matki",
+    label: "Dzień Matki",
+    headline: (style) => `${style} na Dzień Matki`,
+    intro:
+      "Dzień Matki w Polsce wypada 26 maja — nie wszędzie tego samego dnia. Narysowany portret dzieci albo całej rodziny to prezent, który naprawdę zawiśnie na ścianie.",
+    bullets: [
+      "Z dziećmi albo z całą rodziną.",
+      "Zwierzęta też mogą się znaleźć — często to one robią cały portret.",
+      "Gotowy w 2 dni, więc zdążysz nawet jeśli prawie zapomniałeś.",
+    ],
+    faq: [
+      {
+        question: "Czy na portrecie mogą być same dzieci?",
+        answer:
+          "Tak. Wiele zamówień wygląda dokładnie tak: same dzieci, w stylu, który same lubią.",
+      },
+      {
+        question: "Kiedy wypada Dzień Matki?",
+        answer:
+          "W Polsce 26 maja. Ostateczny termin zamówienia pojawia się na stronie w tym okresie.",
+      },
+    ],
+  },
+  mariage: {
+    slug: "prezent-slubny",
+    label: "ślub",
+    headline: (style) => `${style} na prezent ślubny`,
+    intro:
+      "Na liście prezentów rzadko trafia się coś osobistego. Portret pary, narysowany z jej własnego zdjęcia, wyróżnia się wśród zastawy i kopert.",
+    bullets: [
+      "Bardziej osobisty niż to, co jest na liście.",
+      "Działa ze zdjęciem zaręczynowym albo ze zdjęciem z samego ślubu.",
+      "Można podarować też później, gdy zdjęcia ślubne będą gotowe.",
+    ],
+    faq: [
+      {
+        question: "Czy mogę zamówić portret po ślubie?",
+        answer:
+          "Tak, i często wychodzi lepiej: używasz wtedy prawdziwego zdjęcia ślubnego zamiast starszego.",
+      },
+      {
+        question: "Czy świadkowie albo rodzina mogą się znaleźć na portrecie?",
+        answer:
+          "Tak, można dodać kolejne osoby. Dla ostrego efektu prześlij osobne, wyraźne zdjęcie każdej z nich.",
+      },
+    ],
+  },
+  depart: {
+    slug: "prezent-pozegnalny",
+    label: "pożegnanie",
+    headline: (style) => `${style} na prezent pożegnalny`,
+    intro:
+      "Odchodzący współpracownik dostaje zwykle kartkę i kwiaty. Narysowany portret — jego samego albo całego zespołu — to coś, co zostaje potem na nowym biurku.",
+    bullets: [
+      "Jednej osoby albo całego zespołu.",
+      "Każdy może się dorzucić: jedno zamówienie, jeden prezent.",
+      "Gotowy w 2 dni, także gdy pożegnanie trzeba zorganizować szybko.",
+    ],
+    faq: [
+      {
+        question: "Czy na portrecie może być cały zespół?",
+        answer:
+          "Tak. Przygotuj wyraźne zdjęcie każdej osoby; zdjęcie grupowe z daleka daje słabszy efekt.",
+      },
+      {
+        question: "Czy możemy dołączyć wiadomość?",
+        answer:
+          "Przy zamówieniu możesz zostawić notatkę z tym, czego oczekujesz. Rysownik weźmie ją pod uwagę.",
+      },
+    ],
+  },
+};
+
+export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl };
 
 export interface GiftPageParams {
   styleSlug: string;

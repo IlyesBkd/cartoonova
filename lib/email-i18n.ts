@@ -21,6 +21,9 @@ const countryToLang: Record<string, Lang>= {
     accident — et pour que ce soit cette ligne, et non un comportement par
     defaut, qu'on modifie le jour ou les e-mails seront traduits. */
  NL: "en",
+ /* Pologne : meme raison que les Pays-Bas — le site parle polonais, ces
+    gabarits pas encore. */
+ PL: "en",
 };
 
 export function getLangFromCountry(country: string | null | undefined): Lang {

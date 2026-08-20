@@ -61,4 +61,8 @@ export const DEFAULT_PRICES_BY_CURRENCY: PricesByCurrency = {
   GBP: { base: 45, fullbodyExtra: 18, extraPerson: 14, extraAnimal: 14, digital: 0, canvas: 79, poster: 69, posterSimple: 17 },
   CAD: { base: 75, fullbodyExtra: 30, extraPerson: 22, extraAnimal: 22, digital: 0, canvas: 135, poster: 119, posterSimple: 29 },
   AUD: { base: 85, fullbodyExtra: 35, extraPerson: 25, extraAnimal: 25, digital: 0, canvas: 149, poster: 135, posterSimple: 33 },
+  /* Repli seulement : des qu'un jeu de prix existe en base, il l'emporte, et
+     s'il n'y en a pas pour le zloty c'est l'euro reel qui est converti au
+     taux. Ces montants ne servent donc que si la base est vide. */
+  PLN: { base: 209, fullbodyExtra: 89, extraPerson: 65, extraAnimal: 65, digital: 0, canvas: 379, poster: 339, posterSimple: 85 },
 };

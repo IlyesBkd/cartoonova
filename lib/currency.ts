@@ -1,6 +1,6 @@
-export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD";
+export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN";
 
-export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD"];
+export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN"];
 
 export const currencySymbols: Record<Currency, string> = {
   EUR: "€",
@@ -8,6 +8,7 @@ export const currencySymbols: Record<Currency, string> = {
   GBP: "£",
   CAD: "CA$",
   AUD: "AU$",
+  PLN: "zł",
 };
 
 export const currencyNames: Record<Currency, string> = {
@@ -16,6 +17,7 @@ export const currencyNames: Record<Currency, string> = {
   GBP: "British Pound",
   CAD: "Canadian Dollar",
   AUD: "Australian Dollar",
+  PLN: "Polish Zloty",
 };
 
 // Drapeaux : ne servent plus qu'au back-office. L'interface publique affiche
@@ -26,6 +28,7 @@ export const currencyFlags: Record<Currency, string> = {
   GBP: "🇬🇧",
   CAD: "🇨🇦",
   AUD: "🇦🇺",
+  PLN: "🇵🇱",
 };
 
 // Fixed exchange rates (base: EUR)
@@ -36,6 +39,10 @@ export const exchangeRates: Record<Currency, number> = {
   GBP: 0.86,
   CAD: 1.48,
   AUD: 1.66,
+  /* Le zloty flotte davantage que les autres : il a varie de plus de 8 %
+     sur douze mois. Avec une table saisie a la main, c'est la devise qui
+     derivera le plus vite — raison de plus pour brancher un flux de taux. */
+  PLN: 4.3,
 };
 
 export function convertPrice(amountInEUR: number, currency: Currency): number {
@@ -63,6 +70,7 @@ const COUNTRY_TO_CURRENCY: Record<string, Currency> = {
   GB: "GBP",
   CA: "CAD",
   AU: "AUD", NZ: "AUD",
+  PL: "PLN",
   // Eurozone
   AT: "EUR", BE: "EUR", CY: "EUR", DE: "EUR", EE: "EUR", ES: "EUR", FI: "EUR",
   FR: "EUR", GR: "EUR", HR: "EUR", IE: "EUR", IT: "EUR", LT: "EUR", LU: "EUR",

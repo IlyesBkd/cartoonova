@@ -13,6 +13,7 @@ const CHANNEL_TITLE: Record<Locale, string> = {
   de: "Der Cartoonova-Blog",
   it: "Il blog di Cartoonova",
   nl: "Het Cartoonova-blog",
+  pl: "Blog Cartoonova",
 };
 
 const CHANNEL_DESCRIPTION: Record<Locale, string> = {
@@ -22,6 +23,7 @@ const CHANNEL_DESCRIPTION: Record<Locale, string> = {
   de: "Geschenkideen, handgezeichnete Portraits und Einblicke in das Cartoonova-Atelier.",
   it: "Idee regalo, ritratti disegnati a mano e dietro le quinte dell'atelier Cartoonova.",
   nl: "Cadeau-ideeën, handgetekende portretten en een kijkje achter de schermen bij Cartoonova.",
+  pl: "Pomysły na prezent, ręcznie rysowane portrety i kulisy pracowni Cartoonova.",
 };
 
 const LANGUAGE_TAG: Record<Locale, string> = {
@@ -31,6 +33,7 @@ const LANGUAGE_TAG: Record<Locale, string> = {
   de: "de-DE",
   it: "it-IT",
   nl: "nl-NL",
+  pl: "pl-PL",
 };
 
 export async function GET(
