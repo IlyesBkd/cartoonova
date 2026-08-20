@@ -26,7 +26,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { locales } from "../i18n/config.ts";
-import { CATALOGUE_EN_LIGNE, universProduit } from "../lib/catalogue.ts";
+import { CATALOGUE_EN_LIGNE, slugProduit, universProduit } from "../lib/catalogue.ts";
 import { OCCASION_KEYS, buildGiftSlug } from "../lib/giftOccasions.ts";
 import { GIFT_PRODUCTS } from "../lib/productFeed.ts";
 import { SITE_URL } from "../lib/site.ts";
@@ -323,7 +323,7 @@ for (const langue of locales) {
   /* — univers du catalogue — */
   for (const produit of CATALOGUE_EN_LIGNE) {
     const { nom, aRelire } = nomPourRequete(produit, langue);
-    const url = `${SITE_URL}/${langue}/${produit.slug}`;
+    const url = `${SITE_URL}/${langue}/${slugProduit(produit, langue)}`;
     const cluster = `${langue}:${produit.slug}:fiche`;
 
     for (const [rang, intention, modele] of MOTIFS_STYLE[langue]) {

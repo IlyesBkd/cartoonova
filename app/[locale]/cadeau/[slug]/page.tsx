@@ -87,7 +87,7 @@ export default async function GiftOccasionPage({
   const { locale, product, occasion, occasionKey, styleName } = data;
   const t = await getTranslations({ locale, namespace: "giftPage" });
 
-  const stylePath = `/${locale}/${product.slug}`;
+  const stylePath = `/${locale}/${product.slugs[locale]}`;
   const otherOccasions = OCCASION_KEYS.filter((key) => key !== occasionKey);
   const otherStyles = GIFT_PRODUCTS.filter((p) => p.slug !== product.slug);
 

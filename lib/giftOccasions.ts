@@ -1,5 +1,6 @@
 import type { Locale } from "../i18n/config";
-import { FEED_PRODUCTS } from "./productFeed";
+import { produitParSlug, slugProduit } from "./catalogue";
+import { GIFT_PRODUCTS } from "./productFeed";
 
 /**
  * Pages « un style pour une occasion ».
@@ -45,13 +46,13 @@ const fr: OccasionTable = {
     bullets: [
       "Personne d'autre ne peut offrir le même : le dessin part de votre photo.",
       "Ça se garde et ça s'accroche, contrairement à la plupart des cadeaux d'anniversaire.",
-      "Le dessin est prêt en 24 h, ce qui laisse une marge même quand on s'y prend tard.",
+      "Le dessin est prêt en 2 jours, ce qui laisse une marge même quand on s'y prend tard.",
     ],
     faq: [
       {
         question: "Combien de temps avant l'anniversaire faut-il commander ?",
         answer:
-          "Pour une version numérique, 24 h suffisent. Pour un poster ou une toile, comptez environ 6 jours ouvrés entre la commande et la réception : 24 h de dessin, puis 3 à 5 jours ouvrés d'impression et de livraison.",
+          "Pour une version numérique, comptez 2 jours. Pour un poster ou une toile, comptez environ 5 jours ouvrés entre la commande et la réception : 2 jours de dessin, puis 3 jours ouvrés d'impression et de livraison.",
       },
       {
         question: "Peut-on mettre plusieurs personnes sur le portrait d'anniversaire ?",
@@ -75,7 +76,7 @@ const fr: OccasionTable = {
       {
         question: "Jusqu'à quand peut-on commander pour recevoir avant Noël ?",
         answer:
-          "La date limite est affichée directement sur le site pendant la période de Noël. En pratique, il faut compter environ 6 jours ouvrés pour une impression livrée, et 24 h pour la version numérique.",
+          "La date limite est affichée directement sur le site pendant la période de Noël. En pratique, il faut compter environ 5 jours ouvrés pour une impression livrée, et 2 jours pour la version numérique.",
       },
       {
         question: "Peut-on offrir un portrait sans l'avoir reçu à temps ?",
@@ -176,7 +177,7 @@ const fr: OccasionTable = {
       {
         question: "Quel délai prévoir pour un pot de départ ?",
         answer:
-          "Environ 6 jours ouvrés pour une impression livrée. Si la date est proche, la version numérique reste imprimable localement.",
+          "Environ 5 jours ouvrés pour une impression livrée. Si la date est proche, la version numérique reste imprimable localement.",
       },
     ],
   },
@@ -192,13 +193,13 @@ const en: OccasionTable = {
     bullets: [
       "Nobody else can give the same thing: the drawing starts from your photo.",
       "It gets kept and hung up, unlike most birthday presents.",
-      "The artwork is ready within 24 hours, which leaves room even when you're late.",
+      "The artwork is ready within 2 days, which leaves room even when you're late.",
     ],
     faq: [
       {
         question: "How far in advance should I order for a birthday?",
         answer:
-          "For a digital version, 24 hours is enough. For a poster or canvas, allow about 6 business days between order and delivery: 24 hours of drawing, then 3 to 5 business days of printing and shipping.",
+          "For a digital version, allow 2 days. For a poster or canvas, allow about 5 business days between order and delivery: 2 days of drawing, then 3 business days of printing and shipping.",
       },
       {
         question: "Can several people appear on a birthday portrait?",
@@ -222,7 +223,7 @@ const en: OccasionTable = {
       {
         question: "What's the cut-off for ordering in time for Christmas?",
         answer:
-          "The order-by date is shown on the site during the Christmas period. In practice, allow about 6 business days for a delivered print, and 24 hours for the digital version.",
+          "The order-by date is shown on the site during the Christmas period. In practice, allow about 5 business days for a delivered print, and 2 days for the digital version.",
       },
       {
         question: "Can I give the portrait if the print hasn't arrived yet?",
@@ -323,7 +324,7 @@ const en: OccasionTable = {
       {
         question: "How long should we allow for a leaving party?",
         answer:
-          "About 6 business days for a delivered print. If the date is close, the digital version can still be printed locally.",
+          "About 5 business days for a delivered print. If the date is close, the digital version can still be printed locally.",
       },
     ],
   },
@@ -339,13 +340,13 @@ const es: OccasionTable = {
     bullets: [
       "Nadie más puede regalar lo mismo: el dibujo parte de tu foto.",
       "Se guarda y se cuelga, al contrario que la mayoría de regalos de cumpleaños.",
-      "El dibujo está listo en 24 h, lo que deja margen incluso a última hora.",
+      "El dibujo está listo en 2 días, lo que deja margen incluso a última hora.",
     ],
     faq: [
       {
         question: "¿Con cuánta antelación hay que pedirlo?",
         answer:
-          "Para la versión digital bastan 24 h. Para un póster o un lienzo, calcula unos 6 días hábiles entre el pedido y la recepción: 24 h de dibujo y de 3 a 5 días hábiles de impresión y envío.",
+          "Para la versión digital, calcula 2 días. Para un póster o un lienzo, calcula unos 5 días hábiles entre el pedido y la recepción: 2 días de dibujo y 3 días hábiles de impresión y envío.",
       },
       {
         question: "¿Pueden aparecer varias personas en el retrato?",
@@ -369,7 +370,7 @@ const es: OccasionTable = {
       {
         question: "¿Hasta cuándo se puede pedir para recibirlo antes de Navidad?",
         answer:
-          "La fecha límite aparece en la web durante la campaña de Navidad. En la práctica, calcula unos 6 días hábiles para una impresión entregada y 24 h para la versión digital.",
+          "La fecha límite aparece en la web durante la campaña de Navidad. En la práctica, calcula unos 5 días hábiles para una impresión entregada y 2 días para la versión digital.",
       },
       {
         question: "¿Se puede regalar aunque la impresión no haya llegado?",
@@ -470,7 +471,7 @@ const es: OccasionTable = {
       {
         question: "¿Qué plazo hay que prever para una despedida?",
         answer:
-          "Unos 6 días hábiles para una impresión entregada. Si la fecha está cerca, la versión digital se puede imprimir en local.",
+          "Unos 5 días hábiles para una impresión entregada. Si la fecha está cerca, la versión digital se puede imprimir en local.",
       },
     ],
   },
@@ -486,13 +487,13 @@ const de: OccasionTable = {
     bullets: [
       "Niemand sonst kann dasselbe schenken: die Zeichnung entsteht aus Ihrem Foto.",
       "Es wird aufgehoben und aufgehängt — anders als die meisten Geburtstagsgeschenke.",
-      "Die Zeichnung ist in 24 Stunden fertig, das lässt auch spät noch Luft.",
+      "Die Zeichnung ist in 2 Tagen fertig, das lässt auch spät noch Luft.",
     ],
     faq: [
       {
         question: "Wie lange vorher sollte man bestellen?",
         answer:
-          "Für die digitale Fassung reichen 24 Stunden. Für Poster oder Leinwand rechnen Sie mit rund 6 Werktagen zwischen Bestellung und Erhalt: 24 Stunden Zeichnung, dann 3 bis 5 Werktage Druck und Versand.",
+          "Für die digitale Fassung rechnen Sie mit 2 Tagen. Für Poster oder Leinwand rechnen Sie mit rund 5 Werktagen zwischen Bestellung und Erhalt: 2 Tage Zeichnung, dann 3 Werktage Druck und Versand.",
       },
       {
         question: "Können mehrere Personen auf dem Portrait sein?",
@@ -516,7 +517,7 @@ const de: OccasionTable = {
       {
         question: "Bis wann muss man für Weihnachten bestellen?",
         answer:
-          "Das Bestelldatum wird während der Weihnachtszeit direkt auf der Seite angezeigt. Praktisch sind es rund 6 Werktage für einen gelieferten Druck und 24 Stunden für die digitale Fassung.",
+          "Das Bestelldatum wird während der Weihnachtszeit direkt auf der Seite angezeigt. Praktisch sind es rund 5 Werktage für einen gelieferten Druck und 2 Tage für die digitale Fassung.",
       },
       {
         question: "Kann man schenken, bevor der Druck da ist?",
@@ -617,7 +618,7 @@ const de: OccasionTable = {
       {
         question: "Wie viel Zeit sollte man für eine Abschiedsfeier einplanen?",
         answer:
-          "Rund 6 Werktage für einen gelieferten Druck. Ist der Termin nah, lässt sich die digitale Fassung vor Ort ausdrucken.",
+          "Rund 5 Werktage für einen gelieferten Druck. Ist der Termin nah, lässt sich die digitale Fassung vor Ort ausdrucken.",
       },
     ],
   },
@@ -633,13 +634,13 @@ const it: OccasionTable = {
     bullets: [
       "Nessun altro può regalare la stessa cosa: il disegno parte dalla tua foto.",
       "Si conserva e si appende, al contrario della maggior parte dei regali di compleanno.",
-      "Il disegno è pronto in 24 h, il che lascia margine anche all'ultimo momento.",
+      "Il disegno è pronto in 2 giorni, il che lascia margine anche all'ultimo momento.",
     ],
     faq: [
       {
         question: "Con quanto anticipo bisogna ordinare?",
         answer:
-          "Per la versione digitale bastano 24 h. Per un poster o una tela, calcola circa 6 giorni lavorativi tra ordine e consegna: 24 h di disegno e da 3 a 5 giorni lavorativi di stampa e spedizione.",
+          "Per la versione digitale, calcola 2 giorni. Per un poster o una tela, calcola circa 5 giorni lavorativi tra ordine e consegna: 2 giorni di disegno e 3 giorni lavorativi di stampa e spedizione.",
       },
       {
         question: "Possono comparire più persone nel ritratto?",
@@ -663,7 +664,7 @@ const it: OccasionTable = {
       {
         question: "Entro quando ordinare per riceverlo prima di Natale?",
         answer:
-          "La data limite è indicata sul sito durante il periodo natalizio. In pratica, calcola circa 6 giorni lavorativi per una stampa consegnata e 24 h per la versione digitale.",
+          "La data limite è indicata sul sito durante il periodo natalizio. In pratica, calcola circa 5 giorni lavorativi per una stampa consegnata e 2 giorni per la versione digitale.",
       },
       {
         question: "Si può regalare prima che arrivi la stampa?",
@@ -764,7 +765,7 @@ const it: OccasionTable = {
       {
         question: "Che tempi prevedere per una festa di saluto?",
         answer:
-          "Circa 6 giorni lavorativi per una stampa consegnata. Se la data è vicina, la versione digitale resta stampabile in loco.",
+          "Circa 5 giorni lavorativi per una stampa consegnata. Se la data è vicina, la versione digitale resta stampabile in loco.",
       },
     ],
   },
@@ -777,14 +778,24 @@ export interface GiftPageParams {
   occasion: OccasionKey;
 }
 
-/** Slug complet d'une page, propre a la langue : « simpson-anniversaire ». */
+/**
+ * Slug complet d'une page, propre a la langue : « simpson-anniversaire ».
+ *
+ * La base est le slug du style dans cette langue, pas son slug canonique.
+ * Sans effet sur les six styles servis aujourd'hui — ce sont des noms de
+ * marque, identiques partout. Ca compte le jour ou les pages cadeau
+ * s'etendront aux fiches au nom francais : « custom-naruto-portrait-birthday »
+ * plutot que « portrait-naruto-personnalise-birthday ».
+ */
 export function buildGiftSlug(locale: Locale, styleSlug: string, occasion: OccasionKey): string {
-  return `${styleSlug}-${OCCASIONS[locale][occasion].slug}`;
+  const produit = produitParSlug(styleSlug);
+  const base = produit ? slugProduit(produit, locale) : styleSlug;
+  return `${base}-${OCCASIONS[locale][occasion].slug}`;
 }
 
 /** Retrouve le couple style/occasion a partir d'un slug d'URL. */
 export function parseGiftSlug(locale: Locale, slug: string): GiftPageParams | null {
-  for (const product of FEED_PRODUCTS) {
+  for (const product of GIFT_PRODUCTS) {
     for (const occasion of OCCASION_KEYS) {
       if (buildGiftSlug(locale, product.slug, occasion) === slug) {
         return { styleSlug: product.slug, occasion };
@@ -795,7 +806,7 @@ export function parseGiftSlug(locale: Locale, slug: string): GiftPageParams | nu
 }
 
 export function allGiftSlugs(locale: Locale): string[] {
-  return FEED_PRODUCTS.flatMap((product) =>
+  return GIFT_PRODUCTS.flatMap((product) =>
     OCCASION_KEYS.map((occasion) => buildGiftSlug(locale, product.slug, occasion))
   );
 }

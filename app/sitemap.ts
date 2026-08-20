@@ -4,7 +4,7 @@ import { getAllPublishedArticleRefs } from "@/lib/blogDb";
 import { SITE_URL } from "@/lib/site";
 import { OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
-import { CATALOGUE_EN_LIGNE, SLUG_PHARE } from "@/lib/catalogue";
+import { CATALOGUE_EN_LIGNE, SLUG_PHARE, slugsProduit } from "@/lib/catalogue";
 
 const baseUrl = SITE_URL;
 
@@ -76,13 +76,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
      classe pas dans Google, mais elle oriente le budget d'exploration entre
      nos propres URL — autant qu'il aille la. */
   for (const produit of CATALOGUE_EN_LIGNE) {
+    // Le slug change d'une langue a l'autre pour les 29 fiches au nom
+    // francais ; les six univers historiques gardent le leur partout.
+    const parLangue = slugsProduit(produit);
+    const alternates = {
+      languages: {
+        ...Object.fromEntries(locales.map((l) => [l, `${baseUrl}/${l}/${parLangue[l]}`])),
+        "x-default": `${baseUrl}/en/${parLangue.en}`,
+      },
+    };
+
     for (const locale of locales) {
       entries.push({
-        url: `${baseUrl}/${locale}/${produit.slug}`,
+        url: `${baseUrl}/${locale}/${parLangue[locale]}`,
         lastModified: DERNIERE_PUBLICATION,
         changeFrequency: "weekly",
         priority: produit.slug === SLUG_PHARE ? 1 : 0.9,
-        alternates: alternatesUniformes(`/${produit.slug}`),
+        alternates,
       });
     }
   }

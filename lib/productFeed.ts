@@ -3,7 +3,9 @@ import { DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
 import { currencies } from "./currency";
 import { SITE_URL } from "./site";
-import type { Locale } from "../i18n/config";
+import { locales as localesList, type Locale } from "../i18n/config";
+import { CATALOGUE_EN_LIGNE, descriptionProduit, slugsProduit, titreProduit } from "./catalogue";
+import { visuelsProduit } from "./visuels";
 
 export const escapeXml = (str: string): string =>
   str
@@ -29,85 +31,75 @@ const GOOGLE_PRODUCT_CATEGORY = "500045";
 
 export interface FeedProduct {
   id: string;
+  /** Slug canonique — identite du produit, nom du dossier de visuels. */
   slug: string;
+  /** Slug d'URL par langue. Il differe du canonique hors francais pour les
+   *  fiches au nom francais ; voir `slugProduit` dans lib/catalogue.ts. */
+  slugs: Record<Locale, string>;
   image: string;
   translations: Record<Locale, { title: string; description: string }>;
 }
 
-export const FEED_PRODUCTS: FeedProduct[] = [
-  {
-    id: "cartoonova-simpson-base",
-    slug: "simpson",
-    image: "/simpson_photos_produit/0009_1.jpg",
-    translations: {
-      fr: { title: "Portrait Simpson Personnalisé", description: "Transformez votre photo en une magnifique caricature Simpson dessinée à la main. Le cadeau idéal !" },
-      en: { title: "Custom Simpson Portrait", description: "Transform your photo into a beautiful hand-drawn Simpson caricature. The perfect gift!" },
-      de: { title: "Personalisiertes Simpson Porträt", description: "Verwandeln Sie Ihr Foto in eine wunderschöne handgezeichnete Simpson-Karikatur. Das perfekte Geschenk!" },
-      es: { title: "Retrato Simpson Personalizado", description: "Transforma tu foto en una hermosa caricatura Simpson dibujada a mano. ¡El regalo perfecto!" },
-      it: { title: "Ritratto Simpson Personalizzato", description: "Trasforma la tua foto in una bellissima caricatura Simpson disegnata a mano. Il regalo perfetto!" },
-    },
-  },
-  {
-    id: "cartoonova-onepiece-wanted",
-    slug: "onepiece",
-    image: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
-    translations: {
-      fr: { title: "Poster Wanted One Piece Personnalisé", description: "Créez votre propre avis de recherche One Piece ! Devenez un pirate légendaire avec votre prime personnalisée." },
-      en: { title: "Custom One Piece Wanted Poster", description: "Create your own One Piece wanted poster! Become a legendary pirate with your custom bounty." },
-      de: { title: "Personalisiertes One Piece Wanted Poster", description: "Erstellen Sie Ihr eigenes One Piece Steckbrief! Werden Sie ein legendärer Pirat mit Ihrem persönlichen Kopfgeld." },
-      es: { title: "Póster Wanted One Piece Personalizado", description: "¡Crea tu propio cartel de búsqueda One Piece! Conviértete en un pirata legendario con tu recompensa personalizada." },
-      it: { title: "Poster Wanted One Piece Personalizzato", description: "Crea il tuo poster ricercato One Piece! Diventa un pirata leggendario con la tua taglia personalizzata." },
-    },
-  },
-  {
-    id: "cartoonova-dbz-portrait",
-    slug: "dbz",
-    image: "/DBZ/Photo_produits/1.png",
-    translations: {
-      fr: { title: "Portrait Dragon Ball Z Personnalisé", description: "Transformez-vous en Super Saiyan ! Portrait personnalisé dans le style Dragon Ball Z dessiné à la main." },
-      en: { title: "Custom Dragon Ball Z Portrait", description: "Transform into a Super Saiyan! Custom portrait in Dragon Ball Z style, hand-drawn." },
-      de: { title: "Personalisiertes Dragon Ball Z Porträt", description: "Verwandeln Sie sich in einen Super-Saiyajin! Handgezeichnetes Portrait im Dragon Ball Z Stil." },
-      es: { title: "Retrato Dragon Ball Z Personalizado", description: "¡Transfórmate en Super Saiyan! Retrato personalizado estilo Dragon Ball Z dibujado a mano." },
-      it: { title: "Ritratto Dragon Ball Z Personalizzato", description: "Trasformati in Super Saiyan! Ritratto personalizzato in stile Dragon Ball Z disegnato a mano." },
-    },
-  },
-  {
-    id: "cartoonova-ghibli-portrait",
-    slug: "ghibli",
-    image: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
-    translations: {
-      fr: { title: "Portrait Studio Ghibli Personnalisé", description: "Entrez dans l'univers enchanté de Ghibli ! Portrait magique inspiré de Totoro, Chihiro et Mononoké." },
-      en: { title: "Custom Studio Ghibli Portrait", description: "Enter the enchanted world of Ghibli! Magical portrait inspired by Totoro, Spirited Away and Mononoke." },
-      de: { title: "Personalisiertes Studio Ghibli Porträt", description: "Betreten Sie die verzauberte Welt von Ghibli! Magisches Portrait inspiriert von Totoro, Chihiro und Mononoke." },
-      es: { title: "Retrato Studio Ghibli Personalizado", description: "¡Entra en el mundo encantado de Ghibli! Retrato mágico inspirado en Totoro, Chihiro y Mononoke." },
-      it: { title: "Ritratto Studio Ghibli Personalizzato", description: "Entra nel mondo incantato di Ghibli! Ritratto magico ispirato a Totoro, Chihiro e Mononoke." },
-    },
-  },
-  {
-    id: "cartoonova-rickandmorty-portrait",
-    slug: "rickandmorty",
-    image: "/rickandmorty/Photo_produits/1.png",
-    translations: {
-      fr: { title: "Portrait Rick & Morty Personnalisé", description: "Wubba Lubba Dub Dub ! Rejoignez Rick et Morty dans leurs aventures interdimensionnelles avec votre portrait." },
-      en: { title: "Custom Rick & Morty Portrait", description: "Wubba Lubba Dub Dub! Join Rick and Morty in their interdimensional adventures with your portrait." },
-      de: { title: "Personalisiertes Rick & Morty Porträt", description: "Wubba Lubba Dub Dub! Begleiten Sie Rick und Morty auf ihren interdimensionalen Abenteuern mit Ihrem Portrait." },
-      es: { title: "Retrato Rick & Morty Personalizado", description: "¡Wubba Lubba Dub Dub! Únete a Rick y Morty en sus aventuras interdimensionales con tu retrato." },
-      it: { title: "Ritratto Rick & Morty Personalizzato", description: "Wubba Lubba Dub Dub! Unisciti a Rick e Morty nelle loro avventure interdimensionali con il tuo ritratto." },
-    },
-  },
-  {
-    id: "cartoonova-disney-portrait",
-    slug: "disney",
-    image: "/Disney/Photo_produits/1.png",
-    translations: {
-      fr: { title: "Portrait Disney Personnalisé", description: "Devenez le héros de votre propre conte de fées Disney ! Portrait magique style animation classique." },
-      en: { title: "Custom Disney Portrait", description: "Become the hero of your own Disney fairy tale! Magical portrait in classic animation style." },
-      de: { title: "Personalisiertes Disney Porträt", description: "Werden Sie der Held Ihres eigenen Disney-Märchens! Magisches Portrait im klassischen Animationsstil." },
-      es: { title: "Retrato Disney Personalizado", description: "¡Conviértete en el héroe de tu propio cuento de hadas Disney! Retrato mágico estilo animación clásica." },
-      it: { title: "Ritratto Disney Personalizzato", description: "Diventa l'eroe della tua fiaba Disney! Ritratto magico in stile animazione classica." },
-    },
-  },
-];
+/**
+ * Le flux est derive du catalogue : ajouter un produit dans `lib/catalogue.ts`
+ * suffit a le faire apparaitre chez Google et Pinterest.
+ *
+ * Seules les fiches ayant au moins un visuel entrent dans le flux : Merchant
+ * Center rejette un article sans `image_link`, et un rejet repete degrade la
+ * sante du compte. Les fiches sans photo apparaissent donc sur le site mais
+ * pas dans le flux, jusqu'a ce que leurs visuels soient deposes.
+ */
+export function buildFeedProducts(): FeedProduct[] {
+  return CATALOGUE_EN_LIGNE.flatMap((p) => {
+    const image = visuelsProduit(p.slug).galerie[0];
+    if (!image) return [];
+    return [
+      {
+        id: p.idProduit,
+        slug: p.slug,
+        slugs: slugsProduit(p),
+        image,
+        translations: Object.fromEntries(
+          localesList.map((l) => [
+            l,
+            { title: titreProduit(p, l), description: descriptionProduit(p, l) },
+          ])
+        ) as Record<Locale, { title: string; description: string }>,
+      },
+    ];
+  });
+}
+
+/**
+ * Liste figee au chargement du module, pour les appelants qui ont besoin d'une
+ * constante (pages cadeau, generation de slugs).
+ *
+ * Elle ne contient que les fiches pourvues de visuels — c'est voulu au-dela du
+ * flux : une page « cadeau » sans photo du produit ne se vend pas, et 30
+ * occasions x 30 fiches vides feraient mille pages minces. Deposer les visuels
+ * d'un style l'y fait entrer automatiquement.
+ */
+export const FEED_PRODUCTS: FeedProduct[] = buildFeedProducts();
+
+/**
+ * Sous-ensemble servant les pages « un style pour une occasion ».
+ *
+ * Volontairement plus etroit que le flux. Ces pages croisent un style et une
+ * occasion : leur nombre est un produit, pas une somme. A 36 styles elles
+ * passent de 180 a 1 080 pages qui ne different que par le nom du style —
+ * exactement le profil que Google traite en pages satellites. Le flux
+ * Merchant, lui, gagne a contenir tout le catalogue : aucune raison de le
+ * limiter.
+ *
+ * Restreint ici aux six univers dont Cartoonova possede les photos. Pour
+ * elargir, ajouter des slugs — en gardant a l'esprit que chaque slug ajoute
+ * 30 pages.
+ */
+const SLUGS_CADEAU = ["simpson", "dbz", "disney", "ghibli", "onepiece", "rickandmorty"];
+
+export const GIFT_PRODUCTS: FeedProduct[] = FEED_PRODUCTS.filter((p) =>
+  SLUGS_CADEAU.includes(p.slug)
+);
 
 export function parseCurrency(raw: string | null, locale: Locale): Currency {
   if (raw && (currencies as string[]).includes(raw.toUpperCase())) {
@@ -147,13 +139,13 @@ export async function buildProductFeed({
   // Google accepte les deux graphies, Pinterest exige "in stock".
   const availability = variant === "pinterest" ? "in stock" : "in_stock";
 
-  const items = FEED_PRODUCTS.map((product) => {
+  const items = buildFeedProducts().map((product) => {
     const { title, description } = product.translations[locale];
     return `    <item>
       <g:id>${escapeXml(product.id)}</g:id>
       <g:title>${escapeXml(title)}</g:title>
       <g:description>${escapeXml(description)}</g:description>
-      <g:link>${escapeXml(`${SITE_URL}/${locale}/${product.slug}`)}</g:link>
+      <g:link>${escapeXml(`${SITE_URL}/${locale}/${product.slugs[locale]}`)}</g:link>
       <g:image_link>${escapeXml(`${SITE_URL}${product.image}`)}</g:image_link>
       <g:price>${formattedPrice}</g:price>
       <g:condition>new</g:condition>

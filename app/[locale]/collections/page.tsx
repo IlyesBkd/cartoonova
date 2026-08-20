@@ -9,6 +9,7 @@ import {
   NOMS_CATEGORIE,
   SLUG_PHARE,
   descriptionProduit,
+  slugProduit,
   titreProduit,
   universProduit,
   type Categorie,
@@ -53,7 +54,9 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const produits: CarteCatalogue[] = CATALOGUE_EN_LIGNE.map((p) => {
     const visuels = visuelsProduit(p.slug);
     return {
-      slug: p.slug,
+      // Slug de la langue courante pour le lien ; les visuels restent ranges
+      // sous le slug canonique.
+      slug: slugProduit(p, locale),
       univers: universProduit(p, locale),
       categorie: p.categorie,
       visuels: visuels.galerie.slice(0, 2),
@@ -87,7 +90,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               "@type": "ListItem",
               position: i + 1,
               name: titreProduit(p, locale),
-              url: `${SITE_URL}/${locale}/${p.slug}`,
+              url: `${SITE_URL}/${locale}/${slugProduit(p, locale)}`,
             })),
           }),
         }}

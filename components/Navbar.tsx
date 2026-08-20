@@ -1,192 +1,393 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import type { Locale } from "@/i18n/config";
 import LanguageAndCurrencySwitcher from "@/components/LanguageAndCurrencySwitcher";
-import { useProductColors } from "@/components/ProductColorProvider";
+import TeteAide from "@/components/tj/TeteAide";
+import { EVENEMENT_AIDE } from "@/components/ChatWidget";
+import Icone, { type NomIcone } from "@/components/tj/Icone";
+import { useLien } from "@/components/useLien";
+import type { CleEvenement, EvenementAffiche } from "@/lib/evenements";
+import {
+  CATEGORIES,
+  CATEGORIES_AFFICHAGE,
+  NOMS_CATEGORIE,
+  NOMS_CATEGORIE_COURT,
+  SLUG_PHARE,
+  VEDETTES,
+  produitsParCategorie,
+  slugProduit,
+  titreProduit,
+  universProduit,
+  type Categorie,
+  type Produit,
+} from "@/lib/catalogue";
 
-const STYLES = [
-  { name: "Simpson", href: "/simpson", emoji: "🟡", color: "from-amber-400 to-yellow-400" },
-  { name: "Dragon Ball Z", href: "/dbz", emoji: "⚡", color: "from-orange-400 to-orange-500" },
-  { name: "Disney", href: "/disney", emoji: "✨", color: "from-pink-400 to-pink-500" },
-  { name: "Ghibli", href: "/ghibli", emoji: "🌸", color: "from-emerald-400 to-green-500" },
-  { name: "One Piece", href: "/onepiece", emoji: "🏴‍☠️", color: "from-amber-500 to-orange-500" },
-  { name: "Rick & Morty", href: "/rickandmorty", emoji: "🌀", color: "from-lime-400 to-green-500" },
-];
+/* En-tete du systeme ToonJaune (blocs/entete.html) : barre promo indigo,
+   en-tete collante, logo a gauche, menu a droite, bouton d'action.
 
-export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [stylesOpen, setStylesOpen] = useState(false);
-  const dropdownRef = useRef<HTMLLIElement>(null);
-  const colors = useProductColors();
+   La navigation reprend la structure de cartoontoi.fr — un menu par famille
+   de styles plutot qu'un unique menu « Styles » qui deversait les 36 fiches
+   d'un coup. Chaque famille ouvre un panneau illustre : les vignettes viennent
+   du serveur (voir app/[locale]/layout.tsx), un composant client ne pouvant
+   pas lire `public/`. */
 
-  const t = useTranslations("nav");
+/** Delai avant fermeture au survol : traverser un blanc de 2 px entre le
+ *  declencheur et son panneau ne doit pas refermer le menu sous le curseur. */
+const DELAI_FERMETURE = 160;
+
+/** Le pictogramme qui accompagne le discours de chaque temps fort. */
+const ICONES_EVENEMENT: Record<CleEvenement, NomIcone> = {
+  noel: "sapin",
+  saintValentin: "coeur",
+  feteDesMeres: "cadeau",
+  feteDesPeres: "cadeau",
+  halloween: "fete",
+  blackFriday: "eclair",
+};
+
+export default function Navbar({
+  vignettes = {},
+  evenement = null,
+}: {
+  vignettes?: Record<string, string>;
+  /** Temps fort du moment (fête des mères, Noël…), ou null hors période. */
+  evenement?: EvenementAffiche | null;
+}) {
+  const [menuOuvert, setMenuOuvert] = useState<Categorie | null>(null);
+  const [replieOuvert, setReplieOuvert] = useState(false);
+  const [sectionRepliee, setSectionRepliee] = useState<Categorie | null>(null);
+  const enteteRef = useRef<HTMLElement>(null);
+  const minuterie = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const locale = useLocale() as Locale;
+  const t = useTranslations("tj");
+  const tn = useTranslations("nav");
+  const tp = useTranslations("product");
+  const tEvt = useTranslations("evenements");
+  const lien = useLien();
+  const chemin = usePathname();
+
+  const annulerFermeture = () => {
+    if (minuterie.current) clearTimeout(minuterie.current);
+    minuterie.current = null;
+  };
+
+  const ouvrir = (categorie: Categorie) => {
+    annulerFermeture();
+    setMenuOuvert(categorie);
+  };
+
+  const programmerFermeture = () => {
+    annulerFermeture();
+    minuterie.current = setTimeout(() => setMenuOuvert(null), DELAI_FERMETURE);
+  };
+
+  useEffect(() => () => annulerFermeture(), []);
+
+  /* Un clic sur un lien du panneau ne fermait le menu que parce que chaque
+     lien portait son propre onClick. Fermer sur changement d'URL couvre aussi
+     le retour arriere et les liens ajoutes plus tard.
+
+     Ajustement pendant le rendu et non dans un effet : un effet rouvrirait
+     brievement le menu sur la page d'arrivee, le temps d'un second rendu. */
+  const [cheminPrecedent, setCheminPrecedent] = useState(chemin);
+  if (chemin !== cheminPrecedent) {
+    setCheminPrecedent(chemin);
+    setMenuOuvert(null);
+    setReplieOuvert(false);
+    setSectionRepliee(null);
+  }
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setStylesOpen(false);
+    const auClic = (e: MouseEvent) => {
+      if (enteteRef.current && !enteteRef.current.contains(e.target as Node)) {
+        setMenuOuvert(null);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", auClic);
+    return () => document.removeEventListener("mousedown", auClic);
   }, []);
 
-  const links = [
-    { label: t("home"), href: "/", icon: "" },
-    { label: t("portfolio"), href: "/portfolio", icon: "🖼️" },
-    { label: t("reviews"), href: "/avis", icon: "⭐" },
-    { label: t("about"), href: "/a-propos", icon: "💡" },
-    { label: t("contact"), href: "/contact", icon: "💬" },
+  useEffect(() => {
+    const auClavier = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOuvert(null);
+        setReplieOuvert(false);
+      }
+    };
+    document.addEventListener("keydown", auClavier);
+    return () => document.removeEventListener("keydown", auClavier);
+  }, []);
+
+  const liens = [
+    { libelle: t("navEtapes"), href: "/#etapes" },
+    { libelle: tn("reviews"), href: "/avis" },
+    { libelle: t("navFaq"), href: "/#faq" },
   ];
 
+  /** Le style mis en avant dans le panneau : le produit phare quand il
+   *  appartient a cette famille, sinon une vedette, sinon la premiere fiche
+   *  illustree — une carte de mise en avant sans visuel ne vaut pas la place
+   *  qu'elle prend.
+   *
+   *  Le phare passait apres : la famille « Cartoon » mettait en avant Rick et
+   *  Morty pour la seule raison qu'il precede Simpson dans l'ordre du
+   *  catalogue. La carte la plus visible du menu vendait le mauvais produit. */
+  const vedetteDe = (produits: Produit[]): Produit | null =>
+    produits.find((p) => p.slug === SLUG_PHARE && vignettes[p.slug]) ??
+    produits.find((p) => (VEDETTES as readonly string[]).includes(p.slug) && vignettes[p.slug]) ??
+    produits.find((p) => vignettes[p.slug]) ??
+    null;
+
+  const vignetteStyle = (p: Produit, taille: number) => {
+    const src = vignettes[p.slug];
+    const nom = universProduit(p, locale);
+    return src ? (
+      <Image src={src} alt="" width={taille} height={taille} sizes={`${taille}px`} />
+    ) : (
+      <i aria-hidden="true">{nom.slice(0, 1)}</i>
+    );
+  };
+
   return (
-    <nav className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled ? "py-2" : "py-3"}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main bar */}
-        <div className={`bg-white/95 backdrop-blur-md rounded-2xl border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 ${scrolled ? "shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]" : ""}`}>
-          <div className="flex items-center justify-between h-16 sm:h-[68px] px-4 sm:px-6">
-
-            {/* Logo */}
-            <Link href="/" className="flex-shrink-0">
-              <Image src="/logo.png" alt="Logo Cartoonova" width={140} height={42} className="h-12 sm:h-14 w-auto" priority />
-            </Link>
-
-            {/* Desktop links */}
-            <ul className="hidden xl:flex items-center gap-0.5 min-w-0 flex-1 justify-center mx-2">
-              {/* Styles Dropdown */}
-              <li className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setStylesOpen(!stylesOpen)}
-                  className={`relative whitespace-nowrap px-2 py-2 rounded-xl text-[11px] font-black uppercase tracking-wide text-gray-700 hover:text-black ${colors.hoverBg} border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 flex items-center gap-1`}
-                >
-                  <span className="mr-0.5">🎨</span>{t("collections")}
-                  <svg className={`w-3 h-3 transition-transform ${stylesOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                </button>
-                {/* Dropdown */}
-                {stylesOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-56 bg-white border-3 border-black rounded-xl shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] overflow-hidden z-50">
-                    <div className="p-2">
-                      {STYLES.map((style) => (
-                        <Link
-                          key={style.href}
-                          href={style.href}
-                          onClick={() => setStylesOpen(false)}
-                          className="block px-3 py-2.5 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <span className="font-bold text-gray-900 text-sm">{style.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                    <div className="border-t-2 border-black/10 p-2">
-                      <Link
-                        href="/collections"
-                        onClick={() => setStylesOpen(false)}
-                        className={`flex items-center justify-center gap-2 w-full bg-gradient-to-r ${colors.gradient} text-black font-black text-xs uppercase py-2.5 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all`}
-                      >
-                        {t("viewAllStyles")} →
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </li>
-              {links.map((l) => (
-                <li key={l.label}>
-                  <Link
-                    href={l.href}
-                    className={`relative whitespace-nowrap px-2 py-2 rounded-xl text-[11px] font-black uppercase tracking-wide text-gray-700 hover:text-black ${colors.hoverBg} border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200`}
-                  >
-                    {l.icon && <span className="mr-1">{l.icon}</span>}{l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            {/* Right side */}
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              {/* Language & Currency Switcher */}
-              <LanguageAndCurrencySwitcher />
-
-              {/* CTA button */}
-              <Link
-                href="/collections"
-                className={`hidden xl:inline-flex items-center gap-1.5 whitespace-nowrap bg-gradient-to-r ${colors.gradient} text-black text-[10px] font-black uppercase px-4 py-2 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all`}
-              >
-                {t("cta")}
+    <>
+      {/* Barre utilitaire. Elle ne portait que l'accroche ; les trois liens
+          secondaires y remontent depuis la barre principale, qui ne tenait
+          plus : quatre menus de famille + trois liens + sélecteur + bouton
+          d'action dépassaient la largeur du site et rognaient le bouton.
+          C'est aussi la répartition de cartoontoi.fr — la rangée principale
+          n'y porte que les familles de styles. */}
+      <div className="promo" data-evenement={evenement?.cle}>
+        <div className="enveloppe promo__grille">
+          <span aria-hidden="true" />
+          <p className="promo__message">
+            {evenement ? (
+              <>
+                <Icone
+                  nom={ICONES_EVENEMENT[evenement.cle]}
+                  taille={15}
+                  style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 8 }}
+                />
+                {tEvt(`${evenement.cle}.promo` as "noel.promo")}{" "}
+                <b>{tEvt(`${evenement.cle}.promoFort` as "noel.promoFort", { date: evenement.dateLimite })}</b>
+              </>
+            ) : (
+              <>
+                {t("promo")} <b>{t("promoFort")}</b>
+              </>
+            )}
+          </p>
+          <nav className="promo__liens" aria-label="Navigation secondaire">
+            {liens.map((l) => (
+              <Link key={l.href} href={lien(l.href)}>
+                {l.libelle}
               </Link>
-
-              {/* Burger */}
-              <button
-                onClick={() => setOpen(!open)}
-                className={`xl:hidden w-11 h-11 rounded-xl bg-gradient-to-r ${colors.gradient} border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-[5px] cursor-pointer hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-y-1 active:shadow-none transition-all`}
-                aria-label="Menu"
-              >
-                <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "rotate-45 translate-y-2" : ""}`} />
-                <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "opacity-0 scale-0" : ""}`} />
-                <span className={`block w-5 h-[3px] bg-black rounded-full transition-all duration-300 ${open ? "-rotate-45 -translate-y-2" : ""}`} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        <div className={`xl:hidden overflow-hidden transition-all duration-300 ${open ? "max-h-[700px] opacity-100 mt-2" : "max-h-0 opacity-0"}`}>
-          <div className="bg-white/95 backdrop-blur-md border-3 border-black rounded-2xl shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] p-4">
-            {/* Styles Grid */}
-            <div className="mb-3 pb-3 border-b-2 border-black/10">
-              <p className="text-xs font-black text-gray-400 uppercase mb-2 px-2">🎨 {t("collections")}</p>
-              <div className="grid grid-cols-3 gap-2">
-                {STYLES.map((style) => (
-                  <Link
-                    key={style.href}
-                    href={style.href}
-                    onClick={() => setOpen(false)}
-                    className="flex flex-col items-center gap-1.5 p-2 rounded-xl hover:bg-gray-50 transition-colors"
-                  >
-                    <span className={`w-10 h-10 rounded-lg bg-gradient-to-r ${style.color} border-2 border-black flex items-center justify-center text-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-                      {style.emoji}
-                    </span>
-                    <span className="font-bold text-gray-700 text-[10px] text-center leading-tight">{style.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <ul className="flex flex-col gap-1">
-              {links.map((l) => (
-                <li key={l.label}>
-                  <Link
-                    href={l.href}
-                    onClick={() => setOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 font-bold uppercase text-sm border-2 border-transparent hover:border-black ${colors.hoverBg} hover:text-black transition-all`}
-                  >
-                    <span className="text-lg">{l.icon}</span>
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-3 pt-3 border-t-2 border-black/10">
-              <Link
-                href="/collections"
-                onClick={() => setOpen(false)}
-                className={`flex items-center justify-center gap-2 w-full bg-gradient-to-r ${colors.gradient} text-black font-black uppercase text-sm px-6 py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none transition-all`}
-              >
-                <span className="text-base">✏️</span>
-                {t("cta")}
-              </Link>
-            </div>
-          </div>
+            ))}
+          </nav>
         </div>
       </div>
-    </nav>
+
+      <header className="entete" ref={enteteRef}>
+        <div className="enveloppe entete__grille">
+          <Link className="marque" href={lien("/")} aria-label="Cartoonova">
+            <Image src="/logo-detoure.png" alt="Cartoonova" width={160} height={82} priority />
+          </Link>
+
+          <nav className="nav" aria-label="Navigation principale">
+            {CATEGORIES_AFFICHAGE.map((categorie) => {
+              const produits = produitsParCategorie(categorie);
+              if (produits.length === 0) return null;
+              const ouvert = menuOuvert === categorie;
+              const vedette = vedetteDe(produits);
+
+              return (
+                <div
+                  className="nav__groupe"
+                  key={categorie}
+                  onMouseEnter={() => ouvrir(categorie)}
+                  onMouseLeave={programmerFermeture}
+                >
+                  <button
+                    type="button"
+                    className="nav__declencheur"
+                    aria-expanded={ouvert}
+                    aria-controls={`menu-${categorie}`}
+                    onClick={() => (ouvert ? setMenuOuvert(null) : ouvrir(categorie))}
+                  >
+                    {NOMS_CATEGORIE_COURT[categorie][locale]}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {ouvert && (
+                    <div
+                      className="nav__panneau"
+                      id={`menu-${categorie}`}
+                      onMouseEnter={annulerFermeture}
+                      onMouseLeave={programmerFermeture}
+                    >
+                      <div className="nav__colonne">
+                        <div className="nav__tete">
+                          <h5>{NOMS_CATEGORIE[categorie][locale]}</h5>
+                          <span>
+                            {produits.length}{" "}
+                            {produits.length > 1 ? t("produitsCompte") : t("catalogueCompteUn")}
+                          </span>
+                        </div>
+
+                        <ul className="nav__liste">
+                          {produits.map((p) => (
+                            <li key={p.slug}>
+                              <Link className="nav__style" href={lien(`/${slugProduit(p, locale)}`)}>
+                                <span className="nav__style__vignette">{vignetteStyle(p, 48)}</span>
+                                <span className="nav__style__nom">{universProduit(p, locale)}</span>
+                                <svg
+                                  className="nav__style__fleche"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.4"
+                                  aria-hidden="true"
+                                >
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="nav__pied">
+                          <Link className="nav__tout" href={lien(`/collections#${categorie}`)}>
+                            {tn("viewAllStyles")}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+                            </svg>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {vedette && (
+                        <Link className="nav__vedette" href={lien(`/${slugProduit(vedette, locale)}`)}>
+                          <span className="nav__vedette__visuel">{vignetteStyle(vedette, 260)}</span>
+                          <span className="nav__vedette__badge">{tp("bestsellerBadge")}</span>
+                          <span className="nav__vedette__nom">{titreProduit(vedette, locale)}</span>
+                          <span className="nav__vedette__cta">{tn("cta")}</span>
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+          </nav>
+
+          <div className="entete__outils">
+            {/* Équivalent du `.live-chat-top` de turnedyellow.com : le lien de
+                l'en-tête ouvre le panneau d'aide flottant. */}
+            <button
+              type="button"
+              className="lien-aide"
+              onClick={() => window.dispatchEvent(new Event(EVENEMENT_AIDE))}
+            >
+              <TeteAide taille={28} />
+              <span>Live Chat</span>
+            </button>
+            <LanguageAndCurrencySwitcher />
+          </div>
+
+          <Link className="bouton bouton--primaire" href={lien("/collections")}>
+            {tn("cta")}
+          </Link>
+
+          <button
+            type="button"
+            className="burger"
+            aria-expanded={replieOuvert}
+            aria-label="Menu"
+            onClick={() => setReplieOuvert((v) => !v)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
+
+        <div className={`replie${replieOuvert ? " ouvert" : ""}`}>
+          <div className="enveloppe">
+            {/* Les familles reprennent la meme hierarchie qu'en bureau, en
+                accordeon : 36 fiches deroulees d'un bloc rendaient le repli
+                illisible. */}
+            {CATEGORIES_AFFICHAGE.map((categorie) => {
+              const produits = produitsParCategorie(categorie);
+              if (produits.length === 0) return null;
+              const ouverte = sectionRepliee === categorie;
+
+              return (
+                <div className="replie__famille" key={categorie}>
+                  <button
+                    type="button"
+                    className="replie__declencheur"
+                    aria-expanded={ouverte}
+                    onClick={() => setSectionRepliee(ouverte ? null : categorie)}
+                  >
+                    {NOMS_CATEGORIE[categorie][locale]}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {ouverte && (
+                    <div className="replie__styles">
+                      {produits.map((p) => (
+                        <Link className="replie__style" key={p.slug} href={lien(`/${slugProduit(p, locale)}`)}>
+                          <span className="nav__style__vignette">{vignetteStyle(p, 40)}</span>
+                          {universProduit(p, locale)}
+                        </Link>
+                      ))}
+                      <Link className="replie__tout" href={lien(`/collections#${categorie}`)}>
+                        {tn("viewAllStyles")}
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            <nav aria-label="Navigation repliée">
+              {liens.map((l) => (
+                <Link key={l.href} href={lien(l.href)}>
+                  {l.libelle}
+                </Link>
+              ))}
+            </nav>
+
+            <Link className="bouton bouton--primaire" href={lien("/collections")}>
+              {tn("cta")}
+            </Link>
+
+            {/* Sous 860px le sélecteur quitte la barre : il revient ici. */}
+            <div className="replie__outils">
+              <LanguageAndCurrencySwitcher pleineLargeur />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Voile de profondeur derriere le panneau ouvert. Pose hors de l'en-tete
+          pour rester sous elle (z-index 39 contre 40) : place a l'interieur, il
+          assombrissait la barre elle-meme. */}
+      <div className={`nav__voile${menuOuvert ? " nav__voile--visible" : ""}`} aria-hidden="true" />
+    </>
   );
+}
+
+/** Reste exporte : d'autres modules listaient les styles depuis ce fichier. */
+export function titresStyles(locale: Locale) {
+  return CATEGORIES.flatMap((c) => produitsParCategorie(c).map((p) => titreProduit(p, locale)));
 }
