@@ -1123,5 +1123,11 @@
       "title": "Datenschutzerklärung — Cartoonova",
       "description": "Welche Daten wir erheben, wozu, wie lange wir sie speichern und wie Sie Ihre Rechte wahrnehmen."
     }
+  },
+  "alt": {
+    "realisationClient": "Personalisiertes Cartoon-Porträt, für einen Kunden gezeichnet",
+    "exempleFaq": "Gerahmtes Cartoon-Porträt bei einem Kunden zu Hause",
+    "posterDessine": "Handgezeichnetes Cartoon-Poster",
+    "photoEnvoyee": "Das Foto, das Sie gerade hochgeladen haben"
   }
 }

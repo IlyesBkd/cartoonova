@@ -13,11 +13,13 @@ import {
   titreProduit,
   universProduit,
 } from "@/lib/catalogue";
+import { getTranslations } from "next-intl/server";
 import { visuelsProduit } from "@/lib/visuels";
 import { getPricesForCurrency } from "@/lib/db";
+import { PRINT_KEYS } from "@/lib/pricing";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
-import { alternatesPour } from "@/lib/seo";
+import { OG_LOCALE, alternatesPour } from "@/lib/seo";
 
 /* Route produit unique. Les six univers historiques gardent leur slug
    (/simpson, /dbz, /disney, /ghibli, /onepiece, /rickandmorty) : les
@@ -57,8 +59,18 @@ export async function generateMetadata({
       title: titre,
       description,
       url: `${SITE_URL}/${locale}/${slugs[locale]}`,
+      siteName: "Cartoonova",
+      locale: OG_LOCALE[locale] ?? OG_LOCALE.fr,
       type: "website",
       images: image ? [{ url: `${SITE_URL}${image}` }] : undefined,
+    },
+    /* Sans ce bloc, la carte Twitter du layout est heritee telle quelle : les
+       35 fiches partageaient un titre generique unique. */
+    twitter: {
+      card: "summary_large_image",
+      title: titre,
+      description,
+      images: image ? [`${SITE_URL}${image}`] : undefined,
     },
   };
 }
@@ -82,11 +94,12 @@ export default async function Page({
   if (slug !== slugAttendu) permanentRedirect(`/${locale}/${slugAttendu}`);
 
   const visuels = visuelsProduit(p.slug);
+  const tNav = await getTranslations({ locale, namespace: "nav" });
 
-  /* Prix de depart, pour l'offre du balisage Product. */
-  let prixBase = DEFAULT_PRICE_SET.base;
+  /* Grille tarifaire, pour la fourchette du balisage Product. */
+  let prix = DEFAULT_PRICE_SET;
   try {
-    prixBase = (await getPricesForCurrency("EUR")).base;
+    prix = await getPricesForCurrency("EUR");
   } catch {
     // Repli : la fiche reste servie meme si la base est injoignable.
   }
@@ -120,24 +133,48 @@ export default async function Page({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Product",
-            name: donnees.titre,
-            description: donnees.description,
-            brand: { "@type": "Brand", name: "Cartoonova" },
-            image: visuels.galerie.map((v) => `${SITE_URL}${v}`),
-            category: donnees.categorieNom,
-            /* Sans `offers`, Google ne peut pas produire de resultat enrichi
-               produit : ni prix, ni disponibilite, ni devise. Le prix declare
-               est le prix de depart reel (options en sus), d'ou lowPrice. */
-            offers: {
-              "@type": "AggregateOffer",
-              priceCurrency: "EUR",
-              lowPrice: prixBase,
-              offerCount: 4,
-              availability: "https://schema.org/InStock",
-              url: `${SITE_URL}/${locale}/${slug}`,
-              seller: { "@type": "Organization", name: "Cartoonova" },
-            },
+            "@graph": [
+              {
+                "@type": "Product",
+                name: donnees.titre,
+                description: donnees.description,
+                brand: { "@type": "Brand", name: "Cartoonova" },
+                image: visuels.galerie.map((v) => `${SITE_URL}${v}`),
+                category: donnees.categorieNom,
+                /* Sans `offers`, Google ne peut pas produire de resultat
+                   enrichi produit : ni prix, ni disponibilite, ni devise.
+                   `lowPrice` est le prix de depart reel — le fichier numerique
+                   seul, dont le supplement vaut zero. `highPrice` est ce meme
+                   portrait sur toile, le support le plus cher. La fourchette
+                   decrit donc un portrait a une personne, options en sus :
+                   annoncer un maximum tenant compte des dix personnages
+                   possibles gonflerait le prix affiche en resultat de
+                   recherche sans decrire ce que la plupart commandent. */
+                offers: {
+                  "@type": "AggregateOffer",
+                  priceCurrency: "EUR",
+                  lowPrice: prix.base,
+                  highPrice: prix.base + prix.canvas,
+                  offerCount: PRINT_KEYS.length,
+                  availability: "https://schema.org/InStock",
+                  url: `${SITE_URL}/${locale}/${slug}`,
+                  seller: { "@type": "Organization", name: "Cartoonova" },
+                },
+              },
+              {
+                "@type": "BreadcrumbList",
+                itemListElement: [
+                  { "@type": "ListItem", position: 1, name: tNav("home"), item: `${SITE_URL}/${locale}` },
+                  {
+                    "@type": "ListItem",
+                    position: 2,
+                    name: donnees.categorieNom,
+                    item: `${SITE_URL}/${locale}/collections#${p.categorie}`,
+                  },
+                  { "@type": "ListItem", position: 3, name: donnees.titre, item: `${SITE_URL}/${locale}/${slug}` },
+                ],
+              },
+            ],
           }),
         }}
       />

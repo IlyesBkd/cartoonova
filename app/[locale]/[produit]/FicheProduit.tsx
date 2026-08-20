@@ -79,6 +79,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const tProduit = useTranslations("product");
   const tDecor = useTranslations("product");
   const tDbz = useTranslations("dbz");
+  const tAlt = useTranslations("alt");
   const lien = useLien();
   const { formatRaw: formatPrix, currency } = useCurrency();
   const { trackOptionSelected, trackPhotoUploaded, trackCheckoutStarted } = useProductTracking({
@@ -563,7 +564,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     <div className="depot-apercu" key={url}>
                       {/* Blob Vercel : hors du domaine configure pour l'optimiseur. */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt="" />
+                      <img src={url} alt={tAlt("photoEnvoyee")} />
                       <button
                         type="button"
                         aria-label="Retirer"
@@ -669,7 +670,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 <article className="avis-carte" key={n}>
                   <Image
                     src={portraitsClients[i]}
-                    alt=""
+                    alt={tAlt("realisationClient")}
                     width={1000}
                     height={750}
                     sizes="24vw"
@@ -737,7 +738,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
         <section className="section" id="faq">
           <div className="enveloppe faq-illus">
             <div className="faq-visuel">
-              <Image src="/toonjaune/faq-photo.webp" alt="" width={1000} height={1000} sizes="(max-width: 1000px) 80vw, 38vw" />
+              <Image src="/toonjaune/faq-photo.webp" alt={tAlt("exempleFaq")} width={1000} height={1000} sizes="(max-width: 1000px) 80vw, 38vw" />
             </div>
             <div>
               <h2 style={{ fontSize: "var(--t-section)", marginBottom: 12 }}>

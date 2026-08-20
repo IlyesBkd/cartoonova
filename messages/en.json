@@ -1123,5 +1123,11 @@
       "title": "Privacy Policy — Cartoonova",
       "description": "What data we collect, why, how long we keep it, and how to exercise your rights."
     }
+  },
+  "alt": {
+    "realisationClient": "Custom cartoon portrait drawn for a customer",
+    "exempleFaq": "Framed cartoon portrait hanging in a customer's home",
+    "posterDessine": "Hand-drawn cartoon poster",
+    "photoEnvoyee": "The photo you just uploaded"
   }
 }

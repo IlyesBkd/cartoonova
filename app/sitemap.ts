@@ -5,6 +5,7 @@ import { SITE_URL } from "@/lib/site";
 import { OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { CATALOGUE_EN_LIGNE, SLUG_PHARE, slugsProduit } from "@/lib/catalogue";
+import { visuelsProduit } from "@/lib/visuels";
 
 const baseUrl = SITE_URL;
 
@@ -86,6 +87,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     };
 
+    /* Sitemap images : c'est la seule facon de declarer a Google des visuels
+       qu'il ne decouvrirait autrement qu'en explorant la page. Sur un site
+       dont le produit *est* une image, Google Images n'est pas un canal
+       secondaire. */
+    const images = visuelsProduit(produit.slug).galerie.map((v) => `${baseUrl}${v}`);
+
     for (const locale of locales) {
       entries.push({
         url: `${baseUrl}/${locale}/${parLangue[locale]}`,
@@ -93,6 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: "weekly",
         priority: produit.slug === SLUG_PHARE ? 1 : 0.9,
         alternates,
+        ...(images.length ? { images } : {}),
       });
     }
   }
@@ -113,6 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: "monthly",
           priority: 0.7,
           alternates: { languages: { ...parLangue, "x-default": parLangue.en } },
+          images: [`${baseUrl}${produit.image}`],
         });
       }
     }

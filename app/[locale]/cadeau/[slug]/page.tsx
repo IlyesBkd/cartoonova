@@ -16,7 +16,7 @@ import {
   buildGiftSlug,
   parseGiftSlug,
 } from "@/lib/giftOccasions";
-import { alternatesPour } from "@/lib/seo";
+import { OG_LOCALE, alternatesPour } from "@/lib/seo";
 
 export const revalidate = 86400;
 
@@ -69,8 +69,18 @@ export async function generateMetadata({
       description: occasion.intro.slice(0, 200),
       url: `${SITE_URL}/${locale}/cadeau/${slug}`,
       siteName: "Cartoonova",
-      images: [{ url: `${SITE_URL}${product.image}`, width: 1200, height: 630, alt: styleName }],
+      locale: OG_LOCALE[locale] ?? OG_LOCALE.fr,
+      /* Pas de width/height annonces : l'image est une photo produit au format
+         4/5, elle etait declaree 1200x630. Un rapport faux fait recadrer de
+         travers chez ceux qui s'y fient — mieux vaut laisser deviner. */
+      images: [{ url: `${SITE_URL}${product.image}`, alt: styleName }],
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: occasion.intro.slice(0, 155),
+      images: [`${SITE_URL}${product.image}`],
     },
   };
 }

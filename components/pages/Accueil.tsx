@@ -71,6 +71,7 @@ export default function Accueil({
   const t = useTranslations("tj");
   const th = useTranslations("home");
   const tp = useTranslations("product");
+  const tAlt = useTranslations("alt");
   const tEvt = useTranslations("evenements");
   const lien = useLien();
   const locale = useLocale() as Locale;
@@ -382,7 +383,7 @@ export default function Accueil({
           <div className="avis-rail">
             {avis.map((a, i) => (
               <article className="avis-carte" key={i}>
-                <Image src={a.photo} alt="" width={1000} height={750} sizes="(max-width: 620px) 80vw, 24vw" />
+                <Image src={a.photo} alt={tAlt("realisationClient")} width={1000} height={750} sizes="(max-width: 620px) 80vw, 24vw" />
                 <div className="avis-bulle">
                   <div className="svg-stars">
                     <Etoiles />
@@ -473,7 +474,7 @@ export default function Accueil({
             <>
               <Image
                 src="/toonjaune/handdrawn-poster.jpg"
-                alt=""
+                alt={tAlt("posterDessine")}
                 width={870}
                 height={454}
                 sizes="(max-width: 900px) 92vw, 870px"
