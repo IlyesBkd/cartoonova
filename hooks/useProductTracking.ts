@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import posthog from "posthog-js";
+import { mesure } from "@/lib/analytics";
 
 interface ProductConfig {
   productId: string;
@@ -25,7 +25,7 @@ export function useProductTracking(config: ProductConfig) {
     if (viewTracked.current) return;
     viewTracked.current = true;
 
-    posthog.capture("product_viewed", {
+    mesure("product_viewed", {
       product_id: config.productId,
       product_name: config.productName,
       category: config.category || "portrait_personnalise",
@@ -40,7 +40,7 @@ export function useProductTracking(config: ProductConfig) {
     optionValue: string | number,
     priceImpact: number = 0
   ) => {
-    posthog.capture("option_selected", {
+    mesure("option_selected", {
       product_id: config.productId,
       product_type: optionType,
       option_value: optionValue,
@@ -50,7 +50,7 @@ export function useProductTracking(config: ProductConfig) {
 
   // Track photo upload success
   const trackPhotoUploaded = (photoCount: number = 1) => {
-    posthog.capture("photo_uploaded", {
+    mesure("photo_uploaded", {
       product_id: config.productId,
       product_name: config.productName,
       photo_count: photoCount,
@@ -63,7 +63,7 @@ export function useProductTracking(config: ProductConfig) {
     currency: string,
     selectedOptions: SelectedOptions
   ) => {
-    posthog.capture("checkout_started", {
+    mesure("checkout_started", {
       product_id: config.productId,
       product_name: config.productName,
       value,
@@ -79,7 +79,7 @@ export function useProductTracking(config: ProductConfig) {
     transactionId: string,
     selectedOptions: SelectedOptions
   ) => {
-    posthog.capture("purchase_completed", {
+    mesure("purchase_completed", {
       product_id: config.productId,
       product_name: config.productName,
       value,

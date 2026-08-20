@@ -5,7 +5,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
-import posthog from "posthog-js";
+import { mesure } from "@/lib/analytics";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
 import type { PrintKey } from "@/lib/pricing";
 import Icone from "@/components/tj/Icone";
@@ -153,7 +153,7 @@ function PaymentForm({
 
     setLoading(true);
     setError("");
-    posthog.capture("payment_initiated", { method: "card", value: orderConfig.total, style: orderConfig.style });
+    mesure("payment_initiated", { method: "card", value: orderConfig.total, style: orderConfig.style });
 
     try {
       // 1. Validate elements
@@ -188,7 +188,7 @@ function PaymentForm({
 
       if (stripeError) {
         console.error("[CARD] ❌ Erreur Stripe:", stripeError);
-        posthog.capture("payment_error", { method: "card", error: stripeError.message, style: orderConfig.style });
+        mesure("payment_error", { method: "card", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
         // Payment succeeded inline — manually redirect
@@ -216,7 +216,7 @@ function PaymentForm({
 
     setLoading(true);
     setError("");
-    posthog.capture("payment_initiated", { method: "express", value: orderConfig.total, style: orderConfig.style });
+    mesure("payment_initiated", { method: "express", value: orderConfig.total, style: orderConfig.style });
 
     try {
       // 1. Do NOT call elements.submit() — the wallet already submitted
@@ -237,7 +237,7 @@ function PaymentForm({
       console.log("[EXPRESS] 3. confirmPayment retourné (pas de redirect!), error:", stripeError?.message || "aucune");
       if (stripeError) {
         console.error("[EXPRESS] ❌ Erreur Express Checkout:", stripeError);
-        posthog.capture("payment_error", { method: "express", error: stripeError.message, style: orderConfig.style });
+        mesure("payment_error", { method: "express", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else {
         // Fallback: shouldn't happen but just in case
@@ -431,7 +431,7 @@ export default function CheckoutModal({
       setDateRemise("");
       return;
     }
-    posthog.capture("checkout_modal_opened", {
+    mesure("checkout_modal_opened", {
       style: orderConfig.style,
       value: orderConfig.total,
       format: orderConfig.format,
@@ -578,11 +578,11 @@ export default function CheckoutModal({
 
       if (res.ok && data.valid) {
         setApplied({ code, discount: data.discount, total: data.total });
-        posthog.capture("promo_code_applied", { code, discount: data.discount, style: orderConfig.style });
+        mesure("promo_code_applied", { code, discount: data.discount, style: orderConfig.style });
       } else {
         setApplied(null);
         setPromoError(t("promoInvalid"));
-        posthog.capture("promo_code_rejected", { code, reason: data.reason ?? "unknown" });
+        mesure("promo_code_rejected", { code, reason: data.reason ?? "unknown" });
       }
     } catch {
       setApplied(null);
@@ -622,7 +622,7 @@ export default function CheckoutModal({
       return;
     }
 
-    posthog.capture("checkout_info_completed", {
+    mesure("checkout_info_completed", {
       style: orderConfig.style,
       value: orderConfig.total,
       is_digital: isDigital,

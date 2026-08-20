@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import posthog from "posthog-js";
+import { mesure } from "@/lib/analytics";
 import NewsletterForm from "@/components/NewsletterForm";
 
 const SEEN_KEY = "cartoonova_exit_intent_seen";
@@ -48,7 +48,7 @@ export default function ExitIntentDialog() {
 
       markSeen();
       setOpen(true);
-      posthog.capture("exit_intent_shown", { reason });
+      mesure("exit_intent_shown", { reason });
     };
 
     const onMouseOut = (e: MouseEvent) => {
@@ -79,7 +79,7 @@ export default function ExitIntentDialog() {
 
   const close = () => {
     setOpen(false);
-    posthog.capture("exit_intent_dismissed");
+    mesure("exit_intent_dismissed");
   };
 
   return (

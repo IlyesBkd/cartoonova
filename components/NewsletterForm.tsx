@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import posthog from "posthog-js";
+import { mesure } from "@/lib/analytics";
 import Icone from "@/components/tj/Icone";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -38,7 +38,7 @@ export default function NewsletterForm({
         return;
       }
 
-      posthog.capture("newsletter_subscribed", { source, locale });
+      mesure("newsletter_subscribed", { source, locale });
       setStatus("success");
       setEmail("");
     } catch {

@@ -1,47 +1,38 @@
 "use client";
 
-import posthog from "posthog-js";
-import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
 import { Suspense, useEffect, type ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { mesure } from "@/lib/analytics";
 
-if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://eu.i.posthog.com",
-    person_profiles: "identified_only",
-    capture_pageview: false,
-    capture_pageleave: true,
-  });
-}
+/* Le fournisseur de contexte `posthog-js/react` a ete retire : son seul role
+   etait d'alimenter `usePostHog()`, qui n'etait appele que par ce fichier.
+   Il obligeait a importer le SDK en statique, donc a l'embarquer dans le
+   bundle initial de chaque page. Voir lib/analytics.ts. */
 
-function PostHogPageView() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const ph = usePostHog();
+function VueDePage() {
+  const chemin = usePathname();
+  const parametres = useSearchParams();
 
   useEffect(() => {
-    if (pathname && ph) {
-      let url = window.origin + pathname;
-      const search = searchParams?.toString();
-      if (search) url += "?" + search;
-      ph.capture("$pageview", { $current_url: url });
-    }
-  }, [pathname, searchParams, ph]);
+    if (!chemin) return;
+    const recherche = parametres?.toString();
+    mesure("$pageview", {
+      $current_url: window.origin + chemin + (recherche ? `?${recherche}` : ""),
+    });
+  }, [chemin, parametres]);
 
   return null;
 }
 
 export default function PostHogProvider({ children }: { children: ReactNode }) {
-  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-    return <>{children}</>;
-  }
-
   return (
-    <PHProvider client={posthog}>
+    <>
+      {/* `useSearchParams` impose une frontiere de suspense : sans elle, toute
+          la page bascule en rendu client. */}
       <Suspense fallback={null}>
-        <PostHogPageView />
+        <VueDePage />
       </Suspense>
       {children}
-    </PHProvider>
+    </>
   );
 }

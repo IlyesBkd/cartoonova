@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import posthog from "posthog-js";
+import { mesure } from "@/lib/analytics";
 import Icone from "@/components/tj/Icone";
 import { GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
 
@@ -48,7 +48,7 @@ export default function SuccessClient({
 
     // PostHog purchase tracking
     const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
-    posthog.capture("purchase_completed", {
+    mesure("purchase_completed", {
       value: order.total_price,
       currency: order.currency,
       transaction_id: order.payment_intent_id,
