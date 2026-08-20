@@ -45,3 +45,8 @@ next-env.d.ts
 public/**/*.json
 *-service-account*.json
 gcp-*.json
+
+# Apercus du detourage : sortie de scripts/detoure-bandeaux.mjs sans --applique.
+# Le site ne lit que galerie/ et decors/ (voir lib/visuels.ts) — ces fichiers
+# sont des artefacts de travail, regenerables, et pesaient 18,7 Mo.
+public/catalogue/*/galerie-detouree/

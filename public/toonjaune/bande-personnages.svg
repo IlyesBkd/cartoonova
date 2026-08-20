@@ -1,0 +1,111 @@
+<!-- viewBox cadrée sur les personnages : la bande ne fait que 150 px de haut,
+     tout vide au-dessus est de la place perdue. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 78 1690 222" width="1690" height="222" role="img" aria-label="Une rangée de personnages dessinés">
+  <title>Rangée de personnages cartoon</title>
+  <defs>
+    <g id="bras">
+      <path d="M-34 6 q-20 26 -12 52" stroke="#2A2552" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="M34 6 q20 26 12 52" stroke="#2A2552" stroke-width="9" fill="none" stroke-linecap="round"/>
+    </g>
+    <g id="sourire">
+      <circle cx="-13" cy="-6" r="5.5" fill="#2A2552"/>
+      <circle cx="13" cy="-6" r="5.5" fill="#2A2552"/>
+      <path d="M-15 12 q15 15 30 0" stroke="#2A2552" stroke-width="6" fill="none" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <!-- 1 — cheveux courts, pull menthe -->
+  <g transform="translate(150 300)">
+    <path d="M-42 0 v-78 a42 42 0 0 1 84 0 V0 Z" fill="#E0FAFA" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -84)"><use href="#bras"/></g>
+    <circle cx="0" cy="-126" r="52" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-52 -140 a52 52 0 0 1 104 0 q-26 -18 -52 -18 t-52 18 Z" fill="#2A2552"/>
+    <g transform="translate(0 -122)"><use href="#sourire"/></g>
+  </g>
+
+  <!-- 2 — chignon, robe crème -->
+  <g transform="translate(370 300)">
+    <path d="M-46 0 l10 -76 a36 36 0 0 1 72 0 L46 0 Z" fill="#FFF9ED" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -84)"><use href="#bras"/></g>
+    <circle cx="0" cy="-126" r="52" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <circle cx="0" cy="-186" r="20" fill="#D4A32A" stroke="#2A2552" stroke-width="7"/>
+    <path d="M-52 -136 a52 52 0 0 1 104 0 q-20 -26 -52 -26 t-52 26 Z" fill="#D4A32A"/>
+    <g transform="translate(0 -122)"><use href="#sourire"/></g>
+  </g>
+
+  <!-- 3 — enfant, plus petit -->
+  <g transform="translate(575 300)">
+    <path d="M-32 0 v-56 a32 32 0 0 1 64 0 V0 Z" fill="#E9BA3B" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -62) scale(.8)"><use href="#bras"/></g>
+    <circle cx="0" cy="-94" r="40" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-40 -104 a40 40 0 0 1 80 0 q-20 -16 -40 -16 t-40 16 Z" fill="#8A5A2B"/>
+    <g transform="translate(0 -92) scale(.82)"><use href="#sourire"/></g>
+  </g>
+
+  <!-- 4 — chien -->
+  <g transform="translate(720 300)">
+    <ellipse cx="0" cy="-32" rx="46" ry="32" fill="#FFF9ED" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-28 -4 v4 M0 -2 v2 M28 -4 v4" stroke="#2A2552" stroke-width="8" stroke-linecap="round"/>
+    <path d="M42 -52 q26 -18 18 -44" stroke="#2A2552" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <circle cx="-30" cy="-82" r="36" fill="#FFF9ED" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-62 -104 q-16 -30 4 -40 q18 -8 22 22 Z" fill="#8A5A2B" stroke="#2A2552" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="-44" cy="-88" r="4.5" fill="#2A2552"/>
+    <circle cx="-18" cy="-88" r="4.5" fill="#2A2552"/>
+    <ellipse cx="-31" cy="-70" rx="8" ry="6" fill="#2A2552"/>
+  </g>
+
+  <!-- 5 — lunettes, chemise soleil -->
+  <g transform="translate(900 300)">
+    <path d="M-44 0 v-80 a44 44 0 0 1 88 0 V0 Z" fill="#E9BA3B" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -86)"><use href="#bras"/></g>
+    <circle cx="0" cy="-130" r="54" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-54 -146 a54 54 0 0 1 108 0 q-28 -14 -54 -14 t-54 14 Z" fill="#5A5578"/>
+    <circle cx="-17" cy="-128" r="15" fill="none" stroke="#2A2552" stroke-width="6"/>
+    <circle cx="17" cy="-128" r="15" fill="none" stroke="#2A2552" stroke-width="6"/>
+    <path d="M-2 -128 h4" stroke="#2A2552" stroke-width="6"/>
+    <path d="M-15 -106 q15 14 30 0" stroke="#2A2552" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 6 — cheveux longs, pull papier -->
+  <g transform="translate(1120 300)">
+    <path d="M-44 0 v-78 a44 44 0 0 1 88 0 V0 Z" fill="#FFFFFF" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -84)"><use href="#bras"/></g>
+    <path d="M-62 -70 q-8 -100 62 -100 t62 100 q-18 -46 -62 -46 t-62 46 Z" fill="#2A2552"/>
+    <circle cx="0" cy="-126" r="52" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-52 -142 a52 52 0 0 1 104 0 q-26 -20 -52 -20 t-52 20 Z" fill="#2A2552"/>
+    <g transform="translate(0 -122)"><use href="#sourire"/></g>
+  </g>
+
+  <!-- 7 — chat -->
+  <g transform="translate(1290 300)">
+    <ellipse cx="0" cy="-26" rx="38" ry="26" fill="#5A5578" stroke="#2A2552" stroke-width="8"/>
+    <path d="M36 -44 q24 -22 8 -44" stroke="#2A2552" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <circle cx="-22" cy="-70" r="32" fill="#5A5578" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-48 -92 l-4 -28 l24 14 Z" fill="#5A5578" stroke="#2A2552" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M4 -92 l6 -28 l-24 14 Z" fill="#5A5578" stroke="#2A2552" stroke-width="7" stroke-linejoin="round"/>
+    <circle cx="-33" cy="-74" r="4.5" fill="#FFF9ED"/>
+    <circle cx="-11" cy="-74" r="4.5" fill="#FFF9ED"/>
+    <path d="M-26 -60 l4 4 l4 -4" stroke="#FFF9ED" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- 8 — casquette, pull menthe -->
+  <g transform="translate(1470 300)">
+    <path d="M-44 0 v-78 a44 44 0 0 1 88 0 V0 Z" fill="#E0FAFA" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -84)"><use href="#bras"/></g>
+    <circle cx="0" cy="-126" r="52" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-52 -140 a52 52 0 0 1 104 0 Z" fill="#D4A32A" stroke="#2A2552" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M52 -140 q34 2 34 16 h-86" fill="#D4A32A" stroke="#2A2552" stroke-width="7" stroke-linejoin="round"/>
+    <g transform="translate(0 -118)"><use href="#sourire"/></g>
+  </g>
+
+  <!-- 9 — barbe, chemise crème -->
+  <g transform="translate(1660 300)">
+    <path d="M-44 0 v-78 a44 44 0 0 1 88 0 V0 Z" fill="#FFF9ED" stroke="#2A2552" stroke-width="8" stroke-linejoin="round"/>
+    <g transform="translate(0 -84)"><use href="#bras"/></g>
+    <circle cx="0" cy="-126" r="52" fill="#FBEFCB" stroke="#2A2552" stroke-width="8"/>
+    <path d="M-48 -116 q6 46 48 46 t48 -46 q-12 26 -48 26 t-48 -26 Z" fill="#8A5A2B"/>
+    <path d="M-52 -142 a52 52 0 0 1 104 0 q-26 -18 -52 -18 t-52 18 Z" fill="#8A5A2B"/>
+    <circle cx="-13" cy="-132" r="5.5" fill="#2A2552"/>
+    <circle cx="13" cy="-132" r="5.5" fill="#2A2552"/>
+  </g>
+</svg>
