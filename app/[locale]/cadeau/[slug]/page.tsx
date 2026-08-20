@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Icone from "@/components/tj/Icone";
 import { getTranslations } from "next-intl/server";
 import { BreadcrumbJsonLd, FAQJsonLd } from "@/components/structured-data";
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
-import { FEED_PRODUCTS } from "@/lib/productFeed";
+import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { SITE_URL } from "@/lib/site";
 import { locales, type Locale } from "@/i18n/config";
 import {
@@ -15,6 +16,7 @@ import {
   buildGiftSlug,
   parseGiftSlug,
 } from "@/lib/giftOccasions";
+import { alternatesPour } from "@/lib/seo";
 
 export const revalidate = 86400;
 
@@ -31,7 +33,7 @@ function resolve(localeRaw: string, slug: string) {
   const parsed = parseGiftSlug(locale, slug);
   if (!parsed) return null;
 
-  const product = FEED_PRODUCTS.find((p) => p.slug === parsed.styleSlug);
+  const product = GIFT_PRODUCTS.find((p) => p.slug === parsed.styleSlug);
   if (!product) return null;
 
   const occasion = OCCASIONS[locale][parsed.occasion];
@@ -55,12 +57,13 @@ export async function generateMetadata({
   return {
     title,
     description: occasion.intro.slice(0, 155),
-    alternates: {
-      canonical: `/${locale}/cadeau/${slug}`,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${SITE_URL}/${l}/cadeau/${buildGiftSlug(l, product.slug, occasionKey)}`])
-      ),
-    },
+    // Le slug differe d'une langue a l'autre : chaque alternance se calcule.
+    alternates: alternatesPour(
+      locale,
+      Object.fromEntries(
+        locales.map((l) => [l, `/cadeau/${buildGiftSlug(l, product.slug, occasionKey)}`])
+      )
+    ),
     openGraph: {
       title,
       description: occasion.intro.slice(0, 200),
@@ -86,7 +89,7 @@ export default async function GiftOccasionPage({
 
   const stylePath = `/${locale}/${product.slug}`;
   const otherOccasions = OCCASION_KEYS.filter((key) => key !== occasionKey);
-  const otherStyles = FEED_PRODUCTS.filter((p) => p.slug !== product.slug);
+  const otherStyles = GIFT_PRODUCTS.filter((p) => p.slug !== product.slug);
 
   return (
     <>
@@ -99,8 +102,8 @@ export default async function GiftOccasionPage({
       />
       <FAQJsonLd faq={occasion.faq} />
 
-      <main className="min-h-screen bg-amber-50 pt-24 sm:pt-28 pb-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="page-tj">
+        <div className="enveloppe">
           <nav aria-label="fil d'ariane" className="text-sm font-bold text-black/50 mb-6 flex flex-wrap gap-2">
             <Link href={`/${locale}`} className="hover:text-black transition-colors">{t("home")}</Link>
             <span aria-hidden="true">/</span>
@@ -113,14 +116,14 @@ export default async function GiftOccasionPage({
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black leading-tight mb-5 text-balance">
               {occasion.headline(styleName)}
             </h1>
-            <p className="text-lg text-black/70 font-medium leading-relaxed max-w-2xl">{occasion.intro}</p>
+            <p style={{ color: "var(--encre-doux)", maxWidth: "56ch" }}>{occasion.intro}</p>
             <div className="mt-6">
               <GiftDeadlineNote />
             </div>
           </header>
 
           <div className="grid md:grid-cols-2 gap-8 items-start mb-12">
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: "var(--rayon-lg)", overflow: "hidden", boxShadow: "var(--ombre)" }}>
               <Image
                 src={product.image}
                 alt={`${styleName} — ${occasion.label}`}
@@ -135,7 +138,7 @@ export default async function GiftOccasionPage({
               <ul className="flex flex-col gap-3 mb-6">
                 {occasion.bullets.map((bullet) => (
                   <li key={bullet} className="flex gap-3 text-black/75 font-medium leading-relaxed">
-                    <span aria-hidden="true" className="text-amber-500 font-black">✓</span>
+                    <Icone nom="coche" taille={15} style={{ color: "var(--soleil-fonce)" }} />
                     <span>{bullet}</span>
                   </li>
                 ))}
@@ -146,11 +149,11 @@ export default async function GiftOccasionPage({
             </div>
           </div>
 
-          <section className="bg-yellow-400 border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 text-center mb-12">
+          <section className="cta-cadeau">
             <h2 className="text-2xl sm:text-3xl font-black text-black mb-4">{t("ctaTitle")}</h2>
             <Link
               href={stylePath}
-              className="inline-block bg-black text-white font-black text-base uppercase px-8 py-4 rounded-xl border-4 border-black shadow-[5px_5px_0px_0px_rgba(255,255,255,0.6)] hover:translate-x-[2px] hover:translate-y-[2px] transition-transform"
+              className="bouton bouton--clair"
             >
               {t("ctaButton")}
             </Link>
@@ -161,7 +164,7 @@ export default async function GiftOccasionPage({
             <h2 className="text-2xl font-black text-black mb-5">{t("faqTitle")}</h2>
             <div className="flex flex-col gap-4">
               {occasion.faq.map((item) => (
-                <details key={item.question} className="bg-white border-2 border-black rounded-xl p-5">
+                <details key={item.question} className="bloc">
                   <summary className="font-black text-black cursor-pointer">{item.question}</summary>
                   <p className="mt-3 text-black/70 font-medium leading-relaxed">{item.answer}</p>
                 </details>

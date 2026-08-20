@@ -1,244 +1,109 @@
-"use client";
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { type Locale } from "@/i18n/config";
+import { SITE_URL } from "@/lib/site";
+import Catalogue, { type CarteCatalogue } from "@/components/pages/Catalogue";
+import {
+  CATALOGUE_EN_LIGNE,
+  CATEGORIES,
+  NOMS_CATEGORIE,
+  SLUG_PHARE,
+  descriptionProduit,
+  titreProduit,
+  universProduit,
+  type Categorie,
+} from "@/lib/catalogue";
+import { visuelsProduit } from "@/lib/visuels";
+import { getPricesForCurrency } from "@/lib/db";
+import { DEFAULT_PRICE_SET } from "@/lib/types";
+import { alternatesPour } from "@/lib/seo";
 
-import { useTranslations } from "next-intl";
-import { useCurrency } from "@/components/CurrencyProvider";
-import Link from "next/link";
-import Image from "next/image";
-import posthog from "posthog-js";
+// Un seul univers est annonce best-seller sur le site. Le slug etait ecrit ici
+// en dur ; il vient maintenant de `SLUG_PHARE`, l'unique endroit du code ou le
+// produit phare est declare — voir lib/catalogue.ts.
 
-const PRODUCTS = [
-  {
-    slug: "simpson",
-    emoji: "🟡",
-    image: "/simpson_photos_produit/0009_1.jpg",
-    bgColor: "from-amber-400 to-yellow-400",
-    accentColor: "amber-500",
-    shadowColor: "rgba(251,191,36,0.6)",
-  },
-  {
-    slug: "dbz",
-    emoji: "⚡",
-    image: "/DBZ/Photo_produits/1.png",
-    bgColor: "from-orange-400 to-orange-500",
-    accentColor: "orange-500",
-    shadowColor: "rgba(249,115,22,0.6)",
-  },
-  {
-    slug: "disney",
-    emoji: "✨",
-    image: "/Disney/Photo_produits/1.png",
-    bgColor: "from-pink-400 to-pink-500",
-    accentColor: "pink-500",
-    shadowColor: "rgba(236,72,153,0.6)",
-  },
-  {
-    slug: "ghibli",
-    emoji: "🌸",
-    image: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
-    bgColor: "from-emerald-400 to-green-500",
-    accentColor: "emerald-500",
-    shadowColor: "rgba(16,185,129,0.6)",
-  },
-  {
-    slug: "onepiece",
-    emoji: "🏴‍☠️",
-    image: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
-    bgColor: "from-amber-500 to-orange-500",
-    accentColor: "amber-600",
-    shadowColor: "rgba(245,158,11,0.6)",
-  },
-  {
-    slug: "rickandmorty",
-    emoji: "🌀",
-    image: "/rickandmorty/Photo_produits/1.png",
-    bgColor: "from-lime-400 to-green-500",
-    accentColor: "lime-500",
-    shadowColor: "rgba(132,204,22,0.6)",
-  },
-];
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: brut } = await params;
+  const locale = brut as Locale;
+  const t = await getTranslations({ locale, namespace: "tj" });
 
-export default function CollectionsPage() {
-  const t = useTranslations("collections");
-  const { format: formatPrice } = useCurrency();
+  const titre = `${t("catalogueTitre")} ${t("catalogueAccent")} — Cartoonova`;
 
-  const basePrice = 14;
+  return {
+    title: titre,
+    description: t("catalogueSous"),
+    alternates: alternatesPour(locale, "/collections"),
+    openGraph: {
+      title: titre,
+      description: t("catalogueSous"),
+      url: `${SITE_URL}/${locale}/collections`,
+      type: "website",
+    },
+  };
+}
+
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: brut } = await params;
+  const locale = brut as Locale;
+
+  const produits: CarteCatalogue[] = CATALOGUE_EN_LIGNE.map((p) => {
+    const visuels = visuelsProduit(p.slug);
+    return {
+      slug: p.slug,
+      univers: universProduit(p, locale),
+      categorie: p.categorie,
+      visuels: visuels.galerie.slice(0, 2),
+      accroche: accrocheCourte(descriptionProduit(p, locale)),
+      nbDecors: visuels.decors.length,
+      vedette: p.slug === SLUG_PHARE,
+    };
+  });
+
+  const nomsCategorie = Object.fromEntries(
+    CATEGORIES.map((c) => [c, NOMS_CATEGORIE[c][locale]])
+  ) as Record<Categorie, string>;
+
+  let prixDepart = DEFAULT_PRICE_SET.base;
+  try {
+    prixDepart = (await getPricesForCurrency("EUR")).base;
+  } catch {
+    // Repli sur la grille par defaut si la base est injoignable.
+  }
 
   return (
-    <div className="min-h-screen bg-amber-50">
-      {/* Hero Section */}
-      <section className="relative pt-28 sm:pt-32 pb-16 sm:pb-20 overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 -left-10 w-40 h-40 rounded-full bg-amber-200/40 blur-2xl" />
-          <div className="absolute top-40 right-10 w-32 h-32 rounded-full bg-pink-200/30 blur-xl" />
-          <div className="absolute bottom-10 left-[30%] w-48 h-48 rounded-full bg-emerald-200/30 blur-2xl" />
-          <div className="absolute -bottom-10 right-[20%] w-56 h-56 rounded-full bg-orange-200/30 blur-2xl" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white border-2 border-black rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] mb-6">
-            <span className="text-gray-700 text-sm font-bold">{t("trustBar")}</span>
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 uppercase mb-5 leading-[1.1]">
-            <span className="block">{t("heroTitle")}</span>
-            <span className="text-amber-500 inline-block -rotate-1">en personnage cartoon</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-gray-600 font-medium max-w-2xl mx-auto mb-8">
-            {t("heroSubtitle")}
-          </p>
-
-          {/* Stats bar */}
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-gray-500 text-sm">
-            <span className="flex items-center gap-1.5"><svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>{t("badgeSatisfied")}</span>
-            <span>{t("badgeHandDrawn")}</span>
-            <span>{t("badgeDelivery24h")}</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Products Grid */}
-      <section className="pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Section title */}
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 uppercase mb-2">
-              <span className="inline-block -rotate-1">Choisissez votre univers</span> 🎨
-            </h2>
-            <p className="text-gray-500">6 styles uniques pour votre portrait personnalisé</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {PRODUCTS.map((product, index) => (
-              <Link
-                key={product.slug}
-                href={`/${product.slug}`}
-                onClick={() => posthog.capture("collection_clicked", { collection: product.slug, position: index, source: "collections_page" })}
-                className="group relative bg-white rounded-2xl border-3 border-black overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all duration-300"
-                style={{ 
-                  transform: `rotate(${(index % 2 === 0 ? -1 : 1) * 0.5}deg)`,
-                }}
-              >
-                {/* Image */}
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <Image 
-                    src={product.image} 
-                    alt={t(`${product.slug}.title`)} 
-                    fill 
-                    className="object-cover transition-transform duration-500 group-hover:scale-110" 
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  
-                  {/* Emoji badge */}
-                  <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white border-2 border-black flex items-center justify-center text-2xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:scale-110 group-hover:rotate-12 transition-all">
-                    {product.emoji}
-                  </div>
-
-                  {/* Price tag */}
-                  <div className="absolute top-4 left-4">
-                    <span className={`inline-block bg-gradient-to-r ${product.bgColor} text-black font-black text-xs uppercase px-3 py-1.5 rounded-lg border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]`}>
-                      {t("fromPrice")} {formatPrice(basePrice)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="text-xl font-black text-gray-900 uppercase mb-1 group-hover:text-amber-600 transition-colors">
-                    {t(`${product.slug}.title`)}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                    {t(`${product.slug}.description`)}
-                  </p>
-                  
-                  {/* CTA Button */}
-                  <div className={`w-full bg-gradient-to-r ${product.bgColor} text-black font-black text-sm uppercase py-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] group-hover:translate-x-[2px] group-hover:translate-y-[2px] transition-all text-center`}>
-                    <span className="flex items-center justify-center gap-2">
-                      {t("discover")}
-                      <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Guarantee Section */}
-      <section className="py-12 bg-amber-50">
-        <div className="max-w-5xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-5 text-center">
-          {[
-            { icon: "📸", title: "Envoyez votre photo", desc: "Un selfie suffit", rotate: "-rotate-1" },
-            { icon: "🎨", title: "On dessine votre portrait", desc: "Par un artiste dédié", rotate: "rotate-1" },
-            { icon: "✅", title: "Pas satisfait ?", desc: "On recommence gratuitement", rotate: "-rotate-1" },
-          ].map((s, i) => (
-            <div key={i} className={`flex flex-col items-center bg-white border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${s.rotate} hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all`}>
-              <div className="w-14 h-14 rounded-full bg-amber-400 border-2 border-black flex items-center justify-center text-2xl mb-3 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">{s.icon}</div>
-              <p className="font-black text-gray-900 text-sm uppercase">{s.title}</p>
-              <p className="text-gray-500 text-xs mt-0.5">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Reassurance Section */}
-      <section className="py-14 sm:py-16 bg-gray-900 border-y-3 border-black">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
-            {[
-              { emoji: "🎨", text: t("reassurance1"), color: "text-amber-400" },
-              { emoji: "⚡", text: t("reassurance2"), color: "text-orange-400" },
-              { emoji: "💯", text: t("reassurance3"), color: "text-emerald-400" },
-            ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center text-center group">
-                <div className="w-16 h-16 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-white/20 transition-all">
-                  <span className="text-3xl">{item.emoji}</span>
-                </div>
-                <p className={`${item.color} font-black text-base sm:text-lg uppercase`}>
-                  {item.text}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Wave separator */}
-      <svg viewBox="0 0 1440 40" className="w-full -mb-1 text-amber-400" preserveAspectRatio="none"><path fill="currentColor" d="M0,20 C360,0 720,40 1080,20 C1260,10 1380,30 1440,20 L1440,40 L0,40 Z" /></svg>
-
-      {/* Final CTA Section */}
-      <section className="relative py-14 sm:py-20 bg-amber-400 overflow-hidden border-t-3 border-black">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-8 left-[8%] w-16 h-16 rounded-full bg-white/20" />
-          <div className="absolute bottom-12 right-[10%] w-24 h-12 rounded-full bg-white/15" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-white/10 blur-3xl" />
-        </div>
-        <div className="max-w-3xl mx-auto px-4 text-center relative">
-          <div className="flex items-center justify-center gap-1 mb-4">
-            <span className="text-black/70 font-bold text-sm">{t("trustBar")}</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-black mb-3 uppercase">
-            <span className="inline-block -rotate-1">{t("ctaTitle")}</span>
-          </h2>
-          <p className="text-base text-black/60 mb-8 max-w-lg mx-auto">
-            {t("ctaSubtitle")}
-          </p>
-          <Link
-            href="/simpson"
-            className="inline-flex items-center gap-2 bg-black text-amber-400 font-black text-lg px-10 py-5 rounded-xl border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[3px] hover:translate-y-[3px] active:shadow-none active:translate-x-[6px] active:translate-y-[6px] transition-all uppercase"
-          >
-            <span className="text-xl">🟡</span>
-            {t("ctaButton")}
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-          </Link>
-          <p className="mt-5 text-sm text-black/40">{t("trustBar")}</p>
-        </div>
-      </section>
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            numberOfItems: produits.length,
+            itemListElement: CATALOGUE_EN_LIGNE.map((p, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              name: titreProduit(p, locale),
+              url: `${SITE_URL}/${locale}/${p.slug}`,
+            })),
+          }),
+        }}
+      />
+      <Catalogue
+        produits={produits}
+        nomsCategorie={nomsCategorie}
+        prixDepart={prixDepart}
+      />
+    </>
   );
+}
+
+/** Premiere phrase de la description : la carte n'a la place que d'une ligne. */
+function accrocheCourte(description: string): string {
+  const fin = description.search(/[.!?]\s/);
+  const phrase = fin > 0 ? description.slice(0, fin + 1) : description;
+  return phrase.length > 96 ? `${phrase.slice(0, 93).trimEnd()}…` : phrase;
 }

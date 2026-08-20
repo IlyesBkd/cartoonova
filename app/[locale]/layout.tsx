@@ -9,9 +9,23 @@ import CurrencyProvider from "@/components/CurrencyProvider";
 import PostHogProvider from "@/components/PostHogProvider";
 import LayoutShell from "@/components/LayoutShell";
 import { getCurrencyFromCountry } from "@/lib/currency";
+import { CATALOGUE_EN_LIGNE } from "@/lib/catalogue";
+import { vignetteProduit } from "@/lib/visuels";
+import { evenementAffiche } from "@/lib/evenements";
 import { SITE_URL } from "@/lib/site";
+import { OG_LOCALE, alternatesPour } from "@/lib/seo";
 
 const baseUrl = SITE_URL;
+
+/* Vignettes des menus deroulants de l'en-tete. `vignetteProduit` lit `public/`
+   au rendu : c'est un module serveur, la Navbar est un composant client. La
+   table est donc calculee ici, une seule fois au chargement du module, et
+   descendue en propriete jusqu'a la barre de navigation. */
+const VIGNETTES_MENU: Record<string, string> = Object.fromEntries(
+  CATALOGUE_EN_LIGNE.map((p) => [p.slug, vignetteProduit(p.slug)] as const).filter(
+    (paire): paire is readonly [string, string] => Boolean(paire[1])
+  )
+);
 
 export async function generateMetadata({
   params,
@@ -21,28 +35,20 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });
 
-  const alternateLanguages: Record<string, string> = {};
-  for (const l of locales) {
-    alternateLanguages[l] = `${baseUrl}/${l}`;
-  }
-
   return {
     title: t("title"),
     description: t("description"),
     metadataBase: new URL(baseUrl),
-    alternates: {
-      canonical: `/${locale}`,
-      languages: {
-        ...alternateLanguages,
-        "x-default": `${baseUrl}/fr`,
-      },
-    },
+    /* Vaut pour l'accueil, et pour l'accueil seulement. Toute page enfant doit
+       redefinir son propre bloc via `alternatesPour` — sans quoi elle herite de
+       celui-ci et se canonicalise ici. */
+    alternates: alternatesPour(locale, ""),
     openGraph: {
       title: t("ogTitle"),
       description: t("ogDescription"),
       url: `${baseUrl}/${locale}`,
       siteName: "Cartoonova",
-      locale: locale === "fr" ? "fr_FR" : locale === "en" ? "en_GB" : locale === "es" ? "es_ES" : locale === "de" ? "de_DE" : "it_IT",
+      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
       type: "website",
     },
     twitter: {
@@ -100,7 +106,12 @@ export default async function LocaleLayout({
     <PostHogProvider>
       <NextIntlClientProvider messages={messages}>
         <CurrencyProvider locale={locale} initialCurrency={initialCurrency}>
-          <LayoutShell>
+          {/* Temps fort du moment, calcule ici et non dans la barre promo :
+              toutes les routes /[locale] sont rendues a la demande (ƒ), la
+              valeur est donc toujours celle du jour, et la date limite arrive
+              deja formatee — la formater cote client ferait dependre le rendu
+              des donnees ICU du navigateur et l'hydratation divergerait. */}
+          <LayoutShell vignettes={VIGNETTES_MENU} evenement={evenementAffiche(locale as Locale)}>
             {children}
           </LayoutShell>
         </CurrencyProvider>

@@ -1,22 +1,37 @@
 import Script from "next/script";
-import { Poppins } from "next/font/google";
+import { headers } from "next/headers";
 import { GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
+import { locales, defaultLocale } from "@/i18n/config";
 import "./globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
+/* En-tete pose par le middleware next-intl sur la requete transmise. C'est la
+   meme source que celle lue par `getRequestLocale` a l'interieur de la
+   bibliotheque — on ne devine pas la langue, on lit sa decision.
 
-export default function RootLayout({
+   Les routes hors `[locale]` (/success, /suivi, /confirm-poster) sont exclues
+   du middleware par `proxy.ts` : l'en-tete y est absent et on retombe sur la
+   langue par defaut, ce qui etait deja le comportement. */
+const EN_TETE_LANGUE = "X-NEXT-INTL-LOCALE";
+
+async function langueDeLaRequete(): Promise<string> {
+  const brut = (await headers()).get(EN_TETE_LANGUE);
+  return brut && (locales as readonly string[]).includes(brut) ? brut : defaultLocale;
+}
+
+// Les trois familles du système ToonJaune (Kefir, Rebond, Atma) sont servies
+// depuis /public/polices via @font-face dans toonjaune.css. Plus de police
+// Google : elles définissaient l'ancien design.
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const langue = await langueDeLaRequete();
+
   return (
-    <html lang="fr" className={`${poppins.variable} antialiased`}>
+    <html lang={langue}>
       <body>
         {/* Google Ads — gtag.js */}
         <Script

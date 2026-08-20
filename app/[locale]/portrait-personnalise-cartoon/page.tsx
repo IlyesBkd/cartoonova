@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { BreadcrumbJsonLd, FAQJsonLd, ProductJsonLd, OrganizationJsonLd } from "@/components/structured-data";
 import { SITE_URL } from "@/lib/site";
-import { locales } from "@/i18n/config";
+import { getPricesForCurrency } from "@/lib/db";
+import { DEFAULT_PRICE_SET } from "@/lib/types";
 
 const SHARE_IMAGE = `${SITE_URL}/simpson_photos_produit/0009_1.jpg`;
 // Simple SVG components to replace lucide-react
@@ -55,12 +56,13 @@ export async function generateMetadata({
     title: "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de votre Photo | Cartoonova",
     description: "Transformez vos photos en portraits personnalisés style cartoon ! Créez votre caricature unique en quelques clics. Idée cadeau originale parfaite. Qualité garantie, livraison rapide. Découvrez Cartoonova !",
     metadataBase: new URL(SITE_URL),
-    alternates: {
-      canonical: path,
-      languages: Object.fromEntries(
-        locales.map((l) => [l, `${SITE_URL}/${l}/portrait-personnalise-cartoon`])
-      ),
-    },
+    /* Pas de `languages` ici, et c'est delibere : le corps de cette page est
+       redige en francais et l'est reste dans les cinq langues — titre, texte,
+       FAQ et JSON-LD compris. Annoncer une version allemande qui sert du
+       francais, c'est declarer un hreflang faux. Les versions non francaises
+       passent donc en `noindex` (voir plus bas) jusqu'a leur reecriture dans
+       la langue, prevue au lot « pages piliers » de la refonte. */
+    alternates: { canonical: `${SITE_URL}${path}` },
     openGraph: {
       title: "Portrait Personnalisé Cartoon - Cartoonova",
       description: "Créez votre caricature personnalisée à partir de votre photo. Cadeau unique et original !",
@@ -84,10 +86,10 @@ export async function generateMetadata({
       images: [SHARE_IMAGE],
     },
     robots: {
-      index: true,
+      index: locale === "fr",
       follow: true,
       googleBot: {
-        index: true,
+        index: locale === "fr",
         follow: true,
         "max-video-preview": -1,
         "max-image-preview": "large",
@@ -105,6 +107,17 @@ export default async function PortraitPersonnaliseCartoon({
   const { locale } = await params;
   const pageUrl = `${SITE_URL}/${locale}/portrait-personnalise-cartoon`;
 
+  /* Le prix annonce venait d'un « 49 » ecrit en dur, sans lien avec le moteur
+     tarifaire. Un ecart entre le prix balise et le prix paye est exactement ce
+     qui fait suspendre un compte Merchant — il vient donc de la base, comme
+     partout ailleurs, avec le meme repli qu'en fiche produit. */
+  let prixBase = DEFAULT_PRICE_SET.base;
+  try {
+    prixBase = (await getPricesForCurrency("EUR")).base;
+  } catch {
+    // La page reste servie meme si la base est injoignable.
+  }
+
   const structuredData = {
     product: {
       name: "Portrait Personnalisé Cartoon",
@@ -112,7 +125,7 @@ export default async function PortraitPersonnaliseCartoon({
       brand: "Cartoonova",
       offers: {
         priceCurrency: "EUR",
-        price: "49",
+        price: String(prixBase),
         availability: "https://schema.org/InStock",
         priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
       },
@@ -139,7 +152,7 @@ export default async function PortraitPersonnaliseCartoon({
       },
       {
         question: "Combien de temps faut-il pour recevoir mon portrait ?",
-        answer: "Le dessin est réalisé en 24h. Si vous avez choisi une impression (poster, toile), comptez 3 à 5 jours ouvrés supplémentaires pour la fabrication et l'envoi du colis. Les options digitales sont livrées par email.",
+        answer: "Le dessin est réalisé en 2 jours. Si vous avez choisi une impression (poster, toile), comptez 3 jours ouvrés supplémentaires pour la fabrication et l'envoi du colis. Les options digitales sont livrées par email.",
       },
       {
         question: "Puis-je commander un portrait de famille ?",
@@ -174,7 +187,7 @@ export default async function PortraitPersonnaliseCartoon({
 
       <div className="min-h-screen bg-white">
         {/* Fil d'Ariane */}
-        <nav className="bg-yellow-50 border-b border-black/10 px-4 py-3">
+        <nav className="bg-creme border-b/10 px-4 py-3">
           <div className="max-w-7xl mx-auto flex items-center gap-2 text-sm">
             <Link href="/" className="text-black/60 hover:text-black transition-colors">
               Accueil
@@ -185,8 +198,8 @@ export default async function PortraitPersonnaliseCartoon({
         </nav>
 
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-yellow-400 to-yellow-300 py-20 px-4 border-b-4 border-black">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative bg-gradient-to-br from-yellow-400 to-yellow-300 py-20 px-4 border-b-4">
+          <div className="enveloppe">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h1 className="text-4xl md:text-5xl font-black text-black mb-6 leading-tight">
@@ -203,27 +216,27 @@ export default async function PortraitPersonnaliseCartoon({
                 </p>
                 <div className="flex flex-wrap gap-4 mb-8">
                   <div className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-black" />
-                    <span className="font-bold text-black">Qualité garantie</span>
+                    <Check className="w-5 h-5" />
+                    <span style={{ fontWeight: 700 }}>Qualité garantie</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-black" />
-                    <span className="font-bold text-black">Livraison rapide</span>
+                    <Zap className="w-5 h-5" />
+                    <span style={{ fontWeight: 700 }}>Livraison rapide</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-black" />
-                    <span className="font-bold text-black">Cadeau parfait</span>
+                    <Heart className="w-5 h-5" />
+                    <span style={{ fontWeight: 700 }}>Cadeau parfait</span>
                   </div>
                 </div>
                 <Link
                   href="#commander"
-                  className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
+                  className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
                 >
                   Commandez mon portrait cartoon →
                 </Link>
               </div>
               <div className="relative">
-                <div className="bg-white p-6 border-4 border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-white p-6 rounded-2xl">
                   <Image
                     src="/portrait-cartoon-exemple.jpg"
                     alt="Portrait personnalisé cartoon - exemple caricature"
@@ -233,7 +246,7 @@ export default async function PortraitPersonnaliseCartoon({
                     priority
                   />
                 </div>
-                <div className="absolute -top-4 -right-4 bg-red-500 text-white font-black px-4 py-2 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="absolute -top-4 -right-4 bg-red-500 text-white font-black px-4 py-2 rounded-full">
                   POPULAIRE ⭐
                 </div>
               </div>
@@ -242,38 +255,38 @@ export default async function PortraitPersonnaliseCartoon({
         </section>
 
         {/* Comment ça marche */}
-        <section className="py-20 px-4 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-black text-center mb-16">
+        <section className="section">
+          <div className="enveloppe">
+            <h2 className="chapeau" style={{ display: "block" }}>
               Comment ça marche ? Votre portrait cartoon en 3 étapes simples
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-20 h-20 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <span className="text-3xl font-black">1</span>
+                <div className="rond-soleil">
+                  <span style={{ fontSize: 30 }}>1</span>
                 </div>
-                <h3 className="text-xl font-black mb-4">Choisissez votre format</h3>
-                <p className="text-black/70 font-medium">
+                <h3 style={{ fontSize: 20, marginBottom: 14 }}>Choisissez votre format</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
                   Portrait ou corps entier ? Combien de personnes ? Personnalisez votre 
                   <strong> portrait personnalisé</strong> selon vos envies.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <span className="text-3xl font-black">2</span>
+                <div className="rond-soleil">
+                  <span style={{ fontSize: 30 }}>2</span>
                 </div>
-                <h3 className="text-xl font-black mb-4">Téléchargez vos photos</h3>
-                <p className="text-black/70 font-medium">
+                <h3 style={{ fontSize: 20, marginBottom: 14 }}>Téléchargez vos photos</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
                   Envoyez vos meilleures photos. Plus elles sont claires, meilleur sera votre 
                   <strong> portrait style dessin animé</strong>.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-20 h-20 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <span className="text-3xl font-black">3</span>
+                <div className="rond-soleil">
+                  <span style={{ fontSize: 30 }}>3</span>
                 </div>
-                <h3 className="text-xl font-black mb-4">Recevez votre œuvre</h3>
-                <p className="text-black/70 font-medium">
+                <h3 style={{ fontSize: 20, marginBottom: 14 }}>Recevez votre œuvre</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
                   Votre <strong>caricature personnalisée</strong> est prête ! Version digitale 
                   instantanée ou impression encadrée chez vous.
                 </p>
@@ -284,12 +297,12 @@ export default async function PortraitPersonnaliseCartoon({
 
         {/* Options d'impression */}
         <section id="commander" className="py-20 px-4 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-black text-center mb-16">
+          <div className="enveloppe">
+            <h2 className="chapeau" style={{ display: "block" }}>
               Options d'impression : Digital ou Toile, le choix parfait
             </h2>
             <div className="grid md:grid-cols-3 gap-8 mb-12">
-              <div className="bg-white p-8 border-4 border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all">
+              <div className="etape">
                 <div className="aspect-square bg-gray-100 rounded-lg mb-6 overflow-hidden">
                   <Image
                     src="/digital-option.jpg"
@@ -299,28 +312,28 @@ export default async function PortraitPersonnaliseCartoon({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-black mb-2">Digital</h3>
-                <p className="text-2xl font-black text-yellow-600 mb-4">À partir de 49€</p>
-                <p className="text-black/70 font-medium mb-4">
+                <h3 style={{ fontSize: 20, marginBottom: 8 }}>Digital</h3>
+                <p style={{ fontSize: 24, color: "var(--soleil-fonce)", marginBottom: 14 }}>À partir de 49€</p>
+                <p style={{ color: "var(--encre-doux)", marginBottom: 16 }}>
                   Fichier haute résolution parfait pour le web et l'impression locale. 
                   Votre <strong> portrait personnalisé à partir de photo </strong> instantanément.
                 </p>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Livraison immédiate</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Résolution 300 DPI</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Format JPEG/PNG</span>
                   </li>
                 </ul>
               </div>
-              <div className="bg-white p-8 border-4 border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all">
+              <div className="etape">
                 <div className="aspect-square bg-gray-100 rounded-lg mb-6 overflow-hidden">
                   <Image
                     src="/toile-option.jpg"
@@ -330,28 +343,28 @@ export default async function PortraitPersonnaliseCartoon({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-black mb-2">Portrait sur Toile</h3>
-                <p className="text-2xl font-black text-yellow-600 mb-4">À partir de 138€</p>
-                <p className="text-black/70 font-medium mb-4">
+                <h3 style={{ fontSize: 20, marginBottom: 8 }}>Portrait sur Toile</h3>
+                <p style={{ fontSize: 24, color: "var(--soleil-fonce)", marginBottom: 14 }}>À partir de 138€</p>
+                <p style={{ color: "var(--encre-doux)", marginBottom: 16 }}>
                   Œuvre d'art prête à accrocher. Votre <strong> affiche personnalisée </strong> 
                   sur toile de galerie avec cadre inclus.
                 </p>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Toile 40x60 cm</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Cadre inclus</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Livraison sécurisée</span>
                   </li>
                 </ul>
               </div>
-              <div className="bg-white p-8 border-4 border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] transition-all">
+              <div className="etape">
                 <div className="aspect-square bg-gray-100 rounded-lg mb-6 overflow-hidden">
                   <Image
                     src="/poster-option.jpg"
@@ -361,23 +374,23 @@ export default async function PortraitPersonnaliseCartoon({
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="text-xl font-black mb-2">Poster Encadré</h3>
-                <p className="text-2xl font-black text-yellow-600 mb-4">À partir de 128€</p>
-                <p className="text-black/70 font-medium mb-4">
+                <h3 style={{ fontSize: 20, marginBottom: 8 }}>Poster Encadré</h3>
+                <p style={{ fontSize: 24, color: "var(--soleil-fonce)", marginBottom: 14 }}>À partir de 128€</p>
+                <p style={{ color: "var(--encre-doux)", marginBottom: 16 }}>
                   Poster premium avec cadre moderne. Votre <strong> portrait de famille personnalisé </strong> 
                   mis en valeur comme une véritable œuvre.
                 </p>
                 <ul className="space-y-2 mb-6">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Format 30x40 cm</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Cadre aluminium</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
                     <span className="text-sm font-medium">Verre acrylique</span>
                   </li>
                 </ul>
@@ -387,48 +400,48 @@ export default async function PortraitPersonnaliseCartoon({
         </section>
 
         {/* Pourquoi Cartoonova */}
-        <section className="py-20 px-4 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-black text-center mb-16">
+        <section className="section">
+          <div className="enveloppe">
+            <h2 className="chapeau" style={{ display: "block" }}>
               Pourquoi choisir Cartoonova ? Le meilleur du portrait personnalisé
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <Star className="w-8 h-8 text-black" />
+                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
+                  <Star className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-black mb-3">Artistes Experts</h3>
-                <p className="text-black/70 font-medium">
+                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Artistes Experts</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
                   Notre équipe spécialisée dans le <strong> portrait style dessin animé </strong> 
                   garantit un résultat professionnel et fidèle à votre image.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <Shield className="w-8 h-8 text-black" />
+                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
+                  <Shield className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-black mb-3">Satisfaction Garantie</h3>
-                <p className="text-black/70 font-medium">
+                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Satisfaction Garantie</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
                   Votre <strong> portrait personnalisé </strong> est validé avec vous. 
                   Modifications possibles jusqu'à satisfaction complète.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <Zap className="w-8 h-8 text-black" />
+                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
+                  <Zap className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-black mb-3">Livraison Express</h3>
-                <p className="text-black/70 font-medium">
-                  Version digitale en 24h, impressions livrées en 3 à 5 jours. Votre
+                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Livraison Express</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
+                  Version digitale en 2 jours, impressions livrées en 5 jours. Votre
                   <strong> caricature personnalisée </strong> rapidement chez vous.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 bg-yellow-400 border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <Gift className="w-8 h-8 text-black" />
+                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
+                  <Gift className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-black mb-3">Idée Cadeau Parfaite</h3>
-                <p className="text-black/70 font-medium">
+                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Idée Cadeau Parfaite</h3>
+                <p style={{ color: "var(--encre-doux)" }}>
                   Le <strong> cadeau personnalisé original </strong> qui surprend toujours. 
                   Anniversaire, mariage, fête des mères... l'occasion parfaite !
                 </p>
@@ -439,8 +452,8 @@ export default async function PortraitPersonnaliseCartoon({
 
         {/* Idée Cadeau */}
         <section className="py-20 px-4 bg-gradient-to-br from-yellow-50 to-yellow-100">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-black text-center mb-16">
+          <div className="enveloppe">
+            <h2 className="chapeau" style={{ display: "block" }}>
               Idée Cadeau Originale : Le Portrait Personnalisé qui Surprend
             </h2>
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -454,20 +467,20 @@ export default async function PortraitPersonnaliseCartoon({
                 </p>
                 <div className="space-y-4 mb-8">
                   <div className="flex items-start gap-4">
-                    <Gift className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
+                    <Gift className="w-6 h-6 shrink-0 mt-1 text-[var(--soleil-fonce)]" />
                     <div>
-                      <h4 className="font-black mb-1">Pour tous les événements</h4>
-                      <p className="text-black/70">
+                      <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, marginBottom: 4 }}>Pour tous les événements</h4>
+                      <p style={{ color: "var(--encre-doux)" }}>
                         Anniversaire, mariage, départ à la retraite, fête des mères... 
                         Chaque occasion mérite un <strong> cadeau personnalisé unique </strong>.
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <Heart className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
+                    <Heart className="w-6 h-6 shrink-0 mt-1 text-[var(--soleil-fonce)]" />
                     <div>
-                      <h4 className="font-black mb-1">Émotion garantie</h4>
-                      <p className="text-black/70">
+                      <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, marginBottom: 4 }}>Émotion garantie</h4>
+                      <p style={{ color: "var(--encre-doux)" }}>
                         Imaginez la surprise de voir vos proches transformés en personnages 
                         cartoon. Un <strong> portrait de famille personnalisé </strong> qui fait 
                         toujours plaisir.
@@ -475,10 +488,10 @@ export default async function PortraitPersonnaliseCartoon({
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <Star className="w-6 h-6 text-yellow-600 mt-1 flex-shrink-0" />
+                    <Star className="w-6 h-6 shrink-0 mt-1 text-[var(--soleil-fonce)]" />
                     <div>
-                      <h4 className="font-black mb-1">Durable et mémorable</h4>
-                      <p className="text-black/70">
+                      <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, marginBottom: 4 }}>Durable et mémorable</h4>
+                      <p style={{ color: "var(--encre-doux)" }}>
                         Contrairement aux cadeaux éphémères, votre <strong> affiche personnalisée </strong> 
                         orne les murs pendant des années.
                       </p>
@@ -487,51 +500,51 @@ export default async function PortraitPersonnaliseCartoon({
                 </div>
                 <Link
                   href="#commander"
-                  className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
+                  className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
                 >
                   Commander mon cadeau personnalisé →
                 </Link>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white p-6 border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="etape" style={{ padding: 26 }}>
                   <Image
                     src="/cadeau-anniversaire.jpg"
                     alt="Portrait cadeau anniversaire"
                     width={200}
                     height={200}
-                    className="rounded-lg w-full mb-4"
+                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
                   />
-                  <h4 className="font-black text-center">Anniversaire</h4>
+                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Anniversaire</h4>
                 </div>
-                <div className="bg-white p-6 border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="etape" style={{ padding: 26 }}>
                   <Image
                     src="/cadeau-famille.jpg"
                     alt="Portrait cadeau famille"
                     width={200}
                     height={200}
-                    className="rounded-lg w-full mb-4"
+                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
                   />
-                  <h4 className="font-black text-center">Famille</h4>
+                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Famille</h4>
                 </div>
-                <div className="bg-white p-6 border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="etape" style={{ padding: 26 }}>
                   <Image
                     src="/cadeau-couple.jpg"
                     alt="Portrait cadeau couple"
                     width={200}
                     height={200}
-                    className="rounded-lg w-full mb-4"
+                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
                   />
-                  <h4 className="font-black text-center">Couple</h4>
+                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Couple</h4>
                 </div>
-                <div className="bg-white p-6 border-4 border-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="etape" style={{ padding: 26 }}>
                   <Image
                     src="/cadeau-entreprise.jpg"
                     alt="Portrait cadeau entreprise"
                     width={200}
                     height={200}
-                    className="rounded-lg w-full mb-4"
+                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
                   />
-                  <h4 className="font-black text-center">Entreprise</h4>
+                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Entreprise</h4>
                 </div>
               </div>
             </div>
@@ -539,15 +552,15 @@ export default async function PortraitPersonnaliseCartoon({
         </section>
 
         {/* FAQ */}
-        <section className="py-20 px-4 bg-white">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-black text-center mb-16">
+        <section className="section">
+          <div className="enveloppe">
+            <h2 className="chapeau" style={{ display: "block" }}>
               FAQ - Vos Questions sur nos Portraits Personnalisés
             </h2>
             <div className="space-y-6">
               {structuredData.faq.map((item, index) => (
-                <div key={index} className="bg-gray-50 border-4 border-black rounded-2xl p-6 hover:bg-yellow-50 transition-colors">
-                  <h3 className="text-lg font-black mb-3">{item.question}</h3>
+                <div key={index} className="bg-gray-50 rounded-2xl p-6 hover:bg-creme transition-colors">
+                  <h3 style={{ fontSize: 18, marginBottom: 10 }}>{item.question}</h3>
                   <p className="text-black/70 font-medium leading-relaxed">{item.answer}</p>
                 </div>
               ))}
@@ -568,25 +581,25 @@ export default async function PortraitPersonnaliseCartoon({
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Link
                 href="/simpson"
-                className="bg-yellow-400 text-black font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
+                className="bg-soleil text-black font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
               >
                 Commencer maintenant →
               </Link>
               <Link
                 href="/collections"
-                className="bg-white text-black font-black text-lg px-8 py-4 rounded-full border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
+                className="bg-white text-black font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
               >
                 Voir nos réalisations
               </Link>
             </div>
             <div className="flex justify-center gap-8 text-sm">
-              <Link href="/#avis" className="text-white/80 hover:text-white underline">
+              <Link href="/#avis" style={{ opacity: .85 }}>
                 Voir les avis clients
               </Link>
-              <Link href="/contact" className="text-white/80 hover:text-white underline">
+              <Link href="/contact" style={{ opacity: .85 }}>
                 Nous contacter
               </Link>
-              <Link href="/cgv" className="text-white/80 hover:text-white underline">
+              <Link href="/cgv" style={{ opacity: .85 }}>
                 Conditions générales
               </Link>
             </div>
