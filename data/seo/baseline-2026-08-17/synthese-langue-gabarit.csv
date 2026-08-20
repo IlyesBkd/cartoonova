@@ -1,0 +1,23 @@
+langue,gabarit,urls,clics,impressions,position_moyenne
+(sans langue),accueil,2,21,366,9
+it,accueil,1,1,72,18.78
+(sans langue),legal,3,1,57,7.35
+fr,accueil,1,2,44,5.14
+en,fiche-produit,3,0,35,2.49
+(sans langue),avis,1,0,32,11
+es,accueil,1,1,22,28.32
+de,accueil,1,0,21,38.33
+(sans langue),a-propos,1,0,19,6.63
+fr,collections,1,0,17,9.47
+(sans langue),pilier,1,0,16,5.81
+es,avis,1,0,13,7.38
+es,collections,1,0,11,8.18
+en,accueil,1,0,10,3
+en,portfolio,1,0,8,3.5
+en,legal,1,0,4,3.25
+en,contact,1,0,3,4
+de,contact,1,0,1,3
+en,a-propos,1,0,1,6
+en,collections,1,0,1,3
+fr,contact,1,0,1,4
+it,fiche-produit,1,0,1,8

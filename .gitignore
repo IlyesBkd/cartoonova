@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# secrets — rien de tout ceci ne doit entrer dans le depot, et surtout pas
+# dans public/, qui est servi tel quel par Next.
+public/**/*.json
+*-service-account*.json
+gcp-*.json
