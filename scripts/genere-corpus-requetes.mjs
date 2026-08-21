@@ -44,6 +44,7 @@ const OCCASION_MOTS = {
   it: { anniversaire: "compleanno", noel: "natale", "saint-valentin": "san valentino", "fete-des-meres": "festa della mamma", mariage: "matrimonio", depart: "pensionamento" },
   nl: { anniversaire: "verjaardag", noel: "kerst", "saint-valentin": "valentijnsdag", "fete-des-meres": "moederdag", mariage: "bruiloft", depart: "pensioen" },
   pl: { anniversaire: "urodziny", noel: "święta", "saint-valentin": "walentynki", "fete-des-meres": "dzień matki", mariage: "ślub", depart: "emerytura" },
+  sv: { anniversaire: "födelsedag", noel: "jul", "saint-valentin": "alla hjärtans dag", "fete-des-meres": "mors dag", mariage: "bröllop", depart: "pension" },
 };
 
 /** Supports d'impression proposes au configurateur. */
@@ -55,6 +56,7 @@ const FORMAT_MOTS = {
   it: ["poster", "tela", "incorniciato", "digitale"],
   nl: ["poster", "canvas", "ingelijst", "digitaal"],
   pl: ["plakat", "płótno", "w ramie", "cyfrowo"],
+  sv: ["affisch", "canvas", "inramad", "digitalt"],
 };
 
 /** Destinataires : c'est la que se joue la longue traine commerciale. */
@@ -66,6 +68,7 @@ const DESTINATAIRE_MOTS = {
   it: ["coppia", "famiglia", "bambini", "migliore amica", "collega", "cane"],
   nl: ["koppel", "gezin", "kinderen", "beste vriendin", "collega", "hond"],
   pl: ["parę", "rodzinę", "dzieci", "najlepszą przyjaciółkę", "współpracownika", "psa"],
+  sv: ["par", "familjen", "barnen", "bästa vännen", "kollega", "hunden"],
 };
 
 /* ─── motifs de requete, par langue ────────────────────────────────────── */
@@ -205,6 +208,25 @@ const MOTIFS_STYLE = {
     ["variante", I, (s) => `jak zostać postacią ${s}`],
     ["longue_traine", I, (s) => `zamień zdjęcie w ${s}`],
   ],
+  sv: [
+    // « efter foto » — d'apres photo — est la formule suedoise du sur-mesure,
+    // et « lata rita » sa variante explicite : faire dessiner.
+    ["pivot", T, (s) => `${s} porträtt efter foto`],
+    ["pivot", T, (s) => `personligt ${s} porträtt`],
+    ["variante", T, (s) => `${s} karikatyr efter foto`],
+    ["variante", T, (s) => `${s} teckning efter foto`],
+    ["variante", T, (s) => `beställ ${s} porträtt`],
+    ["variante", T, (s) => `${s} affisch personlig`],
+    ["variante", T, (s) => `${s} porträtt present`],
+    ["variante", T, (s) => `${s} porträtt köpa`],
+    ["variante", T, (s) => `${s} tecknat porträtt`],
+    ["longue_traine", T, (s) => `handritat ${s} porträtt`],
+    ["longue_traine", T, (s) => `${s} familjeporträtt personligt`],
+    ["longue_traine", T, (s) => `låt rita ${s} porträtt`],
+    ["longue_traine", T, (s) => `${s} porträtt beställa online`],
+    ["variante", I, (s) => `bli en ${s} figur`],
+    ["longue_traine", I, (s) => `förvandla foto till ${s}`],
+  ],
 };
 
 /** Motifs croisant un univers et une occasion. */
@@ -216,6 +238,7 @@ const MOTIFS_OCCASION = {
   it: [(s, o) => `regalo ${o} ritratto ${s}`, (s, o) => `ritratto ${s} per ${o}`, (s, o) => `idea regalo ${o} ${s}`],
   nl: [(s, o) => `${s} portret cadeau ${o}`, (s, o) => `${o} cadeau ${s} portret`, (s, o) => `cadeau-idee ${o} ${s}`],
   pl: [(s, o) => `portret ${s} na ${o}`, (s, o) => `prezent na ${o} portret ${s}`, (s, o) => `pomysł na prezent ${o} ${s}`],
+  sv: [(s, o) => `${s} porträtt present ${o}`, (s, o) => `present ${o} ${s} porträtt`, (s, o) => `presenttips ${o} ${s}`],
 };
 
 const MOTIFS_FORMAT = {
@@ -226,6 +249,7 @@ const MOTIFS_FORMAT = {
   it: (s, f) => `ritratto ${s} personalizzato ${f}`,
   nl: (s, f) => `${s} portret gepersonaliseerd ${f}`,
   pl: (s, f) => `portret ${s} spersonalizowany ${f}`,
+  sv: (s, f) => `${s} porträtt personligt ${f}`,
 };
 
 const MOTIFS_DESTINATAIRE = {
@@ -236,6 +260,7 @@ const MOTIFS_DESTINATAIRE = {
   it: (s, d) => `ritratto ${s} personalizzato ${d}`,
   nl: (s, d) => `${s} portret voor ${d}`,
   pl: (s, d) => `portret ${s} dla ${d}`,
+  sv: (s, d) => `${s} porträtt till ${d}`,
 };
 
 /** Requetes sans univers : elles visent la page pilier ou le catalogue. */
@@ -303,6 +328,15 @@ const MOTIFS_GENERIQUES = {
     ["longue_traine", I, "zamień zdjęcie w rysunek", "pilier"],
     ["variante", T, "style portretów spersonalizowanych", "catalogue"],
   ],
+  sv: [
+    ["pivot", T, "porträtt efter foto", "pilier"],
+    ["pivot", T, "personligt porträtt", "pilier"],
+    ["variante", T, "karikatyr efter foto", "pilier"],
+    ["variante", T, "handritat porträtt beställa", "pilier"],
+    ["longue_traine", T, "familjeporträtt efter foto", "pilier"],
+    ["longue_traine", I, "förvandla foto till teckning", "pilier"],
+    ["variante", T, "tecknade porträttstilar", "catalogue"],
+  ],
 };
 
 /**
@@ -331,6 +365,7 @@ const MOTIFS_CONCURRENT = {
   it: [(m) => `${m} recensioni`, (m) => `alternativa a ${m}`],
   nl: [(m) => `${m} ervaringen`, (m) => `${m} alternatief`],
   pl: [(m) => `${m} opinie`, (m) => `${m} alternatywa`],
+  sv: [(m) => `${m} omdöme`, (m) => `${m} alternativ`],
 };
 
 /* ─── generation ───────────────────────────────────────────────────────── */

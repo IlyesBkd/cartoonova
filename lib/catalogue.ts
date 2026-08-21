@@ -27,6 +27,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     it: "Ritratti Manga",
     nl: "Manga Portretten",
     pl: "Portrety Manga",
+    sv: "Manga-porträtt",
   },
   cartoon: {
     fr: "Portrait Cartoon",
@@ -36,6 +37,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     it: "Ritratti Cartoon",
     nl: "Cartoon Portretten",
     pl: "Portrety Cartoon",
+    sv: "Cartoon-porträtt",
   },
   comics: {
     fr: "Portrait Comics",
@@ -45,6 +47,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     it: "Ritratti Comics",
     nl: "Comics Portretten",
     pl: "Portrety Komiksowe",
+    sv: "Serieporträtt",
   },
   cinema: {
     fr: "Portrait Cinéma",
@@ -54,6 +57,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     it: "Ritratti Cinema",
     nl: "Film Portretten",
     pl: "Portrety Filmowe",
+    sv: "Filmporträtt",
   },
 };
 
@@ -65,10 +69,10 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
  * d'action. Le nom complet reste affiché en titre du panneau ouvert.
  */
 export const NOMS_CATEGORIE_COURT: Record<Categorie, Record<Locale, string>> = {
-  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga", pl: "Manga" },
-  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon", pl: "Cartoon" },
-  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics", pl: "Komiks" },
-  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films", pl: "Filmy" },
+  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga", pl: "Manga", sv: "Manga" },
+  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon", pl: "Cartoon", sv: "Cartoon" },
+  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics", pl: "Komiks", sv: "Serier" },
+  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films", pl: "Filmy", sv: "Film" },
 };
 
 export interface Decor {
@@ -129,6 +133,7 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
   it: (u) => `Ritratto ${u} Personalizzato`,
   nl: (u) => `Gepersonaliseerd ${u} Portret`,
   pl: (u) => `Spersonalizowany Portret ${u}`,
+  sv: (u) => `Personligt ${u}-porträtt`,
 };
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
@@ -146,6 +151,8 @@ const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
     `Laat je foto omtoveren tot een handgetekend ${u} portret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
   pl: (u) =>
     `Zamień swoje zdjęcie w ręcznie rysowany portret ${u}. Podgląd w 48 godzin, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
+  sv: (u) =>
+    `Förvandla ditt foto till ett handritat ${u}-porträtt. Förhandsvisning inom 48 timmar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */
@@ -193,7 +200,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-attaque-des-titans-personnalise",
     handle: "portrait-attaque-des-titans-personnalise",
     univers: "Attaque des Titans",
-    universLocalise: { en: "Attack on Titan", es: "Ataque a los Titanes", de: "Attack on Titan", it: "L'attacco dei giganti", nl: "Attack on Titan", pl: "Atak Tytanów" },
+    universLocalise: { en: "Attack on Titan", es: "Ataque a los Titanes", de: "Attack on Titan", it: "L'attacco dei giganti", nl: "Attack on Titan", pl: "Atak Tytanów", sv: "Attack on Titan" },
     categorie: "manga",
     idProduit: "cartoonova-snk-portrait",
     enLigne: true,
@@ -437,7 +444,7 @@ export const CATALOGUE: Produit[] = [
     slug: "rickandmorty",
     handle: "portrait-rick-et-morty-personnalise",
     univers: "Rick et Morty",
-    universLocalise: { en: "Rick and Morty", es: "Rick y Morty", de: "Rick and Morty", it: "Rick and Morty", nl: "Rick and Morty", pl: "Rick i Morty" },
+    universLocalise: { en: "Rick and Morty", es: "Rick y Morty", de: "Rick and Morty", it: "Rick and Morty", nl: "Rick and Morty", pl: "Rick i Morty", sv: "Rick and Morty" },
     categorie: "cartoon",
     idProduit: "cartoonova-rickandmorty-portrait",
     enLigne: true,
@@ -462,7 +469,7 @@ export const CATALOGUE: Produit[] = [
     slug: "simpson",
     handle: "portrait-simpson-personnalise",
     univers: "Simpson",
-    universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie" },
+    universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie", sv: "Simpsons" },
     categorie: "cartoon",
     idProduit: "cartoonova-simpson-base",
     enLigne: true,
@@ -506,7 +513,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-tintin-personnalise",
     handle: "portrait-tintin-personnalise",
     univers: "Tintin",
-    universLocalise: { en: "Tintin", es: "Tintín", de: "Tim und Struppi", it: "Tintin", nl: "Kuifje", pl: "Tintin" },
+    universLocalise: { en: "Tintin", es: "Tintín", de: "Tim und Struppi", it: "Tintin", nl: "Kuifje", pl: "Tintin", sv: "Tintin" },
     categorie: "cartoon",
     idProduit: "cartoonova-tintin-portrait",
     enLigne: true,
@@ -641,7 +648,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-indestructibles-personnalise",
     handle: "portrait-indestructibles-personnalise",
     univers: "Les Indestructibles",
-    universLocalise: { en: "The Incredibles", es: "Los Increíbles", de: "Die Unglaublichen", it: "Gli Incredibili", nl: "The Incredibles", pl: "Iniemamocni" },
+    universLocalise: { en: "The Incredibles", es: "Los Increíbles", de: "Die Unglaublichen", it: "Gli Incredibili", nl: "The Incredibles", pl: "Iniemamocni", sv: "Superhjältarna" },
     /* Seul titre du catalogue dont l'article ne se detache pas : « Die
        Unglaublichen » ampute donne « unglaublichen », qui n'existe pas seul.
        L'anglais, lui, se passe tres bien de son article. */
@@ -841,6 +848,13 @@ const GABARIT_SLUG: Record<Locale, Record<TypeProduit, (u: string) => string>> =
     affiche: (u) => `spersonalizowany-plakat-${u}`,
     carte: (u) => `spersonalizowana-karta-${u}`,
   },
+  /* Le suedois accorde l'adjectif au genre du nom : « porträtt » et « kort »
+     sont neutres et prennent -t, « affisch » est commun et reste nu. */
+  sv: {
+    portrait: (u) => `personligt-${u}-portratt`,
+    affiche: (u) => `personlig-${u}-affisch`,
+    carte: (u) => `personligt-${u}-kort`,
+  },
 };
 
 /** Article defini en tete de slug : « les-indestructibles » → « indestructibles ». */
@@ -853,12 +867,19 @@ const ARTICLE_EN_TETE = /^(?:die|der|das|the|les|las|los|gli|la|le|el|il|lo|i|l)
  * non par le depouillement d'accent generique, qui donnerait « portrat » la ou
  * l'allemand ecrit « portraet ».
  */
-export function slugifie(texte: string): string {
-  return texte
-    .toLowerCase()
-    .replace(/ä/g, "ae")
-    .replace(/ö/g, "oe")
-    .replace(/ü/g, "ue")
+export function slugifie(texte: string, locale?: Locale): string {
+  let t = texte.toLowerCase();
+
+  /* Le trema ne se translittere pas partout pareil. L'allemand developpe —
+     ä devient ae — mais le suedois ecrit simplement a : « Superhjältarna »
+     donne superhjaltarna, pas superhjaeltarna. Appliquer la regle allemande
+     a toutes les langues produisait un slug qu'aucun Suedois ne tape. */
+  if (locale === "de") {
+    t = t.replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue");
+  }
+
+  return t
+    /* Le eszett ne se decompose pas et n'existe qu'en allemand. */
     .replace(/ß/g, "ss")
     /* Le l polonais barre est un caractere a part entiere, pas un l porteur
        d'un signe : la decomposition Unicode ne le touche pas et il
@@ -878,7 +899,7 @@ export function slugProduit(p: Produit, locale: Locale): string {
   if (SLUGS_HISTORIQUES.has(p.slug)) return p.slug;
   if (locale === "fr") return p.slug;
 
-  const univers = slugifie(universProduit(p, locale)).replace(ARTICLE_EN_TETE, "");
+  const univers = slugifie(universProduit(p, locale), locale).replace(ARTICLE_EN_TETE, "");
   return GABARIT_SLUG[locale][typeProduit(p)](univers);
 }
 

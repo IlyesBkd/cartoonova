@@ -24,6 +24,8 @@ const countryToLang: Record<string, Lang>= {
  /* Pologne : meme raison que les Pays-Bas — le site parle polonais, ces
     gabarits pas encore. */
  PL: "en",
+ /* Suede : idem. */
+ SE: "en",
 };
 
 export function getLangFromCountry(country: string | null | undefined): Lang {

@@ -65,4 +65,5 @@ export const DEFAULT_PRICES_BY_CURRENCY: PricesByCurrency = {
      s'il n'y en a pas pour le zloty c'est l'euro reel qui est converti au
      taux. Ces montants ne servent donc que si la base est vide. */
   PLN: { base: 209, fullbodyExtra: 89, extraPerson: 65, extraAnimal: 65, digital: 0, canvas: 379, poster: 339, posterSimple: 85 },
+  SEK: { base: 549, fullbodyExtra: 229, extraPerson: 169, extraAnimal: 169, digital: 0, canvas: 999, poster: 899, posterSimple: 219 },
 };

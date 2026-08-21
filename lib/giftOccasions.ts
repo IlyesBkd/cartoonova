@@ -1072,7 +1072,157 @@ const pl: OccasionTable = {
   },
 };
 
-export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl };
+/* Suedois. Ton sobre et direct, tutoiement systematique, aucune emphase — le
+   superlatif francais y sonne comme de la vente forcee. Les dates aussi
+   different : la fete des meres suedoise tombe le dernier dimanche de mai,
+   pas le deuxieme. */
+const sv: OccasionTable = {
+  anniversaire: {
+    slug: "fodelsedag",
+    label: "en födelsedag",
+    headline: (style) => `${style} till en födelsedag`,
+    intro:
+      "En födelsedag kommer tillbaka varje år, och det är just problemet: till slut har man gett allt. Ett handritat porträtt sticker ut för att det inte går att ge två gånger — det utgår från ett bestämt foto, av just den personen.",
+    bullets: [
+      "Ingen annan kan ge samma sak: teckningen utgår från ditt foto.",
+      "Det hamnar på väggen, till skillnad från de flesta födelsedagspresenter.",
+      "Teckningen är klar på 2 dagar, så även sena beställningar hinner fram.",
+    ],
+    faq: [
+      {
+        question: "Hur långt i förväg behöver jag beställa till en födelsedag?",
+        answer:
+          "Digital version: räkna med 2 dagar. Affisch eller canvas: ungefär 5 arbetsdagar från beställning till leverans — 2 dagar för teckningen, sedan 3 arbetsdagar för tryck och frakt.",
+      },
+      {
+        question: "Kan flera personer vara med på porträttet?",
+        answer:
+          "Ja. Du kan lägga till fler personer och husdjur. Skicka hellre ett skarpt foto på varje person än ett gruppfoto taget på avstånd.",
+      },
+    ],
+  },
+  noel: {
+    slug: "julklapp",
+    label: "julen",
+    headline: (style) => `${style} som julklapp`,
+    intro:
+      "Till jul är problemet inte att hitta en present, utan att hitta en som inte ligger i en låda i januari. Ett handritat familjeporträtt hänger man upp, och det påminner om ett bestämt år.",
+    bullets: [
+      "En present som packas upp inför alla och som det pratas om.",
+      "Perfekt för föräldrar eller mor- och farföräldrar som ”inte behöver något”.",
+      "Den digitala versionen går att beställa in i det sista.",
+    ],
+    faq: [
+      {
+        question: "Hur sent kan jag beställa och ändå få det till jul?",
+        answer:
+          "Sista beställningsdag visas på sidan under julperioden. I praktiken: ungefär 5 arbetsdagar för ett tryck med leverans, 2 dagar för den digitala versionen.",
+      },
+      {
+        question: "Kan jag ge bort ett porträtt som inte hunnit fram?",
+        answer:
+          "Ja: ge den digitala versionen på julafton och låt trycket komma efteråt. Många sena beställningar går till precis så.",
+      },
+    ],
+  },
+  "saint-valentin": {
+    slug: "alla-hjartans-dag",
+    label: "alla hjärtans dag",
+    headline: (style) => `${style} till alla hjärtans dag`,
+    intro:
+      "Blommor är borta efter en vecka. Ett porträtt på er två, ritat efter ett foto som betyder något, blir kvar på väggen.",
+    bullets: [
+      "Utgår från ert eget foto — ingen färdig illustration.",
+      "Fungerar även om ni sällan är med på samma bild: skicka två separata foton.",
+      "Den digitala versionen kommer via mejl, så överraskningen håller.",
+    ],
+    faq: [
+      {
+        question: "Kan vi vara två på porträttet?",
+        answer:
+          "Ja, det är den vanligaste varianten. Två separata foton räcker — tecknaren sätter ihop er i samma bild.",
+      },
+      {
+        question: "När senast behöver jag beställa till den 14 februari?",
+        answer: "Till ett tryck: ungefär 5 arbetsdagar innan. Till den digitala versionen räcker 2 dagar.",
+      },
+    ],
+  },
+  "fete-des-meres": {
+    slug: "mors-dag",
+    label: "mors dag",
+    headline: (style) => `${style} till mors dag`,
+    intro:
+      "Mors dag infaller inte samtidigt överallt — i Sverige den sista söndagen i maj. Ett ritat porträtt på barnen, eller på hela familjen, är en present som faktiskt hängs upp.",
+    bullets: [
+      "Med barnen, eller med hela familjen.",
+      "Husdjur får vara med — ofta är det de som gör porträttet.",
+      "Klart på 2 dagar, så det hinns med även om du nästan glömde bort det.",
+    ],
+    faq: [
+      {
+        question: "Kan bara barnen vara med?",
+        answer:
+          "Ja. Många beställningar ser ut precis så: bara barnen, i den stil de själva gillar.",
+      },
+      {
+        question: "När är mors dag?",
+        answer:
+          "I Sverige den sista söndagen i maj. Sista beställningsdag visas på sidan under den perioden.",
+      },
+    ],
+  },
+  mariage: {
+    slug: "brollopspresent",
+    label: "ett bröllop",
+    headline: (style) => `${style} som bröllopspresent`,
+    intro:
+      "På en önskelista står sällan något personligt. Ett porträtt på paret, ritat efter deras eget foto, sticker ut bland porslinet och kuverten.",
+    bullets: [
+      "Mer personligt än det som står på listan.",
+      "Fungerar med ett förlovningsfoto eller med ett foto från dagen.",
+      "Går även att ge i efterhand, när bröllopsbilderna är klara.",
+    ],
+    faq: [
+      {
+        question: "Kan jag beställa porträttet efter bröllopet?",
+        answer:
+          "Ja, och det blir ofta bättre: då använder du ett riktigt bröllopsfoto i stället för ett äldre.",
+      },
+      {
+        question: "Kan vittnen eller familj vara med?",
+        answer:
+          "Ja, du kan lägga till fler personer. Skicka ett separat, tydligt foto på var och en för ett skarpt resultat.",
+      },
+    ],
+  },
+  depart: {
+    slug: "avskedspresent",
+    label: "ett avsked",
+    headline: (style) => `${style} som avskedspresent`,
+    intro:
+      "En kollega som slutar får oftast ett kort och en bukett. Ett ritat porträtt — på personen eller på hela teamet — är det som blir kvar på det nya skrivbordet.",
+    bullets: [
+      "På en kollega eller på hela teamet.",
+      "Alla kan vara med och dela: en beställning, en present.",
+      "Klart på 2 dagar, även när avskedet ordnas snabbt.",
+    ],
+    faq: [
+      {
+        question: "Kan hela teamet vara med på porträttet?",
+        answer:
+          "Ja. Räkna med ett tydligt foto per person; ett gruppfoto på avstånd ger ett sämre resultat.",
+      },
+      {
+        question: "Kan vi lägga till en hälsning?",
+        answer:
+          "Du kan lämna en notering i beställningen med vad du önskar. Tecknaren tar hänsyn till den.",
+      },
+    ],
+  },
+};
+
+export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl, sv };
 
 export interface GiftPageParams {
   styleSlug: string;

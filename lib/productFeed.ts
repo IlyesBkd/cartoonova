@@ -26,6 +26,7 @@ export const FEED_DEFAULT_CURRENCY: Record<Locale, Currency> = {
   en: "USD",
   nl: "EUR",
   pl: "PLN",
+  sv: "SEK",
 };
 
 // Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork

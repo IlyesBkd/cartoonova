@@ -1,6 +1,6 @@
-export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN";
+export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN" | "SEK";
 
-export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN"];
+export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN", "SEK"];
 
 export const currencySymbols: Record<Currency, string> = {
   EUR: "€",
@@ -9,6 +9,7 @@ export const currencySymbols: Record<Currency, string> = {
   CAD: "CA$",
   AUD: "AU$",
   PLN: "zł",
+  SEK: "kr",
 };
 
 export const currencyNames: Record<Currency, string> = {
@@ -18,6 +19,7 @@ export const currencyNames: Record<Currency, string> = {
   CAD: "Canadian Dollar",
   AUD: "Australian Dollar",
   PLN: "Polish Zloty",
+  SEK: "Swedish Krona",
 };
 
 // Drapeaux : ne servent plus qu'au back-office. L'interface publique affiche
@@ -29,6 +31,7 @@ export const currencyFlags: Record<Currency, string> = {
   CAD: "🇨🇦",
   AUD: "🇦🇺",
   PLN: "🇵🇱",
+  SEK: "🇸🇪",
 };
 
 // Fixed exchange rates (base: EUR)
@@ -43,6 +46,7 @@ export const exchangeRates: Record<Currency, number> = {
      sur douze mois. Avec une table saisie a la main, c'est la devise qui
      derivera le plus vite — raison de plus pour brancher un flux de taux. */
   PLN: 4.3,
+  SEK: 11.3,
 };
 
 export function convertPrice(amountInEUR: number, currency: Currency): number {
@@ -71,6 +75,7 @@ const COUNTRY_TO_CURRENCY: Record<string, Currency> = {
   CA: "CAD",
   AU: "AUD", NZ: "AUD",
   PL: "PLN",
+  SE: "SEK",
   // Eurozone
   AT: "EUR", BE: "EUR", CY: "EUR", DE: "EUR", EE: "EUR", ES: "EUR", FI: "EUR",
   FR: "EUR", GR: "EUR", HR: "EUR", IE: "EUR", IT: "EUR", LT: "EUR", LU: "EUR",
