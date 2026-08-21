@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unsubscribeFromNewsletter } from "@/lib/db";
 import { verifyEmailToken } from "@/lib/emailToken";
-import { getLangFromCountry, type Lang } from "@/lib/email-i18n";
+import { getLangFromCountry, LANGS, type Lang } from "@/lib/email-i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +26,26 @@ const CONFIRMATION: Record<Lang, { title: string; body: string }> = {
     title: "Fatto",
     body: "Non riceverai più email di marketing da Cartoonova. Le email relative a un ordine in corso continuano ad arrivare.",
   },
+  nl: {
+    title: "Gebeurd",
+    body: "Je krijgt geen marketingmails meer van Cartoonova. Mails over een lopende bestelling blijven wel komen.",
+  },
+  pl: {
+    title: "Gotowe",
+    body: "Nie będziesz już dostawać maili marketingowych od Cartoonova. Maile dotyczące trwającego zamówienia nadal przychodzą.",
+  },
+  sv: {
+    title: "Klart",
+    body: "Du får inga fler marknadsmejl från Cartoonova. Mejl som rör en pågående beställning kommer fortfarande fram.",
+  },
+  da: {
+    title: "Sådan",
+    body: "Du får ikke flere markedsføringsmails fra Cartoonova. Mails om en igangværende bestilling kommer stadig frem.",
+  },
+  pt: {
+    title: "Feito",
+    body: "Deixas de receber emails de marketing da Cartoonova. Os emails sobre uma encomenda em curso continuam a chegar.",
+  }
 };
 
 function page(title: string, body: string, status: number) {
@@ -44,11 +64,8 @@ function page(title: string, body: string, status: number) {
 export async function GET(req: NextRequest) {
   const email = req.nextUrl.searchParams.get("email") ?? "";
   const token = req.nextUrl.searchParams.get("t") ?? "";
-  const lang = (["fr", "en", "es", "de", "it"] as const).includes(
-    req.nextUrl.searchParams.get("lang") as Lang
-  )
-    ? (req.nextUrl.searchParams.get("lang") as Lang)
-    : getLangFromCountry(null);
+  const demandee = req.nextUrl.searchParams.get("lang") as Lang;
+  const lang = LANGS.includes(demandee) ? demandee : getLangFromCountry(null);
 
   if (!email || !verifyEmailToken(email, token)) {
     return page("Lien invalide", "Ce lien de désinscription n'est pas valide.", 400);
