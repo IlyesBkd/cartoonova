@@ -1,6 +1,6 @@
-export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN" | "SEK";
+export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN" | "SEK" | "DKK";
 
-export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN", "SEK"];
+export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN", "SEK", "DKK"];
 
 export const currencySymbols: Record<Currency, string> = {
   EUR: "€",
@@ -10,6 +10,7 @@ export const currencySymbols: Record<Currency, string> = {
   AUD: "AU$",
   PLN: "zł",
   SEK: "kr",
+  DKK: "kr.",
 };
 
 export const currencyNames: Record<Currency, string> = {
@@ -20,6 +21,7 @@ export const currencyNames: Record<Currency, string> = {
   AUD: "Australian Dollar",
   PLN: "Polish Zloty",
   SEK: "Swedish Krona",
+  DKK: "Danish Krone",
 };
 
 // Drapeaux : ne servent plus qu'au back-office. L'interface publique affiche
@@ -32,6 +34,7 @@ export const currencyFlags: Record<Currency, string> = {
   AUD: "🇦🇺",
   PLN: "🇵🇱",
   SEK: "🇸🇪",
+  DKK: "🇩🇰",
 };
 
 // Fixed exchange rates (base: EUR)
@@ -47,6 +50,9 @@ export const exchangeRates: Record<Currency, number> = {
      derivera le plus vite — raison de plus pour brancher un flux de taux. */
   PLN: 4.3,
   SEK: 11.3,
+  /* La couronne danoise est arrimee a l'euro dans une bande etroite : c'est
+     la seule de la table qui ne derivera pas. */
+  DKK: 7.46,
 };
 
 export function convertPrice(amountInEUR: number, currency: Currency): number {
@@ -76,6 +82,7 @@ const COUNTRY_TO_CURRENCY: Record<string, Currency> = {
   AU: "AUD", NZ: "AUD",
   PL: "PLN",
   SE: "SEK",
+  DK: "DKK",
   // Eurozone
   AT: "EUR", BE: "EUR", CY: "EUR", DE: "EUR", EE: "EUR", ES: "EUR", FI: "EUR",
   FR: "EUR", GR: "EUR", HR: "EUR", IE: "EUR", IT: "EUR", LT: "EUR", LU: "EUR",

@@ -26,6 +26,8 @@ const countryToLang: Record<string, Lang>= {
  PL: "en",
  /* Suede : idem. */
  SE: "en",
+ /* Danemark : idem. */
+ DK: "en",
 };
 
 export function getLangFromCountry(country: string | null | undefined): Lang {

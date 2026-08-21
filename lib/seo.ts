@@ -100,4 +100,5 @@ export const OG_LOCALE: Record<Locale, string> = {
   nl: "nl_NL",
   pl: "pl_PL",
   sv: "sv_SE",
+  da: "da_DK",
 };

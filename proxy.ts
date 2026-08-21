@@ -21,6 +21,7 @@ const countryCurrencyMap: Record<string, string> = {
   AU: "AUD", NZ: "AUD",
   PL: "PLN",
   SE: "SEK",
+  DK: "DKK",
 };
 
 // Country → Locale preference for root-path geo-redirect
@@ -35,6 +36,7 @@ const countryLocaleMap: Record<string, (typeof locales)[number]> = {
   NL: "nl",
   PL: "pl",
   SE: "sv",
+  DK: "da",
 };
 
 const CURRENCY_COOKIE = "cartoonova_currency";

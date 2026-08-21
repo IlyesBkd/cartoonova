@@ -66,4 +66,5 @@ export const DEFAULT_PRICES_BY_CURRENCY: PricesByCurrency = {
      taux. Ces montants ne servent donc que si la base est vide. */
   PLN: { base: 209, fullbodyExtra: 89, extraPerson: 65, extraAnimal: 65, digital: 0, canvas: 379, poster: 339, posterSimple: 85 },
   SEK: { base: 549, fullbodyExtra: 229, extraPerson: 169, extraAnimal: 169, digital: 0, canvas: 999, poster: 899, posterSimple: 219 },
+  DKK: { base: 369, fullbodyExtra: 149, extraPerson: 115, extraAnimal: 115, digital: 0, canvas: 669, poster: 595, posterSimple: 145 },
 };

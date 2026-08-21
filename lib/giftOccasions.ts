@@ -1222,7 +1222,156 @@ const sv: OccasionTable = {
   },
 };
 
-export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl, sv };
+/* Danois. Meme registre sobre que le suedois, avec un danois plus familier
+   encore — le superlatif y sonne faux. La fete des meres danoise tombe le
+   deuxieme dimanche de mai, contrairement a la suedoise. */
+const da: OccasionTable = {
+  anniversaire: {
+    slug: "fodselsdag",
+    label: "en fødselsdag",
+    headline: (style) => `${style} til en fødselsdag`,
+    intro:
+      "En fødselsdag kommer igen hvert år, og det er lige præcis problemet: på et tidspunkt har man givet det hele. Et håndtegnet portræt skiller sig ud, fordi det ikke kan gives to gange — det tager udgangspunkt i ét bestemt foto, af netop den person.",
+    bullets: [
+      "Ingen andre kan give det samme: tegningen tager udgangspunkt i dit foto.",
+      "Det ender på væggen, i modsætning til de fleste fødselsdagsgaver.",
+      "Tegningen er klar på 2 dage, så sene bestillinger når det også.",
+    ],
+    faq: [
+      {
+        question: "Hvor lang tid før skal jeg bestille til en fødselsdag?",
+        answer:
+          "Digital version: regn med 2 dage. Plakat eller lærred: cirka 5 hverdage fra bestilling til levering — 2 dage til tegningen og derefter 3 hverdage til tryk og forsendelse.",
+      },
+      {
+        question: "Kan der være flere personer på portrættet?",
+        answer:
+          "Ja. Du kan tilføje flere personer og kæledyr. Send hellere et skarpt foto af hver person end ét gruppefoto taget på afstand.",
+      },
+    ],
+  },
+  noel: {
+    slug: "julegave",
+    label: "julen",
+    headline: (style) => `${style} som julegave`,
+    intro:
+      "Til jul er problemet ikke at finde en gave, men at finde en der ikke ligger i et skab i januar. Et håndtegnet familieportræt hænger man op, og det minder om et bestemt år.",
+    bullets: [
+      "En gave, der pakkes op foran alle, og som der bliver snakket om.",
+      "Perfekt til forældre eller bedsteforældre, der ”ikke mangler noget”.",
+      "Den digitale version kan bestilles helt til sidst.",
+    ],
+    faq: [
+      {
+        question: "Hvor sent kan jeg bestille og stadig nå det til jul?",
+        answer:
+          "Sidste bestillingsdag står på siden i juleperioden. I praksis: cirka 5 hverdage til et tryk med levering, 2 dage til den digitale version.",
+      },
+      {
+        question: "Kan jeg give et portræt, der ikke er nået frem?",
+        answer:
+          "Ja: giv den digitale version juleaften og lad trykket komme bagefter. Mange sene bestillinger foregår præcis sådan.",
+      },
+    ],
+  },
+  "saint-valentin": {
+    slug: "valentinsdag",
+    label: "valentinsdag",
+    headline: (style) => `${style} til valentinsdag`,
+    intro:
+      "Blomster er væk efter en uge. Et portræt af jer to, tegnet efter et foto der betyder noget, bliver hængende på væggen.",
+    bullets: [
+      "Tager udgangspunkt i jeres eget foto — ingen færdig illustration.",
+      "Virker også, hvis I sjældent er på billede sammen: send to separate fotos.",
+      "Den digitale version kommer på mail, så overraskelsen holder.",
+    ],
+    faq: [
+      {
+        question: "Kan vi være to på portrættet?",
+        answer:
+          "Ja, det er den mest bestilte variant. To separate fotos er nok — tegneren sætter jer sammen i ét billede.",
+      },
+      {
+        question: "Hvornår skal jeg senest bestille til 14. februar?",
+        answer: "Til et tryk: cirka 5 hverdage før. Til den digitale version er 2 dage nok.",
+      },
+    ],
+  },
+  "fete-des-meres": {
+    slug: "mors-dag",
+    label: "mors dag",
+    headline: (style) => `${style} til mors dag`,
+    intro:
+      "Mors dag falder ikke samme dag alle steder — i Danmark den anden søndag i maj. Et tegnet portræt af børnene, eller af hele familien, er en gave der rent faktisk bliver hængt op.",
+    bullets: [
+      "Med børnene, eller med hele familien.",
+      "Kæledyr må gerne være med — ofte er det dem, der gør portrættet.",
+      "Klar på 2 dage, så det kan nås, selv hvis du næsten havde glemt det.",
+    ],
+    faq: [
+      {
+        question: "Kan det være børnene alene?",
+        answer:
+          "Ja. Mange bestillinger ser præcis sådan ud: kun børnene, i den stil de selv kan lide.",
+      },
+      {
+        question: "Hvornår er mors dag?",
+        answer:
+          "I Danmark den anden søndag i maj. Sidste bestillingsdag står på siden omkring den periode.",
+      },
+    ],
+  },
+  mariage: {
+    slug: "bryllupsgave",
+    label: "et bryllup",
+    headline: (style) => `${style} som bryllupsgave`,
+    intro:
+      "På en ønskeliste står der sjældent noget personligt. Et portræt af parret, tegnet efter deres eget foto, skiller sig ud mellem stellet og kuverterne.",
+    bullets: [
+      "Mere personligt end det, der står på listen.",
+      "Virker med et forlovelsesfoto eller med et foto fra dagen.",
+      "Kan også gives bagefter, når bryllupsbillederne er klar.",
+    ],
+    faq: [
+      {
+        question: "Kan jeg bestille portrættet efter brylluppet?",
+        answer:
+          "Ja, og det bliver ofte bedre: så bruger du et rigtigt bryllupsfoto i stedet for et ældre.",
+      },
+      {
+        question: "Kan forlovere eller familie være med?",
+        answer:
+          "Ja, du kan tilføje flere personer. Send et separat, tydeligt foto af hver enkelt for et skarpt resultat.",
+      },
+    ],
+  },
+  depart: {
+    slug: "afskedsgave",
+    label: "en afsked",
+    headline: (style) => `${style} som afskedsgave`,
+    intro:
+      "En kollega der stopper får som regel et kort og en buket. Et tegnet portræt — af personen eller af hele teamet — er det, der bliver stående på det nye skrivebord.",
+    bullets: [
+      "Af én kollega eller af hele teamet.",
+      "Alle kan være med til at betale: én bestilling, én gave.",
+      "Klar på 2 dage, også når afskeden skal arrangeres hurtigt.",
+    ],
+    faq: [
+      {
+        question: "Kan hele teamet være med på portrættet?",
+        answer:
+          "Ja. Regn med ét tydeligt foto per person; et gruppefoto på afstand giver et dårligere resultat.",
+      },
+      {
+        question: "Kan vi lægge en hilsen ved?",
+        answer:
+          "Du kan skrive en note i bestillingen med det, du gerne vil. Tegneren tager højde for den.",
+      },
+    ],
+  },
+};
+
+export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl, sv, da };
 
 export interface GiftPageParams {
   styleSlug: string;

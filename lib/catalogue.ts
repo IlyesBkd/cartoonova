@@ -28,6 +28,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     nl: "Manga Portretten",
     pl: "Portrety Manga",
     sv: "Manga-porträtt",
+    da: "Manga-portrætter",
   },
   cartoon: {
     fr: "Portrait Cartoon",
@@ -38,6 +39,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     nl: "Cartoon Portretten",
     pl: "Portrety Cartoon",
     sv: "Cartoon-porträtt",
+    da: "Cartoon-portrætter",
   },
   comics: {
     fr: "Portrait Comics",
@@ -48,6 +50,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     nl: "Comics Portretten",
     pl: "Portrety Komiksowe",
     sv: "Serieporträtt",
+    da: "Tegneserieportrætter",
   },
   cinema: {
     fr: "Portrait Cinéma",
@@ -58,6 +61,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     nl: "Film Portretten",
     pl: "Portrety Filmowe",
     sv: "Filmporträtt",
+    da: "Filmportrætter",
   },
 };
 
@@ -69,10 +73,10 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
  * d'action. Le nom complet reste affiché en titre du panneau ouvert.
  */
 export const NOMS_CATEGORIE_COURT: Record<Categorie, Record<Locale, string>> = {
-  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga", pl: "Manga", sv: "Manga" },
-  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon", pl: "Cartoon", sv: "Cartoon" },
-  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics", pl: "Komiks", sv: "Serier" },
-  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films", pl: "Filmy", sv: "Film" },
+  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga", pl: "Manga", sv: "Manga", da: "Manga" },
+  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon", pl: "Cartoon", sv: "Cartoon", da: "Cartoon" },
+  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics", pl: "Komiks", sv: "Serier", da: "Tegneserier" },
+  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films", pl: "Filmy", sv: "Film", da: "Film" },
 };
 
 export interface Decor {
@@ -134,6 +138,7 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
   nl: (u) => `Gepersonaliseerd ${u} Portret`,
   pl: (u) => `Spersonalizowany Portret ${u}`,
   sv: (u) => `Personligt ${u}-porträtt`,
+  da: (u) => `Personligt ${u}-portræt`,
 };
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
@@ -153,6 +158,8 @@ const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
     `Zamień swoje zdjęcie w ręcznie rysowany portret ${u}. Podgląd w 48 godzin, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
   sv: (u) =>
     `Förvandla ditt foto till ett handritat ${u}-porträtt. Förhandsvisning inom 48 timmar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
+  da: (u) =>
+    `Forvandl dit foto til et håndtegnet ${u}-portræt. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */
@@ -200,7 +207,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-attaque-des-titans-personnalise",
     handle: "portrait-attaque-des-titans-personnalise",
     univers: "Attaque des Titans",
-    universLocalise: { en: "Attack on Titan", es: "Ataque a los Titanes", de: "Attack on Titan", it: "L'attacco dei giganti", nl: "Attack on Titan", pl: "Atak Tytanów", sv: "Attack on Titan" },
+    universLocalise: { en: "Attack on Titan", es: "Ataque a los Titanes", de: "Attack on Titan", it: "L'attacco dei giganti", nl: "Attack on Titan", pl: "Atak Tytanów", sv: "Attack on Titan", da: "Attack on Titan" },
     categorie: "manga",
     idProduit: "cartoonova-snk-portrait",
     enLigne: true,
@@ -444,7 +451,7 @@ export const CATALOGUE: Produit[] = [
     slug: "rickandmorty",
     handle: "portrait-rick-et-morty-personnalise",
     univers: "Rick et Morty",
-    universLocalise: { en: "Rick and Morty", es: "Rick y Morty", de: "Rick and Morty", it: "Rick and Morty", nl: "Rick and Morty", pl: "Rick i Morty", sv: "Rick and Morty" },
+    universLocalise: { en: "Rick and Morty", es: "Rick y Morty", de: "Rick and Morty", it: "Rick and Morty", nl: "Rick and Morty", pl: "Rick i Morty", sv: "Rick and Morty", da: "Rick and Morty" },
     categorie: "cartoon",
     idProduit: "cartoonova-rickandmorty-portrait",
     enLigne: true,
@@ -469,7 +476,7 @@ export const CATALOGUE: Produit[] = [
     slug: "simpson",
     handle: "portrait-simpson-personnalise",
     univers: "Simpson",
-    universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie", sv: "Simpsons" },
+    universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie", sv: "Simpsons", da: "Simpsons" },
     categorie: "cartoon",
     idProduit: "cartoonova-simpson-base",
     enLigne: true,
@@ -513,7 +520,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-tintin-personnalise",
     handle: "portrait-tintin-personnalise",
     univers: "Tintin",
-    universLocalise: { en: "Tintin", es: "Tintín", de: "Tim und Struppi", it: "Tintin", nl: "Kuifje", pl: "Tintin", sv: "Tintin" },
+    universLocalise: { en: "Tintin", es: "Tintín", de: "Tim und Struppi", it: "Tintin", nl: "Kuifje", pl: "Tintin", sv: "Tintin", da: "Tintin" },
     categorie: "cartoon",
     idProduit: "cartoonova-tintin-portrait",
     enLigne: true,
@@ -648,7 +655,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-indestructibles-personnalise",
     handle: "portrait-indestructibles-personnalise",
     univers: "Les Indestructibles",
-    universLocalise: { en: "The Incredibles", es: "Los Increíbles", de: "Die Unglaublichen", it: "Gli Incredibili", nl: "The Incredibles", pl: "Iniemamocni", sv: "Superhjältarna" },
+    universLocalise: { en: "The Incredibles", es: "Los Increíbles", de: "Die Unglaublichen", it: "Gli Incredibili", nl: "The Incredibles", pl: "Iniemamocni", sv: "Superhjältarna", da: "De Utrolige" },
     /* Seul titre du catalogue dont l'article ne se detache pas : « Die
        Unglaublichen » ampute donne « unglaublichen », qui n'existe pas seul.
        L'anglais, lui, se passe tres bien de son article. */
@@ -855,6 +862,13 @@ const GABARIT_SLUG: Record<Locale, Record<TypeProduit, (u: string) => string>> =
     affiche: (u) => `personlig-${u}-affisch`,
     carte: (u) => `personligt-${u}-kort`,
   },
+  /* Meme accord qu'en suedois : « portræt » et « kort » sont neutres et
+     prennent -t, « plakat » est commun et reste nu. */
+  da: {
+    portrait: (u) => `personligt-${u}-portraet`,
+    affiche: (u) => `personlig-${u}-plakat`,
+    carte: (u) => `personligt-${u}-kort`,
+  },
 };
 
 /** Article defini en tete de slug : « les-indestructibles » → « indestructibles ». */
@@ -867,24 +881,45 @@ const ARTICLE_EN_TETE = /^(?:die|der|das|the|les|las|los|gli|la|le|el|il|lo|i|l)
  * non par le depouillement d'accent generique, qui donnerait « portrat » la ou
  * l'allemand ecrit « portraet ».
  */
+/**
+ * Translitterations propres a une langue.
+ *
+ * Deux raisons de ne pas s'en remettre a la seule decomposition Unicode.
+ *
+ * D'abord, elle ne suffit pas : ß, ł, æ et ø sont des lettres a part entiere,
+ * pas des lettres porteuses d'un signe. La normalisation ne les touche pas et
+ * le nettoyage qui suit les effacerait purement et simplement — « Køge »
+ * deviendrait « k-ge ».
+ *
+ * Ensuite, la meme lettre ne se transcrit pas partout pareil. L'allemand
+ * developpe le trema — ä donne ae — la ou le suedois ecrit simplement a, et
+ * le danois transcrit å en aa. Appliquer la regle allemande a tout le monde
+ * produisait « superhjaeltarna » la ou un Suedois tape « superhjaltarna ».
+ */
+const TRANSLITTERATIONS: Partial<Record<Locale, [RegExp, string][]>> = {
+  de: [[/ä/g, "ae"], [/ö/g, "oe"], [/ü/g, "ue"]],
+  da: [[/æ/g, "ae"], [/ø/g, "oe"], [/å/g, "aa"]],
+};
+
+/** Lettres sans equivalent decompose, quelle que soit la langue. */
+const LETTRES_ENTIERES: [RegExp, string][] = [
+  [/ß/g, "ss"],
+  [/ł/g, "l"],
+  [/æ/g, "ae"],
+  [/ø/g, "oe"],
+];
+
 export function slugifie(texte: string, locale?: Locale): string {
   let t = texte.toLowerCase();
 
-  /* Le trema ne se translittere pas partout pareil. L'allemand developpe —
-     ä devient ae — mais le suedois ecrit simplement a : « Superhjältarna »
-     donne superhjaltarna, pas superhjaeltarna. Appliquer la regle allemande
-     a toutes les langues produisait un slug qu'aucun Suedois ne tape. */
-  if (locale === "de") {
-    t = t.replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue");
+  for (const [motif, remplacement] of TRANSLITTERATIONS[locale as Locale] ?? []) {
+    t = t.replace(motif, remplacement);
+  }
+  for (const [motif, remplacement] of LETTRES_ENTIERES) {
+    t = t.replace(motif, remplacement);
   }
 
   return t
-    /* Le eszett ne se decompose pas et n'existe qu'en allemand. */
-    .replace(/ß/g, "ss")
-    /* Le l polonais barre est un caractere a part entiere, pas un l porteur
-       d'un signe : la decomposition Unicode ne le touche pas et il
-       disparaitrait du slug. */
-    .replace(/ł/g, "l")
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
