@@ -46,6 +46,7 @@ const OCCASION_MOTS = {
   pl: { anniversaire: "urodziny", noel: "święta", "saint-valentin": "walentynki", "fete-des-meres": "dzień matki", mariage: "ślub", depart: "emerytura" },
   sv: { anniversaire: "födelsedag", noel: "jul", "saint-valentin": "alla hjärtans dag", "fete-des-meres": "mors dag", mariage: "bröllop", depart: "pension" },
   da: { anniversaire: "fødselsdag", noel: "jul", "saint-valentin": "valentinsdag", "fete-des-meres": "mors dag", mariage: "bryllup", depart: "pension" },
+  pt: { anniversaire: "aniversário", noel: "natal", "saint-valentin": "dia dos namorados", "fete-des-meres": "dia da mãe", mariage: "casamento", depart: "reforma" },
 };
 
 /** Supports d'impression proposes au configurateur. */
@@ -59,6 +60,7 @@ const FORMAT_MOTS = {
   pl: ["plakat", "płótno", "w ramie", "cyfrowo"],
   sv: ["affisch", "canvas", "inramad", "digitalt"],
   da: ["plakat", "lærred", "indrammet", "digitalt"],
+  pt: ["poster", "tela", "emoldurado", "digital"],
 };
 
 /** Destinataires : c'est la que se joue la longue traine commerciale. */
@@ -72,6 +74,7 @@ const DESTINATAIRE_MOTS = {
   pl: ["parę", "rodzinę", "dzieci", "najlepszą przyjaciółkę", "współpracownika", "psa"],
   sv: ["par", "familjen", "barnen", "bästa vännen", "kollega", "hunden"],
   da: ["par", "familien", "børnene", "bedste veninde", "kollega", "hunden"],
+  pt: ["casal", "família", "filhos", "melhor amiga", "colega", "cão"],
 };
 
 /* ─── motifs de requete, par langue ────────────────────────────────────── */
@@ -249,6 +252,24 @@ const MOTIFS_STYLE = {
     ["variante", I, (s) => `bliv en ${s} figur`],
     ["longue_traine", I, (s) => `lav foto om til ${s}`],
   ],
+  pt: [
+    // « por encomenda » et « a partir de foto » signalent le sur-mesure en
+    // portugais. Le vocabulaire est europeen : « prenda », pas « presente ».
+    ["pivot", T, (s) => `retrato ${s} personalizado`],
+    ["pivot", T, (s) => `retrato ${s} por encomenda`],
+    ["variante", T, (s) => `caricatura ${s} a partir de foto`],
+    ["variante", T, (s) => `desenho ${s} a partir de foto`],
+    ["variante", T, (s) => `poster ${s} personalizado`],
+    ["variante", T, (s) => `prenda retrato ${s}`],
+    ["variante", T, (s) => `comprar retrato ${s}`],
+    ["variante", T, (s) => `retrato ${s} cartoon`],
+    ["longue_traine", T, (s) => `retrato ${s} a partir de uma foto`],
+    ["longue_traine", T, (s) => `retrato ${s} desenhado à mão`],
+    ["longue_traine", T, (s) => `encomendar retrato ${s}`],
+    ["longue_traine", T, (s) => `retrato de família ${s} personalizado`],
+    ["variante", I, (s) => `tornar-se personagem ${s}`],
+    ["longue_traine", I, (s) => `transformar foto em ${s}`],
+  ],
 };
 
 /** Motifs croisant un univers et une occasion. */
@@ -262,6 +283,7 @@ const MOTIFS_OCCASION = {
   pl: [(s, o) => `portret ${s} na ${o}`, (s, o) => `prezent na ${o} portret ${s}`, (s, o) => `pomysł na prezent ${o} ${s}`],
   sv: [(s, o) => `${s} porträtt present ${o}`, (s, o) => `present ${o} ${s} porträtt`, (s, o) => `presenttips ${o} ${s}`],
   da: [(s, o) => `${s} portræt gave ${o}`, (s, o) => `gave ${o} ${s} portræt`, (s, o) => `gaveidé ${o} ${s}`],
+  pt: [(s, o) => `prenda ${o} retrato ${s}`, (s, o) => `retrato ${s} para ${o}`, (s, o) => `ideia de prenda ${o} ${s}`],
 };
 
 const MOTIFS_FORMAT = {
@@ -274,6 +296,7 @@ const MOTIFS_FORMAT = {
   pl: (s, f) => `portret ${s} spersonalizowany ${f}`,
   sv: (s, f) => `${s} porträtt personligt ${f}`,
   da: (s, f) => `${s} portræt personligt ${f}`,
+  pt: (s, f) => `retrato ${s} personalizado ${f}`,
 };
 
 const MOTIFS_DESTINATAIRE = {
@@ -286,6 +309,7 @@ const MOTIFS_DESTINATAIRE = {
   pl: (s, d) => `portret ${s} dla ${d}`,
   sv: (s, d) => `${s} porträtt till ${d}`,
   da: (s, d) => `${s} portræt til ${d}`,
+  pt: (s, d) => `retrato ${s} para ${d}`,
 };
 
 /** Requetes sans univers : elles visent la page pilier ou le catalogue. */
@@ -371,6 +395,15 @@ const MOTIFS_GENERIQUES = {
     ["longue_traine", I, "lav foto om til tegning", "pilier"],
     ["variante", T, "tegnede portrætstile", "catalogue"],
   ],
+  pt: [
+    ["pivot", T, "retrato personalizado a partir de foto", "pilier"],
+    ["pivot", T, "retrato desenhado à mão por encomenda", "pilier"],
+    ["variante", T, "caricatura personalizada a partir de foto", "pilier"],
+    ["variante", T, "mandar desenhar um retrato", "pilier"],
+    ["longue_traine", T, "retrato de família personalizado", "pilier"],
+    ["longue_traine", I, "transformar foto em desenho", "pilier"],
+    ["variante", T, "estilos de retratos personalizados", "catalogue"],
+  ],
 };
 
 /**
@@ -401,6 +434,7 @@ const MOTIFS_CONCURRENT = {
   pl: [(m) => `${m} opinie`, (m) => `${m} alternatywa`],
   sv: [(m) => `${m} omdöme`, (m) => `${m} alternativ`],
   da: [(m) => `${m} anmeldelse`, (m) => `${m} alternativ`],
+  pt: [(m) => `${m} opiniões`, (m) => `alternativa a ${m}`],
 };
 
 /* ─── generation ───────────────────────────────────────────────────────── */

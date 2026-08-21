@@ -29,6 +29,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     pl: "Portrety Manga",
     sv: "Manga-porträtt",
     da: "Manga-portrætter",
+    pt: "Retratos Manga",
   },
   cartoon: {
     fr: "Portrait Cartoon",
@@ -40,6 +41,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     pl: "Portrety Cartoon",
     sv: "Cartoon-porträtt",
     da: "Cartoon-portrætter",
+    pt: "Retratos Cartoon",
   },
   comics: {
     fr: "Portrait Comics",
@@ -51,6 +53,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     pl: "Portrety Komiksowe",
     sv: "Serieporträtt",
     da: "Tegneserieportrætter",
+    pt: "Retratos de Banda Desenhada",
   },
   cinema: {
     fr: "Portrait Cinéma",
@@ -62,6 +65,7 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
     pl: "Portrety Filmowe",
     sv: "Filmporträtt",
     da: "Filmportrætter",
+    pt: "Retratos de Cinema",
   },
 };
 
@@ -73,10 +77,10 @@ export const NOMS_CATEGORIE: Record<Categorie, Record<Locale, string>> = {
  * d'action. Le nom complet reste affiché en titre du panneau ouvert.
  */
 export const NOMS_CATEGORIE_COURT: Record<Categorie, Record<Locale, string>> = {
-  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga", pl: "Manga", sv: "Manga", da: "Manga" },
-  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon", pl: "Cartoon", sv: "Cartoon", da: "Cartoon" },
-  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics", pl: "Komiks", sv: "Serier", da: "Tegneserier" },
-  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films", pl: "Filmy", sv: "Film", da: "Film" },
+  manga: { fr: "Manga", en: "Manga", es: "Manga", de: "Manga", it: "Manga", nl: "Manga", pl: "Manga", sv: "Manga", da: "Manga", pt: "Manga" },
+  cartoon: { fr: "Cartoon", en: "Cartoon", es: "Cartoon", de: "Cartoon", it: "Cartoon", nl: "Cartoon", pl: "Cartoon", sv: "Cartoon", da: "Cartoon", pt: "Cartoon" },
+  comics: { fr: "Comics", en: "Comics", es: "Comics", de: "Comics", it: "Comics", nl: "Comics", pl: "Komiks", sv: "Serier", da: "Tegneserier", pt: "BD" },
+  cinema: { fr: "Cinéma", en: "Movies", es: "Cine", de: "Kino", it: "Cinema", nl: "Films", pl: "Filmy", sv: "Film", da: "Film", pt: "Cinema" },
 };
 
 export interface Decor {
@@ -139,6 +143,7 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
   pl: (u) => `Spersonalizowany Portret ${u}`,
   sv: (u) => `Personligt ${u}-porträtt`,
   da: (u) => `Personligt ${u}-portræt`,
+  pt: (u) => `Retrato ${u} Personalizado`,
 };
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
@@ -160,6 +165,8 @@ const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
     `Förvandla ditt foto till ett handritat ${u}-porträtt. Förhandsvisning inom 48 timmar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
   da: (u) =>
     `Forvandl dit foto til et håndtegnet ${u}-portræt. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
+  pt: (u) =>
+    `Transforma a tua foto num retrato ${u} desenhado à mão. Pré-visualização em 48 h, retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */
@@ -207,7 +214,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-attaque-des-titans-personnalise",
     handle: "portrait-attaque-des-titans-personnalise",
     univers: "Attaque des Titans",
-    universLocalise: { en: "Attack on Titan", es: "Ataque a los Titanes", de: "Attack on Titan", it: "L'attacco dei giganti", nl: "Attack on Titan", pl: "Atak Tytanów", sv: "Attack on Titan", da: "Attack on Titan" },
+    universLocalise: { en: "Attack on Titan", es: "Ataque a los Titanes", de: "Attack on Titan", it: "L'attacco dei giganti", nl: "Attack on Titan", pl: "Atak Tytanów", sv: "Attack on Titan", da: "Attack on Titan", pt: "Ataque dos Titãs" },
     categorie: "manga",
     idProduit: "cartoonova-snk-portrait",
     enLigne: true,
@@ -451,7 +458,7 @@ export const CATALOGUE: Produit[] = [
     slug: "rickandmorty",
     handle: "portrait-rick-et-morty-personnalise",
     univers: "Rick et Morty",
-    universLocalise: { en: "Rick and Morty", es: "Rick y Morty", de: "Rick and Morty", it: "Rick and Morty", nl: "Rick and Morty", pl: "Rick i Morty", sv: "Rick and Morty", da: "Rick and Morty" },
+    universLocalise: { en: "Rick and Morty", es: "Rick y Morty", de: "Rick and Morty", it: "Rick and Morty", nl: "Rick and Morty", pl: "Rick i Morty", sv: "Rick and Morty", da: "Rick and Morty", pt: "Rick and Morty" },
     categorie: "cartoon",
     idProduit: "cartoonova-rickandmorty-portrait",
     enLigne: true,
@@ -476,7 +483,10 @@ export const CATALOGUE: Produit[] = [
     slug: "simpson",
     handle: "portrait-simpson-personnalise",
     univers: "Simpson",
-    universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie", sv: "Simpsons", da: "Simpsons" },
+    universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie", sv: "Simpsons", da: "Simpsons", pt: "Os Simpsons" },
+    /* Le gabarit portugais donnerait « Retrato Os Simpsons Personalizado ».
+       Un lusophone contracte la preposition et l'article : « dos Simpsons ». */
+    titre: { pt: "Retrato dos Simpsons Personalizado" },
     categorie: "cartoon",
     idProduit: "cartoonova-simpson-base",
     enLigne: true,
@@ -520,7 +530,7 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-tintin-personnalise",
     handle: "portrait-tintin-personnalise",
     univers: "Tintin",
-    universLocalise: { en: "Tintin", es: "Tintín", de: "Tim und Struppi", it: "Tintin", nl: "Kuifje", pl: "Tintin", sv: "Tintin", da: "Tintin" },
+    universLocalise: { en: "Tintin", es: "Tintín", de: "Tim und Struppi", it: "Tintin", nl: "Kuifje", pl: "Tintin", sv: "Tintin", da: "Tintin", pt: "Tintim" },
     categorie: "cartoon",
     idProduit: "cartoonova-tintin-portrait",
     enLigne: true,
@@ -655,7 +665,8 @@ export const CATALOGUE: Produit[] = [
     slug: "portrait-indestructibles-personnalise",
     handle: "portrait-indestructibles-personnalise",
     univers: "Les Indestructibles",
-    universLocalise: { en: "The Incredibles", es: "Los Increíbles", de: "Die Unglaublichen", it: "Gli Incredibili", nl: "The Incredibles", pl: "Iniemamocni", sv: "Superhjältarna", da: "De Utrolige" },
+    universLocalise: { en: "The Incredibles", es: "Los Increíbles", de: "Die Unglaublichen", it: "Gli Incredibili", nl: "The Incredibles", pl: "Iniemamocni", sv: "Superhjältarna", da: "De Utrolige", pt: "Os Incríveis" },
+    titre: { pt: "Retrato dos Incríveis Personalizado" },
     /* Seul titre du catalogue dont l'article ne se detache pas : « Die
        Unglaublichen » ampute donne « unglaublichen », qui n'existe pas seul.
        L'anglais, lui, se passe tres bien de son article. */
@@ -868,6 +879,12 @@ const GABARIT_SLUG: Record<Locale, Record<TypeProduit, (u: string) => string>> =
     portrait: (u) => `personligt-${u}-portraet`,
     affiche: (u) => `personlig-${u}-plakat`,
     carte: (u) => `personligt-${u}-kort`,
+  },
+  /* « retrato » et « poster » sont masculins, « carta » feminin. */
+  pt: {
+    portrait: (u) => `retrato-${u}-personalizado`,
+    affiche: (u) => `poster-${u}-personalizado`,
+    carte: (u) => `carta-${u}-personalizada`,
   },
 };
 

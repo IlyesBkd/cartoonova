@@ -1371,7 +1371,158 @@ const da: OccasionTable = {
   },
 };
 
-export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl, sv, da };
+/* Portugais europeen. Le vocabulaire y separe nettement le Portugal du
+   Bresil : on offre une « prenda », pas un « presente », et on tutoie. Les
+   dates aussi — la fete des meres portugaise tombe le premier dimanche de
+   mai, et la Saint-Valentin le 14 fevrier, la ou le Bresil la fete le
+   12 juin. */
+const pt: OccasionTable = {
+  anniversaire: {
+    slug: "aniversario",
+    label: "um aniversário",
+    headline: (style) => `${style} para um aniversário`,
+    intro:
+      "Um aniversário volta todos os anos, e é exatamente esse o problema: a certa altura já se deu tudo. Um retrato desenhado à mão destaca-se porque não pode ser oferecido duas vezes — parte de uma foto concreta, daquela pessoa.",
+    bullets: [
+      "Mais ninguém pode oferecer o mesmo: o desenho parte da tua foto.",
+      "Fica na parede, ao contrário da maioria das prendas de aniversário.",
+      "O desenho fica pronto em 2 dias, o que dá margem mesmo a quem se lembra tarde.",
+    ],
+    faq: [
+      {
+        question: "Com quanta antecedência devo encomendar para um aniversário?",
+        answer:
+          "Versão digital: conta com 2 dias. Poster ou tela: cerca de 5 dias úteis entre a encomenda e a entrega — 2 dias de desenho e depois 3 dias úteis de impressão e envio.",
+      },
+      {
+        question: "Podem estar várias pessoas no retrato?",
+        answer:
+          "Sim. Podes juntar mais pessoas e animais de estimação. Envia de preferência uma foto nítida de cada pessoa, em vez de uma foto de grupo tirada de longe.",
+      },
+    ],
+  },
+  noel: {
+    slug: "prenda-de-natal",
+    label: "o Natal",
+    headline: (style) => `${style} como prenda de Natal`,
+    intro:
+      "No Natal o problema não é encontrar uma prenda, é encontrar uma que não acabe num armário em janeiro. Um retrato de família desenhado à mão pendura-se, e lembra um ano em concreto.",
+    bullets: [
+      "Uma prenda que se abre à frente de todos e que dá conversa.",
+      "Ideal para pais ou avós que «não precisam de nada».",
+      "A versão digital continua possível até ao último momento.",
+    ],
+    faq: [
+      {
+        question: "Até quando posso encomendar para receber antes do Natal?",
+        answer:
+          "A data-limite aparece no site durante a época natalícia. Na prática: cerca de 5 dias úteis para uma impressão entregue, e 2 dias para a versão digital.",
+      },
+      {
+        question: "Posso oferecer um retrato que ainda não chegou?",
+        answer:
+          "Sim: ofereces a versão digital no próprio dia e a impressão chega depois. Muitas encomendas de última hora funcionam assim.",
+      },
+    ],
+  },
+  "saint-valentin": {
+    slug: "dia-dos-namorados",
+    label: "o Dia dos Namorados",
+    headline: (style) => `${style} para o Dia dos Namorados`,
+    intro:
+      "As flores duram uma semana. Um retrato dos dois, desenhado a partir de uma foto que significa alguma coisa, fica na parede.",
+    bullets: [
+      "Parte da vossa própria foto — nada de ilustração feita à pressa.",
+      "Funciona mesmo que raramente apareçam juntos numa foto: envia duas separadas.",
+      "A versão digital chega por email, por isso a surpresa mantém-se.",
+    ],
+    faq: [
+      {
+        question: "Podemos aparecer os dois no retrato?",
+        answer:
+          "Sim, é a variante mais pedida. Bastam duas fotos separadas — o ilustrador junta-vos na mesma imagem.",
+      },
+      {
+        question: "Até quando devo encomendar para 14 de fevereiro?",
+        answer: "Para uma impressão: cerca de 5 dias úteis antes. Para a versão digital bastam 2 dias.",
+      },
+    ],
+  },
+  "fete-des-meres": {
+    slug: "dia-da-mae",
+    label: "o Dia da Mãe",
+    headline: (style) => `${style} para o Dia da Mãe`,
+    intro:
+      "O Dia da Mãe não cai no mesmo dia em todo o lado — em Portugal é no primeiro domingo de maio. Um retrato desenhado dos filhos, ou de toda a família, é uma prenda que fica mesmo pendurada.",
+    bullets: [
+      "Com os filhos, ou com a família toda.",
+      "Os animais podem entrar — muitas vezes são eles que fazem o retrato.",
+      "Pronto em 2 dias, por isso ainda dá tempo mesmo se te esqueceste.",
+    ],
+    faq: [
+      {
+        question: "Podem aparecer só os filhos?",
+        answer:
+          "Sim. Muitas encomendas são exatamente isso: só os filhos, no estilo que eles próprios gostam.",
+      },
+      {
+        question: "Quando é o Dia da Mãe?",
+        answer:
+          "Em Portugal, no primeiro domingo de maio. A data-limite de encomenda aparece no site nessa altura.",
+      },
+    ],
+  },
+  mariage: {
+    slug: "prenda-de-casamento",
+    label: "um casamento",
+    headline: (style) => `${style} como prenda de casamento`,
+    intro:
+      "Numa lista de casamento raramente há alguma coisa pessoal. Um retrato do casal, desenhado a partir da foto deles, destaca-se entre as loiças e os envelopes.",
+    bullets: [
+      "Mais pessoal do que o que está na lista.",
+      "Funciona com uma foto de noivado ou com uma foto do próprio dia.",
+      "Também se pode oferecer depois, quando as fotos do casamento estiverem prontas.",
+    ],
+    faq: [
+      {
+        question: "Posso encomendar o retrato depois do casamento?",
+        answer:
+          "Sim, e muitas vezes fica melhor: usas uma foto de casamento a sério em vez de uma mais antiga.",
+      },
+      {
+        question: "Podem entrar padrinhos ou família?",
+        answer:
+          "Sim, podes juntar mais pessoas. Envia uma foto separada e nítida de cada uma para um resultado bem definido.",
+      },
+    ],
+  },
+  depart: {
+    slug: "prenda-de-despedida",
+    label: "uma despedida",
+    headline: (style) => `${style} como prenda de despedida`,
+    intro:
+      "Um colega que sai costuma receber um cartão e um ramo de flores. Um retrato desenhado — dele ou da equipa toda — é o que fica na secretária nova.",
+    bullets: [
+      "De um colega ou da equipa inteira.",
+      "Toda a gente pode contribuir: uma encomenda, uma prenda.",
+      "Pronto em 2 dias, mesmo quando a despedida se organiza à pressa.",
+    ],
+    faq: [
+      {
+        question: "Pode aparecer a equipa toda no retrato?",
+        answer:
+          "Sim. Conta com uma foto nítida por pessoa; uma foto de grupo tirada de longe dá um resultado menos definido.",
+      },
+      {
+        question: "Podemos juntar uma mensagem?",
+        answer:
+          "Podes deixar uma nota na encomenda com o que pretendes. O ilustrador tem isso em conta.",
+      },
+    ],
+  },
+};
+
+export const OCCASIONS: Record<Locale, OccasionTable> = { fr, en, es, de, it, nl, pl, sv, da, pt };
 
 export interface GiftPageParams {
   styleSlug: string;

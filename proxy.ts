@@ -37,6 +37,10 @@ const countryLocaleMap: Record<string, (typeof locales)[number]> = {
   PL: "pl",
   SE: "sv",
   DK: "da",
+  /* Le Bresil n'est pas redirige ici : le contenu est en portugais
+     europeen, les prix en euros et la livraison depuis la France. hreflang
+     « pt » suffit a lui servir du portugais depuis Google. */
+  PT: "pt",
 };
 
 const CURRENCY_COOKIE = "cartoonova_currency";

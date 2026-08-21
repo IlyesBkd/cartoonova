@@ -28,6 +28,7 @@ export const FEED_DEFAULT_CURRENCY: Record<Locale, Currency> = {
   pl: "PLN",
   sv: "SEK",
   da: "DKK",
+  pt: "EUR",
 };
 
 // Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork
