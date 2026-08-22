@@ -80,29 +80,55 @@ jobs:
       - name: Installer
         run: npm ci --no-audit --no-fund
 
+      # Le moteur refuse de demarrer sans ses cles : sans ce controle, chaque
+      # execution echouait bruyamment alors que la seule cause etait une
+      # configuration encore incomplete. Une alerte qui se declenche pour une
+      # raison connue cesse d'etre lue — le workflow signale ce qui manque et
+      # s'arrete proprement.
+      - name: Verifier la configuration
+        id: config
+        run: |
+          manque=""
+          if [ -z "$DATABASE_URL" ]; then manque="$manque DATABASE_URL"; fi
+          if [ -z "$AI_API_KEY" ]; then manque="$manque AI_API_KEY"; fi
+          if [ -z "$SERPAPI_API_KEY" ]; then manque="$manque SERPAPI_API_KEY"; fi
+          if [ -n "$manque" ]; then
+            echo "pret=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Moteur non configure::Secrets absents :$manque — le moteur reste en veille."
+          else
+            echo "pret=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Preparer le schema
+        if: steps.config.outputs.pret == 'true'
         run: npm run migrate
 
       - name: Decouvrir des sujets
+        if: steps.config.outputs.pret == 'true'
         run: node --import tsx src/app/cli.ts topics:discover
 
       - name: Rediger les brouillons manquants
+        if: steps.config.outputs.pret == 'true'
         run: node --import tsx src/app/cli.ts batch
 
       - name: Traduire
+        if: steps.config.outputs.pret == 'true'
         run: node --import tsx src/app/cli.ts translate
 
       - name: Publier ce qui est du
+        if: steps.config.outputs.pret == 'true'
         run: node --import tsx src/app/cli.ts publish
 
       # L'analyse SEO relit les performances passees pour orienter les sujets
       # suivants. Une fois par jour suffit : c'est la seule etape qui ne gagne
       # rien a etre repetee dans la journee.
       - name: Analyse SEO
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * *'
+        if: steps.config.outputs.pret == 'true' && (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * *')
         continue-on-error: true
         run: node --import tsx src/app/cli.ts seo:analyze
 
+      # `always()` faisait tourner le journal meme quand le moteur n'avait pas
+      # demarre : il echouait a son tour et doublait le bruit.
       - name: Journal
-        if: always()
+        if: steps.config.outputs.pret == 'true'
         run: node --import tsx src/app/cli.ts dashboard
