@@ -4,7 +4,14 @@ import type { Currency } from "./currency";
 import { currencies } from "./currency";
 import { SITE_URL } from "./site";
 import { locales as localesList, type Locale } from "../i18n/config";
-import { CATALOGUE_EN_LIGNE, descriptionProduit, slugsProduit, titreProduit } from "./catalogue";
+import {
+  CATALOGUE_EN_LIGNE,
+  NOMS_CATEGORIE,
+  SLUG_PHARE,
+  descriptionProduit,
+  slugsProduit,
+  titreProduit,
+} from "./catalogue";
 import { visuelsProduit } from "./visuels";
 
 export const escapeXml = (str: string): string =>
@@ -34,6 +41,25 @@ export const FEED_DEFAULT_CURRENCY: Record<Locale, Currency> = {
 // Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork
 const GOOGLE_PRODUCT_CATEGORY = "500045";
 
+/* Pays de rattachement d'une langue, pour le bloc `shipping` du flux. Un
+   visiteur allemand n'est pas necessairement en Allemagne, mais Merchant Center
+   raisonne par pays de vente : c'est a ce niveau que le flux est lu. */
+const PAYS_PRINCIPAL: Record<Locale, string> = {
+  fr: "FR",
+  en: "US",
+  es: "ES",
+  de: "DE",
+  it: "IT",
+  nl: "NL",
+  pl: "PL",
+  sv: "SE",
+  da: "DK",
+  pt: "PT",
+};
+
+/* Google plafonne a 10 images additionnelles par article. */
+const MAX_IMAGES_ADDITIONNELLES = 10;
+
 export interface FeedProduct {
   id: string;
   /** Slug canonique — identite du produit, nom du dossier de visuels. */
@@ -42,6 +68,13 @@ export interface FeedProduct {
    *  fiches au nom francais ; voir `slugProduit` dans lib/catalogue.ts. */
   slugs: Record<Locale, string>;
   image: string;
+  /** Galerie complete. `image` en est la premiere ; les suivantes partent en
+   *  `additional_image_link`. */
+  galerie: string[];
+  categorie: string;
+  /** Fiche attendue a l'essentiel des ventes. Etiquetee a part pour pouvoir
+   *  etre suivie seule dans les rapports Merchant. */
+  phare: boolean;
   translations: Record<Locale, { title: string; description: string }>;
 }
 
@@ -56,7 +89,8 @@ export interface FeedProduct {
  */
 export function buildFeedProducts(): FeedProduct[] {
   return CATALOGUE_EN_LIGNE.flatMap((p) => {
-    const image = visuelsProduit(p.slug).galerie[0];
+    const galerie = visuelsProduit(p.slug).galerie;
+    const image = galerie[0];
     if (!image) return [];
     return [
       {
@@ -64,6 +98,9 @@ export function buildFeedProducts(): FeedProduct[] {
         slug: p.slug,
         slugs: slugsProduit(p),
         image,
+        galerie,
+        categorie: p.categorie,
+        phare: p.slug === SLUG_PHARE,
         translations: Object.fromEntries(
           localesList.map((l) => [
             l,
@@ -144,21 +181,52 @@ export async function buildProductFeed({
   // Google accepte les deux graphies, Pinterest exige "in stock".
   const availability = variant === "pinterest" ? "in stock" : "in_stock";
 
+  /* Livraison declaree a zero : le tunnel de paiement n'ajoute aucun frais de
+     port (aucun `shipping_options` dans la session Stripe), le port est donc
+     compris dans le prix. Sans cet attribut, Merchant Center retombe sur les
+     regles du compte et desapprouve les articles tant qu'aucune n'est definie —
+     c'est le motif de rejet le plus courant a l'ouverture d'un flux. */
+  const shipping =
+    variant === "google"
+      ? `
+      <g:shipping>
+        <g:country>${PAYS_PRINCIPAL[locale]}</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 ${currency}</g:price>
+      </g:shipping>`
+      : "";
+
   const items = buildFeedProducts().map((product) => {
     const { title, description } = product.translations[locale];
+
+    /* Les visuels supplementaires ne servent pas qu'a decorer : sur Shopping,
+       une fiche a plusieurs images occupe plus de place et se compare mieux.
+       Le produit *est* une image, autant les montrer toutes. */
+    const imagesAdditionnelles = product.galerie
+      .slice(1, 1 + MAX_IMAGES_ADDITIONNELLES)
+      .map((v) => `\n      <g:additional_image_link>${escapeXml(`${SITE_URL}${v}`)}</g:additional_image_link>`)
+      .join("");
+
+    /* `product_type` est notre propre taxonomie, distincte de celle de Google :
+       elle sert au regroupement dans les campagnes et les rapports. */
+    const typeProduit = `Portraits personnalises > ${NOMS_CATEGORIE[product.categorie as keyof typeof NOMS_CATEGORIE][locale]}`;
+
     return `    <item>
       <g:id>${escapeXml(product.id)}</g:id>
       <g:title>${escapeXml(title)}</g:title>
       <g:description>${escapeXml(description)}</g:description>
       <g:link>${escapeXml(`${SITE_URL}/${locale}/${product.slugs[locale]}`)}</g:link>
-      <g:image_link>${escapeXml(`${SITE_URL}${product.image}`)}</g:image_link>
+      <g:image_link>${escapeXml(`${SITE_URL}${product.image}`)}</g:image_link>${imagesAdditionnelles}
       <g:price>${formattedPrice}</g:price>
       <g:condition>new</g:condition>
       <g:availability>${availability}</g:availability>
       <g:brand>Cartoonova</g:brand>
       <g:google_product_category>${GOOGLE_PRODUCT_CATEGORY}</g:google_product_category>
+      <g:product_type>${escapeXml(typeProduit)}</g:product_type>
       <g:is_customized>yes</g:is_customized>
       <g:identifier_exists>no</g:identifier_exists>
+      <g:custom_label_0>${escapeXml(product.categorie)}</g:custom_label_0>
+      <g:custom_label_1>${product.phare ? "phare" : "catalogue"}</g:custom_label_1>${shipping}
     </item>`;
   }).join("\n");
 

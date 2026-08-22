@@ -1,12 +1,15 @@
 import { Resend } from "resend";
 import { markWelcomeStepSent, type NewsletterSubscriber } from "./db";
-import { welcomeSequence, type Lang } from "./email-i18n";
+import { welcomeSequence, LANGS, type Lang } from "./email-i18n";
 import { signEmail } from "./emailToken";
 import { SITE_URL } from "./site";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
-const LANGS: Lang[] = ["fr", "en", "es", "de", "it"];
+/* La liste etait recopiee ici, figee a cinq langues, alors que `email-i18n`
+   en sert dix et que le site en propose autant : un inscrit neerlandais,
+   polonais, suedois, danois ou portugais recevait la sequence en francais.
+   Une seule liste, celle qui fait autorite. */
 
 /** Delai apres l'inscription pour chaque etape (l'etape 1 part immediatement). */
 export const WELCOME_DELAYS_DAYS: Record<2 | 3, number> = { 2: 3, 3: 8 };

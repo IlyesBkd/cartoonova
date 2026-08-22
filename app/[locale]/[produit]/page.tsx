@@ -96,6 +96,15 @@ export default async function Page({
   const visuels = visuelsProduit(p.slug);
   const tNav = await getTranslations({ locale, namespace: "nav" });
 
+  /* Les cinq questions rendues par `FicheProduit`, relues ici pour le balisage.
+     Le composant les lit dans le meme espace de noms : une question ajoutee
+     cote messages apparait des deux cotes ou d'aucun. */
+  const tProduit = await getTranslations({ locale, namespace: "product" });
+  const faq = [1, 2, 3, 4, 5].map((n) => ({
+    question: tProduit(`faqQ${n}` as "faqQ1"),
+    reponse: tProduit(`faqA${n}` as "faqA1"),
+  }));
+
   /* Grille tarifaire, pour la fourchette du balisage Product. */
   let prix = DEFAULT_PRICE_SET;
   try {
@@ -173,6 +182,20 @@ export default async function Page({
                   },
                   { "@type": "ListItem", position: 3, name: donnees.titre, item: `${SITE_URL}/${locale}/${slug}` },
                 ],
+              },
+              /* La FAQ est affichee sur la fiche depuis toujours mais n'etait
+                 pas balisee : c'est pourtant le format que Google et les
+                 moteurs conversationnels citent le plus volontiers, et il est
+                 deja traduit dans les dix langues. Les questions viennent du
+                 meme espace de noms que celui rendu par `FicheProduit`, pour
+                 que balisage et page ne puissent pas diverger. */
+              {
+                "@type": "FAQPage",
+                mainEntity: faq.map((entree) => ({
+                  "@type": "Question",
+                  name: entree.question,
+                  acceptedAnswer: { "@type": "Answer", text: entree.reponse },
+                })),
               },
             ],
           }),
