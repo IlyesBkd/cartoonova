@@ -208,8 +208,10 @@ export async function buildProductFeed({
       .join("");
 
     /* `product_type` est notre propre taxonomie, distincte de celle de Google :
-       elle sert au regroupement dans les campagnes et les rapports. */
-    const typeProduit = `Portraits personnalises > ${NOMS_CATEGORIE[product.categorie as keyof typeof NOMS_CATEGORIE][locale]}`;
+       elle sert au regroupement dans les campagnes et les rapports. Le nom de
+       categorie est deja traduit ; lui prefixer un intitule francais donnerait
+       un libelle bilingue dans les rapports de chaque marche. */
+    const typeProduit = NOMS_CATEGORIE[product.categorie as keyof typeof NOMS_CATEGORIE][locale];
 
     return `    <item>
       <g:id>${escapeXml(product.id)}</g:id>
