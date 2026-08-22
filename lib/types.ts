@@ -42,14 +42,20 @@ export type Prices = PriceSet;
 
 export type PricesByCurrency = Record<Currency, PriceSet>;
 
+/* Repli servi quand la base est injoignable. Il avait ete fige a l'ouverture du
+   site et n'avait jamais suivi : il annoncait 49 EUR de base la ou la grille
+   reelle en dit 5, soit dix fois trop. Un visiteur tombant dessus pendant une
+   panne aurait vu des prix sans rapport avec ceux du panier. A realigner a
+   chaque revision de tarif — c'est le seul endroit ou les prix sont ecrits en
+   dur. */
 export const DEFAULT_PRICE_SET: PriceSet = {
-  base: 49,
-  fullbodyExtra: 20,
-  extraPerson: 15,
-  extraAnimal: 15,
+  base: 5,
+  fullbodyExtra: 5,
+  extraPerson: 5,
+  extraAnimal: 5,
   digital: 0,
-  canvas: 89,
-  poster: 79,
+  canvas: 39,
+  poster: 59,
   posterSimple: 19,
 };
 
@@ -57,15 +63,16 @@ export const DEFAULT_PRICES: Prices = DEFAULT_PRICE_SET;
 
 export const DEFAULT_PRICES_BY_CURRENCY: PricesByCurrency = {
   EUR: { ...DEFAULT_PRICE_SET },
-  USD: { base: 55, fullbodyExtra: 22, extraPerson: 17, extraAnimal: 17, digital: 0, canvas: 99, poster: 89, posterSimple: 22 },
-  GBP: { base: 45, fullbodyExtra: 18, extraPerson: 14, extraAnimal: 14, digital: 0, canvas: 79, poster: 69, posterSimple: 17 },
-  CAD: { base: 75, fullbodyExtra: 30, extraPerson: 22, extraAnimal: 22, digital: 0, canvas: 135, poster: 119, posterSimple: 29 },
-  AUD: { base: 85, fullbodyExtra: 35, extraPerson: 25, extraAnimal: 25, digital: 0, canvas: 149, poster: 135, posterSimple: 33 },
-  /* Repli seulement : des qu'un jeu de prix existe en base, il l'emporte, et
-     s'il n'y en a pas pour le zloty c'est l'euro reel qui est converti au
-     taux. Ces montants ne servent donc que si la base est vide. */
-  PLN: { base: 209, fullbodyExtra: 89, extraPerson: 65, extraAnimal: 65, digital: 0, canvas: 379, poster: 339, posterSimple: 85 },
-  SEK: { base: 549, fullbodyExtra: 229, extraPerson: 169, extraAnimal: 169, digital: 0, canvas: 999, poster: 899, posterSimple: 219 },
-  DKK: { base: 369, fullbodyExtra: 149, extraPerson: 115, extraAnimal: 115, digital: 0, canvas: 669, poster: 595, posterSimple: 145 },
-  CHF: { base: 46, fullbodyExtra: 19, extraPerson: 14, extraAnimal: 14, digital: 0, canvas: 84, poster: 74, posterSimple: 18 },
+  /* Les quatre premieres reprennent la grille reellement saisie en base. */
+  USD: { base: 6, fullbodyExtra: 6, extraPerson: 6, extraAnimal: 6, digital: 0, canvas: 43, poster: 64, posterSimple: 21 },
+  GBP: { base: 5, fullbodyExtra: 5, extraPerson: 5, extraAnimal: 5, digital: 0, canvas: 34, poster: 51, posterSimple: 17 },
+  CAD: { base: 8, fullbodyExtra: 8, extraPerson: 8, extraAnimal: 8, digital: 0, canvas: 58, poster: 88, posterSimple: 29 },
+  AUD: { base: 9, fullbodyExtra: 9, extraPerson: 9, extraAnimal: 9, digital: 0, canvas: 65, poster: 98, posterSimple: 32 },
+  /* Les quatre suivantes n'ont pas de grille propre : le site convertit l'euro
+     reel au taux. Les montants ci-dessous reprennent cette conversion, pour que
+     le repli ne dise pas autre chose que le fonctionnement normal. */
+  PLN: { base: 22, fullbodyExtra: 22, extraPerson: 22, extraAnimal: 22, digital: 0, canvas: 168, poster: 254, posterSimple: 82 },
+  SEK: { base: 57, fullbodyExtra: 57, extraPerson: 57, extraAnimal: 57, digital: 0, canvas: 441, poster: 667, posterSimple: 215 },
+  DKK: { base: 38, fullbodyExtra: 38, extraPerson: 38, extraAnimal: 38, digital: 0, canvas: 291, poster: 441, posterSimple: 142 },
+  CHF: { base: 5, fullbodyExtra: 5, extraPerson: 5, extraAnimal: 5, digital: 0, canvas: 37, poster: 56, posterSimple: 18 },
 };
