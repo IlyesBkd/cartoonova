@@ -57,6 +57,23 @@ const PAYS_PRINCIPAL: Record<Locale, string> = {
   pt: "PT",
 };
 
+/* Pays de rattachement d'une devise. Un flux servi dans une devise autre que
+   celle par defaut de sa langue vise un autre pays : `/fr?currency=CHF` est le
+   flux suisse, pas le flux francais. Sans cette table, il annoncerait ses frais
+   de port pour la France et la Suisse se retrouverait sans livraison declaree —
+   soit precisement le motif de refus que l'attribut sert a eviter. */
+const PAYS_DE_DEVISE: Record<Currency, string> = {
+  EUR: "FR",
+  USD: "US",
+  GBP: "GB",
+  CAD: "CA",
+  AUD: "AU",
+  PLN: "PL",
+  SEK: "SE",
+  DKK: "DK",
+  CHF: "CH",
+};
+
 /* Google plafonne a 10 images additionnelles par article. */
 const MAX_IMAGES_ADDITIONNELLES = 10;
 
@@ -186,11 +203,16 @@ export async function buildProductFeed({
      compris dans le prix. Sans cet attribut, Merchant Center retombe sur les
      regles du compte et desapprouve les articles tant qu'aucune n'est definie —
      c'est le motif de rejet le plus courant a l'ouverture d'un flux. */
+  /* La langue designe le pays tant que la devise est celle attendue pour elle ;
+     des qu'elle est forcee, c'est la devise qui dit ou le flux est lu. */
+  const paysCible =
+    currency === FEED_DEFAULT_CURRENCY[locale] ? PAYS_PRINCIPAL[locale] : PAYS_DE_DEVISE[currency];
+
   const shipping =
     variant === "google"
       ? `
       <g:shipping>
-        <g:country>${PAYS_PRINCIPAL[locale]}</g:country>
+        <g:country>${paysCible}</g:country>
         <g:service>Standard</g:service>
         <g:price>0.00 ${currency}</g:price>
       </g:shipping>`

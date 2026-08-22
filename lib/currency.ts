@@ -1,6 +1,6 @@
-export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN" | "SEK" | "DKK";
+export type Currency = "EUR" | "USD" | "GBP" | "CAD" | "AUD" | "PLN" | "SEK" | "DKK" | "CHF";
 
-export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN", "SEK", "DKK"];
+export const currencies: Currency[] = ["EUR", "USD", "GBP", "CAD", "AUD", "PLN", "SEK", "DKK", "CHF"];
 
 export const currencySymbols: Record<Currency, string> = {
   EUR: "€",
@@ -11,6 +11,7 @@ export const currencySymbols: Record<Currency, string> = {
   PLN: "zł",
   SEK: "kr",
   DKK: "kr.",
+  CHF: "CHF",
 };
 
 export const currencyNames: Record<Currency, string> = {
@@ -22,6 +23,7 @@ export const currencyNames: Record<Currency, string> = {
   PLN: "Polish Zloty",
   SEK: "Swedish Krona",
   DKK: "Danish Krone",
+  CHF: "Swiss Franc",
 };
 
 // Drapeaux : ne servent plus qu'au back-office. L'interface publique affiche
@@ -35,6 +37,7 @@ export const currencyFlags: Record<Currency, string> = {
   PLN: "🇵🇱",
   SEK: "🇸🇪",
   DKK: "🇩🇰",
+  CHF: "🇨🇭",
 };
 
 // Fixed exchange rates (base: EUR)
@@ -53,6 +56,10 @@ export const exchangeRates: Record<Currency, number> = {
   /* La couronne danoise est arrimee a l'euro dans une bande etroite : c'est
      la seule de la table qui ne derivera pas. */
   DKK: 7.46,
+  /* Le franc suisse vaut un peu moins que l'euro. Google exige la devise du
+     pays de vente : tant que le flux suisse annoncait des euros, la Suisse
+     etait exposee a un refus des fiches. */
+  CHF: 0.94,
 };
 
 export function convertPrice(amountInEUR: number, currency: Currency): number {
@@ -89,8 +96,8 @@ const COUNTRY_TO_CURRENCY: Record<string, Currency> = {
   LV: "EUR", MT: "EUR", NL: "EUR", PT: "EUR", SI: "EUR", SK: "EUR",
   // EUR-pegged or EUR-accepted micro-states
   AD: "EUR", MC: "EUR", SM: "EUR", VA: "EUR", ME: "EUR", XK: "EUR",
-  // Switzerland — CHF not supported, EUR is widely accepted there
-  CH: "EUR", LI: "EUR",
+  // Switzerland and Liechtenstein — both use the Swiss franc.
+  CH: "CHF", LI: "CHF",
 };
 
 export function getCurrencyFromCountry(country?: string | null): Currency | undefined {
