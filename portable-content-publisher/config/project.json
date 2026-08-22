@@ -31,8 +31,8 @@
       "minWords": 700,
       "maxWords": 1600,
       "requiredImages": 2,
-      "dailyTargets": { "fr": 1, "en": 1, "es": 1, "de": 1, "it": 1 },
-      "reserveTargets": { "fr": 3, "en": 3, "es": 3, "de": 3, "it": 3 },
+      "dailyTargets": { "fr": 1, "en": 1, "es": 1, "de": 1, "it": 1, "nl": 1, "pl": 1, "sv": 1, "da": 1, "pt": 1 },
+      "reserveTargets": { "fr": 3, "en": 3, "es": 3, "de": 3, "it": 3, "nl": 2, "pl": 2, "sv": 2, "da": 2, "pt": 2 },
       "categories": ["gift-guides", "style-guides", "how-to"]
     }
   ],
@@ -41,7 +41,12 @@
     { "id": "en", "language": "English", "market": "United States", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
     { "id": "es", "language": "Spanish", "market": "Spain", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
     { "id": "de", "language": "German", "market": "Germany", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
-    { "id": "it", "language": "Italian", "market": "Italy", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] }
+    { "id": "it", "language": "Italian", "market": "Italy", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "nl", "language": "Dutch", "market": "Netherlands", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "pl", "language": "Polish", "market": "Poland", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "sv", "language": "Swedish", "market": "Sweden", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "da", "language": "Danish", "market": "Denmark", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] },
+    { "id": "pt", "language": "Portuguese", "market": "Portugal", "isDefault": false, "publicationWindows": [{ "start": "09:00", "end": "20:00" }] }
   ],
   "sources": {
     "seeds": [
@@ -59,6 +64,18 @@
       "cadeau pour fan de One Piece",
       "cadeau pour fan de Studio Ghibli"
     ],
+    "maxSeedsPerLocale": 2,
+    "seedsByLocale": {
+      "en": ["personalised cartoon portrait gift", "custom caricature gift idea", "unique birthday gift idea", "gift for anime fan"],
+      "es": ["retrato personalizado regalo", "caricatura personalizada regalo", "idea de regalo cumpleanos original", "regalo para fan del manga"],
+      "de": ["personalisiertes cartoon portrait geschenk", "karikatur nach foto geschenk", "originelles geburtstagsgeschenk idee", "geschenk fuer anime fan"],
+      "it": ["ritratto personalizzato regalo", "caricatura personalizzata regalo", "idea regalo compleanno originale", "regalo per fan dei manga"],
+      "nl": ["gepersonaliseerd cartoon portret cadeau", "karikatuur naar foto cadeau", "origineel verjaardagscadeau idee", "cadeau voor anime fan"],
+      "pl": ["spersonalizowany portret prezent", "karykatura ze zdjecia prezent", "oryginalny pomysl na prezent urodzinowy", "prezent dla fana anime"],
+      "sv": ["personligt portratt present", "karikatyr efter foto present", "original present ide fodelsedag", "present till anime fan"],
+      "da": ["personligt portraet gave", "karikatur efter foto gave", "original fodselsdagsgave ide", "gave til anime fan"],
+      "pt": ["retrato personalizado presente", "caricatura personalizada presente", "ideia de presente de aniversario original", "presente para fa de anime"]
+    },
     "allowDomains": [],
     "denyDomains": [],
     "requireAttribution": false
@@ -89,8 +106,8 @@
     "model": "${AI_MODEL:-gpt-4o}",
     "translationModel": "${AI_TRANSLATION_MODEL:-gpt-4o-mini}",
     "temperature": 0.4,
-    "maxCallsPerDay": 30,
-    "maxTokensPerDay": 150000,
+    "maxCallsPerDay": 90,
+    "maxTokensPerDay": 600000,
     "maxAttemptsPerItem": 2,
     "maxCorrectionsPerItem": 1,
     "retryDelayMs": 20000,

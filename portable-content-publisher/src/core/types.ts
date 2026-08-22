@@ -50,6 +50,22 @@ export interface ProjectConfig {
   locales: LocaleConfig[];
   sources: {
     seeds: string[];
+    /**
+     * Seeds written in each market's own language. Topic discovery queries a
+     * localized Google (domain, `hl`, `gl`), so a French seed sent to
+     * google.pl returns French pages: without per-locale seeds, every market
+     * inherits the default locale's topics.
+     *
+     * Locales absent from this map are not discovered in — they still receive
+     * translations of what the default locale discovered.
+     */
+    seedsByLocale?: Record<string, string[]>;
+    /**
+     * Cap on seeds queried per non-default locale, per discovery run. Each
+     * seed is one paid search: this is the knob that bounds the bill when the
+     * locale count grows.
+     */
+    maxSeedsPerLocale?: number;
     allowDomains: string[];
     denyDomains: string[];
     requireAttribution: boolean;
@@ -123,6 +139,12 @@ export interface TopicCandidate {
   demand: number;
   authority: number;
   discoveredAt: string;
+  /**
+   * Market the topic was found in. Generation still happens in the default
+   * locale before translation — this records provenance, so a topic that only
+   * matters in one market can be recognised as such.
+   */
+  discoveredIn?: string;
 }
 
 export interface ContentImage {

@@ -1,0 +1,108 @@
+name: Moteur de contenu
+
+# Le moteur ne tournait qu'en pm2 (`ecosystem.config.cjs`), ce qui suppose une
+# machine allumee en permanence. Ses commandes sont aussi utilisables en un
+# coup : les enchainer ici les fait tourner sans serveur a entretenir, sur la
+# meme base Neon que le site — un article publie apparait donc sur le blog, le
+# sitemap et le flux RSS sans redeploiement.
+#
+# Secrets a definir dans Settings > Secrets and variables > Actions :
+#   DATABASE_URL      la meme chaine Neon que Vercel
+#   AI_API_KEY        cle du fournisseur de generation
+#   SERPAPI_API_KEY   cle de decouverte de sujets
+#
+# Variables (Settings > Variables), facultatives :
+#   AI_MODEL, AI_TRANSLATION_MODEL, AI_ENDPOINT
+
+on:
+  schedule:
+    # Toutes les trois heures entre 06h et 18h UTC. La publication n'envoie
+    # qu'un article par appel et respecte les fenetres horaires declarees dans
+    # `config/project.json` : la cadence reelle vient de la configuration, pas
+    # de ce calendrier.
+    #
+    # Le passage de 06h est isole pour porter, seul, l'analyse SEO.
+    - cron: "0 6 * * *"
+    - cron: "0 9,12,15,18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  # Deux executions simultanees se disputeraient les memes verrous d'etat.
+  group: moteur-contenu
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: portable-content-publisher
+
+    env:
+      PUBLISHER_ROOT: .
+      PROJECT_CONFIG: config/project.json
+      SITE_URL: https://www.cartoonova.com
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AI_ADAPTER: openai-compatible
+      AI_ENDPOINT: ${{ vars.AI_ENDPOINT || 'https://api.openai.com/v1/chat/completions' }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+      AI_MODEL: ${{ vars.AI_MODEL || 'gpt-4o' }}
+      AI_TRANSLATION_MODEL: ${{ vars.AI_TRANSLATION_MODEL || 'gpt-4o-mini' }}
+      SEARCH_ADAPTER: serpapi
+      SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+      DATA_DIR: data
+      STATE_DIR: .state
+      TEMP_DIR: .tmp
+      LOG_DIR: logs
+      LOG_LEVEL: info
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Le systeme de fichiers d'un runner est jetable. Les articles vivent en
+      # base, donc rien d'irremplacable ne s'y trouve — mais `.state` porte le
+      # cache de decouverte, et le perdre relancerait les recherches payantes a
+      # chaque execution.
+      - name: Restaurer l'etat du moteur
+        uses: actions/cache@v4
+        with:
+          path: |
+            portable-content-publisher/.state
+            portable-content-publisher/data
+          key: moteur-contenu-${{ github.run_id }}
+          restore-keys: moteur-contenu-
+
+      - name: Installer
+        run: npm ci --no-audit --no-fund
+
+      - name: Preparer le schema
+        run: npm run migrate
+
+      - name: Decouvrir des sujets
+        run: node --import tsx src/app/cli.ts topics:discover
+
+      - name: Rediger les brouillons manquants
+        run: node --import tsx src/app/cli.ts batch
+
+      - name: Traduire
+        run: node --import tsx src/app/cli.ts translate
+
+      - name: Publier ce qui est du
+        run: node --import tsx src/app/cli.ts publish
+
+      # L'analyse SEO relit les performances passees pour orienter les sujets
+      # suivants. Une fois par jour suffit : c'est la seule etape qui ne gagne
+      # rien a etre repetee dans la journee.
+      - name: Analyse SEO
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * *'
+        continue-on-error: true
+        run: node --import tsx src/app/cli.ts seo:analyze
+
+      - name: Journal
+        if: always()
+        run: node --import tsx src/app/cli.ts dashboard

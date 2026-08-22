@@ -9,6 +9,11 @@ const LOCALE_MARKET: Record<string, { domain: string; hl: string; gl: string }> 
   es: { domain: "google.es", hl: "es", gl: "es" },
   de: { domain: "google.de", hl: "de", gl: "de" },
   it: { domain: "google.it", hl: "it", gl: "it" },
+  nl: { domain: "google.nl", hl: "nl", gl: "nl" },
+  pl: { domain: "google.pl", hl: "pl", gl: "pl" },
+  sv: { domain: "google.se", hl: "sv", gl: "se" },
+  da: { domain: "google.dk", hl: "da", gl: "dk" },
+  pt: { domain: "google.pt", hl: "pt", gl: "pt" },
 };
 
 function slug(value: string): string {
@@ -105,10 +110,39 @@ export class SerpApiSearchAdapter implements SearchAdapter {
     const topics: TopicCandidate[] = [];
     const seen = new Set<string>();
 
-    for (const seed of config.sources.seeds) {
+    /*
+     * Discovery used to run against the default locale only: every seed was
+     * sent to that market's Google, so the whole pipeline saw a single
+     * country's questions. Markets differ - "cadeau fete des meres" and
+     * "Muttertag Geschenk" do not surface the same "people also ask" - and a
+     * topic found in Germany is what makes the German article worth writing
+     * rather than being a translation of a French one.
+     *
+     * Each seed is one paid search, so the fan-out is bounded twice: only
+     * locales listed in `seedsByLocale` are discovered in, and each of them
+     * contributes at most `maxSeedsPerLocale` seeds.
+     */
+    const maxSeeds = config.sources.maxSeedsPerLocale ?? config.sources.seeds.length;
+    const seedsByLocale = config.sources.seedsByLocale ?? {};
+
+    const plan: Array<{ locale: string; seed: string }> = config.sources.seeds.map((seed) => ({
+      locale: defaultLocale.id,
+      seed,
+    }));
+
+    for (const locale of config.locales) {
+      if (locale.id === defaultLocale.id) continue;
+      const seeds = seedsByLocale[locale.id];
+      if (!seeds?.length || !LOCALE_MARKET[locale.id]) continue;
+      for (const seed of seeds.slice(0, maxSeeds)) {
+        plan.push({ locale: locale.id, seed });
+      }
+    }
+
+    for (const { locale: targetLocale, seed } of plan) {
       let response: SerpApiResponse;
       try {
-        response = await this.search(seed, defaultLocale.id, 10);
+        response = await this.search(seed, targetLocale, 10);
       } catch {
         continue;
       }
@@ -133,6 +167,7 @@ export class SerpApiSearchAdapter implements SearchAdapter {
           demand,
           authority: 60,
           discoveredAt: new Date().toISOString(),
+          discoveredIn: targetLocale,
         });
       }
 
@@ -154,6 +189,7 @@ export class SerpApiSearchAdapter implements SearchAdapter {
           demand,
           authority: Math.max(30, 100 - (result.position ?? 10) * 8),
           discoveredAt: new Date().toISOString(),
+          discoveredIn: targetLocale,
         });
       }
     }
