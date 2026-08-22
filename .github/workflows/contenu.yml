@@ -99,6 +99,21 @@ jobs:
             echo "pret=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # La cause du tout premier echec : un secret DATABASE_URL transmis avec un
+      # saut de ligne, donc invalide. Rien ne le signalait avant que le moteur
+      # ne s'en serve, et le message parlait d'adaptateur plutot que de secret.
+      # Un aller-retour en base le prouve en une seconde, independamment des
+      # autres cles.
+      - name: Verifier l'acces a la base
+        if: env.DATABASE_URL != ''
+        run: |
+          node --input-type=module -e '
+            import { neon } from "@neondatabase/serverless";
+            const sql = neon(process.env.DATABASE_URL);
+            const r = await sql`select 1 as ok`;
+            console.log("base joignable, ok =", r[0].ok);
+          '
+
       - name: Preparer le schema
         if: steps.config.outputs.pret == 'true'
         run: npm run migrate
