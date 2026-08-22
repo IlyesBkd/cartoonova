@@ -10,14 +10,14 @@ Ce fichier liste toutes les actions du backlog qui nécessitent une décision, u
 
 Ce qui reste à faire de ton côté, par ordre de blocage :
 
-- [ ] **`git push`** — cinq commits attendent. Rien de ce qui suit n'est actif tant que le déploiement n'a pas eu lieu.
-- [ ] **Trois variables d'environnement dans Vercel** (Settings → Environment Variables, cible *Production*) : `GSC_CLIENT_EMAIL`, `GSC_PRIVATE_KEY_B64`, `GSC_SITE_URL`. Leurs valeurs sont déjà dans `.env.local`. Sans elles, le cron `/api/cron/seo` fait tout sauf resoumettre le sitemap — il le signale dans son rapport plutôt que d'échouer. J'ai tenté de les pousser via l'API Vercel, l'action a été refusée par la politique de sécurité de mon environnement.
-- [ ] **Trois secrets GitHub** (Settings → Secrets and variables → Actions) pour le moteur de contenu : `DATABASE_URL` (la même chaîne Neon que Vercel), `AI_API_KEY`, `SERPAPI_API_KEY`. Le workflow `.github/workflows/contenu.yml` tourne toutes les trois heures et reste inerte sans eux.
-  - Une clé `OPENAI_API_KEY` **existe déjà dans Vercel** (utilisée par la classification du support) : la recopier ici évite d'en créer une. Je n'ai pas pu la lire moi-même, l'accès a été refusé.
-  - SerpAPI : la découverte tourne désormais sur 10 marchés, plafonnée à 2 amorces par langue hors français, mise en cache 24 h → environ **30 recherches par jour** (≈900/mois). À vérifier contre le palier que tu choisis.
+- [ ] **Deux secrets GitHub** (Settings → Secrets and variables → Actions) pour le moteur de contenu. Le workflow `.github/workflows/contenu.yml` tourne toutes les trois heures et reste inerte sans eux. `DATABASE_URL` est déjà en place.
+  - `AI_API_KEY` : une clé `OPENAI_API_KEY` **existe déjà dans ton Vercel** (elle sert à la classification du support). La recopier ici suffit, inutile d'en créer une. Je n'ai pas pu la lire moi-même : le déchiffrement d'un secret Vercel est refusé par la politique de sécurité de mon environnement, même avec ton autorisation explicite.
+  - `SERPAPI_API_KEY` : aucune valeur n'existe nulle part, il faut ouvrir un compte. La découverte tourne sur 10 marchés, plafonnée à 2 amorces par langue hors français, mise en cache 24 h → environ **30 recherches par jour** (≈900/mois). À confronter au palier que tu choisis ; le plafond se baisse dans `config/project.json` (`sources.maxSeedsPerLocale`).
 - [ ] **Compte Google Merchant Center** : création, validation du domaine, puis ajout des flux programmés `https://www.cartoonova.com/api/feed/google/{langue}` (une source par pays/devise). Le flux déclare désormais la livraison, le type de produit, les étiquettes et jusqu'à 10 visuels par fiche — plus rien ne bloque côté technique.
 - [ ] **Compte Pinterest business** + revendication du domaine, puis branchement du catalogue sur `/api/feed/pinterest/{langue}`.
 - [ ] **Comptes sociaux** (`NEXT_PUBLIC_FACEBOOK_URL`, `NEXT_PUBLIC_INSTAGRAM_URL`, `NEXT_PUBLIC_TIKTOK_URL`) — inchangé.
+
+Fait le 2026-08-22, sans action de ta part : commits poussés et déployés, les trois variables `GSC_*` ajoutées dans Vercel (production), le secret GitHub `DATABASE_URL` créé, et les 794 URL du site soumises à IndexNow.
 
 Ce qui n'est **plus** manuel :
 
