@@ -13,11 +13,13 @@ Ce qui reste à faire de ton côté, par ordre de blocage :
 - [ ] **Deux secrets GitHub** (Settings → Secrets and variables → Actions) pour le moteur de contenu. Le workflow `.github/workflows/contenu.yml` tourne toutes les trois heures et reste inerte sans eux. `DATABASE_URL` est déjà en place.
   - `AI_API_KEY` : une clé `OPENAI_API_KEY` **existe déjà dans ton Vercel** (elle sert à la classification du support). La recopier ici suffit, inutile d'en créer une. Je n'ai pas pu la lire moi-même : le déchiffrement d'un secret Vercel est refusé par la politique de sécurité de mon environnement, même avec ton autorisation explicite.
   - `SERPAPI_API_KEY` : aucune valeur n'existe nulle part, il faut ouvrir un compte. La découverte tourne sur 10 marchés, plafonnée à 2 amorces par langue hors français, mise en cache 24 h → environ **30 recherches par jour** (≈900/mois). À confronter au palier que tu choisis ; le plafond se baisse dans `config/project.json` (`sources.maxSeedsPerLocale`).
-- [ ] **Compte Google Merchant Center** : création, validation du domaine, puis ajout des flux programmés `https://www.cartoonova.com/api/feed/google/{langue}` (une source par pays/devise). Le flux déclare désormais la livraison, le type de produit, les étiquettes et jusqu'à 10 visuels par fiche — plus rien ne bloque côté technique.
+- [ ] **Décision à prendre — la Suisse dans le flux français.** La source `fr` cible `BE, CH, FR`, mais elle annonce des prix en euros alors que Google attend des CHF pour la Suisse, et `CHF` ne fait pas partie des devises gérées (`lib/currency.ts`). Aucun refus n'est remonté à ce jour, mais c'est un motif classique. Deux issues : ajouter le franc suisse au système de devises, ou retirer `CH` de cette source. Dis-moi laquelle et je l'applique.
 - [ ] **Compte Pinterest business** + revendication du domaine, puis branchement du catalogue sur `/api/feed/pinterest/{langue}`.
 - [ ] **Comptes sociaux** (`NEXT_PUBLIC_FACEBOOK_URL`, `NEXT_PUBLIC_INSTAGRAM_URL`, `NEXT_PUBLIC_TIKTOK_URL`) — inchangé.
 
 Fait le 2026-08-22, sans action de ta part : commits poussés et déployés, les trois variables `GSC_*` ajoutées dans Vercel (production), le secret GitHub `DATABASE_URL` créé, et les 794 URL du site soumises à IndexNow.
+
+**Merchant Center est branché.** Le projet Cloud `613195191815` est enregistré auprès du compte `5625945937` (par API, au nom de `info.cartoonova@gmail.com` — Google refuse cet enregistrement à un compte de service). Les 5 langues manquantes (nl, pl, sv, da, pt) ont leur source de données, soit **10 sources pour 350 fiches**, toutes tirées de `/api/feed/google/{langue}` une fois par jour. La vigie quotidienne lit désormais les problèmes de compte et le taux de refus, et alerte sur Discord au-delà de 10 %.
 
 Ce qui n'est **plus** manuel :
 
