@@ -7,6 +7,7 @@ import { lireEtat, ecrireEtat } from "@/lib/seoState";
 import { getArticlesPublishedSince, getAllPublishedArticleRefs } from "@/lib/blogDb";
 import { getPricesForCurrency } from "@/lib/db";
 import { CATALOGUE_EN_LIGNE, slugsProduit } from "@/lib/catalogue";
+import { compteMerchant, etatMerchant, anomaliesMerchant } from "@/lib/merchant";
 
 /**
  * Entretien SEO quotidien, et vigie du site.
@@ -226,6 +227,35 @@ export async function GET(req: NextRequest) {
   rapport.verifications = verifications;
   for (const v of verifications) {
     if (!v.ok) anomalies.push(`${v.nom} : ${v.detail}`);
+  }
+
+  /* 4. Merchant Center. Verifier que notre flux repond ne dit rien de ce que
+     Google en fait : un compte peut etre suspendu, ou refuser la moitie des
+     fiches, avec un flux parfaitement valide en face. C'est ce que cette
+     lecture apporte, et c'est le seul endroit d'ou l'information vient. */
+  if (compteMerchant()) {
+    try {
+      const etat = await etatMerchant();
+      rapport.merchant = {
+        produits: etat.produits,
+        parLangue: etat.parLangue,
+        problemesCompte: etat.problemesCompte,
+        problemesProduit: etat.problemesProduit,
+        partRefusee: Math.round(etat.partRefusee * 100) / 100,
+      };
+      anomalies.push(...anomaliesMerchant(etat));
+      verifications.push({
+        nom: "Merchant Center",
+        ok: anomaliesMerchant(etat).length === 0,
+        detail: `${etat.produits} fiches, ${Math.round(etat.partRefusee * 100)} % refusees`,
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      rapport.merchant = { erreur: message };
+      anomalies.push(`Merchant Center : ${message}`);
+    }
+  } else {
+    rapport.merchant = { ignore: "MERCHANT_ACCOUNT_ID absent de l'environnement" };
   }
 
   /* Discord n'est sollicite qu'en cas d'anomalie, plus un battement
