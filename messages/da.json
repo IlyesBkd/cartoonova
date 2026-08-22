@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "En fødselsdag på vej —",
+      "promoFort": "forhåndsvisning på 2 dage",
+      "heroTitre1": "Fødselsdagsgaven",
+      "heroTitre2": "som får alle til at grine",
+      "heroSous": "Dit foto tegnet i hånden af vores tegnere. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+    },
     "saintValentin": {
       "promo": "Valentinsdag — tegnet i hånden, ubegrænsede rettelser,",
       "promoFort": "bestil senest {date}",

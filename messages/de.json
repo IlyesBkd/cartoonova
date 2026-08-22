@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "Ein Geburtstag steht an —",
+      "promoFort": "Vorschau in 2 Tagen",
+      "heroTitre1": "Das Geburtstagsgeschenk",
+      "heroTitre2": "über das alle lachen",
+      "heroSous": "Ihr Foto als Porträt, von unseren Zeichnern von Hand gezeichnet. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+    },
     "saintValentin": {
       "promo": "Valentinstag — von Hand gezeichnet, unbegrenzte Korrekturen,",
       "promoFort": "bestellen bis {date}",

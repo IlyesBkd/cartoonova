@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "Um aniversário à vista —",
+      "promoFort": "pré-visualização em 2 dias",
+      "heroTitre1": "A prenda de aniversário",
+      "heroTitre2": "que faz toda a gente rir",
+      "heroSous": "A tua foto desenhada à mão pelos nossos artistas. Pré-visualização em 2 dias, retoques ilimitados."
+    },
     "saintValentin": {
       "promo": "Dia dos Namorados — desenhado à mão, retoques ilimitados,",
       "promoFort": "encomenda até {date}",

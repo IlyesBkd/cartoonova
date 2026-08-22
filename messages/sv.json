@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "En födelsedag på gång —",
+      "promoFort": "förhandsvisning på 2 dagar",
+      "heroTitre1": "Födelsedagspresenten",
+      "heroTitre2": "som får alla att skratta",
+      "heroSous": "Ditt foto ritat för hand av våra tecknare. Förhandsvisning på 2 dagar, obegränsade ändringar."
+    },
     "saintValentin": {
       "promo": "Alla hjärtans dag — ritat för hand, obegränsat med ändringar,",
       "promoFort": "beställ senast {date}",

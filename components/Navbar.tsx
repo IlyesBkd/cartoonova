@@ -11,7 +11,7 @@ import TeteAide from "@/components/tj/TeteAide";
 import { EVENEMENT_AIDE } from "@/components/ChatWidget";
 import Icone, { type NomIcone } from "@/components/tj/Icone";
 import { useLien } from "@/components/useLien";
-import type { CleEvenement, EvenementAffiche } from "@/lib/evenements";
+import type { CleAffichee, EvenementAffiche } from "@/lib/evenements";
 import {
   CATEGORIES,
   CATEGORIES_AFFICHAGE,
@@ -41,13 +41,14 @@ import {
 const DELAI_FERMETURE = 160;
 
 /** Le pictogramme qui accompagne le discours de chaque temps fort. */
-const ICONES_EVENEMENT: Record<CleEvenement, NomIcone> = {
+const ICONES_EVENEMENT: Record<CleAffichee, NomIcone> = {
   noel: "sapin",
   saintValentin: "coeur",
   feteDesMeres: "cadeau",
   feteDesPeres: "cadeau",
   halloween: "fete",
   blackFriday: "eclair",
+  anniversaire: "cadeau",
 };
 
 export default function Navbar({

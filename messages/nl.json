@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "Een verjaardag op komst —",
+      "promoFort": "voorbeeld binnen 2 dagen",
+      "heroTitre1": "Het verjaardagscadeau",
+      "heroTitre2": "waar iedereen om lacht",
+      "heroSous": "Je foto met de hand getekend door onze tekenaars. Voorbeeld binnen 2 dagen, onbeperkt bijwerken."
+    },
     "saintValentin": {
       "promo": "Valentijnsdag — met de hand getekend, onbeperkt aanpassen,",
       "promoFort": "bestel vóór {date}",

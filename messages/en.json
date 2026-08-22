@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "A birthday coming up —",
+      "promoFort": "preview in 2 days",
+      "heroTitre1": "The birthday gift",
+      "heroTitre2": "that gets the whole table laughing",
+      "heroSous": "Your photo turned into a portrait hand-drawn by our artists. Preview in 2 days, unlimited revisions."
+    },
     "saintValentin": {
       "promo": "Valentine's Day — hand-drawn, unlimited revisions,",
       "promoFort": "order by {date}",

@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "Un compleanno in arrivo —",
+      "promoFort": "anteprima in 2 giorni",
+      "heroTitre1": "Il regalo di compleanno",
+      "heroTitre2": "che fa ridere tutti",
+      "heroSous": "La tua foto trasformata in un ritratto disegnato a mano dai nostri artisti. Anteprima in 2 giorni, ritocchi illimitati."
+    },
     "saintValentin": {
       "promo": "San Valentino — disegnato a mano, ritocchi illimitati,",
       "promoFort": "ordina entro il {date}",

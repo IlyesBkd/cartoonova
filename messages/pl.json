@@ -465,6 +465,13 @@
     "metaSuffix": "Cartoonova"
   },
   "evenements": {
+    "anniversaire": {
+      "promo": "Zbliżają się urodziny —",
+      "promoFort": "podgląd w 2 dni",
+      "heroTitre1": "Prezent urodzinowy,",
+      "heroTitre2": "który rozbawi wszystkich",
+      "heroSous": "Twoje zdjęcie narysowane ręcznie przez naszych rysowników. Podgląd w 2 dni, nieograniczone poprawki."
+    },
     "saintValentin": {
       "promo": "Walentynki — rysowane ręcznie, nieograniczone poprawki,",
       "promoFort": "zamów do {date}",

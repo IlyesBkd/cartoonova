@@ -99,9 +99,14 @@ const EVENEMENTS: DefEvenement[] = [
     // France : dernier dimanche de mai, sauf collision avec la Pentecote.
     regle: { type: "feteDesMeresFr" },
     parLocale: {
-      // Royaume-Uni : Mothering Sunday, 4e dimanche du Careme, soit trois
-      // semaines avant Paques — en mars, pas en mai.
-      en: { type: "paques", decalage: -21 },
+      /* Le marche anglophone est celui des Etats-Unis : c'est le pays que
+         cible la source Merchant `EN`, et le dollar la devise du flux. La
+         regle etait celle du Royaume-Uni — Mothering Sunday, quatrieme
+         dimanche du Careme, en mars — ce qui lancait la campagne deux mois
+         trop tot pour le marche reellement adresse.
+         A rebasculer sur `{ type: "paques", decalage: -21 }` le jour ou le
+         flux anglais ciblera GB en livres. */
+      en: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
       es: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 1 },
       de: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
       it: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
@@ -299,18 +304,38 @@ export function evenementActif(
  * composant client ferait dependre le rendu des donnees ICU du navigateur,
  * qui ne sont pas toujours celles de Node, et l'hydratation divergerait.
  */
+/**
+ * Ce que le hero et la barre savent afficher.
+ *
+ * `anniversaire` n'est pas une date du calendrier : c'est le discours tenu
+ * hors campagne. Sept mois sur douze ne portent aucun temps fort — mars,
+ * avril, juillet, aout et septembre sont entierement vides — et le site y
+ * servait un texte permanent identique toute l'annee. Un anniversaire, lui,
+ * il y en a en permanence : c'est le seul angle cadeau qu'on puisse tenir
+ * sans inventer une fete.
+ */
+export type CleAffichee = CleEvenement | "anniversaire";
+
 export interface EvenementAffiche {
-  cle: CleEvenement;
-  /** « 22 mai », deja dans la langue du marche. Vide si non livrable. */
+  cle: CleAffichee;
+  /** « 22 mai », deja dans la langue du marche. Vide hors campagne livrable. */
   dateLimite: string;
 }
 
+/**
+ * Toujours un discours a afficher : le temps fort du moment s'il y en a un,
+ * l'angle anniversaire sinon. La fonction ne renvoie donc plus `null`.
+ *
+ * `evenementActif` continue, elle, de ne connaitre que les vraies dates : le
+ * rappel « commandez avant le X » de la fiche produit s'appuie dessus, et il
+ * n'aurait aucun sens pour un anniversaire dont personne ne connait la date.
+ */
 export function evenementAffiche(
   locale: Locale,
   maintenant: Date = new Date()
-): EvenementAffiche | null {
+): EvenementAffiche {
   const actif = evenementActif(locale, maintenant);
-  if (!actif) return null;
+  if (!actif) return { cle: "anniversaire", dateLimite: "" };
   return {
     cle: actif.cle,
     dateLimite: actif.commanderAvant
