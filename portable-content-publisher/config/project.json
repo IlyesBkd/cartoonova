@@ -14,7 +14,9 @@
         "toujours relier le sujet à un vrai cas d'usage cadeau ou personnalisation",
         "rester honnête sur les délais annoncés (dessin en 24h, impression et livraison en 3 à 5 jours ouvrés)",
         "éviter le jargon marketing creux, privilégier des conseils concrets et actionnables",
-        "mentionner Cartoonova naturellement dans le texte, jamais de façon insistante ou répétée"
+        "mentionner Cartoonova naturellement dans le texte, jamais de façon insistante ou répétée",
+        "le titre du sujet fourni peut être rédigé dans une autre langue que celle demandée : le traduire intégralement, ne jamais recopier un mot tel quel dans le titre produit",
+        "ne jamais citer ni recommander une place de marché ou un concurrent (Amazon, Etsy, AliExpress, Fiverr, eBay, Temu…) : l'article est publié sur la boutique elle-même"
       ],
       "forbiddenPatterns": [
         "garanti à 100%",
@@ -77,7 +79,13 @@
       "pt": ["retrato personalizado presente", "caricatura personalizada presente", "ideia de presente de aniversario original", "presente para fa de anime"]
     },
     "allowDomains": [],
-    "denyDomains": [],
+    "denyDomains": [
+      "amazon.com", "amazon.fr", "amazon.de", "amazon.es", "amazon.it", "amazon.nl", "amazon.pl", "amazon.se", "amazon.co.uk", "amazon.pt",
+      "etsy.com", "aliexpress.com", "temu.com", "wish.com", "alibaba.com",
+      "ebay.com", "ebay.fr", "ebay.de", "fiverr.com", "upwork.com",
+      "cdiscount.com", "wanimo.com", "vistaprint.fr", "redbubble.com", "zazzle.com",
+      "pinterest.com", "pinterest.fr", "youtube.com", "facebook.com", "tiktok.com"
+    ],
     "requireAttribution": false
   },
   "adapters": {

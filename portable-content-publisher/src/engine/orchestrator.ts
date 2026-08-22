@@ -39,15 +39,28 @@ export class PublisherEngine {
     await this.adapters.cms.initialize();
   }
 
+  /**
+   * A host matches a listed domain when it is that domain or a subdomain of it.
+   *
+   * Exact equality was the previous rule, which made the lists near-useless:
+   * `amazon.fr` did not match `www.amazon.fr`, so a marketplace listed as
+   * denied still supplied topics â€” and the site published an article steering
+   * readers to a competitor.
+   */
+  private static hostMatches(host: string, domain: string): boolean {
+    return host === domain || host.endsWith(`.${domain}`);
+  }
+
   async discoverTopics(): Promise<TopicCandidate[]> {
     const topics = await this.adapters.search.discover(this.config);
-    const denied = new Set(this.config.sources.denyDomains.map((domain) => domain.toLowerCase()));
-    const allowed = new Set(this.config.sources.allowDomains.map((domain) => domain.toLowerCase()));
+    const denied = this.config.sources.denyDomains.map((domain) => domain.toLowerCase());
+    const allowed = this.config.sources.allowDomains.map((domain) => domain.toLowerCase());
     return topics
       .filter((topic) => topic.sourceUrls.length > 0)
       .filter((topic) => topic.sourceUrls.every((url) => {
         const host = new URL(url).hostname.toLowerCase();
-        return !denied.has(host) && (allowed.size === 0 || allowed.has(host));
+        if (denied.some((domain) => PublisherEngine.hostMatches(host, domain))) return false;
+        return allowed.length === 0 || allowed.some((domain) => PublisherEngine.hostMatches(host, domain));
       }))
       .sort((a, b) => this.topicScore(b) - this.topicScore(a));
   }
