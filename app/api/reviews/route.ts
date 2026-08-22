@@ -7,9 +7,44 @@ import {
 } from "@/lib/reviewsDb";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
+import { cleDepuisRequete } from "@/lib/rateLimit";
 import { locales } from "@/i18n/config";
 
 export const dynamic = "force-dynamic";
+
+/**
+ * Limitation de debit du depot public.
+ *
+ * Un compteur en memoire ne survit pas au recyclage d'une instance et n'est pas
+ * partage entre elles : il ne pretend pas arreter un attaquant determine. Il
+ * suffit en revanche a empecher qu'un formulaire relance en boucle remplisse la
+ * table et sature le webhook Discord, ce qui est le risque reel ici. Le vrai
+ * garde-fou reste le jeton de commande : sans lui, rien n'est publie.
+ */
+const DEPOTS_MAX = 3;
+const FENETRE_MS = 60 * 60 * 1000;
+const depots = new Map<string, number[]>();
+
+function tropDeDepots(cle: string): boolean {
+  const maintenant = Date.now();
+  const recents = (depots.get(cle) ?? []).filter((t) => t > maintenant - FENETRE_MS);
+
+  if (recents.length >= DEPOTS_MAX) {
+    depots.set(cle, recents);
+    return true;
+  }
+
+  recents.push(maintenant);
+  depots.set(cle, recents);
+
+  // Purge opportuniste : sans elle la table grossirait indefiniment.
+  if (depots.size > 500) {
+    for (const [autre, dates] of depots) {
+      if (dates.every((t) => t <= maintenant - FENETRE_MS)) depots.delete(autre);
+    }
+  }
+  return false;
+}
 
 const TEXTE_MIN = 20;
 const TEXTE_MAX = 2000;
@@ -47,6 +82,10 @@ async function alerterDiscord(titre: string, lignes: string[], rouge: boolean): 
  * client qui a perdu son email doit pouvoir s'exprimer.
  */
 export async function POST(req: NextRequest) {
+  if (tropDeDepots(cleDepuisRequete(req))) {
+    return NextResponse.json({ error: "trop_de_depots" }, { status: 429 });
+  }
+
   try {
     const body = (await req.json()) as Record<string, unknown>;
 
