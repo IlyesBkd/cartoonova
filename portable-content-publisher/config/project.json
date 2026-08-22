@@ -64,7 +64,7 @@
       "cadeau pour fan de One Piece",
       "cadeau pour fan de Studio Ghibli"
     ],
-    "maxSeedsPerLocale": 2,
+    "maxSeedsPerLocale": 1,
     "seedsByLocale": {
       "en": ["personalised cartoon portrait gift", "custom caricature gift idea", "unique birthday gift idea", "gift for anime fan"],
       "es": ["retrato personalizado regalo", "caricatura personalizada regalo", "idea de regalo cumpleanos original", "regalo para fan del manga"],
@@ -95,7 +95,7 @@
         "topicsFile": "fixtures/cartoonova-topics.json",
         "serpFile": "fixtures/serp.json",
         "apiKey": "${SERPAPI_API_KEY:-}",
-        "discoverCacheTtlMs": 86400000
+        "discoverCacheTtlMs": 604800000
       }
     },
     "analytics": { "type": "file", "options": { "file": "fixtures/analytics.json" } },

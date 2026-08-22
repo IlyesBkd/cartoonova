@@ -47,8 +47,13 @@ jobs:
       AI_ADAPTER: openai-compatible
       AI_ENDPOINT: ${{ vars.AI_ENDPOINT || 'https://api.openai.com/v1/chat/completions' }}
       AI_API_KEY: ${{ secrets.AI_API_KEY }}
-      AI_MODEL: ${{ vars.AI_MODEL || 'gpt-4o' }}
-      AI_TRANSLATION_MODEL: ${{ vars.AI_TRANSLATION_MODEL || 'gpt-4o-mini' }}
+      # gpt-4o datait de deux ans. Les modeles courants ont ete essayes contre
+      # la requete reelle de l'adaptateur avant d'etre retenus : gpt-5.5 refuse
+      # le parametre `temperature` que celui-ci envoie — « only the default (1)
+      # value is supported » — et aurait echoue a chaque execution. gpt-5.4 et
+      # gpt-5.4-mini l'acceptent, sans toucher au code.
+      AI_MODEL: ${{ vars.AI_MODEL || 'gpt-5.4' }}
+      AI_TRANSLATION_MODEL: ${{ vars.AI_TRANSLATION_MODEL || 'gpt-5.4-mini' }}
       SEARCH_ADAPTER: serpapi
       SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
       DATA_DIR: data
