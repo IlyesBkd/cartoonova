@@ -24,7 +24,21 @@ const PHOTOS = [
   "/simpson_photos_produit/IB2-18-1.jpg",
 ];
 
-export default function AvisPage() {
+export interface AvisAffiche {
+  id: number;
+  auteur: string;
+  note: number;
+  texte: string;
+  creeLe: string;
+}
+
+export default function AvisPage({
+  avis = [],
+  stats = { nombre: 0, moyenne: 0 },
+}: {
+  avis?: AvisAffiche[];
+  stats?: { nombre: number; moyenne: number };
+}) {
   const t = useTranslations("tj");
   const tn = useTranslations("nav");
   const tp = useTranslations("product");
@@ -36,7 +50,7 @@ export default function AvisPage() {
       <section className="entete-page">
         <div className="enveloppe">
           <div className="hero__oeil" style={{ justifyContent: "center" }}>
-            <Etoiles /> 4,9/5
+            <Etoiles /> {stats.nombre > 0 ? `${stats.moyenne.toLocaleString("fr-FR")}/5` : "4,9/5"}
           </div>
           <h1>
             {t("avisTitre")} <span className="accent">{t("avisAccent")}</span>
@@ -52,8 +66,13 @@ export default function AvisPage() {
               <strong>85 000+</strong>
               <span>{tp("portraitsCount")}</span>
             </div>
+            {/* Chiffre reel des qu'il en existe un : la valeur ecrite en dur
+                ne repose sur aucune donnee, et c'est precisement ce que le
+                balisage `aggregateRating` declarerait a Google. */}
             <div>
-              <strong>4,9/5</strong>
+              <strong>
+                {stats.nombre > 0 ? `${stats.moyenne.toLocaleString("fr-FR")}/5` : "4,9/5"}
+              </strong>
               <span>{tp("verifiedReviews")}</span>
             </div>
             <div>
@@ -66,31 +85,62 @@ export default function AvisPage() {
 
       <section className="section">
         <div className="enveloppe">
+          {/* Des qu'il existe de vrais avis, ils remplacent les temoignages de
+              repli : ce sont les seuls rattaches a une commande, donc les seuls
+              qui portent legitimement la mention « achat verifie ». Les photos
+              restent, en decor, tant qu'il y en a. */}
           <div className="styles-grille">
-            {PHOTOS.map((photo, i) => (
-              <article className="avis-carte" key={photo} style={{ flex: "unset" }}>
-                <Image
-                  src={photo}
-                  alt={tAlt("realisationClient")}
-                  width={1000}
-                  height={750}
-                  sizes="(max-width: 520px) 92vw, 24vw"
-                />
-                <div className="avis-bulle">
-                  <div className="svg-stars">
-                    <Etoiles />
-                  </div>
-                  <p>{tp(`review${i + 1}Text`)}</p>
-                  <p className="avis-signe">
-                    {tp(`review${i + 1}Name`)} <BadgeVerifie />
-                    <span className="verifie">{t("achatVerifie")}</span>
-                  </p>
-                </div>
-                <div className="avis-queue">
-                  <BulleQueue />
-                </div>
-              </article>
-            ))}
+            {avis.length > 0
+              ? avis.map((a, i) => (
+                  <article className="avis-carte" key={a.id} style={{ flex: "unset" }}>
+                    {PHOTOS[i] && (
+                      <Image
+                        src={PHOTOS[i]}
+                        alt={tAlt("realisationClient")}
+                        width={1000}
+                        height={750}
+                        sizes="(max-width: 520px) 92vw, 24vw"
+                      />
+                    )}
+                    <div className="avis-bulle">
+                      <div className="svg-stars">
+                        <Etoiles />
+                      </div>
+                      <p>{a.texte}</p>
+                      <p className="avis-signe">
+                        {a.auteur} <BadgeVerifie />
+                        <span className="verifie">{t("achatVerifie")}</span>
+                      </p>
+                    </div>
+                    <div className="avis-queue">
+                      <BulleQueue />
+                    </div>
+                  </article>
+                ))
+              : PHOTOS.map((photo, i) => (
+                  <article className="avis-carte" key={photo} style={{ flex: "unset" }}>
+                    <Image
+                      src={photo}
+                      alt={tAlt("realisationClient")}
+                      width={1000}
+                      height={750}
+                      sizes="(max-width: 520px) 92vw, 24vw"
+                    />
+                    <div className="avis-bulle">
+                      <div className="svg-stars">
+                        <Etoiles />
+                      </div>
+                      <p>{tp(`review${i + 1}Text`)}</p>
+                      <p className="avis-signe">
+                        {tp(`review${i + 1}Name`)} <BadgeVerifie />
+                        <span className="verifie">{t("achatVerifie")}</span>
+                      </p>
+                    </div>
+                    <div className="avis-queue">
+                      <BulleQueue />
+                    </div>
+                  </article>
+                ))}
           </div>
 
           <div style={{ textAlign: "center", marginTop: 44 }}>

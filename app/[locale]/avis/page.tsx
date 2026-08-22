@@ -2,12 +2,19 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { OG_LOCALE, alternatesPour, urlAbsolue } from "@/lib/seo";
 import type { Locale } from "@/i18n/config";
+import { SITE_URL } from "@/lib/site";
+import { avisPublies, statistiquesAvis } from "@/lib/reviewsDb";
 import AvisClient from "./AvisClient";
 
-/* Note pour la suite : cette page n'emet volontairement aucun balisage
-   `Review` ni `AggregateRating`. Les temoignages affiches ne sont rattaches a
-   aucune commande verifiable. Tant qu'une source d'avis reels n'existe pas,
-   les baliser exposerait a une action manuelle de Google. */
+/* Le balisage `Review`/`AggregateRating` n'apparait qu'a partir de
+   `MINIMUM_BALISAGE` avis reels, deposes via un lien signe qui prouve l'achat.
+   Les temoignages de repli affiches en attendant ne sont rattaches a aucune
+   commande : les baliser exposerait a une action manuelle de Google.
+
+   La moyenne est calculee sur tous les avis publies, sans filtre de note. Ne
+   compter que les bonnes notes donnerait une note exacte au dixieme et fausse
+   sur le fond. */
+const MINIMUM_BALISAGE = 3;
 
 const CHEMIN = "/avis";
 
@@ -34,6 +41,55 @@ export async function generateMetadata({
   };
 }
 
-export default function Page() {
-  return <AvisClient />;
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+
+  /* La base est interrogee au rendu : un avis publie doit apparaitre sans
+     redeploiement, c'est tout l'objet du dispositif. Une base injoignable
+     ramene la page a ses temoignages de repli plutot qu'a une erreur. */
+  const [avis, stats] = await Promise.all([
+    avisPublies().catch(() => []),
+    statistiquesAvis().catch(() => ({ nombre: 0, moyenne: 0 })),
+  ]);
+
+  const balisage =
+    stats.nombre >= MINIMUM_BALISAGE
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: "Cartoonova",
+          url: `${SITE_URL}/${locale}/avis`,
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: stats.moyenne,
+            reviewCount: stats.nombre,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: avis.slice(0, 20).map((a) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: a.auteur },
+            datePublished: a.creeLe.slice(0, 10),
+            reviewBody: a.texte,
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: a.note,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          })),
+        }
+      : null;
+
+  return (
+    <>
+      {balisage && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(balisage) }}
+        />
+      )}
+      <AvisClient avis={avis} stats={stats} />
+    </>
+  );
 }

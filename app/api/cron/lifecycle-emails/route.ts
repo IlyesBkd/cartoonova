@@ -18,7 +18,7 @@ import {
   reorderEmail,
   abandonedCartEmail,
 } from "@/lib/email-i18n";
-import { signEmail } from "@/lib/emailToken";
+import { signEmail, orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
@@ -88,7 +88,7 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
             <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
             <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
             <p style="font-size: 16px; margin: 0; color: #333;">${t.ask}</p>
-            ${button(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(t.subject)}`, t.cta)}
+            ${button(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, t.cta)}
           `,
           `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>`
         ),
