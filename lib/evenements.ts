@@ -105,20 +105,37 @@ const EVENEMENTS: DefEvenement[] = [
       es: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 1 },
       de: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
       it: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
+      nl: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
+      da: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 2 },
+      pt: { type: "nieme", mois: 5, jourSemaine: DIMANCHE, n: 1 },
+      // Pologne : date fixe, elle ne bouge pas d'une annee a l'autre.
+      pl: { type: "fixe", mois: 5, jour: 26 },
+      /* Suede : dernier dimanche de mai, comme la France — mais sans le report
+         de Pentecote. La regle francaise donnerait donc une date fausse les
+         annees de collision, d'ou une regle propre plutot qu'un repli. */
+      sv: { type: "dernier", mois: 5, jourSemaine: DIMANCHE },
     },
     joursAvant: 28,
     livraison: true,
   },
   {
     cle: "feteDesPeres",
-    // France et Royaume-Uni : 3e dimanche de juin.
+    // France, Royaume-Uni et Pays-Bas : 3e dimanche de juin.
     regle: { type: "nieme", mois: 6, jourSemaine: DIMANCHE, n: 3 },
     parLocale: {
-      // Espagne et Italie : la Saint-Joseph, date fixe.
+      // Espagne, Italie et Portugal : la Saint-Joseph, date fixe.
       es: { type: "fixe", mois: 3, jour: 19 },
       it: { type: "fixe", mois: 3, jour: 19 },
+      pt: { type: "fixe", mois: 3, jour: 19 },
       // Allemagne : Vatertag = jeudi de l'Ascension = Paques + 39 jours.
       de: { type: "paques", decalage: 39 },
+      // Pologne : 23 juin. Danemark : 5 juin, jour de la Constitution.
+      pl: { type: "fixe", mois: 6, jour: 23 },
+      da: { type: "fixe", mois: 6, jour: 5 },
+      /* Suede : deuxieme dimanche de NOVEMBRE, six mois apres tout le monde.
+         C'est l'ecart le plus large de la table, et celui qu'un repli sur la
+         regle francaise ratait le plus largement. */
+      sv: { type: "nieme", mois: 11, jourSemaine: DIMANCHE, n: 2 },
     },
     joursAvant: 24,
     livraison: true,
