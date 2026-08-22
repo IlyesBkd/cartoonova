@@ -123,14 +123,47 @@ export interface PublishedArticleRef {
   locale: string;
   slug: string;
   updatedAt: string;
+  /** Cle de groupe de traduction. Voir `getAllPublishedArticleRefs`. */
+  topicId: string;
 }
 
+/**
+ * Les references servent au sitemap, qui a besoin des alternances de langue.
+ *
+ * `topic_id` fait office de cle de groupe : le moteur de publication derive
+ * chaque traduction du meme sujet et lui recopie l'identifiant (voir
+ * `orchestrator.ts`, ou une paire est reputee complete quand tous les
+ * `locale` d'un meme `topicId` existent). Deux articles qui le partagent sont
+ * donc bien deux versions d'un meme texte, ce qu'exige hreflang.
+ */
 export async function getAllPublishedArticleRefs(): Promise<PublishedArticleRef[]> {
   await ensureBlogSchema();
-  const rows = await sql`SELECT locale, slug, updated_at FROM articles WHERE status = 'published'`;
+  const rows = await sql`SELECT locale, slug, updated_at, topic_id FROM articles WHERE status = 'published'`;
   return (rows as Record<string, unknown>[]).map((row) => ({
     locale: row.locale as string,
     slug: row.slug as string,
     updatedAt: new Date(row.updated_at as string).toISOString(),
+    topicId: row.topic_id as string,
+  }));
+}
+
+/**
+ * Articles publies depuis `depuis`, pour signalement a IndexNow.
+ *
+ * On borne par `published_at` et non `updated_at` : une correction de coquille
+ * ne justifie pas de redemander une exploration, et les quotas IndexNow se
+ * consomment.
+ */
+export async function getArticlesPublishedSince(depuis: Date): Promise<PublishedArticleRef[]> {
+  await ensureBlogSchema();
+  const rows = await sql`
+    SELECT locale, slug, updated_at, topic_id FROM articles
+    WHERE status = 'published' AND published_at >= ${depuis.toISOString()}
+  `;
+  return (rows as Record<string, unknown>[]).map((row) => ({
+    locale: row.locale as string,
+    slug: row.slug as string,
+    updatedAt: new Date(row.updated_at as string).toISOString(),
+    topicId: row.topic_id as string,
   }));
 }

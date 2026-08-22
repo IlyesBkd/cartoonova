@@ -9,6 +9,12 @@ import { visuelsProduit } from "@/lib/visuels";
 
 const baseUrl = SITE_URL;
 
+/* Le sitemap etait prerendu au build : les articles publies par le moteur de
+   contenu, qui ecrit en base sans passer par un deploiement, n'y seraient
+   jamais apparus. Une heure de cache suffit — Google ne relit pas le fichier
+   plus souvent — et le rendu reste hors du chemin critique des visiteurs. */
+export const revalidate = 3600;
+
 /* Horodatage fige au chargement du module, donc une fois par deploiement.
    Auparavant chaque entree portait `new Date()`, reevalue a chaque requete :
    les 405 URL se declaraient modifiees a la seconde ou Google lisait le
@@ -127,18 +133,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  /* Articles de blog. Pas d'`alternates` : la table `articles` ne porte aucune
-     cle de groupe de traduction, donc rien ne permet d'affirmer que l'article
-     allemand est la version de l'article francais. Declarer un hreflang faux
-     serait pire que de n'en declarer aucun — a rouvrir quand le schema portera
-     un identifiant de groupe. */
+  /* Articles de blog. Les alternances se construisent sur `topic_id` : le
+     moteur de publication recopie l'identifiant du sujet sur chaque traduction
+     (voir `orchestrator.ts`, ou une paire est reputee complete quand toutes les
+     locales d'un meme `topicId` existent). Deux articles qui le partagent sont
+     donc bien deux versions d'un meme texte, ce qu'exige hreflang.
+
+     Un groupe d'un seul article n'en declare aucune : un hreflang qui ne pointe
+     que vers soi-meme n'apprend rien a Google. */
   const articles = await getAllPublishedArticleRefs().catch(() => []);
+
+  const groupes = new Map<string, Map<string, string>>();
   for (const article of articles) {
+    if (!article.topicId) continue;
+    const groupe = groupes.get(article.topicId) ?? new Map<string, string>();
+    groupe.set(article.locale, `${baseUrl}/${article.locale}/blog/${article.slug}`);
+    groupes.set(article.topicId, groupe);
+  }
+
+  for (const article of articles) {
+    const groupe = article.topicId ? groupes.get(article.topicId) : undefined;
+    const languages = groupe && groupe.size > 1 ? Object.fromEntries(groupe) : null;
+
     entries.push({
       url: `${baseUrl}/${article.locale}/blog/${article.slug}`,
       lastModified: new Date(article.updatedAt),
       changeFrequency: "monthly",
       priority: 0.6,
+      /* `x-default` designe l'anglais quand il existe, comme partout ailleurs
+         dans ce fichier. */
+      ...(languages
+        ? {
+            alternates: {
+              languages: {
+                ...languages,
+                ...(languages.en ? { "x-default": languages.en } : {}),
+              },
+            },
+          }
+        : {}),
     });
   }
 
