@@ -2,6 +2,31 @@
 
 Ce fichier liste toutes les actions du backlog qui nécessitent une décision, un compte, une clé API, ou un accès dont je ne dispose pas. Je le complète au fur et à mesure que j'avance dans le backlog.
 
+> **Les sections datées d'avant le 2026-08-22 sont partiellement obsolètes.** La section « Automatisation des canaux » ci-dessous fait foi : elle décrit ce qui reste manuel après le passage du 2026-08-22.
+
+---
+
+## 🔁 Automatisation des canaux — état au 2026-08-22
+
+Ce qui reste à faire de ton côté, par ordre de blocage :
+
+- [ ] **`git push`** — cinq commits attendent. Rien de ce qui suit n'est actif tant que le déploiement n'a pas eu lieu.
+- [ ] **Trois variables d'environnement dans Vercel** (Settings → Environment Variables, cible *Production*) : `GSC_CLIENT_EMAIL`, `GSC_PRIVATE_KEY_B64`, `GSC_SITE_URL`. Leurs valeurs sont déjà dans `.env.local`. Sans elles, le cron `/api/cron/seo` fait tout sauf resoumettre le sitemap — il le signale dans son rapport plutôt que d'échouer. J'ai tenté de les pousser via l'API Vercel, l'action a été refusée par la politique de sécurité de mon environnement.
+- [ ] **Trois secrets GitHub** (Settings → Secrets and variables → Actions) pour le moteur de contenu : `DATABASE_URL` (la même chaîne Neon que Vercel), `AI_API_KEY`, `SERPAPI_API_KEY`. Le workflow `.github/workflows/contenu.yml` tourne toutes les trois heures et reste inerte sans eux.
+  - Une clé `OPENAI_API_KEY` **existe déjà dans Vercel** (utilisée par la classification du support) : la recopier ici évite d'en créer une. Je n'ai pas pu la lire moi-même, l'accès a été refusé.
+  - SerpAPI : la découverte tourne désormais sur 10 marchés, plafonnée à 2 amorces par langue hors français, mise en cache 24 h → environ **30 recherches par jour** (≈900/mois). À vérifier contre le palier que tu choisis.
+- [ ] **Compte Google Merchant Center** : création, validation du domaine, puis ajout des flux programmés `https://www.cartoonova.com/api/feed/google/{langue}` (une source par pays/devise). Le flux déclare désormais la livraison, le type de produit, les étiquettes et jusqu'à 10 visuels par fiche — plus rien ne bloque côté technique.
+- [ ] **Compte Pinterest business** + revendication du domaine, puis branchement du catalogue sur `/api/feed/pinterest/{langue}`.
+- [ ] **Comptes sociaux** (`NEXT_PUBLIC_FACEBOOK_URL`, `NEXT_PUBLIC_INSTAGRAM_URL`, `NEXT_PUBLIC_TIKTOK_URL`) — inchangé.
+
+Ce qui n'est **plus** manuel :
+
+- Les avis clients ne passent plus par `messages/*.json`. L'e-mail envoyé 10 jours après la livraison pointe vers un formulaire dont le lien prouve l'achat ; l'avis est publié directement, et `aggregateRating` s'active seul à partir de 3 avis. Un onglet « Avis » de l'administration reste disponible pour les dépôts sans preuve d'achat.
+- Le sitemap se régénère toutes les heures au lieu d'être figé au build, et est resoumis chaque jour à Search Console.
+- IndexNow signale les nouveautés à Bing/Yandex sans aucun compte.
+- Une vigie quotidienne prévient sur Discord si le flux marchand, le sitemap ou le blog décroche.
+- La séquence de bienvenue couvre les 10 langues au lieu de 5.
+
 ## 🚀 Déploiement
 
 - [ ] **Pousser les commits vers `origin/main`** (`git push`). Je committe au fur et à mesure mais je ne push pas automatiquement — c'est une action visible/irréversible que je te laisse déclencher. Si Vercel est branché sur `main`, un simple `git push` suffira à déployer tout ce que j'aurai corrigé, y compris le blog (actuellement 404 en prod faute d'avoir été commité jusqu'ici).
