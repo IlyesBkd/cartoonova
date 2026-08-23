@@ -66,6 +66,25 @@ export function convertPrice(amountInEUR: number, currency: Currency): number {
   return Math.ceil(amountInEUR * exchangeRates[currency]);
 }
 
+/**
+ * Ramene un montant a l'euro, la devise de reference de la table ci-dessus.
+ *
+ * La mesure en avait besoin : les commandes arrivent en neuf devises, et
+ * additionner 89 USD, 89 GBP et 89 PLN comme s'il s'agissait du meme chiffre
+ * donne un chiffre d'affaires faux de plusieurs dizaines de pour cent. Tout
+ * evenement d'achat porte donc, a cote du montant reellement paye, sa
+ * contrepartie en euros — c'est elle qu'on somme.
+ *
+ * Le taux vient de la meme table saisie a la main que le reste du site : la
+ * valeur derive avec le marche, mais elle derive de la meme facon pour les
+ * prix affiches, ce qui vaut mieux qu'une seconde source qui divergerait.
+ */
+export function toEUR(amount: number, currency: string): number {
+  const taux = exchangeRates[currency as Currency];
+  if (!taux) return amount;
+  return Math.round((amount / taux) * 100) / 100;
+}
+
 export function formatPrice(amount: number, currency: Currency, locale: string): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",

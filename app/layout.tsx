@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import Script from "next/script";
 import { headers } from "next/headers";
 import { GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 import { locales, defaultLocale } from "@/i18n/config";
 import "./globals.css";
+
+/* Revendication du domaine chez Pinterest. La balise doit rester en place :
+   Pinterest la reverifie periodiquement, et la revendication saute si elle
+   disparait. Posee a la racine et non dans `app/[locale]/layout.tsx` pour couvrir
+   aussi les routes hors langue (/success, /suivi, /confirm-poster) ; le
+   `generateMetadata` du layout de langue ne definit pas `verification`, elle est
+   donc heritee. `verification.other` rend exactement la balise fournie par
+   Pinterest : <meta name="p:domain_verify" content="..." />. */
+export const metadata: Metadata = {
+  verification: {
+    other: { "p:domain_verify": "ff0cf4c9c801e4e24e2cef418cee0b49" },
+  },
+};
 
 /* En-tete pose par le middleware next-intl sur la requete transmise. C'est la
    meme source que celle lue par `getRequestLocale` a l'interieur de la

@@ -52,6 +52,11 @@ export interface DbOrder {
   poster_confirmation_status: "confirmed" | "changes_requested" | null;
   poster_confirmation_responded_at: string | null;
   poster_confirmation_note: string | null;
+  /* Ajoutees par `ensureOrderPromoSchema` dans app/api/order/create : les
+     colonnes existaient en base mais pas dans le type, donc toute lecture les
+     ignorait silencieusement. */
+  promo_code: string | null;
+  discount_amount: number | null;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
@@ -76,6 +81,37 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
   await sql`
     UPDATE orders SET status = ${status} WHERE id = ${orderId}::uuid
   `;
+}
+
+/**
+ * Passe une commande en PAID — au plus une fois, quoi qu'il arrive.
+ *
+ * C'est la piece qui rend le webhook Stripe sur : deux appelants tentent
+ * desormais cette transition en meme temps. Stripe emet
+ * `payment_intent.succeeded` a l'instant meme ou il redirige le navigateur
+ * vers /success, et les deux chemins courent l'un contre l'autre.
+ *
+ * La verification etait jusqu'ici un `SELECT` suivi d'un `UPDATE` — deux
+ * requetes separees. Avec un seul appelant cela passait. Avec deux, les deux
+ * lisent PENDING avant que l'un des deux n'ecrive, et les deux se croient
+ * legitimes : deux e-mails de confirmation au client, deux notifications
+ * Discord, un chiffre d'affaires double.
+ *
+ * Ici la lecture et l'ecriture sont la meme requete. La condition
+ * `status <> 'PAID'` est evaluee par PostgreSQL au moment de l'ecriture, sous
+ * le verrou de ligne : le second appelant ne trouve plus rien a mettre a jour
+ * et repart avec `false`. Un seul declenche les effets de bord.
+ *
+ * Renvoie `true` au gagnant, `false` a tous les autres.
+ */
+export async function marquerPayee(orderId: string): Promise<boolean> {
+  const rows = await sql`
+    UPDATE orders
+    SET status = 'PAID'
+    WHERE id = ${orderId}::uuid AND status <> 'PAID'
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 export async function updateOrderFinalImage(orderId: string, finalImageUrl: string): Promise<void> {

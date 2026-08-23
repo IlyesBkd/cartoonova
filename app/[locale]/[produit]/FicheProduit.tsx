@@ -82,9 +82,19 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const tAlt = useTranslations("alt");
   const lien = useLien();
   const { formatRaw: formatPrix, currency } = useCurrency();
-  const { trackOptionSelected, trackPhotoUploaded, trackCheckoutStarted } = useProductTracking({
+  const {
+    trackOptionSelected,
+    trackGalleryBrowsed,
+    trackPhotoUploadStarted,
+    trackPhotoUploaded,
+    trackPhotoUploadFailed,
+    trackPurchaseBlocked,
+    trackBuyClicked,
+    trackCheckoutStarted,
+  } = useProductTracking({
     productId: donnees.idProduit,
     productName: donnees.titre,
+    univers: donnees.univers,
   });
 
   const [vue, setVue] = useState(0);
@@ -182,9 +192,18 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     if (!fichiers?.length) return;
     setEnvoiEnCours(true);
     setErreurEnvoi("");
+
+    /* Le depot est l'etape la plus fragile du tunnel : elle depend du reseau
+       du client et de photos qui pesent souvent plusieurs megaoctets. On la
+       mesure des le debut et on chronometre, faute de quoi un echec ne se
+       distingue pas d'un visiteur qui a renonce. */
+    const aEnvoyer = Array.from(fichiers).slice(0, MAX_PHOTOS);
+    const debut = Date.now();
+    trackPhotoUploadStarted(aEnvoyer.length);
+
     try {
       const urls: string[] = [];
-      for (const fichier of Array.from(fichiers).slice(0, MAX_PHOTOS)) {
+      for (const fichier of aEnvoyer) {
         const blob = await upload(`orders/${Date.now()}-${fichier.name}`, fichier, {
           access: "public",
           handleUploadUrl: "/api/upload",
@@ -193,9 +212,10 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
       }
       setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));
       setErreurPhoto(false);
-      trackPhotoUploaded(urls.length);
-    } catch {
+      trackPhotoUploaded(urls.length, Date.now() - debut);
+    } catch (erreur) {
       setErreurEnvoi(tp("uploadError"));
+      trackPhotoUploadFailed(erreur instanceof Error ? erreur.message : "inconnue");
     } finally {
       setEnvoiEnCours(false);
     }
@@ -215,8 +235,15 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
      a dessiner. On bloquait nulle part — ni ici, ni cote serveur — et le
      client atteignait le formulaire de carte bancaire. On l'arrete ici, en le
      ramenant a l'etape d'envoi plutot qu'en lui opposant un simple refus. */
-  const ouvrirCaisse = () => {
+  const ouvrirCaisse = (emplacement: "principal" | "barre_collante" = "principal") => {
+    trackBuyClicked(emplacement, total, currency);
+
     if (photos.length === 0) {
+      /* Ce refus est invisible dans les chiffres actuels : le visiteur a
+         clique sur « commander », donc il voulait acheter, et pourtant aucun
+         evenement de caisse ne part. Il ressemble a un abandon spontane alors
+         que c'est le formulaire qui l'arrete. */
+      trackPurchaseBlocked(emplacement);
       setErreurPhoto(true);
       etapePhotos.current?.scrollIntoView({ block: "center", behavior: "smooth" });
       champFichier.current?.focus();
@@ -312,7 +339,10 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     className="galerie__vignette"
                     aria-pressed={i === vue}
                     aria-label={`${donnees.titre} — ${i + 1}/${Math.min(6, donnees.galerie.length)}`}
-                    onClick={() => setVue(i)}
+                    onClick={() => {
+                      setVue(i);
+                      trackGalleryBrowsed(i, "vignette");
+                    }}
                   >
                     <Image src={src} alt="" width={74} height={74} />
                   </button>
@@ -625,7 +655,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               ref={boutonAchat}
               type="button"
               className="bouton bouton--primaire ajouter"
-              onClick={ouvrirCaisse}
+              onClick={() => ouvrirCaisse("principal")}
               disabled={!prix}
             >
               {tp("addToCart")}
@@ -853,7 +883,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
           <button
             type="button"
             className="bouton bouton--primaire barre-achat__bouton"
-            onClick={ouvrirCaisse}
+            onClick={() => ouvrirCaisse("barre_collante")}
             disabled={!prix}
             tabIndex={boutonHorsEcran ? 0 : -1}
           >

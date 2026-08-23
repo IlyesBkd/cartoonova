@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 import Etoiles from "@/components/tj/Etoiles";
 
 /* NOTE : ce formulaire n'envoie rien — il bascule un etat local, exactement
@@ -46,6 +48,13 @@ export default function ContactPage() {
               className="etape"
               onSubmit={(e) => {
                 e.preventDefault();
+                /* ATTENTION : ce formulaire n'envoie rien. Il affiche un
+                   accuse de reception et s'arrete la — aucun appel reseau,
+                   aucun e-mail, aucune trace en base. La mesure est posee ici
+                   pour chiffrer ce que cela coute : chaque evenement compte un
+                   visiteur convaincu qu'il vient de nous ecrire. Voir le
+                   rapport d'audit. */
+                mesure(MESURES.formulaireContactEnvoye, { livre: false });
                 setEnvoye(true);
               }}
               style={{ display: "grid", gap: 18 }}

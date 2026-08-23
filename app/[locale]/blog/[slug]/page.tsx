@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { getArticleBySlug, getRelatedArticles } from "@/lib/blogDb";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/structured-data";
 import ArticleBody from "@/components/blog/ArticleBody";
+import LectureArticle from "@/components/blog/LectureArticle";
 
 export const revalidate = 300;
 
@@ -82,6 +83,8 @@ export default async function BlogArticlePage({
           { name: article.title, item: url },
         ]}
       />
+
+      <LectureArticle slug={article.slug} categorie={article.category} langue={locale} />
 
       <article className="enveloppe prose" style={{ paddingBlock: "clamp(40px,6vw,72px)" }}>
         <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-sm font-black text-black/50 hover:text-black transition-colors mb-6">

@@ -3,6 +3,8 @@ import { getOrderById } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { getLangFromCountry, orderTrackingPage, type EtapeSuivi } from "@/lib/email-i18n";
+import { mesureServeur } from "@/lib/analyticsServeur";
+import { MESURES } from "@/lib/evenementsMesure";
 
 /* Page de suivi de commande.
 
@@ -67,6 +69,23 @@ export default async function SuiviPage({
     day: "numeric",
     month: "long",
     year: "numeric",
+  });
+
+  /* Mesure cote serveur : cette page arrive d'un e-mail, hors de [locale], et
+     porte volontairement une coque minimale, sans fournisseur de mesure. Le
+     serveur sait deja de quelle commande il s'agit — inutile d'embarquer le
+     SDK pour le reapprendre.
+     Ce que ce chiffre repond : le lien de suivi ajoute aux e-mails de
+     confirmation est-il utilise, et epargne-t-il donc des questions au
+     support ? Il avait ete ajoute pour cela, sans moyen de le verifier. */
+  await mesureServeur(MESURES.suiviConsulte, {
+    identifiant: order.customer_email,
+    proprietes: {
+      order_id: order.id,
+      etape: courante,
+      status: order.status,
+      detected_country: order.detected_country ?? null,
+    },
   });
 
   return (

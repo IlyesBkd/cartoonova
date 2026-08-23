@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { mesure } from "@/lib/analytics";
+import { identifier } from "@/lib/analytics";
 import Icone from "@/components/tj/Icone";
 import { GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
 
@@ -25,40 +25,48 @@ interface SuccessOrder {
 
 export default function SuccessClient({
   order,
-  isNewConversion = false,
   trackingUrl,
 }: {
   order: SuccessOrder;
-  isNewConversion?: boolean;
   /** Lien signe vers la page de suivi, calcule cote serveur. */
   trackingUrl?: string;
 }) {
   const conversionSent = useRef(false);
 
   useEffect(() => {
-    // Triple protection anti-double comptage :
-    // 1. isNewConversion = false si la commande était déjà PAID côté serveur
-    // 2. conversionSent ref empêche le double-fire en React Strict Mode
-    // 3. sessionStorage empêche le re-fire si l'utilisateur refresh la page
-    if (!isNewConversion) return;
+    /* Protection contre le double comptage — deux verrous, et plus trois.
+       Le troisieme etait `isNewConversion`, calcule cote serveur : « cette
+       commande vient-elle de passer en PAID ? ». Il a disparu avec l'arrivee
+       du webhook Stripe, qui gagne desormais cette bascule la plupart du
+       temps. La page aurait donc recu `false` a presque chaque commande et
+       n'aurait plus jamais declenche la conversion Google Ads — une panne
+       silencieuse, sans erreur nulle part, visible seulement des semaines
+       plus tard dans la console publicitaire.
+       Ce verrou n'avait de toute facon pas sa place ici : la conversion
+       publicitaire ne depend pas de qui a gagne une course en base de
+       donnees, mais du fait que ce navigateur affiche une commande payee —
+       ce que le serveur a deja verifie aupres de Stripe avant de rendre cette
+       page.
+         1. `conversionSent` empeche le double envoi en mode strict de React ;
+         2. `sessionStorage`, indexe par PaymentIntent, empeche le renvoi si
+            le client recharge la page.
+       Et par-dessus, Google deduplique sur `transaction_id`. */
     if (conversionSent.current) return;
 
     const storageKey = `gtag_conversion_${order.payment_intent_id}`;
     if (sessionStorage.getItem(storageKey)) return;
 
-    // PostHog purchase tracking
-    const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
-    mesure("purchase_completed", {
-      value: order.total_price,
-      currency: order.currency,
-      transaction_id: order.payment_intent_id,
-      order_id: order.id,
-      style: opts?.style || "unknown",
-      format: opts?.format || "unknown",
-      people: opts?.people || 1,
-      animals: opts?.animals || 0,
-      print_option: opts?.printOption || "unknown",
-    });
+    /* L'achat lui-meme n'est plus mesure ici : il part du serveur, au moment
+       ou la commande bascule en PAID (voir `mesurerAchat` dans page.tsx). Le
+       capturer aussi depuis le navigateur le compterait deux fois — et la
+       moitie navigateur est justement celle qui manque quand l'onglet est
+       ferme trop tot, ce qui en faisait une source peu fiable.
+       Ce qui reste ici est ce que le serveur ne peut pas faire : rattacher la
+       session en cours a la personne. C'est indispensable pour le paiement
+       express, qui court-circuite le formulaire ou l'identification a lieu
+       d'ordinaire — sans cela, tout le parcours de navigation qui a precede
+       l'achat resterait detache de la commande. */
+    identifier(order.customer_email);
 
     const gtag = window.gtag ?? ((...args: unknown[]) => {
       window.dataLayer = window.dataLayer || [];
@@ -88,7 +96,7 @@ export default function SuccessClient({
 
     sessionStorage.setItem(storageKey, "1");
     conversionSent.current = true;
-  }, [isNewConversion, order.id, order.options, order.total_price, order.currency, order.payment_intent_id]);
+  }, [order.customer_email, order.total_price, order.currency, order.payment_intent_id]);
 
   // Décoder options JSONB (le driver Neon le parse automatiquement en objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;

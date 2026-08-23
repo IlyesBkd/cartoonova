@@ -764,7 +764,9 @@
     "legImpression": "Stampato in Francia",
     "legImpressionAcc": "su carta A3 Museum",
     "legCadre": "Cornice in legno premium",
-    "legCadreAcc": "pronta da appendere"
+    "legCadreAcc": "pronta da appendere",
+    "prixUnite": "a personaggio",
+    "prixNote": "Una famiglia di 4 personaggi: {prix}. Nessun costo nascosto."
   },
   "metaPages": {
     "aPropos": {

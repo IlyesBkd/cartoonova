@@ -9,6 +9,7 @@ import {
   markReviewRequestSent,
   markReorderEmailSent,
   markAbandonedEmailSent,
+  getOrderById,
   type LifecycleOrder,
 } from "@/lib/db";
 import { sendWelcomeStep, WELCOME_DELAYS_DAYS } from "@/lib/welcomeSequence";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/email-i18n";
 import { signEmail, orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
+import { finaliserCommande } from "@/lib/finaliserCommande";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -194,13 +196,27 @@ async function sendAbandonedCartEmails(): Promise<{
       const pi = await stripe.paymentIntents.retrieve(order.payment_intent_id);
       if (pi.status === "succeeded") {
         payeesNonEnregistrees++;
-        console.error(
-          "[CRON lifecycle-emails] commande PAYEE mais restee PENDING —",
-          "à rattraper à la main:",
+        /* Ce bloc se contentait d'ecrire « a rattraper a la main » dans les
+           journaux avant de classer la commande, ce qui supposait que
+           quelqu'un lise les journaux Vercel tous les jours. Il repare
+           maintenant : meme sequence que la page de succes et que le webhook,
+           donc statut, e-mail au client, notification Discord et mesure.
+           Le cas devrait devenir rare — le webhook Stripe le couvre en amont
+           et reessaie trois jours durant. Ce filet reste pour ce qui lui
+           echapperait quand meme : un endpoint desactive, un secret de
+           signature perime, une panne longue. */
+        /* `getOrdersDueForAbandonedEmail` ne renvoie que les colonnes utiles a
+           la relance ; la finalisation, elle, a besoin de la commande
+           entiere — photos, adresse, code promo. */
+        const complete = await getOrderById(order.id);
+        const reparee = complete ? await finaliserCommande(complete, "webhook") : false;
+        console.warn(
+          "[CRON lifecycle-emails] commande PAYEE restée PENDING —",
+          reparee ? "finalisée par le cron:" : "déjà finalisée entre-temps:",
           order.id,
           order.payment_intent_id
         );
-        // Marquee comme relancee pour ne pas la reexaminer a chaque passage.
+        // Classee pour ne pas la reexaminer a chaque passage.
         await markAbandonedEmailSent(order.id);
         continue;
       }

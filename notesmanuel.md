@@ -6,6 +6,50 @@ Ce fichier liste toutes les actions du backlog qui nécessitent une décision, u
 
 ---
 
+## 📈 Mesure d'audience (PostHog) — état au 2026-08-23
+
+Le tracking a été repris de fond en comble : 15 événements émis → 38, dont 4 côté serveur. Rapport
+d'audit complet séparé. Rien ne bloque le déploiement ; ce qui suit est ce que je ne peux pas faire
+à ta place.
+
+- [ ] **Vérifier l'ingestion après déploiement.** Les événements passent maintenant par
+  `www.cartoonova.com/ingest/…` au lieu de `eu.i.posthog.com`, qui est dans EasyPrivacy et donc
+  bloqué par défaut chez uBlock Origin et Brave. Ouvre le site en production **avec uBlock actif**
+  et vérifie dans l'onglet réseau que les appels `/ingest/` répondent en 200. Testé en local, mais
+  seule la production prouve que la faille est fermée.
+- [ ] **Pare-feu PostHog.** Si la liste des domaines autorisés du projet est renseignée, y ajouter
+  `www.cartoonova.com` — sinon l'ingestion proxifiée sera refusée.
+- [ ] **Décider du bandeau de consentement.** Il est écrit, traduit en 10 langues, et **éteint** :
+  il ne s'affiche que si tu poses `NEXT_PUBLIC_CONSENT_BANNER=1` dans Vercel. Le site est donc
+  strictement inchangé tant que tu ne la poses pas. Deux choses à savoir :
+  - Ta politique de confidentialité promet déjà « notre bandeau de consentement » (qui n'existe
+    pas) et cite Google Analytics (qui n'est pas installé). Ces deux phrases sont à corriger quoi
+    qu'il arrive.
+  - Un refus n'éteint pas la mesure : il bascule en mode sans cookie, donc tu gardes le volume de
+    trafic. Mais ce mode **doit aussi être activé dans les réglages du projet PostHog**, sinon ces
+    événements sont ignorés silencieusement à l'arrivée. Inutile d'y toucher tant que le bandeau
+    est éteint.
+- [ ] **Construire les deux entonnoirs.** `product_viewed → checkout_started →
+  checkout_info_completed → purchase_completed` segmenté par `locale` répond à la question de la
+  campagne UK/Canada. `photo_upload_started → photo_uploaded` donne le taux de perte de l'étape
+  obligatoire. Ni l'un ni l'autre n'était calculable avant.
+- [ ] **Trancher sur le webhook Stripe.** Voir la section « Paiement » plus bas : c'est le seul
+  point où de l'argent encaissé peut ne jamais donner lieu à une livraison. Hors périmètre de ce
+  travail, dis-moi si je m'en occupe.
+
+Ce qui n'est **plus** manuel ou cassé, sans action de ta part : le chiffre d'affaires est mesuré
+côté serveur (donc plus perdu quand l'onglet se ferme), les profils personne existent enfin
+(`identify()` n'était appelé nulle part, donc `person_profiles: "identified_only"` n'en créait
+aucun), les montants sont convertis en euros avant sommation (neuf devises étaient additionnées
+telles quelles), et langue/devise/pays accompagnent tous les événements. Le catalogue des
+événements vit dans `lib/evenementsMesure.ts` : `mesure()` n'accepte que ces noms-là.
+
+Constats d'audit **non corrigés**, hors mesure : le formulaire de contact n'envoie toujours rien ;
+44 `console.log` subsistent en production, dont plusieurs journalisent des adresses e-mail clients
+(`CheckoutModal.tsx`, `success/page.tsx`) ; `proxy.ts` journalise chaque requête.
+
+---
+
 ## 🔁 Automatisation des canaux — état au 2026-08-22
 
 Ce qui reste à faire de ton côté, par ordre de blocage :
@@ -47,6 +91,27 @@ Ce qui n'est **plus** manuel :
 
 ## 💳 Paiement
 
+- [ ] **Poser `STRIPE_WEBHOOK_SECRET` dans Vercel** (Settings → Environment Variables, les trois
+  environnements). C'est la seule chose qui manque pour que le webhook fonctionne : sans elle, la
+  route répond 503 et Stripe réessaiera pendant trois jours. La valeur est le *signing secret*
+  (`whsec_…`) de l'endpoint créé le 2026-08-23 dans le dashboard Stripe. Attention, celui du mode
+  test et celui du mode réel sont différents ; pour un essai en local, c'est encore un troisième
+  secret, celui qu'affiche `stripe listen --forward-to localhost:3000/api/stripe/webhook`.
+- [ ] **Vérifier la version d'API de l'endpoint.** Le formulaire proposait `2025-08-27.basil` alors
+  que le code épingle `2026-02-25.clover` à quatre endroits. Pas bloquant pour les champs utilisés
+  (`id`, `amount`, `currency`, `status`, `metadata` n'ont pas bougé), mais aligner les deux évite
+  une divergence silencieuse plus tard.
+- [ ] **Surveiller la propriété `source` sur `purchase_completed`** les premiers jours. Elle vaut
+  `webhook` ou `page_succes` selon qui a gagné la course. Si elle vaut *toujours* `page_succes`,
+  c'est que le webhook n'arrive pas — et rien d'autre ne le signalerait.
+
+Fait le 2026-08-23, le webhook est **en place** : `app/api/stripe/webhook/route.ts` traite
+`payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded` et
+`charge.dispute.created`. Le passage en PAID, l'e-mail client, la notification Discord et la mesure
+vivent maintenant dans `lib/finaliserCommande.ts`, appelé par trois chemins (webhook, page de
+succès, cron de rattrapage) et protégé contre le double déclenchement par une requête SQL atomique
+(`marquerPayee` dans `lib/db.ts`). Le bloc « à rattraper à la main » du cron répare désormais au
+lieu de journaliser. Les six branches de la route ont été testées en local.
 - [ ] **Activer Klarna/iDEAL/Bancontact/paiement en plusieurs fois dans le Dashboard Stripe** (Paramètres → Moyens de paiement) si tu veux les proposer. J'ai retiré la restriction `paymentMethodOrder: ['card']` dans le code, mais en creusant je me suis rendu compte que ce paramètre ne fait qu'ordonner l'affichage — il ne bloquait pas les autres moyens de paiement. Ce qui décide réellement ce qui s'affiche, c'est ce qui est activé dans ton compte Stripe.
 
 ---

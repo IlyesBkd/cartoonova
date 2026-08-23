@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { posterConfirmationPage, type Lang } from "@/lib/email-i18n";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 type Status = "confirmed" | "changes_requested" | null;
 
@@ -33,6 +35,9 @@ export default function ConfirmClient({
         body: JSON.stringify({ token, action, note: noteText }),
       });
       if (r.ok) {
+        /* Le taux de demandes de retouche est la mesure de qualite du travail
+           des illustrateurs, et la seule qui existe avant l'avis client. */
+        mesure(MESURES.posterConfirme, { action, avec_note: Boolean(noteText) });
         setStatus(action === "confirm" ? "confirmed" : "changes_requested");
         setShowChangesForm(false);
       } else {

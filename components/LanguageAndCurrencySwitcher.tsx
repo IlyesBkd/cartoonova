@@ -6,6 +6,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { locales, localeNames, type Locale } from "@/i18n/config";
 import { currencies, currencySymbols, currencyNames, type Currency } from "@/lib/currency";
 import { useCurrency } from "@/components/CurrencyProvider";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 export default function LanguageAndCurrencySwitcher({ pleineLargeur = false }: { pleineLargeur?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -26,6 +28,13 @@ export default function LanguageAndCurrencySwitcher({ pleineLargeur = false }: {
   }, []);
 
   const switchLocale = (newLocale: Locale) => {
+    /* Un changement de langue manuel signale que la redirection par pays a
+       servi la mauvaise : c'est la seule mesure qui dise si la table
+       pays → langue du middleware est juste, et sur quels pays elle rate. */
+    if (newLocale !== locale) {
+      mesure(MESURES.langueChangee, { from: locale, to: newLocale });
+    }
+
     // Retire le préfixe de langue courant avant d'appliquer le nouveau.
     let cleanPath = pathname;
     for (const l of locales) {

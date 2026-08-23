@@ -764,7 +764,9 @@
     "legImpression": "Printed in France",
     "legImpressionAcc": "on A3 Museum paper",
     "legCadre": "Premium wooden frame",
-    "legCadreAcc": "ready to hang"
+    "legCadreAcc": "ready to hang",
+    "prixUnite": "per character",
+    "prixNote": "A family of 4 characters: {prix}. No hidden fees."
   },
   "metaPages": {
     "aPropos": {

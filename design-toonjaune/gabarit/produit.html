@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{titre}} — ToonJaune</title>
+<meta name="description" content="{{description}}">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="produit.css">
+</head>
+<body>
+
+<!--@bloc entete-->
+<main>
+
+  <div class="enveloppe">
+    <nav class="fil" aria-label="Fil d'Ariane">
+      <a href="index.html">Accueil</a><span>›</span><a href="index.html#styles">{{categorie}}</a><span>›</span><b>{{titre}}</b>
+    </nav>
+  </div>
+
+  <div class="enveloppe achat">
+
+    <!-- GALERIE + pastille presse (l'idée de Pépouze : autorité tierce sur le visuel) -->
+    <div class="galerie">
+      <div class="galerie__presse">
+        <img src="../substituts/carre.svg" alt="">
+        Vu dans la presse
+      </div>
+      <img class="galerie__vue" id="vue" src="{{image1}}"
+           width="1000" height="1000" alt="{{titre}}">
+      <div class="galerie__vignettes" id="vignettes">
+        {{vignettes}}
+        
+        
+      </div>
+    </div>
+
+    <!-- TUILES d'arguments (CartoonToi) -->
+    <div class="tuiles">
+      <div class="tuile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg><b>Dessiné à la main</b></div>
+      <div class="tuile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg><b>Personnalisation illimitée</b></div>
+      <div class="tuile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><b>Retouches offertes</b></div>
+      <div class="tuile tuile--fort"><b>48H</b><b style="font-family:var(--texte);font-size:12.5px;color:#fff">Aperçu</b></div>
+    </div>
+
+    <!-- PANNEAU D'ACHAT -->
+    <div class="panneau">
+
+      <!-- preuve sociale AVANT le titre : l'ordre de TurnedYellow -->
+      <div class="panneau__preuve">
+        <span class="etoiles" aria-hidden="true">★★★★★</span>
+        <span>{{avis}} avis</span><i>·</i><span>80 000+ portraits livrés</span>
+      </div>
+
+      <h1>{{titre}}</h1>
+      <p class="panneau__accroche">
+        {{description}} <a href="#faq">Description</a>
+      </p>
+
+      <div class="livraison">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Commande avant le <b>17 août</b> pour la livraison offerte
+      </div>
+
+      <!-- CONFIGURATEUR NUMÉROTÉ (CartoonToi) -->
+{{#si personnages}}
+      <div class="etape-conf">
+        <div class="etape-conf__titre"><b>1</b> Nombre de personnages <em>(animaux compris)</em></div>
+        <div class="pastilles" role="group" aria-label="Nombre de personnages">
+          <button class="pastille" type="button" aria-pressed="true" data-opt="perso" data-val="1 personnage">1</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="2 personnages">2</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="3 personnages">3</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="4 personnages">4</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="5 personnages">5</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="6 personnages">6</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="7 personnages">7</button>
+          <button class="pastille" type="button" aria-pressed="false" data-opt="perso" data-val="8+ personnages">8+</button>
+        </div>
+      </div>
+{{/si}}
+
+{{#si fond}}
+      <div class="etape-conf">
+        <div class="etape-conf__titre"><b>2</b> Arrière-plan</div>
+        <div class="vignettes" role="group" aria-label="Arrière-plan">
+          {{fonds}}
+        </div>
+      </div>
+{{/si}}
+
+{{#si formats}}
+      <div class="etape-conf">
+        <div class="etape-conf__titre"><b>3</b> Format</div>
+        <div class="vignettes" role="group" aria-label="Format">
+          {{formats}}
+        </div>
+      </div>
+{{/si}}
+
+      <div class="etape-conf">
+        <div class="etape-conf__titre"><b>4</b> Choisis tes photos</div>
+        <div class="depot">Glisse-dépose tes fichiers ou <b>parcourir</b></div>
+      </div>
+
+      <div class="etape-conf">
+        <div class="etape-conf__titre"><b>5</b> Notes aux dessinateurs <em>(optionnel)</em></div>
+        <textarea class="champ" placeholder="ex : j'aimerais être dessiné avec ma casquette et mon chien à côté."></textarea>
+      </div>
+
+      <div class="recap" id="recap"></div>
+
+      <div class="total">
+        <span class="total__prix">{{prix}} €</span>
+        {{prixBarre}}
+        {{economie}}
+      </div>
+
+      <!-- paiement fractionné en clair : repris de Pépouze, absent des deux autres -->
+      <div class="fractionne"><b>3×</b> ou 3 × {{mensualite}} € sans frais</div>
+
+      <a class="bouton bouton--primaire ajouter" href="#">Ajouter au panier</a>
+
+      <div class="garantie">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Satisfait ou remboursé pendant 30 jours
+      </div>
+
+      <!-- vidéos rondes près du CTA (Pépouze) -->
+      <div class="rondes">
+        <div class="ronde"><span>▶</span><b>Avis client</b></div>
+        <div class="ronde"><span>▶</span><b>Déballage</b></div>
+        <div class="ronde"><span>▶</span><b>Le studio</b></div>
+      </div>
+
+      <!-- bloc contact (Pépouze) : un numéro affiché rassure beaucoup -->
+      <div class="contact">
+        <p>Une question avant de commander ?</p>
+        <p><a href="mailto:contact@toonjaune.fr">contact@toonjaune.fr</a> · <a href="tel:+33100000000">01 00 00 00 00</a></p>
+        <p style="font-size:13px">Du lundi au vendredi, 9h–18h</p>
+      </div>
+
+    </div>
+  </div>
+<!--@bloc etapes--><!--@bloc temoins--><!--@bloc avis-->
+<!--@bloc comparatif-->
+
+<!--@bloc recit-->
+<!--@bloc atouts-->
+<!--@bloc presse-->
+<!--@bloc faq--><!--@bloc similaires--><!--@bloc banniere-->
+</main>
+
+<!--@bloc pied--><!-- Seul JavaScript de la page : lecture des témoignages et flèches du
+     carrousel. 20 lignes, sans dépendance. Le reste (accordéon FAQ, bandeau
+     défilant) fonctionne en CSS/HTML natif. -->
+<script>
+(function () {
+  document.querySelectorAll('[data-video]').forEach(function (item) {
+    item.addEventListener('click', function () {
+      var v = item.querySelector('video');
+      if (v.paused) {
+        document.querySelectorAll('[data-video]').forEach(function (o) {
+          if (o !== item) { o.querySelector('video').pause(); o.classList.remove('joue'); }
+        });
+        v.muted = false;
+        v.play();
+        item.classList.add('joue');
+      } else {
+        v.pause();
+        item.classList.remove('joue');
+      }
+    });
+  });
+
+  var rail = document.getElementById('rail');
+  document.querySelectorAll('[data-glisse]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      rail.scrollBy({ left: b.dataset.glisse * rail.offsetWidth / 2, behavior: 'smooth' });
+    });
+  });
+})();
+</script>
+<script>
+// Gabarit produit : galerie, sélecteurs et récapitulatif. Sans dépendance.
+(function () {
+  var vue = document.getElementById('vue');
+  document.querySelectorAll('[data-vue]').forEach(function (t) {
+    t.addEventListener('click', function () {
+      vue.src = t.src;
+      document.querySelectorAll('[data-vue]').forEach(function (o) { o.removeAttribute('aria-current'); });
+      t.setAttribute('aria-current', 'true');
+    });
+  });
+
+  var choix = {};
+  function majRecap() {
+    var r = document.getElementById('recap');
+    r.innerHTML = '';
+    ['perso', 'fond', 'format'].forEach(function (k) {
+      if (!choix[k]) return;
+      var s = document.createElement('span');
+      s.textContent = choix[k];
+      r.appendChild(s);
+    });
+  }
+  document.querySelectorAll('[data-opt]').forEach(function (b) {
+    if (b.getAttribute('aria-pressed') === 'true') choix[b.dataset.opt] = b.dataset.val;
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-opt="' + b.dataset.opt + '"]').forEach(function (o) {
+        o.setAttribute('aria-pressed', 'false');
+      });
+      b.setAttribute('aria-pressed', 'true');
+      choix[b.dataset.opt] = b.dataset.val;
+      majRecap();
+    });
+  });
+  majRecap();
+})();
+</script>
+
+
+<script>
+// Renumérote les étapes visibles : sans ça un produit sans arrière-plan
+// afficherait 1, 3, 4, 5.
+document.querySelectorAll('.etape-conf__titre > b').forEach(function (b, i) { b.textContent = i + 1; });
+</script>
+</body>
+</html>

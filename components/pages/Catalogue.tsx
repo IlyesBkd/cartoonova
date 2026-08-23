@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -11,6 +11,8 @@ import Etoiles from "@/components/tj/Etoiles";
 import Icone from "@/components/tj/Icone";
 import IconesAtouts from "@/components/tj/IconesAtouts";
 import IconesCta from "@/components/tj/IconesCta";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 export interface CarteCatalogue {
   slug: string;
@@ -71,8 +73,46 @@ export default function Catalogue({
     resultats.length > 1 ? t("produitsCompte") : t("catalogueCompteUn")
   }`;
 
+  /* Recherche interne et filtre par categorie.
+     `resultats` accompagne le terme : une recherche a zero resultat est la
+     donnee la plus utile du catalogue — elle nomme un univers que des
+     visiteurs cherchent et que le site ne vend pas. Aucune autre source ne
+     donne cette liste, pas meme Search Console, qui ne voit que ce sur quoi
+     le site se positionne deja.
+     Une seconde d'attente : sans elle, « simpson » partirait en sept
+     evenements, un par lettre. */
+  useEffect(() => {
+    if (!terme && filtre === "tous") return;
+    const minuteur = window.setTimeout(() => {
+      mesure(MESURES.catalogueFiltre, {
+        recherche: terme || null,
+        categorie: filtre,
+        resultats: resultats.length,
+      });
+    }, 1000);
+    return () => window.clearTimeout(minuteur);
+  }, [terme, filtre, resultats.length]);
+
+  /* Quel style est clique depuis le catalogue, et depuis quelle recherche.
+     Le catalogue compte trente-six fiches : sans cette mesure, rien ne dit
+     lesquelles portent le trafic, ni quels termes de recherche interne ne
+     trouvent rien — c'est-a-dire quels univers manquent au catalogue. */
   const carte = (p: CarteCatalogue) => (
-    <Link className="carte" href={lien(`/${p.slug}`)} key={p.slug}>
+    <Link
+      className="carte"
+      href={lien(`/${p.slug}`)}
+      key={p.slug}
+      onClick={() =>
+        mesure(MESURES.produitClique, {
+          slug: p.slug,
+          univers: p.univers,
+          category: p.categorie,
+          vedette: p.vedette,
+          source: "catalogue",
+          recherche: recherche.trim() || null,
+        })
+      }
+    >
       <div className="carte__visuel">
         {(p.vedette || p.nbDecors > 0) && (
           <div className="carte__marqueurs">

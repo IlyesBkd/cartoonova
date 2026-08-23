@@ -75,7 +75,7 @@ export default function Accueil({
   const tEvt = useTranslations("evenements");
   const lien = useLien();
   const locale = useLocale() as Locale;
-  const { format: formatPrix } = useCurrency();
+  const { format: formatPrix, formatRaw: formatPrixBrut, convert: convertir } = useCurrency();
 
   const faq = [1, 2, 3, 4, 5].map((n) => ({
     q: th(`faqQ${n}` as "faqQ1"),
@@ -139,6 +139,43 @@ export default function Accueil({
               </h1>
               <p className="hero__texte">
                 {evenement ? tEvt(`${evenement.cle}.heroSous` as "noel.heroSous") : th("heroSubtitle")}
+              </p>
+
+              {/* Le prix, avant le bouton.
+                  C'est l'argument central de Cartoonova — 5 € le personnage
+                  quand le concurrent direct affiche 34,90 € — et il
+                  n'apparaissait nulle part sur le premier écran : il fallait
+                  ouvrir une fiche produit pour le découvrir, donc avoir déjà
+                  décidé de rester. Un site qui gagne par le prix doit
+                  l'annoncer avant de demander un clic.
+                  `prixDepart` est le prix de base en euros ; `formatPrix` le
+                  convertit et le met en forme dans la devise du visiteur, donc
+                  5 € en France, £5 au Royaume-Uni, 8 $ au Canada. */}
+              <p className="hero__prix">
+                <span className="hero__prix-montant">{formatPrix(prixDepart)}</span>
+                <span className="hero__prix-texte">
+                  <span className="hero__prix-unite">{t("prixUnite")}</span>
+                  {/* L'exemple chiffré fait plus que la mention du prix seul :
+                      il donne au visiteur le point de repère qui lui manque.
+                      « 5 € » ne veut rien dire pour qui ne connaît pas le
+                      marché ; « une famille de 4 pour 20 € » se compare tout
+                      seul à ce qu'il a vu ailleurs.
+
+                      Le total multiplie le prix unitaire DÉJÀ converti, il ne
+                      convertit pas le total. Les deux ne donnent pas le même
+                      résultat : la conversion arrondit au supérieur, donc
+                      convertir 20 € en livres donne 18 £ quand la caisse en
+                      facture 20 (4 × 5 £). Le hero annoncerait un prix que le
+                      tunnel ne tient pas — dans quatre devises sur cinq.
+
+                      Repose sur base == extraPerson, ce que dit la grille
+                      actuelle et ce que promet déjà « par personnage » : si les
+                      deux divergeaient un jour, c'est tout ce bloc qui serait
+                      faux, pas seulement ce calcul. */}
+                  <span className="hero__prix-note">
+                    {t("prixNote", { prix: formatPrixBrut(convertir(prixDepart) * 4) })}
+                  </span>
+                </span>
               </p>
 
               {/* Le second bouton pointait sur « Comment ça marche », qui a
@@ -553,6 +590,18 @@ export default function Accueil({
                 {t("ctaTitre")} <span className="accent">{t("ctaAccent")}</span> ?
               </h2>
               <p>{t("ctaTexte")}</p>
+              {/* Le prix, une dernière fois, juste avant le bouton.
+                  Il apparaissait dans le hero puis disparaissait pendant les
+                  5 700 px suivants — soit les deux tiers de la page, dont
+                  cette bannière, qui est l'endroit où la décision se prend
+                  quand on a tout lu. Même plaque que le hero, en plus compact :
+                  le lecteur a déjà eu l'exemple chiffré en haut, ici il n'a
+                  besoin que du rappel. La répétition du motif « prix au-dessus
+                  du bouton » est volontaire. */}
+              <p className="cta-fin__prix">
+                <span className="cta-fin__prix-montant">{formatPrix(prixDepart)}</span>
+                <span className="cta-fin__prix-unite">{t("prixUnite")}</span>
+              </p>
               <Link className="cta-fin__bouton" href={lienPhare}>
                 {ctaPhare}
                 <IconesCta.Fleche />

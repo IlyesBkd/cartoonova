@@ -764,7 +764,9 @@
     "legImpression": "Imprimé en France",
     "legImpressionAcc": "sur papier A3 Museum",
     "legCadre": "Cadre en bois premium",
-    "legCadreAcc": "prêt à accrocher"
+    "legCadreAcc": "prêt à accrocher",
+    "prixUnite": "par personnage",
+    "prixNote": "Une famille de 4 personnages : {prix}. Sans frais cachés."
   },
   "metaPages": {
     "aPropos": {

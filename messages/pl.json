@@ -764,7 +764,9 @@
     "legImpression": "Drukowane we Francji",
     "legImpressionAcc": "na papierze muzealnym A3",
     "legCadre": "Solidna drewniana rama",
-    "legCadreAcc": "gotowa do powieszenia"
+    "legCadreAcc": "gotowa do powieszenia",
+    "prixUnite": "za postać",
+    "prixNote": "Rodzina 4 postaci: {prix}. Bez ukrytych opłat."
   },
   "metaPages": {
     "aPropos": {

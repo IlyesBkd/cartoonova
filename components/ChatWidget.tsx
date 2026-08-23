@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { mesure, identifier } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 import Icone, { type NomIcone } from "@/components/tj/Icone";
 import TeteAide from "@/components/tj/TeteAide";
 
@@ -81,6 +83,16 @@ export default function ChatWidget() {
     if (ecran === "fil") champSaisieRef.current?.focus();
   }, [ouvert, ecran]);
 
+  /* Ouverture de la bulle d'aide.
+     Le support absorbe une charge que personne ne mesure : on ne sait ni
+     combien de visiteurs l'ouvrent, ni sur quelles pages, ni quels sujets
+     reviennent. C'est pourtant la liste des questions auxquelles le site ne
+     repond pas — donc la feuille de route de son contenu. */
+  useEffect(() => {
+    if (!ouvert) return;
+    mesure(MESURES.bulleAideOuverte);
+  }, [ouvert]);
+
   /* Le lien de l'en-tête ouvre le panneau, comme leur `live-chat-top` déclenche
      le bouton flottant. Un événement plutôt qu'un contexte : un seul émetteur,
      un seul récepteur, et rien à faire remonter dans l'arbre. */
@@ -99,6 +111,7 @@ export default function ChatWidget() {
   }, [ouvert]);
 
   const choisirSujet = (id: string | null) => {
+    mesure(MESURES.sujetAideChoisi, { topic: id ?? "libre" });
     setSujet(id);
     setEcran(messages.length ? "fil" : "email");
   };
@@ -110,6 +123,9 @@ export default function ChatWidget() {
       return;
     }
     setErreurEmail(false);
+    /* Une question au support vient presque toujours d'un client ou d'un
+       futur client : l'adresse rattache la conversation au reste du parcours. */
+    identifier(valeur, { source_identification: "chat" });
     const choisi = SUJETS.find((s) => s.id === sujet);
     setMessages([
       {
@@ -134,6 +150,13 @@ export default function ChatWidget() {
        arrive dans Discord avec le contexte, sans champ supplémentaire côté API. */
     const choisi = SUJETS.find((s) => s.id === sujet);
     const corps = premierEnvoi && choisi ? `[${choisi.titre}] ${texte}` : texte;
+    /* Le contenu du message ne part pas dans la mesure — il est deja dans
+       Discord, et il contient des numeros de commande. Seul le fait qu'un
+       message ait ete envoye compte ici. */
+    mesure(MESURES.messageAideEnvoye, {
+      topic: choisi?.id ?? "libre",
+      premier: premierEnvoi,
+    });
     setPremierEnvoi(false);
 
     try {

@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ToonJaune — système de design</title>
+<link rel="stylesheet" href="systeme/jetons.css">
+<link rel="stylesheet" href="systeme/composants.css">
+<link rel="stylesheet" href="systeme/produit.css">
+<style>
+  .ds-bandeau { background: var(--encre); color: #fff; padding: 34px 0; }
+  .ds-bandeau h1 { font-size: 32px; }
+  .ds-bandeau p { margin: 10px 0 0; opacity: .8; max-width: 60ch; }
+  .ds-part { padding: 46px 0 10px; }
+  .ds-part > h2 { font-size: 24px; margin-bottom: 6px; }
+  .ds-part > p.ds-note { color: var(--encre-doux); margin: 0 0 26px; max-width: 66ch; }
+  .ds-teintes { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+  .ds-teinte code { display: block; font-size: 13px; margin-top: 8px; font-weight: 700; }
+  .ds-teinte small { color: var(--encre-doux); font-size: 12.5px; line-height: 1.35; display: block; }
+  .ds-pastille {
+    height: 78px; border-radius: 14px; display: grid; place-items: center;
+    font-size: 12.5px; font-weight: 700; border: 1px solid rgba(42,37,82,.08);
+  }
+  .ds-ligne { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .ds-cadre {
+    border: 1px dashed rgba(42,37,82,.22); border-radius: 16px; padding: 20px;
+    margin-bottom: 30px; position: relative;
+  }
+  .ds-cadre::before {
+    content: attr(data-nom); position: absolute; top: -10px; left: 16px;
+    background: #fff; padding: 0 8px; font-size: 11.5px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--encre-doux);
+  }
+  .ds-type p { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+
+<div class="ds-bandeau">
+  <div class="enveloppe">
+    <h1>ToonJaune — système de design</h1>
+    <p>Jetons, composants et patrons de markup. Tout part de <code>systeme/jetons.css</code> :
+       changez les variables, tout le reste suit.</p>
+  </div>
+</div>
+
+<div class="enveloppe">
+
+  <section class="ds-part">
+    <h2>Palette</h2>
+    <p class="ds-note">Neuf jetons. L'indigo est l'ancre, le jaune l'action ; le reste sert de
+       fond ou de nuance. Aucun composant ne code une couleur en dur.</p>
+    <div class="ds-teintes">
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#2A2552;color:#fff">#2A2552</div>
+        <code>--encre</code>
+        <small>Ancre : titres, sections sombres, pied de page</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#5A5578;color:#fff">#5A5578</div>
+        <code>--encre-doux</code>
+        <small>Texte secondaire</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#E9BA3B;color:#2A2552">#E9BA3B</div>
+        <code>--soleil</code>
+        <small>Action, accents</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#D4A32A;color:#2A2552">#D4A32A</div>
+        <code>--soleil-fonce</code>
+        <small>Survol, profondeur des boutons</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#FBEFCB;color:#2A2552">#FBEFCB</div>
+        <code>--soleil-pale</code>
+        <small>Pastilles, fonds d’icône</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#FFF9ED;color:#2A2552">#FFF9ED</div>
+        <code>--creme</code>
+        <small>Fond chaud : hero, bandes douces</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#E0FAFA;color:#2A2552">#E0FAFA</div>
+        <code>--menthe</code>
+        <small>Tint secondaire : bandeau défilant</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#F8F6F3;color:#2A2552">#F8F6F3</div>
+        <code>--cendre</code>
+        <small>Bande neutre alternée</small>
+      </div>
+      <div class="ds-teinte">
+        <div class="ds-pastille" style="background:#FFFFFF;color:#2A2552">#FFFFFF</div>
+        <code>--papier</code>
+        <small>Fond général, cartes</small>
+      </div></div>
+  </section>
+
+  <section class="ds-part">
+    <h2>Typographie</h2>
+    <p class="ds-note">Trois familles. <b>Atma</b> est réservée au mot accentué d'un titre —
+       utilisée partout elle redeviendrait du bruit.</p>
+    <div class="ds-cadre ds-type" data-nom="échelle">
+      <h1 style="margin-bottom:8px">Titre h1 — Kefir 800 <span class="accent">accent Atma</span></h1>
+      <h2 style="margin-bottom:8px">Titre h2 — Kefir 800</h2>
+      <h3 style="margin-bottom:12px">Titre h3 — Kefir 800</h3>
+      <p>Texte courant — Rebond Grotesque 500, 17 px, interligne 1,6. La longueur de ligne
+         confortable se situe autour de 65 caractères.</p>
+      <p style="color:var(--encre-doux)">Texte secondaire — <code>--encre-doux</code>.</p>
+    </div>
+  </section>
+
+  <section class="ds-part">
+    <h2>Boutons</h2>
+    <div class="ds-cadre ds-ligne" data-nom="variantes">
+      <a class="bouton bouton--primaire" href="#">Principal</a>
+      <a class="bouton bouton--fantome" href="#">Fantôme</a>
+      <a class="bouton bouton--clair" href="#">Clair (sur fond coloré)</a>
+    </div>
+  </section>
+
+  <section class="ds-part">
+    <h2>Composants</h2>
+    <p class="ds-note">Rendus depuis les fichiers de <code>blocs/</code> — la source est la même
+       que celle du site. Les visuels sont des substituts.</p>
+  </section>
+</div>
+
+<div class="ds-cadre" data-nom="étapes numérotées" style="margin:0 24px 30px"><!-- ÉTAPES : le meilleur atout d'interface de CartoonToi -->
+  <section class="section" id="etapes">
+    <div class="enveloppe">
+      <div class="chapeau">
+        <h2>Trois étapes, <span class="accent">c'est tout</span></h2>
+        <p>Pas de compte à créer, pas de logiciel. Une photo suffit.</p>
+      </div>
+      <div class="etapes">
+        <article class="etape">
+          <div class="etape__num">1</div>
+          <h3>Choisis ton style</h3>
+          <p>Manga, cartoon, comics ou cinéma. Tu choisis aussi le nombre de personnages et le décor.</p>
+        </article>
+        <article class="etape">
+          <div class="etape__num">2</div>
+          <h3>Envoie ta photo</h3>
+          <p>Une photo nette suffit. Ajoute une note si tu as une idée précise en tête.</p>
+        </article>
+        <article class="etape">
+          <div class="etape__num">3</div>
+          <h3>Valide ton aperçu</h3>
+          <p>Tu reçois l'aperçu sous 48 h. Retouches illimitées jusqu'à ce que ça te plaise.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ds-cadre" data-nom="avis clients" style="margin:0 24px 30px"><!-- AVIS CLIENTS ILLUSTRÉS (CartoonToi) — composition d'origine :
+       photo 4/3, étoiles, titre, avis, nom + « Achat Vérifié », bulle. -->
+  <section class="section" style="background: var(--creme);">
+    <div class="enveloppe">
+      <div class="chapeau" style="margin-bottom: 34px;">
+        <h2>Ils l'ont <span class="accent">affiché chez eux</span></h2>
+      </div>
+      <div class="avis-rail">
+        <article class="avis-carte">
+          <img src="substituts/portrait.svg" width="1000" height="750" alt="Une femme tenant un portrait de couple encadré, style Simpson" loading="lazy">
+          <div class="avis-bulle">
+            <div class="svg-stars"><svg xmlns="http://www.w3.org/2000/svg" width="111" height="18" viewBox="0 0 111 18" fill="none" aria-hidden="true"><path d="M1.17483 7.54228C0.987061 7.35967 0.987061 7.17706 0.987061 6.99444L1.08095 6.81183C1.17483 6.62922 1.26872 6.53791 1.45649 6.53791L7.46517 6.08138L9.71842 0.694326C9.90619 0.420408 10.094 0.329102 10.2817 0.329102H10.5634C10.7512 0.329102 10.9389 0.420408 11.0328 0.60302L13.38 5.99008L19.3886 6.44661C19.5764 6.44661 19.7642 6.62922 19.7642 6.72053V6.99444C19.8581 7.17706 19.7642 7.35967 19.6703 7.45097L15.0699 11.2858L16.4782 16.9468C16.4782 17.1294 16.4782 17.312 16.2904 17.4033L16.0088 17.5859C15.821 17.6773 15.6332 17.6773 15.4454 17.5859L10.3756 14.5728L5.21191 17.5859C5.11803 17.6773 4.93026 17.6773 4.74248 17.5859L4.55471 17.4946C4.36694 17.4033 4.36694 17.2207 4.36694 17.0381L5.68134 11.2858L1.17483 7.54228ZM23.8013 7.54228C23.6135 7.45097 23.6135 7.26836 23.6135 7.08575L23.7074 6.90314C23.8013 6.72053 23.8951 6.62922 24.0829 6.62922L30.0916 5.99008L32.3448 0.60302C32.4387 0.420408 32.6265 0.329102 32.9082 0.329102H33.1898C33.3776 0.329102 33.5654 0.420408 33.6592 0.60302L36.0064 5.99008L42.0151 6.44661C42.2028 6.44661 42.3906 6.62922 42.3906 6.72053L42.4845 6.90314C42.5784 7.08575 42.4845 7.26836 42.3906 7.35967L37.6963 11.2858L39.1046 16.9468C39.1046 17.1294 39.1046 17.312 38.9168 17.4033L38.6352 17.5859C38.4474 17.6773 38.2596 17.6773 38.0719 17.5859L33.002 14.5728L27.8383 17.5859C27.6506 17.6773 27.4628 17.6773 27.275 17.5859L27.0873 17.4946C26.8995 17.4033 26.8995 17.2207 26.8995 17.0381L28.2139 11.3771L23.8013 7.54228ZM46.4277 7.54228C46.2399 7.45097 46.2399 7.26836 46.2399 7.08575L46.3338 6.90314C46.4277 6.72053 46.5216 6.62922 46.7093 6.62922L52.718 6.17269L54.9713 0.785632C55.0652 0.420408 55.2529 0.329102 55.5346 0.329102H55.8162C56.004 0.329102 56.1918 0.420408 56.2857 0.60302L58.6328 5.99008L64.6415 6.44661C64.8293 6.44661 65.017 6.62922 65.017 6.72053L65.1109 6.90314C65.2048 7.08575 65.1109 7.26836 65.017 7.35967L60.3228 11.2858L61.731 16.9468C61.731 17.1294 61.731 17.312 61.5433 17.4033L61.2616 17.5859C61.0738 17.6773 60.8861 17.6773 60.6983 17.5859L55.6285 14.5728L50.4648 17.5859C50.277 17.6773 50.0892 17.6773 49.9015 17.5859L49.7137 17.4946C49.5259 17.4033 49.5259 17.2207 49.5259 17.0381L50.8403 11.3771L46.4277 7.54228ZM69.0541 7.54228C68.8663 7.45097 68.8663 7.26836 68.8663 7.08575L68.9602 6.90314C69.0541 6.72053 69.148 6.62922 69.3358 6.62922L75.3444 6.17269L77.5977 0.785632C77.6916 0.420408 77.8794 0.329102 78.0671 0.329102H78.3488C78.5366 0.329102 78.7243 0.420408 78.8182 0.60302L81.1654 5.99008L87.174 6.44661C87.3618 6.44661 87.5496 6.62922 87.5496 6.72053L87.6435 6.90314C87.7374 7.08575 87.6435 7.26836 87.5496 7.35967L82.9492 11.2858L84.3575 16.9468C84.3575 17.1294 84.3575 17.312 84.1697 17.4033L83.888 17.5859C83.7003 17.6773 83.5125 17.6773 83.3247 17.5859L78.2549 14.5728L73.0912 17.5859C72.9034 17.6773 72.7156 17.6773 72.5279 17.5859L72.3401 17.4946C72.1523 17.4033 72.1523 17.2207 72.1523 17.0381L73.4667 11.3771L69.0541 7.54228ZM110.176 6.99444L110.082 6.81183C109.988 6.62922 109.894 6.53791 109.707 6.53791L103.698 6.08138L101.445 0.60302C101.351 0.420408 101.163 0.329102 100.975 0.329102H100.881H100.787C100.6 0.329102 100.412 0.420408 100.318 0.60302L98.0648 5.99008L92.0561 6.44661C91.8683 6.44661 91.6805 6.62922 91.6805 6.72053L91.5867 6.90314C91.5867 6.99444 91.5867 7.08575 91.5867 7.17706C91.5867 7.26836 91.6805 7.35967 91.7744 7.35967L96.2809 11.1032L94.9665 16.7642C94.9665 16.9468 94.9665 17.1294 95.1543 17.2207L95.3421 17.312C95.436 17.4033 95.6237 17.4033 95.8115 17.312H95.9054L101.069 14.2989L106.139 17.312C106.327 17.4033 106.514 17.4033 106.702 17.312L106.984 17.1294C107.172 17.0381 107.172 16.8555 107.172 16.6729L105.763 11.0119L110.27 7.26836C110.176 7.35967 110.27 7.17706 110.176 6.99444Z" fill="currentColor"/></svg></div>
+            <h3>Juste TROP fan !</h3>
+            <p>Pour nos 2 ans, mon copain m’a offert notre portrait en Simpson. J'ADORE !</p>
+            <p class="avis-signe">Marine <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 22 21" fill="none" aria-hidden="true"><path d="M7.47045 20.8481L5.60284 17.7026L2.0642 16.9163L2.40824 13.2794L0 10.5271L2.40824 7.7748L2.0642 4.13787L5.60284 3.35151L7.47045 0.206055L10.8125 1.63134L14.1545 0.206055L16.0222 3.35151L19.5608 4.13787L19.2167 7.7748L21.625 10.5271L19.2167 13.2794L19.5608 16.9163L16.0222 17.7026L14.1545 20.8481L10.8125 19.4228L7.47045 20.8481ZM9.78036 14.0166L15.3341 8.46287L13.958 7.03755L9.78036 11.2151L7.66705 9.15094L6.29091 10.5271L9.78036 14.0166Z" fill="#8FC452"/></svg> <span class="verifie">Achat Vérifié</span></p>
+          </div>
+          <div class="avis-queue"><svg xmlns="http://www.w3.org/2000/svg" width="88" height="32" viewBox="0 0 88 32" fill="none" aria-hidden="true"><g clip-path="url(#qb)"><path d="M50.2945 31.9995C50.2945 31.9995 57.2198 19.4833 56.3124 11.0184C55.0692 -0.578831 38.2207 -13.0005 38.2207 -13.0005L88.2207 -13.0005C88.2207 -13.0005 83.6642 6.43215 75.7032 15.608C68.3803 24.0482 50.2945 31.9995 50.2945 31.9995Z" fill="#FCEAFF"/></g><defs><clipPath id="qb"><rect width="88" height="32" fill="white"/></clipPath></defs></svg></div>
+        </article>
+        <article class="avis-carte">
+          <img src="substituts/portrait.svg" width="1000" height="750" alt="Un couple tenant une affiche Wanted personnalisée inspirée de One Piece" loading="lazy">
+          <div class="avis-bulle">
+            <div class="svg-stars"><svg xmlns="http://www.w3.org/2000/svg" width="111" height="18" viewBox="0 0 111 18" fill="none" aria-hidden="true"><path d="M1.17483 7.54228C0.987061 7.35967 0.987061 7.17706 0.987061 6.99444L1.08095 6.81183C1.17483 6.62922 1.26872 6.53791 1.45649 6.53791L7.46517 6.08138L9.71842 0.694326C9.90619 0.420408 10.094 0.329102 10.2817 0.329102H10.5634C10.7512 0.329102 10.9389 0.420408 11.0328 0.60302L13.38 5.99008L19.3886 6.44661C19.5764 6.44661 19.7642 6.62922 19.7642 6.72053V6.99444C19.8581 7.17706 19.7642 7.35967 19.6703 7.45097L15.0699 11.2858L16.4782 16.9468C16.4782 17.1294 16.4782 17.312 16.2904 17.4033L16.0088 17.5859C15.821 17.6773 15.6332 17.6773 15.4454 17.5859L10.3756 14.5728L5.21191 17.5859C5.11803 17.6773 4.93026 17.6773 4.74248 17.5859L4.55471 17.4946C4.36694 17.4033 4.36694 17.2207 4.36694 17.0381L5.68134 11.2858L1.17483 7.54228ZM23.8013 7.54228C23.6135 7.45097 23.6135 7.26836 23.6135 7.08575L23.7074 6.90314C23.8013 6.72053 23.8951 6.62922 24.0829 6.62922L30.0916 5.99008L32.3448 0.60302C32.4387 0.420408 32.6265 0.329102 32.9082 0.329102H33.1898C33.3776 0.329102 33.5654 0.420408 33.6592 0.60302L36.0064 5.99008L42.0151 6.44661C42.2028 6.44661 42.3906 6.62922 42.3906 6.72053L42.4845 6.90314C42.5784 7.08575 42.4845 7.26836 42.3906 7.35967L37.6963 11.2858L39.1046 16.9468C39.1046 17.1294 39.1046 17.312 38.9168 17.4033L38.6352 17.5859C38.4474 17.6773 38.2596 17.6773 38.0719 17.5859L33.002 14.5728L27.8383 17.5859C27.6506 17.6773 27.4628 17.6773 27.275 17.5859L27.0873 17.4946C26.8995 17.4033 26.8995 17.2207 26.8995 17.0381L28.2139 11.3771L23.8013 7.54228ZM46.4277 7.54228C46.2399 7.45097 46.2399 7.26836 46.2399 7.08575L46.3338 6.90314C46.4277 6.72053 46.5216 6.62922 46.7093 6.62922L52.718 6.17269L54.9713 0.785632C55.0652 0.420408 55.2529 0.329102 55.5346 0.329102H55.8162C56.004 0.329102 56.1918 0.420408 56.2857 0.60302L58.6328 5.99008L64.6415 6.44661C64.8293 6.44661 65.017 6.62922 65.017 6.72053L65.1109 6.90314C65.2048 7.08575 65.1109 7.26836 65.017 7.35967L60.3228 11.2858L61.731 16.9468C61.731 17.1294 61.731 17.312 61.5433 17.4033L61.2616 17.5859C61.0738 17.6773 60.8861 17.6773 60.6983 17.5859L55.6285 14.5728L50.4648 17.5859C50.277 17.6773 50.0892 17.6773 49.9015 17.5859L49.7137 17.4946C49.5259 17.4033 49.5259 17.2207 49.5259 17.0381L50.8403 11.3771L46.4277 7.54228ZM69.0541 7.54228C68.8663 7.45097 68.8663 7.26836 68.8663 7.08575L68.9602 6.90314C69.0541 6.72053 69.148 6.62922 69.3358 6.62922L75.3444 6.17269L77.5977 0.785632C77.6916 0.420408 77.8794 0.329102 78.0671 0.329102H78.3488C78.5366 0.329102 78.7243 0.420408 78.8182 0.60302L81.1654 5.99008L87.174 6.44661C87.3618 6.44661 87.5496 6.62922 87.5496 6.72053L87.6435 6.90314C87.7374 7.08575 87.6435 7.26836 87.5496 7.35967L82.9492 11.2858L84.3575 16.9468C84.3575 17.1294 84.3575 17.312 84.1697 17.4033L83.888 17.5859C83.7003 17.6773 83.5125 17.6773 83.3247 17.5859L78.2549 14.5728L73.0912 17.5859C72.9034 17.6773 72.7156 17.6773 72.5279 17.5859L72.3401 17.4946C72.1523 17.4033 72.1523 17.2207 72.1523 17.0381L73.4667 11.3771L69.0541 7.54228ZM110.176 6.99444L110.082 6.81183C109.988 6.62922 109.894 6.53791 109.707 6.53791L103.698 6.08138L101.445 0.60302C101.351 0.420408 101.163 0.329102 100.975 0.329102H100.881H100.787C100.6 0.329102 100.412 0.420408 100.318 0.60302L98.0648 5.99008L92.0561 6.44661C91.8683 6.44661 91.6805 6.62922 91.6805 6.72053L91.5867 6.90314C91.5867 6.99444 91.5867 7.08575 91.5867 7.17706C91.5867 7.26836 91.6805 7.35967 91.7744 7.35967L96.2809 11.1032L94.9665 16.7642C94.9665 16.9468 94.9665 17.1294 95.1543 17.2207L95.3421 17.312C95.436 17.4033 95.6237 17.4033 95.8115 17.312H95.9054L101.069 14.2989L106.139 17.312C106.327 17.4033 106.514 17.4033 106.702 17.312L106.984 17.1294C107.172 17.0381 107.172 16.8555 107.172 16.6729L105.763 11.0119L110.27 7.26836C110.176 7.35967 110.27 7.17706 110.176 6.99444Z" fill="currentColor"/></svg></div>
+            <h3>Le cadeau parfait</h3>
+            <p>Un cadeau de Saint-Valentin qui a son petit effet. Mon copain a trop kiffé 😊</p>
+            <p class="avis-signe">Tiphaine <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 22 21" fill="none" aria-hidden="true"><path d="M7.47045 20.8481L5.60284 17.7026L2.0642 16.9163L2.40824 13.2794L0 10.5271L2.40824 7.7748L2.0642 4.13787L5.60284 3.35151L7.47045 0.206055L10.8125 1.63134L14.1545 0.206055L16.0222 3.35151L19.5608 4.13787L19.2167 7.7748L21.625 10.5271L19.2167 13.2794L19.5608 16.9163L16.0222 17.7026L14.1545 20.8481L10.8125 19.4228L7.47045 20.8481ZM9.78036 14.0166L15.3341 8.46287L13.958 7.03755L9.78036 11.2151L7.66705 9.15094L6.29091 10.5271L9.78036 14.0166Z" fill="#8FC452"/></svg> <span class="verifie">Achat Vérifié</span></p>
+          </div>
+          <div class="avis-queue"><svg xmlns="http://www.w3.org/2000/svg" width="88" height="32" viewBox="0 0 88 32" fill="none" aria-hidden="true"><g clip-path="url(#qb)"><path d="M50.2945 31.9995C50.2945 31.9995 57.2198 19.4833 56.3124 11.0184C55.0692 -0.578831 38.2207 -13.0005 38.2207 -13.0005L88.2207 -13.0005C88.2207 -13.0005 83.6642 6.43215 75.7032 15.608C68.3803 24.0482 50.2945 31.9995 50.2945 31.9995Z" fill="#FCEAFF"/></g><defs><clipPath id="qb"><rect width="88" height="32" fill="white"/></clipPath></defs></svg></div>
+        </article>
+        <article class="avis-carte">
+          <img src="substituts/portrait.svg" width="1000" height="750" alt="Un couple sur un canapé tenant un portrait encadré style Dragon Ball" loading="lazy">
+          <div class="avis-bulle">
+            <div class="svg-stars"><svg xmlns="http://www.w3.org/2000/svg" width="111" height="18" viewBox="0 0 111 18" fill="none" aria-hidden="true"><path d="M1.17483 7.54228C0.987061 7.35967 0.987061 7.17706 0.987061 6.99444L1.08095 6.81183C1.17483 6.62922 1.26872 6.53791 1.45649 6.53791L7.46517 6.08138L9.71842 0.694326C9.90619 0.420408 10.094 0.329102 10.2817 0.329102H10.5634C10.7512 0.329102 10.9389 0.420408 11.0328 0.60302L13.38 5.99008L19.3886 6.44661C19.5764 6.44661 19.7642 6.62922 19.7642 6.72053V6.99444C19.8581 7.17706 19.7642 7.35967 19.6703 7.45097L15.0699 11.2858L16.4782 16.9468C16.4782 17.1294 16.4782 17.312 16.2904 17.4033L16.0088 17.5859C15.821 17.6773 15.6332 17.6773 15.4454 17.5859L10.3756 14.5728L5.21191 17.5859C5.11803 17.6773 4.93026 17.6773 4.74248 17.5859L4.55471 17.4946C4.36694 17.4033 4.36694 17.2207 4.36694 17.0381L5.68134 11.2858L1.17483 7.54228ZM23.8013 7.54228C23.6135 7.45097 23.6135 7.26836 23.6135 7.08575L23.7074 6.90314C23.8013 6.72053 23.8951 6.62922 24.0829 6.62922L30.0916 5.99008L32.3448 0.60302C32.4387 0.420408 32.6265 0.329102 32.9082 0.329102H33.1898C33.3776 0.329102 33.5654 0.420408 33.6592 0.60302L36.0064 5.99008L42.0151 6.44661C42.2028 6.44661 42.3906 6.62922 42.3906 6.72053L42.4845 6.90314C42.5784 7.08575 42.4845 7.26836 42.3906 7.35967L37.6963 11.2858L39.1046 16.9468C39.1046 17.1294 39.1046 17.312 38.9168 17.4033L38.6352 17.5859C38.4474 17.6773 38.2596 17.6773 38.0719 17.5859L33.002 14.5728L27.8383 17.5859C27.6506 17.6773 27.4628 17.6773 27.275 17.5859L27.0873 17.4946C26.8995 17.4033 26.8995 17.2207 26.8995 17.0381L28.2139 11.3771L23.8013 7.54228ZM46.4277 7.54228C46.2399 7.45097 46.2399 7.26836 46.2399 7.08575L46.3338 6.90314C46.4277 6.72053 46.5216 6.62922 46.7093 6.62922L52.718 6.17269L54.9713 0.785632C55.0652 0.420408 55.2529 0.329102 55.5346 0.329102H55.8162C56.004 0.329102 56.1918 0.420408 56.2857 0.60302L58.6328 5.99008L64.6415 6.44661C64.8293 6.44661 65.017 6.62922 65.017 6.72053L65.1109 6.90314C65.2048 7.08575 65.1109 7.26836 65.017 7.35967L60.3228 11.2858L61.731 16.9468C61.731 17.1294 61.731 17.312 61.5433 17.4033L61.2616 17.5859C61.0738 17.6773 60.8861 17.6773 60.6983 17.5859L55.6285 14.5728L50.4648 17.5859C50.277 17.6773 50.0892 17.6773 49.9015 17.5859L49.7137 17.4946C49.5259 17.4033 49.5259 17.2207 49.5259 17.0381L50.8403 11.3771L46.4277 7.54228ZM69.0541 7.54228C68.8663 7.45097 68.8663 7.26836 68.8663 7.08575L68.9602 6.90314C69.0541 6.72053 69.148 6.62922 69.3358 6.62922L75.3444 6.17269L77.5977 0.785632C77.6916 0.420408 77.8794 0.329102 78.0671 0.329102H78.3488C78.5366 0.329102 78.7243 0.420408 78.8182 0.60302L81.1654 5.99008L87.174 6.44661C87.3618 6.44661 87.5496 6.62922 87.5496 6.72053L87.6435 6.90314C87.7374 7.08575 87.6435 7.26836 87.5496 7.35967L82.9492 11.2858L84.3575 16.9468C84.3575 17.1294 84.3575 17.312 84.1697 17.4033L83.888 17.5859C83.7003 17.6773 83.5125 17.6773 83.3247 17.5859L78.2549 14.5728L73.0912 17.5859C72.9034 17.6773 72.7156 17.6773 72.5279 17.5859L72.3401 17.4946C72.1523 17.4033 72.1523 17.2207 72.1523 17.0381L73.4667 11.3771L69.0541 7.54228ZM110.176 6.99444L110.082 6.81183C109.988 6.62922 109.894 6.53791 109.707 6.53791L103.698 6.08138L101.445 0.60302C101.351 0.420408 101.163 0.329102 100.975 0.329102H100.881H100.787C100.6 0.329102 100.412 0.420408 100.318 0.60302L98.0648 5.99008L92.0561 6.44661C91.8683 6.44661 91.6805 6.62922 91.6805 6.72053L91.5867 6.90314C91.5867 6.99444 91.5867 7.08575 91.5867 7.17706C91.5867 7.26836 91.6805 7.35967 91.7744 7.35967L96.2809 11.1032L94.9665 16.7642C94.9665 16.9468 94.9665 17.1294 95.1543 17.2207L95.3421 17.312C95.436 17.4033 95.6237 17.4033 95.8115 17.312H95.9054L101.069 14.2989L106.139 17.312C106.327 17.4033 106.514 17.4033 106.702 17.312L106.984 17.1294C107.172 17.0381 107.172 16.8555 107.172 16.6729L105.763 11.0119L110.27 7.26836C110.176 7.35967 110.27 7.17706 110.176 6.99444Z" fill="currentColor"/></svg></div>
+            <h3>Incroyable</h3>
+            <p>Super expérience du début à la fin. Notre portrait est encore mieux qu'espéré.</p>
+            <p class="avis-signe">Valentin <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 22 21" fill="none" aria-hidden="true"><path d="M7.47045 20.8481L5.60284 17.7026L2.0642 16.9163L2.40824 13.2794L0 10.5271L2.40824 7.7748L2.0642 4.13787L5.60284 3.35151L7.47045 0.206055L10.8125 1.63134L14.1545 0.206055L16.0222 3.35151L19.5608 4.13787L19.2167 7.7748L21.625 10.5271L19.2167 13.2794L19.5608 16.9163L16.0222 17.7026L14.1545 20.8481L10.8125 19.4228L7.47045 20.8481ZM9.78036 14.0166L15.3341 8.46287L13.958 7.03755L9.78036 11.2151L7.66705 9.15094L6.29091 10.5271L9.78036 14.0166Z" fill="#8FC452"/></svg> <span class="verifie">Achat Vérifié</span></p>
+          </div>
+          <div class="avis-queue"><svg xmlns="http://www.w3.org/2000/svg" width="88" height="32" viewBox="0 0 88 32" fill="none" aria-hidden="true"><g clip-path="url(#qb)"><path d="M50.2945 31.9995C50.2945 31.9995 57.2198 19.4833 56.3124 11.0184C55.0692 -0.578831 38.2207 -13.0005 38.2207 -13.0005L88.2207 -13.0005C88.2207 -13.0005 83.6642 6.43215 75.7032 15.608C68.3803 24.0482 50.2945 31.9995 50.2945 31.9995Z" fill="#FCEAFF"/></g><defs><clipPath id="qb"><rect width="88" height="32" fill="white"/></clipPath></defs></svg></div>
+        </article>
+        <article class="avis-carte">
+          <img src="substituts/portrait.svg" width="1000" height="750" alt="Une femme au bureau tenant une affiche Wanted One Piece personnalisée" loading="lazy">
+          <div class="avis-bulle">
+            <div class="svg-stars"><svg xmlns="http://www.w3.org/2000/svg" width="111" height="18" viewBox="0 0 111 18" fill="none" aria-hidden="true"><path d="M1.17483 7.54228C0.987061 7.35967 0.987061 7.17706 0.987061 6.99444L1.08095 6.81183C1.17483 6.62922 1.26872 6.53791 1.45649 6.53791L7.46517 6.08138L9.71842 0.694326C9.90619 0.420408 10.094 0.329102 10.2817 0.329102H10.5634C10.7512 0.329102 10.9389 0.420408 11.0328 0.60302L13.38 5.99008L19.3886 6.44661C19.5764 6.44661 19.7642 6.62922 19.7642 6.72053V6.99444C19.8581 7.17706 19.7642 7.35967 19.6703 7.45097L15.0699 11.2858L16.4782 16.9468C16.4782 17.1294 16.4782 17.312 16.2904 17.4033L16.0088 17.5859C15.821 17.6773 15.6332 17.6773 15.4454 17.5859L10.3756 14.5728L5.21191 17.5859C5.11803 17.6773 4.93026 17.6773 4.74248 17.5859L4.55471 17.4946C4.36694 17.4033 4.36694 17.2207 4.36694 17.0381L5.68134 11.2858L1.17483 7.54228ZM23.8013 7.54228C23.6135 7.45097 23.6135 7.26836 23.6135 7.08575L23.7074 6.90314C23.8013 6.72053 23.8951 6.62922 24.0829 6.62922L30.0916 5.99008L32.3448 0.60302C32.4387 0.420408 32.6265 0.329102 32.9082 0.329102H33.1898C33.3776 0.329102 33.5654 0.420408 33.6592 0.60302L36.0064 5.99008L42.0151 6.44661C42.2028 6.44661 42.3906 6.62922 42.3906 6.72053L42.4845 6.90314C42.5784 7.08575 42.4845 7.26836 42.3906 7.35967L37.6963 11.2858L39.1046 16.9468C39.1046 17.1294 39.1046 17.312 38.9168 17.4033L38.6352 17.5859C38.4474 17.6773 38.2596 17.6773 38.0719 17.5859L33.002 14.5728L27.8383 17.5859C27.6506 17.6773 27.4628 17.6773 27.275 17.5859L27.0873 17.4946C26.8995 17.4033 26.8995 17.2207 26.8995 17.0381L28.2139 11.3771L23.8013 7.54228ZM46.4277 7.54228C46.2399 7.45097 46.2399 7.26836 46.2399 7.08575L46.3338 6.90314C46.4277 6.72053 46.5216 6.62922 46.7093 6.62922L52.718 6.17269L54.9713 0.785632C55.0652 0.420408 55.2529 0.329102 55.5346 0.329102H55.8162C56.004 0.329102 56.1918 0.420408 56.2857 0.60302L58.6328 5.99008L64.6415 6.44661C64.8293 6.44661 65.017 6.62922 65.017 6.72053L65.1109 6.90314C65.2048 7.08575 65.1109 7.26836 65.017 7.35967L60.3228 11.2858L61.731 16.9468C61.731 17.1294 61.731 17.312 61.5433 17.4033L61.2616 17.5859C61.0738 17.6773 60.8861 17.6773 60.6983 17.5859L55.6285 14.5728L50.4648 17.5859C50.277 17.6773 50.0892 17.6773 49.9015 17.5859L49.7137 17.4946C49.5259 17.4033 49.5259 17.2207 49.5259 17.0381L50.8403 11.3771L46.4277 7.54228ZM69.0541 7.54228C68.8663 7.45097 68.8663 7.26836 68.8663 7.08575L68.9602 6.90314C69.0541 6.72053 69.148 6.62922 69.3358 6.62922L75.3444 6.17269L77.5977 0.785632C77.6916 0.420408 77.8794 0.329102 78.0671 0.329102H78.3488C78.5366 0.329102 78.7243 0.420408 78.8182 0.60302L81.1654 5.99008L87.174 6.44661C87.3618 6.44661 87.5496 6.62922 87.5496 6.72053L87.6435 6.90314C87.7374 7.08575 87.6435 7.26836 87.5496 7.35967L82.9492 11.2858L84.3575 16.9468C84.3575 17.1294 84.3575 17.312 84.1697 17.4033L83.888 17.5859C83.7003 17.6773 83.5125 17.6773 83.3247 17.5859L78.2549 14.5728L73.0912 17.5859C72.9034 17.6773 72.7156 17.6773 72.5279 17.5859L72.3401 17.4946C72.1523 17.4033 72.1523 17.2207 72.1523 17.0381L73.4667 11.3771L69.0541 7.54228ZM110.176 6.99444L110.082 6.81183C109.988 6.62922 109.894 6.53791 109.707 6.53791L103.698 6.08138L101.445 0.60302C101.351 0.420408 101.163 0.329102 100.975 0.329102H100.881H100.787C100.6 0.329102 100.412 0.420408 100.318 0.60302L98.0648 5.99008L92.0561 6.44661C91.8683 6.44661 91.6805 6.62922 91.6805 6.72053L91.5867 6.90314C91.5867 6.99444 91.5867 7.08575 91.5867 7.17706C91.5867 7.26836 91.6805 7.35967 91.7744 7.35967L96.2809 11.1032L94.9665 16.7642C94.9665 16.9468 94.9665 17.1294 95.1543 17.2207L95.3421 17.312C95.436 17.4033 95.6237 17.4033 95.8115 17.312H95.9054L101.069 14.2989L106.139 17.312C106.327 17.4033 106.514 17.4033 106.702 17.312L106.984 17.1294C107.172 17.0381 107.172 16.8555 107.172 16.6729L105.763 11.0119L110.27 7.26836C110.176 7.35967 110.27 7.17706 110.176 6.99444Z" fill="currentColor"/></svg></div>
+            <h3>Bluffée 😳</h3>
+            <p>Bluffée par la ressemblance du portrait. Il est très réussi et super original !</p>
+            <p class="avis-signe">Kamelia <svg xmlns="http://www.w3.org/2000/svg" width="18" height="17" viewBox="0 0 22 21" fill="none" aria-hidden="true"><path d="M7.47045 20.8481L5.60284 17.7026L2.0642 16.9163L2.40824 13.2794L0 10.5271L2.40824 7.7748L2.0642 4.13787L5.60284 3.35151L7.47045 0.206055L10.8125 1.63134L14.1545 0.206055L16.0222 3.35151L19.5608 4.13787L19.2167 7.7748L21.625 10.5271L19.2167 13.2794L19.5608 16.9163L16.0222 17.7026L14.1545 20.8481L10.8125 19.4228L7.47045 20.8481ZM9.78036 14.0166L15.3341 8.46287L13.958 7.03755L9.78036 11.2151L7.66705 9.15094L6.29091 10.5271L9.78036 14.0166Z" fill="#8FC452"/></svg> <span class="verifie">Achat Vérifié</span></p>
+          </div>
+          <div class="avis-queue"><svg xmlns="http://www.w3.org/2000/svg" width="88" height="32" viewBox="0 0 88 32" fill="none" aria-hidden="true"><g clip-path="url(#qb)"><path d="M50.2945 31.9995C50.2945 31.9995 57.2198 19.4833 56.3124 11.0184C55.0692 -0.578831 38.2207 -13.0005 38.2207 -13.0005L88.2207 -13.0005C88.2207 -13.0005 83.6642 6.43215 75.7032 15.608C68.3803 24.0482 50.2945 31.9995 50.2945 31.9995Z" fill="#FCEAFF"/></g><defs><clipPath id="qb"><rect width="88" height="32" fill="white"/></clipPath></defs></svg></div>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ds-cadre" data-nom="atouts (fond soleil)" style="margin:0 24px 30px"><!-- POURQUOI NOUS CHOISIR (TurnedYellow) — leur fond #E9BA3B est notre --soleil -->
+  <section class="section atouts-sec">
+    <div class="enveloppe">
+      <div class="chapeau">
+        <span class="surtitre">Pourquoi nous</span>
+        <h2>Ce qui fait la <span class="accent" style="color: var(--encre);">différence</span></h2>
+        <p>Chaque portrait est dessiné à la main par un illustrateur. Le cadeau qui fait rire toute la famille.</p>
+      </div>
+      <div class="atouts-grille">
+        <article class="atout-carte">
+          <div class="atout-carte__num">01</div>
+          <img src="substituts/logo.svg" alt="" aria-hidden="true" loading="lazy">
+          <h3>Aperçu rapide</h3>
+          <p>Ton premier aperçu arrive sous 48 h. Dès que tu valides, le fichier haute définition part par e-mail.</p>
+        </article>
+        <article class="atout-carte">
+          <div class="atout-carte__num">02</div>
+          <img src="substituts/logo.svg" alt="" aria-hidden="true" loading="lazy">
+          <h3>Retouches illimitées</h3>
+          <p>On ajuste jusqu'à ce que ce soit parfait. Seuls les ajouts importants (personne, animal) sont facturés.</p>
+        </article>
+        <article class="atout-carte">
+          <div class="atout-carte__num">03</div>
+          <img src="substituts/logo.svg" alt="" aria-hidden="true" loading="lazy">
+          <h3>N'importe quelle photo</h3>
+          <p>Seul, en couple, en famille, entre collègues ou avec ton animal. Plusieurs photos sont les bienvenues.</p>
+        </article>
+        <article class="atout-carte">
+          <div class="atout-carte__num">04</div>
+          <img src="substituts/logo.svg" alt="" aria-hidden="true" loading="lazy">
+          <h3>Paiement sécurisé</h3>
+          <p>Transactions chiffrées et commande fluide, du fichier numérique à l'impression encadrée.</p>
+        </article>
+      </div>
+      <div class="preuve-ligne">
+        <img src="substituts/logo.svg" alt="" aria-hidden="true" loading="lazy">
+        <p><strong>80 000+</strong> personnes déjà transformées en dessin animé</p>
+      </div>
+      <div style="text-align:center; margin-top: 30px;">
+        <a class="bouton bouton--clair" href="#styles">Créer mon portrait →</a>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ds-cadre" data-nom="FAQ illustrée" style="margin:0 24px 30px"><!-- FAQ ILLUSTRÉE (TurnedYellow) : visuel + halo à gauche, accordéon à droite.
+       Leur halo était un SVG à filtre gaussien ; un dégradé radial flouté rend
+       la même chose pour quelques octets. Accordéon natif, sans JavaScript. -->
+  <section class="section" id="faq">
+    <div class="enveloppe faq-illus">
+      <div class="faq-visuel">
+        <img src="substituts/paysage.svg" width="600" height="600"
+             alt="Portrait personnalisé encadré" loading="lazy">
+      </div>
+      <div>
+        <h2 style="font-size: clamp(28px,3.4vw,42px); margin-bottom: 12px;">
+          Vos <span class="accent">questions</span>
+        </h2>
+        <div class="faq">
+        <details open>
+          <summary>Le portrait est-il vraiment dessiné à la main ?</summary>
+          <p>Oui. Chaque commande est attribuée à un illustrateur qui redessine intégralement la photo. Aucune génération automatique.</p>
+        </details>
+        <details>
+          <summary>Puis-je envoyer plusieurs photos ?</summary>
+          <p>Bien sûr. Une photo par personne suffit, mais tu peux en ajouter pour préciser un détail : une coiffure, une tenue, un animal.</p>
+        </details>
+        <details>
+          <summary>Et si le résultat ne me plaît pas ?</summary>
+          <p>Les retouches sont illimitées et offertes. Tu valides l'aperçu avant toute impression, et rien n'est imprimé sans ton accord.</p>
+        </details>
+        <details>
+          <summary>Quels sont les délais ?</summary>
+          <p>L'aperçu arrive sous 48 h. Pour une version imprimée, compte 3 à 5 jours ouvrés supplémentaires pour la livraison.</p>
+        </details>
+        <details>
+          <summary>Puis-je ajouter mon animal de compagnie ?</summary>
+          <p>Oui, les animaux comptent comme un personnage. Chien, chat, cheval ou perruche : ils ont leur place sur le portrait.</p>
+        </details>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ds-cadre" data-nom="bannière finale" style="margin:0 24px 30px"><!-- BANNIÈRE FINALE (TurnedYellow) — reconstruite d'après la section réelle :
+       fond doré (les photos famille + téléphone sont incrustées dans l'image),
+       colonne de texte à gauche, moitié droite laissée au visuel. -->
+  <section class="section" style="padding-block: clamp(34px, 4vw, 60px);">
+    <div class="enveloppe">
+      <div class="cta-fin">
+        <div class="cta-fin__texte">
+          <h2>Prêt à te voir <span class="accent">en dessin animé</span> ?</h2>
+          <p>Soutiens de vrais illustrateurs et offre un cadeau que personne d'autre ne peut offrir.</p>
+          <a class="cta-fin__bouton" href="#styles">Créer mon portrait <svg width="26" height="25" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.1633 24C18.9397 24.0013 18.7209 23.9347 18.5346 23.8087C18.3483 23.6827 18.203 23.5029 18.1173 23.2924C18.0316 23.0818 18.0093 22.85 18.0532 22.6265C18.0972 22.403 18.2055 22.1979 18.3642 22.0374L24.3292 15.9658L18.3642 9.89429C18.1798 9.67473 18.0835 9.3923 18.0944 9.10344C18.1053 8.81458 18.2228 8.54057 18.4232 8.33616C18.6236 8.13176 18.8923 8.01201 19.1756 8.00086C19.4588 7.9897 19.7358 8.08795 19.9511 8.27598L26.704 15.1624C26.9136 15.3774 27.0312 15.6683 27.0312 15.9716C27.0312 16.2748 26.9136 16.5657 26.704 16.7807L19.9511 23.6671C19.7415 23.8792 19.4585 23.9987 19.1633 24Z" fill="currentColor"/><path opacity="0.4" d="M7.91061 22C7.73696 22.001 7.56694 21.9513 7.42223 21.8572C7.27752 21.7631 7.16467 21.6289 7.09808 21.4717C7.03149 21.3145 7.01417 21.1414 7.04833 20.9746C7.08249 20.8077 7.16658 20.6546 7.28988 20.5347L11.9235 16.0017L7.28988 11.4688C7.12525 11.3074 7.03276 11.0886 7.03276 10.8604C7.03276 10.6322 7.12525 10.4134 7.28988 10.252C7.4545 10.0906 7.67779 10 7.91061 10C8.14343 10 8.36672 10.0906 8.53135 10.252L13.777 15.3934C13.9399 15.5539 14.0312 15.7711 14.0312 15.9975C14.0312 16.2238 13.9399 16.441 13.777 16.6016L8.53135 21.7429C8.45038 21.8239 8.35382 21.8883 8.24727 21.9324C8.14071 21.9766 8.02629 21.9995 7.91061 22Z" fill="currentColor"/></svg></a>
+          <div class="cta-fin__atouts"><div><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13.4585 15.8678C12.8233 15.8678 12.1577 15.6357 11.6827 15.2064C10.6342 14.2586 10.5504 12.6328 11.4961 11.5822C12.162 10.8424 15.3633 8.91227 16.3286 8.33828C16.6351 8.15601 17.0222 8.18188 17.3017 8.40335C17.5811 8.62469 17.6949 8.99564 17.5877 9.33565C17.5725 9.38392 17.2098 10.5318 16.7629 11.7865C15.9253 14.1381 15.5557 14.7404 15.3046 15.0194C14.8458 15.529 14.2751 15.8678 13.4585 15.8678ZM15.2012 11.0466C14.005 11.8035 12.9913 12.4908 12.7739 12.7324C12.4611 13.0799 12.4887 13.6176 12.8355 13.931C13.0027 14.0823 13.219 14.159 13.4436 14.1475C13.6675 14.136 13.8737 14.0381 14.0246 13.8717C14.0609 13.8266 14.3604 13.4129 15.157 11.1715C15.1718 11.1298 15.1865 11.0882 15.2012 11.0466ZM4.85649 10.5967C5.29234 10.7851 5.7982 10.5847 5.98667 10.149C9.23932 2.69814 20.3331 4.36027 21.2862 12.3977C21.3379 12.8712 21.7744 13.2101 22.2375 13.1546C22.7093 13.1009 23.0481 12.675 22.9944 12.2033C22.7272 9.8563 21.5959 7.68758 19.8091 6.09666L20.4951 5.22466C20.7886 4.85152 20.724 4.3111 20.3509 4.0176C19.9777 3.72413 19.4374 3.78869 19.1438 4.16175L18.4296 5.06972C17.1463 4.27912 15.6962 3.79479 14.1892 3.65846V2.71623H15.0918C16.2311 2.67398 16.2302 1.03893 15.0918 0.99707H11.6535C10.5142 1.03932 10.515 2.67437 11.6535 2.71623H12.4701V3.65485C8.9404 3.95944 5.8334 6.17265 4.40882 9.46657C4.22031 9.90229 4.42077 10.4083 4.85649 10.5967ZM1.85414 13.9338H7.82823C8.96752 13.8915 8.96666 12.2565 7.82823 12.2146H1.85414C0.714856 12.2569 0.715715 13.8919 1.85414 13.9338ZM5.24949 19.0913H1.85414C0.714856 19.1335 0.715715 20.7686 1.85414 20.8104H5.24949C6.38878 20.7682 6.38792 19.1331 5.24949 19.0913ZM15.8536 20.8968C13.7129 21.6112 10.9604 21.3256 9.07574 20.1225C8.67208 19.8726 8.14228 19.9973 7.89249 20.401C7.64265 20.8047 7.76733 21.3345 8.17099 21.5843C10.4812 23.0537 13.7759 23.4034 16.3928 22.5291C16.8436 22.3803 17.0883 21.8942 16.9394 21.4433C16.7906 20.9926 16.3045 20.7478 15.8536 20.8968ZM22.3716 17.2002H20.381L21.9538 14.6644H18.9029L16.9223 18.1959C16.5987 18.7728 17.0188 19.4781 17.6838 19.4781H19.4106C19.4106 19.4781 18.2293 22.7549 18.2292 22.7875C18.2285 22.9227 18.3458 23.0029 18.4961 23.0023C18.6016 23.0019 18.7131 22.9596 18.7866 22.8863L22.8444 18.2441C23.1967 17.8369 22.9122 17.2002 22.3716 17.2002ZM6.53886 15.6529H1.85414C0.714856 15.6952 0.715715 17.3302 1.85414 17.3721H6.53886C7.67815 17.3298 7.67729 15.6948 6.53886 15.6529Z" fill="currentColor"/></svg></span> Prêt en 48 h</div>
+        <div><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M19.7225 10.8102C19.6515 10.7397 19.5555 10.7002 19.4555 10.7002C19.3555 10.7002 19.2596 10.7397 19.1886 10.8102L17.4178 12.5772C17.3668 12.6306 17.3325 12.6976 17.319 12.7701C17.3054 12.8427 17.3133 12.9176 17.3416 12.9857C17.3699 13.0539 17.4174 13.1123 17.4783 13.1539C17.5392 13.1956 17.611 13.2185 17.6847 13.2201L18.0081 13.2201C18.0005 13.3028 17.9892 13.3856 17.978 13.4645C17.7942 14.5912 17.6067 14.213 18.6172 14.7014C19.2456 15.0366 19.7845 15.5175 20.1887 16.1038C20.5535 15.1817 20.7754 14.2093 20.8466 13.2201C21.083 13.2152 21.4735 13.2827 21.5722 12.987C21.6009 12.9185 21.6087 12.8431 21.5947 12.7702C21.5806 12.6973 21.5454 12.6301 21.4933 12.5772L19.7225 10.8102Z" fill="currentColor"/><path d="M12.7266 18.6755C12.7316 19.6711 13.1293 20.6245 13.8333 21.3285C14.5373 22.0325 15.4907 22.4302 16.4863 22.4351C19.6766 22.4589 21.4334 18.5915 19.3249 16.2128C17.0852 13.6004 12.7093 15.2255 12.7266 18.6755ZM18.2534 17.9385L16.2494 19.9425C16.1788 20.0121 16.0836 20.0511 15.9844 20.0511C15.8852 20.0511 15.79 20.0121 15.7193 19.9425L14.7155 18.9386C14.6807 18.9038 14.6531 18.8625 14.6342 18.817C14.6154 18.7715 14.6057 18.7228 14.6057 18.6735C14.6057 18.6243 14.6154 18.5756 14.6342 18.5301C14.6531 18.4846 14.6807 18.4433 14.7155 18.4085C14.7503 18.3737 14.7916 18.3461 14.8371 18.3272C14.8826 18.3084 14.9313 18.2987 14.9805 18.2987C15.0298 18.2987 15.0785 18.3084 15.124 18.3272C15.1695 18.3461 15.2108 18.3737 15.2456 18.4085L15.9825 19.1454L17.7233 17.4046C17.7945 17.3366 17.8896 17.2992 17.9881 17.3005C18.0866 17.3018 18.1807 17.3417 18.2501 17.4116C18.3195 17.4816 18.3588 17.5759 18.3594 17.6744C18.36 17.7729 18.3219 17.8678 18.2534 17.9385Z" fill="currentColor"/><path d="M21.9686 2.09457C21.629 1.75514 21.1686 1.56445 20.6884 1.56445C20.2083 1.56445 19.7478 1.75514 19.4082 2.09457L18.7578 2.74499C19.4148 3.40221 20.6648 4.6519 21.3219 5.30912L21.9724 4.65493C22.3105 4.31444 22.4999 3.85384 22.4992 3.37398C22.4985 2.89411 22.3077 2.43408 21.9686 2.09457Z" fill="currentColor"/><path d="M10.0478 11.498L8.48754 15.0848C8.4631 15.1418 8.4531 15.204 8.45842 15.2658C8.46374 15.3277 8.48422 15.3873 8.51805 15.4393C8.55187 15.4913 8.598 15.5342 8.65235 15.5642C8.7067 15.5942 8.7676 15.6103 8.82966 15.6111C8.88141 15.6124 8.93279 15.6022 8.98006 15.581L12.5706 14.0208C12.6138 14.0016 12.6533 13.9748 12.6871 13.9418L20.7893 5.83965C20.4395 5.48975 19.1322 4.18262 18.7591 3.8094L18.2289 3.2793L10.1268 11.3815C10.0929 11.4147 10.0661 11.4543 10.0478 11.498Z" fill="currentColor"/><path d="M12.0325 19.3673C11.1336 19.4829 10.2207 19.4198 9.34627 19.1817C8.47182 18.9437 7.65298 18.5353 6.93673 17.98C6.22048 17.4247 5.62091 16.7335 5.17243 15.946C4.72395 15.1585 4.43537 14.2901 4.32327 13.3908C4.21116 12.4915 4.27773 11.5789 4.51915 10.7053C4.76057 9.83181 5.17209 9.01454 5.7301 8.30043C6.28811 7.58631 6.98163 6.9894 7.77088 6.54394C8.56012 6.09848 9.42956 5.81323 10.3293 5.70458C10.6693 5.65902 10.9805 5.48955 11.2032 5.22866C11.4259 4.96778 11.5445 4.63385 11.5362 4.29092C11.5345 4.09353 11.4913 3.89869 11.4095 3.71905C11.3277 3.53941 11.209 3.37898 11.0612 3.24817C10.9133 3.11735 10.7397 3.01908 10.5514 2.95972C10.3631 2.90036 10.1645 2.88124 9.96836 2.9036C-1.43789 4.62429 -1.28625 20.7972 10.2091 22.2059C11.2854 22.3158 12.3726 22.2408 13.4235 21.9841C12.8985 21.4975 12.4965 20.8931 12.2505 20.2208C12.1458 19.9454 12.0727 19.6591 12.0325 19.3673Z" fill="currentColor"/></svg></span> Retouches illimitées</div>
+        <div><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.72895 17.9898C5.26138 17.9898 3.95595 17.0501 3.48193 15.6512L3.44986 15.5458C3.33807 15.1753 3.29124 14.8638 3.29124 14.5521V8.30176L1.0673 15.7254C0.781274 16.8173 1.43306 17.9493 2.52665 18.251L16.702 22.0472C16.8789 22.0931 17.0558 22.115 17.2301 22.115C18.1431 22.115 18.9773 21.5091 19.2111 20.6161L20.037 17.9898H6.72895Z" fill="currentColor"/><path d="M9.25147 8.36427C10.2626 8.36427 11.0848 7.54194 11.0848 6.53077C11.0848 5.5196 10.2626 4.69727 9.25147 4.69727C8.2403 4.69727 7.41797 5.5196 7.41797 6.53077C7.41797 7.54194 8.2403 8.36427 9.25147 8.36427Z" fill="currentColor"/><path d="M20.7067 1.94727H6.95581C5.69269 1.94727 4.66406 2.97589 4.66406 4.23919V14.323C4.66406 15.5863 5.69269 16.6149 6.95581 16.6149H20.7067C21.97 16.6149 22.9986 15.5863 22.9986 14.323V4.23919C22.9986 2.97589 21.97 1.94727 20.7067 1.94727ZM6.95581 3.78077H20.7067C20.9598 3.78077 21.1651 3.98606 21.1651 4.23919V10.747L18.2692 7.36787C17.962 7.00765 17.5174 6.81512 17.0398 6.80421C16.565 6.80689 16.1195 7.01772 15.8151 7.38264L12.4103 11.4693L11.3011 10.3628C10.6742 9.73583 9.65378 9.73583 9.02767 10.3628L6.49756 12.892V4.23919C6.49756 3.98606 6.70285 3.78077 6.95581 3.78077Z" fill="currentColor"/></svg></span> N'importe quelle photo</div>
+        </div>
+        <div class="cta-fin__visuel" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="ds-cadre" data-nom="pied de page" style="margin:0 24px 30px"><!-- Bande illustrée : la meilleure idée du pied de page de TurnedYellow,
+     reposée sur le jaune partagé, au-dessus de l'indigo de CartoonToi. -->
+<div class="bande-perso">
+  <img src="substituts/perso.svg" alt="" aria-hidden="true" loading="lazy">
+</div>
+
+<footer class="pied">
+  <div class="enveloppe">
+    <div class="pied__grille">
+      <div>
+        <div class="pied__mot">Toon<i>Jaune</i></div>
+        <p style="opacity:.8; margin:0; max-width:32ch;">
+          Des portraits dessinés à la main, à partir de vos photos.
+        </p>
+      </div>
+      <div>
+        <h4>Styles</h4>
+        <ul>
+          <li><a href="#styles">Manga</a></li>
+          <li><a href="#styles">Cartoon</a></li>
+          <li><a href="#styles">Comics</a></li>
+          <li><a href="#styles">Cinéma</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Aide</h4>
+        <ul>
+          <li><a href="#faq">Questions fréquentes</a></li>
+          <li><a href="#etapes">Comment ça marche</a></li>
+          <li><a href="#">Nous contacter</a></li>
+          <li><a href="#">Suivi de commande</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Légal</h4>
+        <ul>
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">CGV</a></li>
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">Remboursement</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pied__bas">
+      <span>© 2026 ToonJaune</span>
+      <span>Illustrations réalisées à la main en France</span>
+    </div>
+  </div>
+</footer>
+</div>
+
+</body>
+</html>

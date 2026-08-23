@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { mesure } from "@/lib/analytics";
+import { mesure, identifier } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 import Icone from "@/components/tj/Icone";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -38,7 +39,19 @@ export default function NewsletterForm({
         return;
       }
 
-      mesure("newsletter_subscribed", { source, locale });
+      /* Une inscription donne une adresse : c'est le seul autre moment que la
+         caisse ou un visiteur cesse d'etre anonyme. Sans cet appel, un
+         inscrit qui revient acheter trois jours plus tard reste un inconnu, et
+         l'infolettre ne peut jamais etre creditee de la commande. */
+      identifier(email, { source_inscription: source, locale });
+
+      mesure(MESURES.inscriptionNewsletter, { source, locale });
+
+      /* La relance de sortie ne pouvait etre jugee que sur son cout : on
+         savait combien de fois elle s'affichait, jamais ce qu'elle rapportait. */
+      if (source === "exit_intent") {
+        mesure(MESURES.relanceSortieConvertie, { locale });
+      }
       setStatus("success");
       setEmail("");
     } catch {

@@ -3,6 +3,9 @@ import Stripe from "stripe";
 import { sql } from "@/lib/db";
 import { consumePromoCode } from "@/lib/promoCodes";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
+import { mesureServeur } from "@/lib/analyticsServeur";
+import { MESURES } from "@/lib/evenementsMesure";
+import { toEUR } from "@/lib/currency";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -142,6 +145,32 @@ export async function POST(req: NextRequest) {
         console.error("[order/create] increment du code promo impossible:", error)
       );
     }
+
+    /* La commande existe, le paiement n'est pas encore confirme.
+       C'est le denominateur qui manquait : sans lui, un `payment_error` ne
+       peut etre rapporte a rien, et l'ecart entre commandes creees et
+       commandes payees — les paniers morts entre le formulaire de carte et la
+       banque — reste invisible. Le rapprochement se fait sur
+       `payment_intent_id`, present ici comme sur l'achat confirme. */
+    await mesureServeur(MESURES.commandeCreee, {
+      identifiant: email,
+      proprietes: {
+        order_id: orderId,
+        transaction_id: paymentIntentId,
+        value: total,
+        currency,
+        revenue_eur: toEUR(total, currency),
+        style: style || null,
+        format,
+        people,
+        animals,
+        print_option: printOption,
+        is_gift: estCadeau,
+        promo_code: promoCode || null,
+        detected_country: detectedCountry || null,
+        photo_count: photos.length,
+      },
+    });
 
     return NextResponse.json({ orderId });
   } catch (error) {

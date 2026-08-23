@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { Locale } from "@/i18n/config";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 import { TEXTES_AVIS } from "./textes";
 
 type Etat = "saisie" | "envoi" | "publie" | "modere" | "erreur";
@@ -43,6 +45,16 @@ export default function NouvelAvisClient({
         return;
       }
       const data = (await r.json()) as { statut?: string };
+      /* La preuve sociale est un levier de conversion mesurable : savoir
+         combien d'avis sont deposes, avec quelle note et depuis quel marche
+         dit si la sollicitation par e-mail apres livraison vaut la peine.
+         Le texte de l'avis ne part pas — il est deja en base. */
+      mesure(MESURES.avisSoumis, {
+        note,
+        locale,
+        verifie,
+        statut: data.statut ?? "publie",
+      });
       setEtat(data.statut === "en_attente" ? "modere" : "publie");
     } catch {
       setEtat("erreur");

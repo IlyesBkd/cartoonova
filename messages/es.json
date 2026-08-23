@@ -764,7 +764,9 @@
     "legImpression": "Impreso en Francia",
     "legImpressionAcc": "en papel A3 Museum",
     "legCadre": "Marco de madera premium",
-    "legCadreAcc": "listo para colgar"
+    "legCadreAcc": "listo para colgar",
+    "prixUnite": "por personaje",
+    "prixNote": "Una familia de 4 personajes: {prix}. Sin gastos ocultos."
   },
   "metaPages": {
     "aPropos": {

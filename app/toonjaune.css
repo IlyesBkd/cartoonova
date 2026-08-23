@@ -245,6 +245,46 @@ p { text-wrap: pretty; }
   font-size: clamp(17px, 1.3vw, 19px); color: rgba(7, 9, 10, .82);
   max-width: 34ch; margin: 20px 0 28px;
 }
+/* ---------- plaque de prix du hero ----------
+   Le prix est l'argument numero un du site : 5 EUR le personnage la ou le
+   concurrent direct affiche 34,90 EUR (releve du 2026-08-16, catalogue-cartoontoi).
+   Il etait pourtant absent du premier ecran — le visiteur devait ouvrir une
+   fiche pour le decouvrir, c'est-a-dire apres avoir deja decide de rester.
+
+   Place entre le sous-titre et le bouton, pour que la lecture aille
+   promesse -> prix -> action. Sur la plaque doree, un carton creme borde de
+   noir : c'est le seul contraste franc disponible sans introduire une
+   couleur qui n'existe nulle part ailleurs. */
+.hero__prix {
+  display: inline-flex; align-items: center; gap: 16px;
+  margin: 0 0 26px; padding: 14px 22px;
+  background: var(--creme);
+  border: 3px solid #07090A;
+  border-radius: var(--rayon);
+  box-shadow: 5px 5px 0 rgba(7, 9, 10, .9);
+  max-width: 100%;
+}
+.hero__prix-montant {
+  font-family: var(--titre); font-weight: 800;
+  font-size: clamp(38px, 4.4vw, 52px); line-height: .9;
+  letter-spacing: -.03em; color: #07090A;
+  font-variant-numeric: tabular-nums;
+}
+.hero__prix-texte { display: grid; gap: 3px; min-width: 0; }
+.hero__prix-unite {
+  font-family: var(--titre); font-weight: 800;
+  font-size: clamp(15px, 1.4vw, 18px); line-height: 1.1;
+  text-transform: uppercase; letter-spacing: .01em; color: #07090A;
+}
+.hero__prix-note {
+  font-size: 13.5px; line-height: 1.35; font-weight: 600;
+  color: rgba(7, 9, 10, .66); max-width: 34ch;
+}
+@media (max-width: 560px) {
+  .hero__prix { gap: 13px; padding: 12px 16px; box-shadow: 4px 4px 0 rgba(7, 9, 10, .9); }
+  .hero__prix-note { font-size: 12.5px; }
+}
+
 .hero__actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .hero__note {
   display: block; margin-top: 16px;
@@ -608,6 +648,29 @@ p { text-wrap: pretty; }
   transition: transform .16s ease, background-color .16s ease;
 }
 .cta-fin__bouton:hover { background: #1D2126; transform: translateY(-2px); }
+/* Rappel du prix avant le bouton — même plaque que .hero__prix, en compact.
+   Le motif « prix juste au-dessus de l'action » se répète volontairement d'un
+   bout à l'autre de la page. */
+.cta-fin__prix {
+  display: inline-flex; align-items: baseline; gap: 11px;
+  margin: 0 0 22px; padding: 10px 18px;
+  background: var(--creme);
+  border: 3px solid #07090A;
+  border-radius: var(--rayon);
+  box-shadow: 4px 4px 0 rgba(7, 9, 10, .9);
+}
+.cta-fin__prix-montant {
+  font-family: var(--titre); font-weight: 800;
+  font-size: clamp(28px, 3vw, 38px); line-height: .9;
+  letter-spacing: -.03em; color: #07090A;
+  font-variant-numeric: tabular-nums;
+}
+.cta-fin__prix-unite {
+  font-family: var(--titre); font-weight: 800;
+  font-size: 15px; text-transform: uppercase;
+  letter-spacing: .01em; color: #07090A;
+}
+
 .cta-fin__atouts { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 26px; }
 .cta-fin__atouts div {
   display: flex; align-items: center; gap: 8px;

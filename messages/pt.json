@@ -764,7 +764,9 @@
     "legImpression": "Impresso em França",
     "legImpressionAcc": "em papel museu A3",
     "legCadre": "Moldura de madeira de qualidade",
-    "legCadreAcc": "pronta a pendurar"
+    "legCadreAcc": "pronta a pendurar",
+    "prixUnite": "por personagem",
+    "prixNote": "Uma família de 4 personagens: {prix}. Sem custos ocultos."
   },
   "metaPages": {
     "aPropos": {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unsubscribeFromNewsletter } from "@/lib/db";
+import { mesureServeur } from "@/lib/analyticsServeur";
+import { MESURES } from "@/lib/evenementsMesure";
 import { verifyEmailToken } from "@/lib/emailToken";
 import { getLangFromCountry, LANGS, type Lang } from "@/lib/email-i18n";
 
@@ -73,6 +75,13 @@ export async function GET(req: NextRequest) {
 
   try {
     await unsubscribeFromNewsletter(email);
+    /* Le desabonnement est le contrepoids de l'inscription : la sequence de
+       bienvenue et la relance de sortie ne se jugent que sur le solde des
+       deux. Rien ne le comptait. */
+    await mesureServeur(MESURES.desinscriptionNewsletter, {
+      identifiant: email,
+      proprietes: { lang },
+    });
     const t = CONFIRMATION[lang];
     return page(t.title, t.body, 200);
   } catch (error: unknown) {

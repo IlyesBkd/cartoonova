@@ -764,7 +764,9 @@
     "legImpression": "Trykt i Frankrig",
     "legImpressionAcc": "på A3 museumspapir",
     "legCadre": "Solid træramme",
-    "legCadreAcc": "klar til ophæng"
+    "legCadreAcc": "klar til ophæng",
+    "prixUnite": "pr. figur",
+    "prixNote": "En familie på 4 figurer: {prix}. Ingen skjulte gebyrer."
   },
   "metaPages": {
     "aPropos": {

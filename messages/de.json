@@ -764,7 +764,9 @@
     "legImpression": "In Frankreich gedruckt",
     "legImpressionAcc": "auf A3-Museumspapier",
     "legCadre": "Premium-Holzrahmen",
-    "legCadreAcc": "aufhängefertig"
+    "legCadreAcc": "aufhängefertig",
+    "prixUnite": "pro Figur",
+    "prixNote": "Eine Familie mit 4 Figuren: {prix}. Keine versteckten Kosten."
   },
   "metaPages": {
     "aPropos": {

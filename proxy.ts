@@ -153,6 +153,11 @@ export const config = {
     // un e-mail, portent leur propre coque et tirent la langue du pays detecte
     // a la commande — un prefixe de langue n'aurait rien a y faire. Sans cette
     // exclusion, /suivi/... etait redirige vers /fr/suivi/... qui n'existe pas.
-    "/((?!api|_next|_vercel|success|confirm-poster|suivi|.*\\..*).*)",
+    //
+    // `ingest` est la reecriture vers PostHog (voir next.config.ts). Sans cette
+    // exclusion, la regle « premier segment inconnu » plus haut renverrait un
+    // 308 vers /fr/ingest/... : la requete de mesure ne suit pas la
+    // redirection, et absolument aucun evenement n'arriverait.
+    "/((?!api|_next|_vercel|ingest|success|confirm-poster|suivi|.*\\..*).*)",
   ],
 };

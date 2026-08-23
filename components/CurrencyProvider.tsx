@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { type Currency, currencies, CURRENCY_COOKIE, convertAndFormat, convertPrice, formatPrice } from "@/lib/currency";
+import { contexte, mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 interface CurrencyContextType {
   currency: Currency;
@@ -56,6 +58,14 @@ export default function CurrencyProvider({
   }, [defaultCurrency]);
 
   const setCurrency = (c: Currency) => {
+    /* Un changement de devise manuel dit que la detection par pays s'est
+       trompee — et elle se trompe sur tout visiteur derriere un VPN ou en
+       voyage. C'est aussi, sur les marches en cours d'ouverture, le signe le
+       plus direct qu'on affiche la mauvaise monnaie. */
+    if (c !== currency) {
+      mesure(MESURES.deviseChangee, { from: currency, to: c });
+      contexte({ currency: c });
+    }
     setCurrencyState(c);
     setCookieValue(CURRENCY_COOKIE, c);
   };

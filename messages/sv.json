@@ -764,7 +764,9 @@
     "legImpression": "Tryckt i Frankrike",
     "legImpressionAcc": "på A3 museipapper",
     "legCadre": "Gedigen träram",
-    "legCadreAcc": "klar att hänga upp"
+    "legCadreAcc": "klar att hänga upp",
+    "prixUnite": "per figur",
+    "prixNote": "En familj på 4 figurer: {prix}. Inga dolda avgifter."
   },
   "metaPages": {
     "aPropos": {

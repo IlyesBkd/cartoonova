@@ -764,7 +764,9 @@
     "legImpression": "Gedrukt in Frankrijk",
     "legImpressionAcc": "op A3 museumpapier",
     "legCadre": "Houten lijst van hoge kwaliteit",
-    "legCadreAcc": "klaar om op te hangen"
+    "legCadreAcc": "klaar om op te hangen",
+    "prixUnite": "per figuur",
+    "prixNote": "Een gezin van 4 figuren: {prix}. Geen verborgen kosten."
   },
   "metaPages": {
     "aPropos": {

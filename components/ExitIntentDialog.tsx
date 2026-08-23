@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 import NewsletterForm from "@/components/NewsletterForm";
 
 const SEEN_KEY = "cartoonova_exit_intent_seen";
@@ -48,7 +49,7 @@ export default function ExitIntentDialog() {
 
       markSeen();
       setOpen(true);
-      mesure("exit_intent_shown", { reason });
+      mesure(MESURES.relanceSortieAffichee, { reason });
     };
 
     const onMouseOut = (e: MouseEvent) => {
@@ -79,7 +80,7 @@ export default function ExitIntentDialog() {
 
   const close = () => {
     setOpen(false);
-    mesure("exit_intent_dismissed");
+    mesure(MESURES.relanceSortieFermee);
   };
 
   return (

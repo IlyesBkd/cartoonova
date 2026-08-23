@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
-import { mesure } from "@/lib/analytics";
+import { mesure, identifier } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
 import type { PrintKey } from "@/lib/pricing";
 import Icone from "@/components/tj/Icone";
@@ -153,7 +154,7 @@ function PaymentForm({
 
     setLoading(true);
     setError("");
-    mesure("payment_initiated", { method: "card", value: orderConfig.total, style: orderConfig.style });
+    mesure(MESURES.paiementLance, { method: "card", value: orderConfig.total, style: orderConfig.style });
 
     try {
       // 1. Validate elements
@@ -188,7 +189,7 @@ function PaymentForm({
 
       if (stripeError) {
         console.error("[CARD] ❌ Erreur Stripe:", stripeError);
-        mesure("payment_error", { method: "card", error: stripeError.message, style: orderConfig.style });
+        mesure(MESURES.paiementEchoue, { method: "card", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
         // Payment succeeded inline — manually redirect
@@ -216,7 +217,7 @@ function PaymentForm({
 
     setLoading(true);
     setError("");
-    mesure("payment_initiated", { method: "express", value: orderConfig.total, style: orderConfig.style });
+    mesure(MESURES.paiementLance, { method: "express", value: orderConfig.total, style: orderConfig.style });
 
     try {
       // 1. Do NOT call elements.submit() — the wallet already submitted
@@ -237,7 +238,7 @@ function PaymentForm({
       console.log("[EXPRESS] 3. confirmPayment retourné (pas de redirect!), error:", stripeError?.message || "aucune");
       if (stripeError) {
         console.error("[EXPRESS] ❌ Erreur Express Checkout:", stripeError);
-        mesure("payment_error", { method: "express", error: stripeError.message, style: orderConfig.style });
+        mesure(MESURES.paiementEchoue, { method: "express", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else {
         // Fallback: shouldn't happen but just in case
@@ -431,7 +432,7 @@ export default function CheckoutModal({
       setDateRemise("");
       return;
     }
-    mesure("checkout_modal_opened", {
+    mesure(MESURES.caisseOuverte, {
       style: orderConfig.style,
       value: orderConfig.total,
       format: orderConfig.format,
@@ -446,10 +447,33 @@ export default function CheckoutModal({
      gere : sur mobile, un doigt sur le formulaire emportait la fiche produit. */
   const boiteRef = useRef<HTMLDivElement>(null);
 
+  /* Fermeture sans achat.
+     C'est le trou le plus large de la mesure actuelle : la caisse s'ouvrait,
+     et si le client repartait, plus rien. Un depart a l'etape « adresse » et
+     un depart devant le formulaire de carte sont deux problemes sans rapport
+     — l'un est un formulaire trop long, l'autre une hesitation sur le
+     paiement — et rien ne permettait de les distinguer.
+     `step` est lu dans une reference : le gestionnaire de fermeture est fige
+     a la premiere ouverture et lirait sinon toujours "info". */
+  const etapeCourante = useRef(step);
+  etapeCourante.current = step;
+
+  const fermer = useCallback(() => {
+    if (etapeCourante.current !== "success") {
+      mesure(MESURES.caisseAbandonnee, {
+        step: etapeCourante.current,
+        style: orderConfig.style,
+        value: orderConfig.total,
+        print_option: orderConfig.printOption,
+      });
+    }
+    onClose();
+  }, [onClose, orderConfig.style, orderConfig.total, orderConfig.printOption]);
+
   useEffect(() => {
     if (!open) return;
     const auClavier = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") fermer();
     };
     document.addEventListener("keydown", auClavier);
     const debordementInitial = document.body.style.overflow;
@@ -459,7 +483,7 @@ export default function CheckoutModal({
       document.removeEventListener("keydown", auClavier);
       document.body.style.overflow = debordementInitial;
     };
-  }, [open, onClose]);
+  }, [open, fermer]);
 
   const amountDue = applied ? applied.total : orderConfig.total;
 
@@ -578,11 +602,11 @@ export default function CheckoutModal({
 
       if (res.ok && data.valid) {
         setApplied({ code, discount: data.discount, total: data.total });
-        mesure("promo_code_applied", { code, discount: data.discount, style: orderConfig.style });
+        mesure(MESURES.promoAccepte, { code, discount: data.discount, style: orderConfig.style });
       } else {
         setApplied(null);
         setPromoError(t("promoInvalid"));
-        mesure("promo_code_rejected", { code, reason: data.reason ?? "unknown" });
+        mesure(MESURES.promoRefuse, { code, reason: data.reason ?? "unknown" });
       }
     } catch {
       setApplied(null);
@@ -596,21 +620,35 @@ export default function CheckoutModal({
   const goToPayment = () => {
     setFormError("");
 
+    /* Un refus de validation etait invisible : le client restait sur l'etape 1
+       et finissait par fermer, ce qui se lisait comme un abandon spontane.
+       Nommer le champ fautif est ce qui transforme « le tunnel perd 30 % a
+       l'etape adresse » en « le champ telephone perd 30 % ». Seul le nom du
+       champ part — jamais sa valeur. */
+    const refuser = (champ: string, message: string) => {
+      mesure(MESURES.champInvalide, {
+        field: champ,
+        style: orderConfig.style,
+        is_digital: isDigital,
+      });
+      setFormError(message);
+    };
+
     if (!email.trim() || !email.includes("@")) {
-      setFormError(t("errorValidEmail"));
+      refuser("email", t("errorValidEmail"));
       return;
     }
     if (!isDigital) {
       if (!firstName.trim() || !lastName.trim()) {
-        setFormError(t("errorNameRequired"));
+        refuser("nom", t("errorNameRequired"));
         return;
       }
       if (!address.trim() || !city.trim() || !postalCode.trim()) {
-        setFormError(t("errorAddressRequired"));
+        refuser("adresse", t("errorAddressRequired"));
         return;
       }
       if (!phone.trim()) {
-        setFormError(t("errorPhoneRequired"));
+        refuser("telephone", t("errorPhoneRequired"));
         return;
       }
     }
@@ -618,15 +656,30 @@ export default function CheckoutModal({
     // L'e-mail du destinataire est facultatif, mais s'il est saisi il doit etre
     // valide : c'est la seule adresse qui recevra le portrait.
     if (estCadeau && emailDestinataire.trim() && !emailDestinataire.includes("@")) {
-      setFormError(t("errorValidEmail"));
+      refuser("email_destinataire", t("errorValidEmail"));
       return;
     }
 
-    mesure("checkout_info_completed", {
+    /* Premier moment ou le visiteur cesse d'etre anonyme.
+       Sans cet appel, `person_profiles: "identified_only"` ne cree jamais de
+       profil : la session qui achete et celle qui avait regarde la fiche la
+       veille restent deux inconnus, et l'entonnoir « vue produit → achat » ne
+       se ferme jamais au-dela d'une seule visite. L'adresse sert d'identifiant
+       — c'est la meme cle que celle employee par la mesure serveur, ce qui
+       recolle les deux moities du parcours. */
+    identifier(email, {
+      locale: typeof document !== "undefined" ? document.documentElement.lang : undefined,
+      currency,
+      derniere_commande_style: orderConfig.style,
+    });
+
+    mesure(MESURES.coordonneesValidees, {
       style: orderConfig.style,
       value: orderConfig.total,
       is_digital: isDigital,
       has_address: !isDigital,
+      is_gift: estCadeau,
+      has_promo: Boolean(applied),
     });
 
     setStep("payment");
@@ -663,7 +716,7 @@ export default function CheckoutModal({
 
   return (
     <div data-checkout-modal className="modale animate-fadeIn">
-      <div className="modale__voile" onClick={onClose} />
+      <div className="modale__voile" onClick={fermer} />
 
       <div
         className="modale__boite"
@@ -688,7 +741,7 @@ export default function CheckoutModal({
               {step === "info" ? t("step1Of2") : t("step2Of2")}
             </span>
           )}
-          <button type="button" onClick={onClose} className="modale__fermer" aria-label={t("close")}>
+          <button type="button" onClick={fermer} className="modale__fermer" aria-label={t("close")}>
             <Icone nom="croix" taille={15} />
           </button>
         </div>
@@ -861,7 +914,13 @@ export default function CheckoutModal({
               <div className="bloc">
                 <button
                   type="button"
-                  onClick={() => setEstCadeau((v) => !v)}
+                  onClick={() => {
+                    mesure(MESURES.cadeauBascule, {
+                      active: !estCadeau,
+                      style: orderConfig.style,
+                    });
+                    setEstCadeau((v) => !v);
+                  }}
                   aria-expanded={estCadeau}
                   className="cadeau__bascule"
                 >
