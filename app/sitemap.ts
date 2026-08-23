@@ -11,9 +11,15 @@ const baseUrl = SITE_URL;
 
 /* Le sitemap etait prerendu au build : les articles publies par le moteur de
    contenu, qui ecrit en base sans passer par un deploiement, n'y seraient
-   jamais apparus. Une heure de cache suffit — Google ne relit pas le fichier
-   plus souvent — et le rendu reste hors du chemin critique des visiteurs. */
-export const revalidate = 3600;
+   jamais apparus.
+
+   `revalidate = 3600` a d'abord ete essaye et n'a pas suffi : quinze heures
+   apres la mise en ligne du premier article, la reponse servie portait encore
+   `x-vercel-cache: HIT` avec un `age` de 53 779 s, et aucune URL de blog. La
+   regeneration ne se declenchait pas sur cette route de metadonnees. Le rendu
+   est donc calcule a chaque requete — une lecture en base pour un fichier que
+   seuls Google et le cron d'entretien demandent, quelques fois par jour. */
+export const dynamic = "force-dynamic";
 
 /* Horodatage fige au chargement du module, donc une fois par deploiement.
    Auparavant chaque entree portait `new Date()`, reevalue a chaque requete :
