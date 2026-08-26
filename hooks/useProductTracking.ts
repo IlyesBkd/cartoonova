@@ -74,7 +74,7 @@ export function useProductTracking(config: ProductConfig) {
 
   /** Navigation dans la galerie : combien de visuels sont reellement regardes. */
   const trackGalleryBrowsed = useCallback(
-    (index: number, source: "vignette" | "fleche") => {
+    (index: number, source: "vignette" | "fleche" | "balayage") => {
       mesure(MESURES.galerieParcourue, { ...base(), index, source });
     },
     [base]

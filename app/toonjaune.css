@@ -343,6 +343,19 @@ p { text-wrap: pretty; }
 .chapeau p { color: var(--encre-doux); margin: 14px auto 0; max-width: 46ch; }
 
 /* ---------- étapes numérotées (le meilleur atout de CartoonToi) ---------- */
+/* Liste d'inclusions des cartes de support (page pilier). La coche etait un
+   SVG repete a neuf reprises dans le JSX ; elle devient decorative en CSS,
+   le texte portant seul le sens. */
+.liste-coches { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.liste-coches li {
+  position: relative; padding-left: 25px;
+  font-size: 15px; font-weight: 600; color: var(--encre);
+}
+.liste-coches li::before {
+  content: "¹3"; position: absolute; left: 0; top: -1px;
+  color: #5C9E33; font-weight: 800;
+}
+
 .etapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .etape {
   background: var(--papier); border: 2px solid var(--encre-voile);
@@ -732,6 +745,10 @@ p { text-wrap: pretty; }
    galerie, sans ça un grand vide s'installe à gauche pendant le défilement.
    C'est aussi ce que fait CartoonToi. */
 .galerie { position: sticky; top: 92px; }
+/* Le visuel principal se change desormais au doigt (voir FicheProduit.tsx).
+   `pan-y` laisse le defilement vertical au navigateur — sans quoi la page ne
+   defilerait plus depuis l'image — et nous reserve l'horizontale. */
+.galerie__cadre { touch-action: pan-y; }
 .tuiles { position: sticky; top: 92px; }
 .galerie__vue {
   width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover;

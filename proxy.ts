@@ -2,31 +2,35 @@ import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
 import { locales, defaultLocale } from "./i18n/config";
+import { getCurrencyFromCountry } from "./lib/currency";
 
 const intlMiddleware = createMiddleware(routing);
 
-// Country → Currency mapping
-const countryCurrencyMap: Record<string, string> = {
-  // EUR countries
-  FR: "EUR", DE: "EUR", IT: "EUR", ES: "EUR", NL: "EUR", BE: "EUR", AT: "EUR",
-  PT: "EUR", IE: "EUR", FI: "EUR", GR: "EUR", LU: "EUR", SK: "EUR", SI: "EUR",
-  EE: "EUR", LV: "EUR", LT: "EUR", CY: "EUR", MT: "EUR", MC: "EUR", AD: "EUR",
-  // GBP
-  GB: "GBP",
-  // USD
-  US: "USD",
-  // CAD
-  CA: "CAD",
-  // AUD
-  AU: "AUD", NZ: "AUD",
-  PL: "PLN",
-  SE: "SEK",
-  DK: "DKK",
-};
+/* La correspondance pays → devise vivait ici, recopiee de `lib/currency.ts`.
+   Les deux tables ont diverge, comme deux tables finissent toujours par le
+   faire : la Suisse etait dans l'une et pas dans l'autre. Le serveur rendait
+   donc la page en francs, puis le cookie pose ici la faisait basculer en
+   euros apres hydratation — les prix changeaient sous les yeux du visiteur.
+
+   Une seule table desormais, celle de `lib/currency.ts`, importee des deux
+   cotes. Le commentaire de `lib/db.ts` le disait deja : « Deux tables pour la
+   meme chose finissent par diverger, et c'est le prix affiche qui en paie le
+   prix. » */
 
 // Country → Locale preference for root-path geo-redirect
 const countryLocaleMap: Record<string, (typeof locales)[number]> = {
   FR: "fr", BE: "fr", LU: "fr", MC: "fr", CH: "fr",
+  /* France d'outre-mer. Ces codes ne figuraient nulle part, et un visiteur de
+     Guadeloupe, de Martinique ou de La Reunion tombait donc sur le repli
+     final — le site ANGLAIS. Des Francais servis en anglais, avec un compte a
+     rebours de livraison calcule pour la metropole.
+     Antilles et Guyane, ocean Indien, Atlantique Nord : */
+  GP: "fr", MQ: "fr", GF: "fr", BL: "fr", MF: "fr",
+  RE: "fr", YT: "fr", PM: "fr",
+  /* Pacifique. Les delais d'acheminement y sont sans commune mesure avec la
+     metropole : si le physique s'y vend un jour, le rappel « commandez avant
+     le X » devra en tenir compte. Le numerique, lui, n'a pas ce probleme. */
+  NC: "fr", PF: "fr", WF: "fr",
   DE: "de", AT: "de", LI: "de",
   ES: "es", AR: "es", MX: "es", CL: "es", CO: "es", PE: "es", VE: "es", UY: "es", PY: "es", BO: "es", EC: "es", DO: "es", GT: "es", CR: "es", PA: "es", HN: "es", NI: "es", SV: "es", CU: "es",
   IT: "it", SM: "it", VA: "it",
@@ -99,7 +103,7 @@ export function proxy(request: NextRequest) {
 
     const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
     if (!existingCurrency) {
-      const detectedCurrency = countryCurrencyMap[country.toUpperCase()] || "EUR";
+      const detectedCurrency = getCurrencyFromCountry(country) ?? "EUR";
       response.cookies.set(CURRENCY_COOKIE, detectedCurrency, {
         path: "/",
         maxAge: 60 * 60 * 24 * 365,
@@ -126,7 +130,7 @@ export function proxy(request: NextRequest) {
   const existingCurrency = request.cookies.get(CURRENCY_COOKIE)?.value;
 
   if (!existingCurrency) {
-    const detectedCurrency = countryCurrencyMap[country.toUpperCase()] || "EUR";
+    const detectedCurrency = getCurrencyFromCountry(country) ?? "EUR";
 
     response.cookies.set(CURRENCY_COOKIE, detectedCurrency, {
       path: "/",

@@ -6,6 +6,7 @@ import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
 import type { DbOrder, SupportMessage } from "@/lib/db";
+import { lireConsigne } from "@/lib/consigneClient";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 
@@ -443,7 +444,29 @@ export default function AdminPage() {
                         >
                           <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-gray-500">{new Date(o.created_at).toLocaleDateString("fr-FR")}</td>
-                          <td className="px-4 py-3 font-medium">{o.customer_email}</td>
+                          {/* Ce qui attend une réaction, visible sans ouvrir la
+                              commande : un client qui demande une modification
+                              ou qui écrit sans réponse se voyait autrement
+                              seulement en ouvrant chaque fiche une par une. */}
+                          <td className="px-4 py-3 font-medium">
+                            <span className="inline-flex items-center gap-1.5">
+                              {o.poster_confirmation_status === "changes_requested" && (
+                                <span title="Modification demandée par le client">✏️</span>
+                              )}
+                              {o.poster_confirmation_status === "confirmed" && (
+                                <span title="Portrait validé par le client">✅</span>
+                              )}
+                              {supportMessages.some(
+                                (m) => m.order_id === o.id && !m.read_at && m.category !== "spam"
+                              ) && (
+                                <span
+                                  title="Message client non lu"
+                                  className="inline-block w-2 h-2 rounded-full bg-amber-500 shrink-0"
+                                />
+                              )}
+                              {o.customer_email}
+                            </span>
+                          </td>
                           <td className="px-4 py-3">{(() => { const opts = typeof o.options === 'string' ? JSON.parse(o.options) : o.options; const s = STYLE_LABELS[opts?.style]; return s ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-lg text-xs font-bold">{s.emoji} {s.label}</span> : <span className="text-gray-400">—</span>; })()}</td>
                           <td className="px-4 py-3 text-gray-500">{(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.printOption || "—"}</td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
@@ -519,6 +542,35 @@ export default function AdminPage() {
                         <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
                       </div>
                     </div>
+
+                    {/* Consigne du client.
+                        Elle était stockée depuis toujours et affichée nulle
+                        part : l'illustrateur ouvrait la commande sans le seul
+                        texte que le client ait écrit — et une question posée
+                        au moment de commander ne remontait à personne.
+                        Placée juste avant les photos, à l'endroit où l'on
+                        prépare le dessin. */}
+                    {(() => {
+                      const o = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options;
+                      const consigne = lireConsigne(o?.description);
+                      if (!consigne.texte) return null;
+                      return (
+                        <div className={`rounded-lg p-3 border ${consigne.question ? "bg-amber-50 border-amber-300" : "bg-blue-50 border-blue-200"}`}>
+                          <p className={`text-xs font-semibold mb-2 ${consigne.question ? "text-amber-700" : "text-blue-700"}`}>
+                            {consigne.question ? "❓ Consigne — LE CLIENT POSE UNE QUESTION" : "✏️ Consigne du client"}
+                          </p>
+                          <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{consigne.texte}</p>
+                          {consigne.question && (
+                            <a
+                              href={`mailto:${selectedOrder.customer_email}?subject=${encodeURIComponent(`Votre commande Cartoonova #${String(selectedOrder.id).slice(0, 8)}`)}`}
+                              className="mt-2 inline-block text-xs font-semibold text-amber-800 underline"
+                            >
+                              Répondre à {selectedOrder.customer_email}
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Photos — clickable thumbnails */}
                     {(() => { const urls = typeof selectedOrder.photo_urls === 'string' ? JSON.parse(selectedOrder.photo_urls) : selectedOrder.photo_urls; return urls && urls.length > 0 ? (
@@ -640,6 +692,69 @@ export default function AdminPage() {
                         }}
                       />
                     </div>
+
+                    {/* Réponses du client par e-mail.
+                        La synchronisation IMAP rattache déjà chaque message à
+                        sa commande — par l'en-tête In-Reply-To, sinon par
+                        l'adresse du client. Cette liaison n'était visible nulle
+                        part : il fallait ouvrir l'onglet Support et retrouver
+                        le message à la main, sans savoir qu'il existait.
+                        Les messages sont déjà chargés à l'authentification, il
+                        n'y a donc rien à aller chercher ici. */}
+                    {(() => {
+                      const fil = supportMessages
+                        .filter((m) => m.order_id === selectedOrder.id && m.category !== "spam")
+                        .sort((a, b) => +new Date(a.received_at) - +new Date(b.received_at));
+                      if (!fil.length) return null;
+                      const nonLus = fil.filter((m) => !m.read_at).length;
+                      return (
+                        <div className={`rounded-lg p-3 border ${nonLus ? "bg-amber-50 border-amber-300" : "bg-gray-50 border-gray-200"}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className={`text-xs font-semibold ${nonLus ? "text-amber-700" : "text-gray-500"}`}>
+                              💬 Réponses du client ({fil.length})
+                              {nonLus > 0 && ` — ${nonLus} non lu${nonLus > 1 ? "s" : ""}`}
+                            </p>
+                            {nonLus > 0 && (
+                              <button
+                                onClick={() => fil.filter((m) => !m.read_at).forEach((m) => handleMarkSupportRead(m.id))}
+                                className="text-[10px] font-bold text-amber-700 underline cursor-pointer"
+                              >
+                                Tout marquer lu
+                              </button>
+                            )}
+                          </div>
+                          <div className="space-y-2 max-h-72 overflow-y-auto">
+                            {fil.map((m) => (
+                              <div
+                                key={m.id}
+                                className={`rounded-lg p-2 border ${m.read_at ? "bg-white border-gray-200" : "bg-white border-amber-300"}`}
+                              >
+                                <div className="flex items-baseline justify-between gap-2 mb-1">
+                                  <span className="text-[10px] font-bold text-gray-700 truncate">{m.from_email}</span>
+                                  <span className="text-[10px] text-gray-400 shrink-0">
+                                    {new Date(m.received_at).toLocaleString("fr-FR")}
+                                  </span>
+                                </div>
+                                {m.subject && (
+                                  <p className="text-[11px] font-semibold text-gray-800 mb-1">{m.subject}</p>
+                                )}
+                                {m.body_text && (
+                                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                    {m.body_text.length > 700 ? m.body_text.slice(0, 700) + "…" : m.body_text}
+                                  </p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <a
+                            href={`mailto:${selectedOrder.customer_email}?subject=${encodeURIComponent(`Re: votre commande Cartoonova #${String(selectedOrder.id).slice(0, 8)}`)}`}
+                            className="mt-2 inline-block text-xs font-semibold text-gray-700 underline"
+                          >
+                            Répondre à {selectedOrder.customer_email}
+                          </a>
+                        </div>
+                      );
+                    })()}
 
                     {/* Status update */}
                     <div>

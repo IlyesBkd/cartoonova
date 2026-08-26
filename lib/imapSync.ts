@@ -86,6 +86,11 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
     const mailbox = await client.mailboxOpen("INBOX", { readOnly: true });
 
     if (mailbox.uidNext - 1 <= lastUid) {
+      /* Rien de neuf — mais le passage compte quand meme. C'est LE cas que le
+         battement de coeur doit couvrir : sans cette ligne, la sortie
+         anticipee laissait `last_synced_at` fige, et une boite calme etait
+         indiscernable d'une synchronisation morte. */
+      await setImapSyncState(lastUid);
       return { checked: 0, newMessages: 0 };
     }
 
@@ -128,15 +133,27 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
       pending.push({ messageId, fromEmail, subject, bodyText, receivedAt, orderId });
     }
 
-    if (maxUid > lastUid) {
-      await setImapSyncState(maxUid);
-    }
+    /* Le passage est enregistre A CHAQUE FOIS, y compris quand la boite est
+       vide. Auparavant l'ecriture etait conditionnee a l'arrivee de courrier :
+       une synchronisation saine sans nouveau message ne laissait donc aucune
+       trace, exactement comme une synchronisation en panne.
+
+       Ce silence a coute cinq semaines. Du 16 juillet au 20 aout, le cron
+       partait tous les matins et se faisait refuser : `CRON_SECRET` n'existait
+       pas encore en production, la route repondait 401, et rien ne le
+       signalait. Un courrier client recu le 21 juillet n'a ete lu que le
+       21 aout, au lendemain du premier deploiement qui a rendu la variable
+       effective.
+
+       Avec un horodatage a chaque passage, `last_synced_at` devient un vrai
+       battement de coeur : une date qui date, c'est une panne. */
+    await setImapSyncState(Math.max(maxUid, lastUid));
   } finally {
     await client.logout().catch(() => client.close());
   }
 
   // Classify all fetched messages concurrently, then persist + notify.
-  const categories: SupportMessageCategory[] = await Promise.all(
+  const categories: (SupportMessageCategory | null)[] = await Promise.all(
     pending.map((msg) => classifySupportMessage({ fromEmail: msg.fromEmail, subject: msg.subject, bodyText: msg.bodyText }))
   );
 
@@ -146,8 +163,18 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
       const { isNew } = await insertSupportMessage({ ...msg, category });
       if (isNew) {
         newMessages++;
-        if (category === "customer") {
-          await notifySupportDiscord({ fromEmail: msg.fromEmail, subject: msg.subject || "", bodyText: msg.bodyText, orderId: msg.orderId });
+        /* `null` alerte au meme titre qu'un client. Le classement a echoue,
+           donc on ignore si c'est un client ou du demarchage — et se taire
+           ferait rater un vrai message, ce que l'ancien repli sur "customer"
+           evitait justement. Le sujet porte la mention pour qu'on sache que
+           ce n'est pas un tri, mais une absence de tri. */
+        if (category === "customer" || category === null) {
+          await notifySupportDiscord({
+            fromEmail: msg.fromEmail,
+            subject: (category === null ? "[non classé] " : "") + (msg.subject || ""),
+            bodyText: msg.bodyText,
+            orderId: msg.orderId,
+          });
         }
       }
     })

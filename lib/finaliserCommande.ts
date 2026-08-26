@@ -7,7 +7,8 @@ import { SITE_URL } from "@/lib/site";
 import { mesureServeur, personneServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
-import { alerteDiscord, COULEUR_SOLEIL } from "@/lib/discord";
+import { alerteDiscord, COULEUR_SOLEIL, COULEUR_ATTENTION } from "@/lib/discord";
+import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -88,9 +89,20 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
 async function notifierEquipe(order: DbOrder): Promise<void> {
   const opts = order.options;
 
+  /* La consigne ecrite par le client n'etait transmise nulle part — ni ici,
+     ni dans le tableau de bord. L'illustrateur decouvrait donc la commande
+     sans le seul texte que le client ait pris la peine d'ecrire, et une
+     question posee au moment de commander ne remontait a personne. */
+  const consigne = lireConsigne(opts.description);
+
   await alerteDiscord({
-    titre: "🎉 NOUVELLE COMMANDE REÇUE !",
-    couleur: COULEUR_SOLEIL,
+    /* La question passe dans le titre, pas dans un champ : c'est la seule
+       partie du message qu'on lit sans deplier, et une question sans reponse
+       est ce qui coute le plus cher a ce stade. */
+    titre: consigne.question
+      ? "🎉 NOUVELLE COMMANDE — ❓ LE CLIENT POSE UNE QUESTION"
+      : "🎉 NOUVELLE COMMANDE REÇUE !",
+    couleur: consigne.question ? COULEUR_ATTENTION : COULEUR_SOLEIL,
     champs: [
       { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
       { name: "📧 Email", value: order.customer_email, inline: true },
@@ -102,6 +114,17 @@ async function notifierEquipe(order: DbOrder): Promise<void> {
       },
       { name: "🖼️ Option", value: opts.printOption, inline: true },
       { name: "💰 Total", value: `${order.total_price} ${order.currency}`, inline: true },
+      /* La consigne en pleine largeur, juste apres la configuration : c'est
+         le brief de l'illustrateur. */
+      ...(consigne.texte
+        ? [
+            {
+              name: consigne.question ? "❓ Consigne du client — CONTIENT UNE QUESTION" : "✏️ Consigne du client",
+              value: pourDiscord(consigne.texte),
+              inline: false,
+            },
+          ]
+        : []),
       // Les consignes cadeau doivent sauter aux yeux : elles changent a qui et
       // quand le portrait doit partir.
       ...(opts.gift

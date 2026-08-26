@@ -117,6 +117,36 @@ const COUNTRY_TO_CURRENCY: Record<string, Currency> = {
   AD: "EUR", MC: "EUR", SM: "EUR", VA: "EUR", ME: "EUR", XK: "EUR",
   // Switzerland and Liechtenstein — both use the Swiss franc.
   CH: "CHF", LI: "CHF",
+
+  /* ─── Territoires ────────────────────────────────────────────────────
+     Absents jusqu'ici, ils tombaient tous sur le repli euro. Ce n'est pas
+     theorique : la commande du 25 aout 2026 vient de Porto Rico, territoire
+     americain, et a ete facturee 15 EUR la ou la grille dollar en demandait
+     18 USD.
+
+     Un pays absent d'ici n'echoue pas bruyamment — il est simplement facture
+     dans la mauvaise monnaie, sans que rien ne le signale. */
+
+  // Territoires americains : dollar US.
+  PR: "USD", VI: "USD", GU: "USD", AS: "USD", MP: "USD", UM: "USD",
+
+  // Dependances de la Couronne et Gibraltar : livre sterling (ou parite fixe).
+  GG: "GBP", JE: "GBP", IM: "GBP", GI: "GBP",
+
+  /* France d'outre-mer. Ce sont des departements et collectivites francais :
+     l'euro y a cours, et les visiteurs y parlent francais — voir aussi la
+     carte des langues dans `proxy.ts`, ou leur absence les envoyait sur le
+     site anglais. */
+  GP: "EUR", MQ: "EUR", GF: "EUR", RE: "EUR", YT: "EUR",
+  PM: "EUR", BL: "EUR", MF: "EUR",
+
+  /* Pacifique francais. La monnaie legale y est le franc CFP, arrime a
+     l'euro a taux fixe et absent de notre table de devises : l'euro est le
+     choix le plus proche du prix reellement paye. */
+  NC: "EUR", PF: "EUR", WF: "EUR",
+
+  // Åland : region autonome finlandaise, donc zone euro.
+  AX: "EUR",
 };
 
 export function getCurrencyFromCountry(country?: string | null): Currency | undefined {

@@ -1,48 +1,49 @@
 import { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { BreadcrumbJsonLd, FAQJsonLd, ProductJsonLd, OrganizationJsonLd } from "@/components/structured-data";
+import PageAccueil from "@/components/pages/PageAccueil";
+import { BreadcrumbJsonLd } from "@/components/structured-data";
 import { SITE_URL } from "@/lib/site";
-import { getPricesForCurrency } from "@/lib/db";
-import { DEFAULT_PRICE_SET } from "@/lib/types";
 
-const SHARE_IMAGE = `${SITE_URL}/simpson_photos_produit/0009_1.jpg`;
-// Simple SVG components to replace lucide-react
-const Check = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-  </svg>
-);
+/**
+ * Page pilier « portrait personnalisé cartoon ».
+ *
+ * Elle sert desormais le CORPS DE L'ACCUEIL, a son propre chemin et sans la
+ * moindre redirection : c'est la premiere page que ChatGPT recommande (9 vues
+ * et 3 visiteurs sur les quatorze jours au 26 aout 2026, devant toutes les
+ * autres), et un 301 vers `/fr` aurait rendu ce chemin invisible.
+ *
+ * Le corps vient de `components/pages/PageAccueil.tsx`, partage avec `/[locale]`.
+ * Recopier l'accueil ici aurait cree une seconde version a maintenir — et
+ * l'histoire de cette page dit ce que ca donne : elle affichait encore 49 EUR
+ * quand la grille en disait 5, parce que trois prix y avaient ete ecrits en
+ * dur et n'avaient jamais suivi.
+ *
+ * Ce qui distingue les deux URL :
+ *
+ *  - le titre et la description, cibles sur la requete ;
+ *  - le canonical, qui pointe sur ce chemin et non sur l'accueil ;
+ *  - le hero, dont le texte est propre a cette page (voir TEXTES_HERO).
+ *
+ * Il faut etre lucide sur la limite : deux pages au corps identique finissent
+ * souvent consolidees par Google, qui en garde une seule. Le hero distinct et
+ * les metadonnees ciblees sont ce qui s'y oppose le plus efficacement, pas une
+ * garantie. Le vrai remede serait un contenu propre — la page en avait un, il
+ * a ete retire volontairement.
+ */
 
-const Star = ({ className }: { className?: string }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-  </svg>
-);
+const CHEMIN = "/portrait-personnalise-cartoon";
 
-const Gift = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-  </svg>
-);
-
-const Zap = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-  </svg>
-);
-
-const Shield = ({ className }: { className?: string }) => (
-  <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-  </svg>
-);
-
-const Heart = ({ className }: { className?: string }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-  </svg>
-);
+/* Hero propre a cette page. C'est le seul bloc dont le texte differe de
+   l'accueil, et c'est le bloc qui compte : il porte le h1 et l'accroche. La
+   requete cible y figure telle qu'elle est cherchee. */
+const TEXTES_HERO = {
+  oeil: "Portrait cartoon dessiné à la main",
+  titre1: "Portrait personnalisé cartoon",
+  titre2: "d'après votre photo",
+  sous:
+    "Vos photos transformées en caricature personnalisée par de vrais illustrateurs. " +
+    "Aperçu sous 2 jours, retouches illimitées.",
+  note: "Aperçu sous 2 jours, sans engagement",
+};
 
 export async function generateMetadata({
   params,
@@ -50,27 +51,28 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const path = `/${locale}/portrait-personnalise-cartoon`;
+  const path = `/${locale}${CHEMIN}`;
 
   return {
-    title: "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de votre Photo | Cartoonova",
-    description: "Transformez vos photos en portraits personnalisés style cartoon ! Créez votre caricature unique en quelques clics. Idée cadeau originale parfaite. Qualité garantie, livraison rapide. Découvrez Cartoonova !",
+    title:
+      "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de votre Photo | Cartoonova",
+    description:
+      "Transformez vos photos en portraits personnalisés style cartoon ! Créez votre caricature unique en quelques clics. Idée cadeau originale parfaite. Qualité garantie, livraison rapide. Découvrez Cartoonova !",
     metadataBase: new URL(SITE_URL),
-    /* Pas de `languages` ici, et c'est delibere : le corps de cette page est
-       redige en francais et l'est reste dans les cinq langues — titre, texte,
-       FAQ et JSON-LD compris. Annoncer une version allemande qui sert du
-       francais, c'est declarer un hreflang faux. Les versions non francaises
-       passent donc en `noindex` (voir plus bas) jusqu'a leur reecriture dans
-       la langue, prevue au lot « pages piliers » de la refonte. */
+    /* Pas de `languages` ici, et c'est delibere : le hero de cette page est
+       redige en francais et le reste dans toutes les langues. Annoncer une
+       version allemande qui sert du francais, c'est declarer un hreflang faux.
+       Les versions non francaises passent donc en `noindex`. */
     alternates: { canonical: `${SITE_URL}${path}` },
     openGraph: {
       title: "Portrait Personnalisé Cartoon - Cartoonova",
-      description: "Créez votre caricature personnalisée à partir de votre photo. Cadeau unique et original !",
+      description:
+        "Créez votre caricature personnalisée à partir de votre photo. Cadeau unique et original !",
       url: `${SITE_URL}${path}`,
       siteName: "Cartoonova",
       images: [
         {
-          url: SHARE_IMAGE,
+          url: `${SITE_URL}/simpson_photos_produit/0009_1.jpg`,
           width: 1200,
           height: 630,
           alt: "Portrait personnalisé cartoon - Cartoonova",
@@ -83,7 +85,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: "Portrait Personnalisé Cartoon | Cartoonova",
       description: "Transformez vos photos en portraits cartoons uniques !",
-      images: [SHARE_IMAGE],
+      images: [`${SITE_URL}/simpson_photos_produit/0009_1.jpg`],
     },
     robots: {
       index: locale === "fr",
@@ -105,507 +107,20 @@ export default async function PortraitPersonnaliseCartoon({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const pageUrl = `${SITE_URL}/${locale}/portrait-personnalise-cartoon`;
-
-  /* Le prix annonce venait d'un « 49 » ecrit en dur, sans lien avec le moteur
-     tarifaire. Un ecart entre le prix balise et le prix paye est exactement ce
-     qui fait suspendre un compte Merchant — il vient donc de la base, comme
-     partout ailleurs, avec le meme repli qu'en fiche produit. */
-  let prixBase = DEFAULT_PRICE_SET.base;
-  try {
-    prixBase = (await getPricesForCurrency("EUR")).base;
-  } catch {
-    // La page reste servie meme si la base est injoignable.
-  }
-
-  const structuredData = {
-    product: {
-      name: "Portrait Personnalisé Cartoon",
-      description: "Service de création de portraits personnalisés style cartoon à partir de photos",
-      brand: "Cartoonova",
-      offers: {
-        priceCurrency: "EUR",
-        price: String(prixBase),
-        availability: "https://schema.org/InStock",
-        priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
-      },
-      image: SHARE_IMAGE,
-    },
-    organization: {
-      name: "Cartoonova",
-      url: SITE_URL,
-      logo: `${SITE_URL}/logo.png`,
-      description: "Spécialiste du portrait personnalisé style cartoon",
-    },
-    breadcrumb: [
-      { name: "Accueil", item: `${SITE_URL}/${locale}` },
-      { name: "Portrait Personnalisé Cartoon", item: pageUrl },
-    ],
-    faq: [
-      {
-        question: "Comment commander mon portrait personnalisé cartoon ?",
-        answer: "C'est très simple ! Choisissez votre format, téléchargez vos photos, sélectionnez vos options et validez. Notre équipe d'artistes crée votre portrait personnalisé en quelques jours.",
-      },
-      {
-        question: "Quels types de photos fonctionnent le mieux ?",
-        answer: "Des photos claires et bien éclairées fonctionnent le mieux. Évitez les photos floues, sombres ou de faible qualité. Plus la photo est détaillée, meilleur sera le résultat final.",
-      },
-      {
-        question: "Combien de temps faut-il pour recevoir mon portrait ?",
-        answer: "Le dessin est réalisé en 2 jours. Si vous avez choisi une impression (poster, toile), comptez 3 jours ouvrés supplémentaires pour la fabrication et l'envoi du colis. Les options digitales sont livrées par email.",
-      },
-      {
-        question: "Puis-je commander un portrait de famille ?",
-        answer: "Absolument ! Nos portraits de famille personnalisés sont très populaires. Vous pouvez inclure jusqu'à 10 personnes et même des animaux de compagnie pour un portrait vraiment unique.",
-      },
-      {
-        question: "Quelle est la différence entre version digitale et impression ?",
-        answer: "La version digitale (INCLUS) vous donne un fichier haute résolution parfait pour le web et l'impression locale. L'impression sur toile ou poster vous offre une œuvre d'art prête à accrocher, livrée avec cadre.",
-      },
-      {
-        question: "Le portrait personnalisé est-il un bon cadeau ?",
-        answer: "C'est le cadeau parfait ! Original, personnel et mémorable. Idéal pour anniversaires, mariages, fêtes des mères, ou simplement pour surprendre quelqu'un avec un cadeau unique.",
-      },
-      {
-        question: "Comment s'assurer que le résultat me plaira ?",
-        answer: "Nous travaillons avec vous jusqu'à ce que vous soyez satisfait. Un aperçu vous est envoyé pour validation et nous proposons des modifications si nécessaire. Votre satisfaction est notre priorité.",
-      },
-      {
-        question: "Quels styles de portraits proposez-vous ?",
-        answer: "Nous spécialisons le style cartoon inspiré des Simpson, mais nous adaptons également d'autres styles de dessin animé sur demande. Chaque portrait est unique et personnalisé selon vos préférences.",
-      },
-    ],
-  };
 
   return (
     <>
-      {/* Données structurées */}
-      <BreadcrumbJsonLd breadcrumbs={structuredData.breadcrumb} />
-      <ProductJsonLd product={structuredData.product} />
-      <OrganizationJsonLd organization={structuredData.organization} />
-      <FAQJsonLd faq={structuredData.faq} />
-
-      <div className="min-h-screen bg-white">
-        {/* Fil d'Ariane */}
-        <nav className="bg-creme border-b/10 px-4 py-3">
-          <div className="max-w-7xl mx-auto flex items-center gap-2 text-sm">
-            <Link href="/" className="text-black/60 hover:text-black transition-colors">
-              Accueil
-            </Link>
-            <span className="text-black/40">/</span>
-            <span className="font-black text-black">Portrait Personnalisé Cartoon</span>
-          </div>
-        </nav>
-
-        {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-yellow-400 to-yellow-300 py-20 px-4 border-b-4">
-          <div className="enveloppe">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-black text-black mb-6 leading-tight">
-                  Portrait Personnalisé Cartoon
-                  <br />
-                  <span className="text-3xl md:text-4xl text-yellow-900">
-                    Votre Caricature Unique à Partir de Photo
-                  </span>
-                </h1>
-                <p className="text-lg md:text-xl text-black/80 font-bold mb-8 leading-relaxed">
-                  Transformez vos souvenirs en œuvres d'art uniques ! Nos artistes créent votre 
-                  <strong> portrait personnalisé cartoon </strong> 
-                  avec un style inspiré des Simpson. Le cadeau parfait qui fait toujours plaisir !
-                </p>
-                <div className="flex flex-wrap gap-4 mb-8">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-5 h-5" />
-                    <span style={{ fontWeight: 700 }}>Qualité garantie</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-5 h-5" />
-                    <span style={{ fontWeight: 700 }}>Livraison rapide</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-5 h-5" />
-                    <span style={{ fontWeight: 700 }}>Cadeau parfait</span>
-                  </div>
-                </div>
-                <Link
-                  href="#commander"
-                  className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
-                >
-                  Commandez mon portrait cartoon →
-                </Link>
-              </div>
-              <div className="relative">
-                <div className="bg-white p-6 rounded-2xl">
-                  <Image
-                    src="/portrait-cartoon-exemple.jpg"
-                    alt="Portrait personnalisé cartoon - exemple caricature"
-                    width={500}
-                    height={500}
-                    className="rounded-lg w-full"
-                    priority
-                  />
-                </div>
-                <div className="absolute -top-4 -right-4 bg-red-500 text-white font-black px-4 py-2 rounded-full">
-                  POPULAIRE ⭐
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Comment ça marche */}
-        <section className="section">
-          <div className="enveloppe">
-            <h2 className="chapeau" style={{ display: "block" }}>
-              Comment ça marche ? Votre portrait cartoon en 3 étapes simples
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="rond-soleil">
-                  <span style={{ fontSize: 30 }}>1</span>
-                </div>
-                <h3 style={{ fontSize: 20, marginBottom: 14 }}>Choisissez votre format</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Portrait ou corps entier ? Combien de personnes ? Personnalisez votre 
-                  <strong> portrait personnalisé</strong> selon vos envies.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="rond-soleil">
-                  <span style={{ fontSize: 30 }}>2</span>
-                </div>
-                <h3 style={{ fontSize: 20, marginBottom: 14 }}>Téléchargez vos photos</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Envoyez vos meilleures photos. Plus elles sont claires, meilleur sera votre 
-                  <strong> portrait style dessin animé</strong>.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="rond-soleil">
-                  <span style={{ fontSize: 30 }}>3</span>
-                </div>
-                <h3 style={{ fontSize: 20, marginBottom: 14 }}>Recevez votre œuvre</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Votre <strong>caricature personnalisée</strong> est prête ! Version digitale 
-                  instantanée ou impression encadrée chez vous.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Options d'impression */}
-        <section id="commander" className="py-20 px-4 bg-gray-50">
-          <div className="enveloppe">
-            <h2 className="chapeau" style={{ display: "block" }}>
-              Options d'impression : Digital ou Toile, le choix parfait
-            </h2>
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              <div className="etape">
-                <div className="aspect-square bg-gray-100 rounded-lg mb-6 overflow-hidden">
-                  <Image
-                    src="/digital-option.jpg"
-                    alt="Portrait digital cartoon"
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 style={{ fontSize: 20, marginBottom: 8 }}>Digital</h3>
-                <p style={{ fontSize: 24, color: "var(--soleil-fonce)", marginBottom: 14 }}>À partir de 49€</p>
-                <p style={{ color: "var(--encre-doux)", marginBottom: 16 }}>
-                  Fichier haute résolution parfait pour le web et l'impression locale. 
-                  Votre <strong> portrait personnalisé à partir de photo </strong> instantanément.
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Livraison immédiate</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Résolution 300 DPI</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Format JPEG/PNG</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="etape">
-                <div className="aspect-square bg-gray-100 rounded-lg mb-6 overflow-hidden">
-                  <Image
-                    src="/toile-option.jpg"
-                    alt="Portrait sur toile cartoon"
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 style={{ fontSize: 20, marginBottom: 8 }}>Portrait sur Toile</h3>
-                <p style={{ fontSize: 24, color: "var(--soleil-fonce)", marginBottom: 14 }}>À partir de 138€</p>
-                <p style={{ color: "var(--encre-doux)", marginBottom: 16 }}>
-                  Œuvre d'art prête à accrocher. Votre <strong> affiche personnalisée </strong> 
-                  sur toile de galerie avec cadre inclus.
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Toile 40x60 cm</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Cadre inclus</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Livraison sécurisée</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="etape">
-                <div className="aspect-square bg-gray-100 rounded-lg mb-6 overflow-hidden">
-                  <Image
-                    src="/poster-option.jpg"
-                    alt="Poster encadré cartoon"
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 style={{ fontSize: 20, marginBottom: 8 }}>Poster Encadré</h3>
-                <p style={{ fontSize: 24, color: "var(--soleil-fonce)", marginBottom: 14 }}>À partir de 128€</p>
-                <p style={{ color: "var(--encre-doux)", marginBottom: 16 }}>
-                  Poster premium avec cadre moderne. Votre <strong> portrait de famille personnalisé </strong> 
-                  mis en valeur comme une véritable œuvre.
-                </p>
-                <ul className="space-y-2 mb-6">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Format 30x40 cm</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Cadre aluminium</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 shrink-0 text-[#5C9E33]" />
-                    <span className="text-sm font-medium">Verre acrylique</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Pourquoi Cartoonova */}
-        <section className="section">
-          <div className="enveloppe">
-            <h2 className="chapeau" style={{ display: "block" }}>
-              Pourquoi choisir Cartoonova ? Le meilleur du portrait personnalisé
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
-                  <Star className="w-8 h-8" />
-                </div>
-                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Artistes Experts</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Notre équipe spécialisée dans le <strong> portrait style dessin animé </strong> 
-                  garantit un résultat professionnel et fidèle à votre image.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
-                  <Shield className="w-8 h-8" />
-                </div>
-                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Satisfaction Garantie</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Votre <strong> portrait personnalisé </strong> est validé avec vous. 
-                  Modifications possibles jusqu'à satisfaction complète.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
-                  <Zap className="w-8 h-8" />
-                </div>
-                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Livraison Express</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Version digitale en 2 jours, impressions livrées en 5 jours. Votre
-                  <strong> caricature personnalisée </strong> rapidement chez vous.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="rond-soleil" style={{ width: 62, height: 62 }}>
-                  <Gift className="w-8 h-8" />
-                </div>
-                <h3 style={{ fontSize: 18, marginBottom: 10 }}>Idée Cadeau Parfaite</h3>
-                <p style={{ color: "var(--encre-doux)" }}>
-                  Le <strong> cadeau personnalisé original </strong> qui surprend toujours. 
-                  Anniversaire, mariage, fête des mères... l'occasion parfaite !
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Idée Cadeau */}
-        <section className="py-20 px-4 bg-gradient-to-br from-yellow-50 to-yellow-100">
-          <div className="enveloppe">
-            <h2 className="chapeau" style={{ display: "block" }}>
-              Idée Cadeau Originale : Le Portrait Personnalisé qui Surprend
-            </h2>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div>
-                <h3 className="text-2xl font-black mb-6">
-                  Le cadeau personnalisé qui laisse un souvenir impérissable
-                </h3>
-                <p className="text-lg text-black/80 font-medium mb-6">
-                  Cherchez une <strong> idée cadeau originale </strong> qui sort de l'ordinaire ? 
-                  Notre <strong> portrait cartoon personnalisé </strong> est la réponse parfaite !
-                </p>
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-start gap-4">
-                    <Gift className="w-6 h-6 shrink-0 mt-1 text-[var(--soleil-fonce)]" />
-                    <div>
-                      <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, marginBottom: 4 }}>Pour tous les événements</h4>
-                      <p style={{ color: "var(--encre-doux)" }}>
-                        Anniversaire, mariage, départ à la retraite, fête des mères... 
-                        Chaque occasion mérite un <strong> cadeau personnalisé unique </strong>.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <Heart className="w-6 h-6 shrink-0 mt-1 text-[var(--soleil-fonce)]" />
-                    <div>
-                      <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, marginBottom: 4 }}>Émotion garantie</h4>
-                      <p style={{ color: "var(--encre-doux)" }}>
-                        Imaginez la surprise de voir vos proches transformés en personnages 
-                        cartoon. Un <strong> portrait de famille personnalisé </strong> qui fait 
-                        toujours plaisir.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4">
-                    <Star className="w-6 h-6 shrink-0 mt-1 text-[var(--soleil-fonce)]" />
-                    <div>
-                      <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, marginBottom: 4 }}>Durable et mémorable</h4>
-                      <p style={{ color: "var(--encre-doux)" }}>
-                        Contrairement aux cadeaux éphémères, votre <strong> affiche personnalisée </strong> 
-                        orne les murs pendant des années.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <Link
-                  href="#commander"
-                  className="inline-block bg-black text-white font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
-                >
-                  Commander mon cadeau personnalisé →
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="etape" style={{ padding: 26 }}>
-                  <Image
-                    src="/cadeau-anniversaire.jpg"
-                    alt="Portrait cadeau anniversaire"
-                    width={200}
-                    height={200}
-                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
-                  />
-                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Anniversaire</h4>
-                </div>
-                <div className="etape" style={{ padding: 26 }}>
-                  <Image
-                    src="/cadeau-famille.jpg"
-                    alt="Portrait cadeau famille"
-                    width={200}
-                    height={200}
-                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
-                  />
-                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Famille</h4>
-                </div>
-                <div className="etape" style={{ padding: 26 }}>
-                  <Image
-                    src="/cadeau-couple.jpg"
-                    alt="Portrait cadeau couple"
-                    width={200}
-                    height={200}
-                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
-                  />
-                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Couple</h4>
-                </div>
-                <div className="etape" style={{ padding: 26 }}>
-                  <Image
-                    src="/cadeau-entreprise.jpg"
-                    alt="Portrait cadeau entreprise"
-                    width={200}
-                    height={200}
-                    style={{ borderRadius: "var(--rayon)", width: "100%", marginBottom: 16 }}
-                  />
-                  <h4 style={{ fontFamily: "var(--titre)", fontWeight: 800, textAlign: "center" }}>Entreprise</h4>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="section">
-          <div className="enveloppe">
-            <h2 className="chapeau" style={{ display: "block" }}>
-              FAQ - Vos Questions sur nos Portraits Personnalisés
-            </h2>
-            <div className="space-y-6">
-              {structuredData.faq.map((item, index) => (
-                <div key={index} className="bg-gray-50 rounded-2xl p-6 hover:bg-creme transition-colors">
-                  <h3 style={{ fontSize: 18, marginBottom: 10 }}>{item.question}</h3>
-                  <p className="text-black/70 font-medium leading-relaxed">{item.answer}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Final */}
-        <section className="py-20 px-4 bg-black text-white">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-black mb-6">
-              Prêt à commander votre portrait cartoon unique ?
-            </h2>
-            <p className="text-xl mb-8 text-white/90">
-              Rejoignez des milliers de clients satisfaits. Votre <strong> portrait personnalisé </strong> 
-              vous attend !
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Link
-                href="/simpson"
-                className="bg-soleil text-black font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
-              >
-                Commencer maintenant →
-              </Link>
-              <Link
-                href="/collections"
-                className="bg-white text-black font-black text-lg px-8 py-4 rounded-full hover: hover:translate-x-[3px] hover:translate-y-[3px] active:translate-y-1 active:shadow-none transition-all"
-              >
-                Voir nos réalisations
-              </Link>
-            </div>
-            <div className="flex justify-center gap-8 text-sm">
-              <Link href="/#avis" style={{ opacity: .85 }}>
-                Voir les avis clients
-              </Link>
-              <Link href="/contact" style={{ opacity: .85 }}>
-                Nous contacter
-              </Link>
-              <Link href="/cgv" style={{ opacity: .85 }}>
-                Conditions générales
-              </Link>
-            </div>
-          </div>
-        </section>
-      </div>
+      {/* Le seul balisage propre a cette URL. `Product` et `FAQPage` ont ete
+          retires avec le contenu qu'ils decrivaient : un balisage de FAQ sans
+          FAQ visible est un balisage trompeur, et Google le sanctionne.
+          `Organization` et `WebSite` arrivent avec le corps partage. */}
+      <BreadcrumbJsonLd
+        breadcrumbs={[
+          { name: "Accueil", item: `${SITE_URL}/${locale}` },
+          { name: "Portrait Personnalisé Cartoon", item: `${SITE_URL}/${locale}${CHEMIN}` },
+        ]}
+      />
+      <PageAccueil locale={locale} textesHero={TEXTES_HERO} />
     </>
   );
 }

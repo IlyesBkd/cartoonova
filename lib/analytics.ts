@@ -79,16 +79,54 @@ function nettoyerChaine(valeur: string): string {
 }
 
 /**
+ * Les cles qui portent l'IDENTITE et non une donnee incidente. Elles doivent
+ * traverser le filtre intactes.
+ *
+ * `posthog-js` range `distinct_id` DANS `properties` — ce n'est pas un champ
+ * de premier niveau comme on pourrait le croire. Le nettoyage l'attrapait donc
+ * au passage et remplacait l'adresse par la chaine litterale « <email> ».
+ *
+ * Les consequences etaient bien pires qu'une propriete perdue :
+ *
+ *  - tous les visiteurs identifies partageaient le meme identifiant, donc
+ *    la MEME personne. Au 25 aout, deux clients distincts et 33 evenements
+ *    etaient deja confondus sous « <email> » ;
+ *  - la mesure serveur, elle, envoie la vraie adresse (posthog-node ne passe
+ *    pas par ce filtre). Navigation et achat vivaient donc sous deux personnes
+ *    differentes, et aucun tunnel ne pouvait relier une vente a la session qui
+ *    l'avait produite.
+ *
+ * Identifier un client par son adresse est ici deliberé — c'est ce que fait
+ * `identifier()`, et ce que fait deja le serveur. Le filtre est la pour les
+ * adresses ACCIDENTELLES : celle qui traine dans un parametre d'URL, dans le
+ * libelle d'un bouton capture automatiquement, dans un lien de suivi.
+ */
+const CLES_IDENTITE = [
+  "distinct_id",
+  "$anon_distinct_id",
+  "$device_id",
+  "$user_id",
+  "alias",
+];
+
+/**
  * Dernier filet avant l'envoi. Il s'applique a TOUS les evenements, y compris
  * ceux que PostHog genere lui-meme — `$autocapture`, `$exception`,
  * `$pageview` — que notre code ne construit pas et ou une adresse peut donc
  * arriver par un chemin qu'on n'a pas prevu : un e-mail dans un parametre
  * d'URL, un lien de suivi, le libelle d'un bouton.
  */
-function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResult | null {
+/* Exporte pour etre testable : c'est la fonction qui, mal ecrite, a confondu
+   deux clients sous une meme identite. Elle ne merite pas de rester hors de
+   portee d'une verification. */
+export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResult | null {
   if (!evenement?.properties) return evenement;
 
   for (const [cle, valeur] of Object.entries(evenement.properties)) {
+    /* L'identite passe avant tout le reste : la reecrire revient a fusionner
+       des personnes distinctes. Voir CLES_IDENTITE. */
+    if (CLES_IDENTITE.includes(cle)) continue;
+
     if (PROPRIETES_INTERDITES.includes(cle)) {
       delete evenement.properties[cle];
       continue;

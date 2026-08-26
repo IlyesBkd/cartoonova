@@ -56,17 +56,40 @@ const DECORS_APERCU = [
   "/simpson_background/church.jpg",
 ];
 
+/**
+ * Textes du hero, quand une route veut les siens.
+ *
+ * La page pilier `/portrait-personnalise-cartoon` sert exactement ce meme
+ * composant, a son propre chemin. Deux URL rendant un corps strictement
+ * identique, Google en consolide une et abandonne l'autre — c'est justement la
+ * desindexation qu'on cherche a eviter. Le hero, lui, porte le h1 et
+ * l'accroche : lui donner un texte propre suffit a distinguer les deux pages
+ * sans dupliquer une ligne de mise en page.
+ *
+ * Absent, tout se comporte comme avant : les traductions font foi.
+ */
+export interface TextesHero {
+  oeil: string;
+  titre1: string;
+  titre2: string;
+  sous: string;
+  note: string;
+}
+
 export default function Accueil({
   photosAvis,
   photoHero,
   prixDepart,
   evenement = null,
+  textesHero = null,
 }: {
   photosAvis: string[];
   photoHero: string;
   prixDepart: number;
   /** Temps fort du moment : il prend la main sur le titre et l'accroche. */
   evenement?: EvenementAffiche | null;
+  /** Surcharge du hero. Null = les traductions, comme l'accueil. */
+  textesHero?: TextesHero | null;
 }) {
   const t = useTranslations("tj");
   const th = useTranslations("home");
@@ -126,19 +149,30 @@ export default function Accueil({
           <div className="hero__grille">
             <div className="hero__texte-col">
               <div className="hero__oeil">
-                <Etoiles /> {t("heroOeil")}
+                <Etoiles /> {textesHero?.oeil ?? t("heroOeil")}
               </div>
               {/* Hors période, le discours permanent. En période, celui du
                   temps fort : c'est le même bloc, seul le texte change — la
-                  composition du hero, elle, ne bouge pas d'un pixel. */}
+                  composition du hero, elle, ne bouge pas d'un pixel.
+
+                  `textesHero` passe AVANT le temps fort, et c'est voulu.
+                  `evenementAffiche` ne renvoie jamais null : hors campagne
+                  elle sert l'angle « anniversaire », qui est donc toujours
+                  vrai. Sans cette priorité, la surcharge n'était jamais
+                  appliquée et la page pilier affichait le h1 de l'accueil au
+                  mot près — le doublon qu'elle est censée éviter.
+                  Une page de référencement doit par ailleurs garder sa requête
+                  dans son h1 toute l'année : un titre de Noël sur la page qui
+                  vise « portrait personnalisé cartoon » lui coûterait son
+                  positionnement pendant six semaines. */}
               <h1>
-                {evenement ? tEvt(`${evenement.cle}.heroTitre1` as "noel.heroTitre1") : th("heroTitle1")}{" "}
+                {textesHero?.titre1 ?? (evenement ? tEvt(`${evenement.cle}.heroTitre1` as "noel.heroTitre1") : th("heroTitle1"))}{" "}
                 <span className="accent">
-                  {evenement ? tEvt(`${evenement.cle}.heroTitre2` as "noel.heroTitre2") : th("heroTitle2")}
+                  {textesHero?.titre2 ?? (evenement ? tEvt(`${evenement.cle}.heroTitre2` as "noel.heroTitre2") : th("heroTitle2"))}
                 </span>
               </h1>
               <p className="hero__texte">
-                {evenement ? tEvt(`${evenement.cle}.heroSous` as "noel.heroSous") : th("heroSubtitle")}
+                {textesHero?.sous ?? (evenement ? tEvt(`${evenement.cle}.heroSous` as "noel.heroSous") : th("heroSubtitle"))}
               </p>
 
               {/* Le prix, avant le bouton.
@@ -191,7 +225,7 @@ export default function Accueil({
                   {t("stylesTous")}
                 </Link>
               </div>
-              <span className="hero__note">{t("heroNote")}</span>
+              <span className="hero__note">{textesHero?.note ?? t("heroNote")}</span>
 
               <div className="atouts">
                 <div className="atout">

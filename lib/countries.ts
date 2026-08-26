@@ -59,6 +59,45 @@ export const COUNTRIES: CountryEntry[] = [
   { code: "CY", callingCode: "+357" },
   { code: "MT", callingCode: "+356" },
   { code: "AD", callingCode: "+376" },
+
+  /* ─── Territoires ────────────────────────────────────────────────────
+     Leur absence n'affichait pas d'erreur : le selecteur retombait sur la
+     PREMIERE entree de cette liste, la France, et le prefixe telephonique
+     sur +33. La commande du 25 aout 2026, passee depuis Porto Rico, est donc
+     enregistree en base comme francaise.
+
+     Toute entree ajoutee ici doit avoir son nom traduit dans les dix fichiers
+     de `messages/` sous `checkout.countries` — le selecteur lit la traduction,
+     pas le code. */
+
+  // France d'outre-mer : departements, collectivites, Pacifique.
+  { code: "GP", callingCode: "+590" },
+  { code: "MQ", callingCode: "+596" },
+  { code: "GF", callingCode: "+594" },
+  { code: "RE", callingCode: "+262" },
+  { code: "YT", callingCode: "+262" },
+  { code: "PM", callingCode: "+508" },
+  { code: "BL", callingCode: "+590" },
+  { code: "MF", callingCode: "+590" },
+  { code: "NC", callingCode: "+687" },
+  { code: "PF", callingCode: "+689" },
+  { code: "WF", callingCode: "+681" },
+
+  // Territoires americains : meme indicatif que les Etats-Unis.
+  { code: "PR", callingCode: "+1" },
+  { code: "VI", callingCode: "+1" },
+  { code: "GU", callingCode: "+1" },
+  { code: "MP", callingCode: "+1" },
+  { code: "AS", callingCode: "+1" },
+
+  // Dependances de la Couronne et Gibraltar.
+  { code: "GG", callingCode: "+44" },
+  { code: "JE", callingCode: "+44" },
+  { code: "IM", callingCode: "+44" },
+  { code: "GI", callingCode: "+350" },
+
+  // Åland : region autonome finlandaise, indicatif propre.
+  { code: "AX", callingCode: "+358" },
 ];
 
 export function getCallingCode(countryCode: string | null | undefined): string {

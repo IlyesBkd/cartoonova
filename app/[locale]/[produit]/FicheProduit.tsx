@@ -262,6 +262,52 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
   const visuelPrincipal = donnees.galerie[vue];
 
+  /* ═══ balayage de la galerie ═══════════════════════════════════════════
+     Le visuel principal ne repondait pas au doigt. Ce n'est pas une
+     hypothese d'ergonomie : le client du 25 aout a tente de balayer trois
+     fois entre 10h36 et 10h38 — PostHog les a enregistres en `$dead_swipe` —
+     avant d'aller cliquer sur les vignettes. Sur les quatorze derniers jours,
+     treize balayages morts pour 255 pages vues.
+
+     Le geste ne fait que ce que les vignettes font deja : il ne remplace ni
+     les boutons, ni le clavier, ni les libelles. */
+  const nbVisuels = Math.min(6, donnees.galerie.length);
+  const departToucher = useRef<{ x: number; y: number } | null>(null);
+
+  /** Deplacement minimal, en pixels, pour distinguer un balayage d'un appui. */
+  const SEUIL_BALAYAGE = 40;
+
+  const allerAuVisuel = (index: number, source: "vignette" | "balayage") => {
+    if (nbVisuels < 1) return;
+    // Modulo positif : le balayage boucle dans les deux sens.
+    const borne = ((index % nbVisuels) + nbVisuels) % nbVisuels;
+    setVue(borne);
+    trackGalleryBrowsed(borne, source);
+  };
+
+  const debutToucher = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    departToucher.current = t ? { x: t.clientX, y: t.clientY } : null;
+  };
+
+  const finToucher = (e: React.TouchEvent) => {
+    const depart = departToucher.current;
+    departToucher.current = null;
+    if (!depart || nbVisuels < 2) return;
+
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - depart.x;
+    const dy = t.clientY - depart.y;
+
+    /* Un geste plus vertical qu'horizontal est un defilement de page. Le
+       confondre avec un balayage ferait sauter le visuel des qu'on fait
+       defiler la fiche, ce qui est pire que l'absence de balayage. */
+    if (Math.abs(dx) < SEUIL_BALAYAGE || Math.abs(dx) <= Math.abs(dy)) return;
+
+    allerAuVisuel(vue + (dx < 0 ? 1 : -1), "balayage");
+  };
+
   /* Titre du visuel courant. Il était incrusté en français dans le montage
      d'origine ; détouré, il redevient du texte — traduit, indexable, lisible
      par un lecteur d'écran, et sans une image par langue. */
@@ -309,22 +355,26 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 {titreVisuel[0]} <span className="accent">{titreVisuel[1]}</span>
               </p>
             )}
-            {visuelPrincipal ? (
-              <Image
-                className="galerie__vue"
-                src={visuelPrincipal}
-                alt={donnees.titre}
-                width={1000}
-                height={1000}
-                priority
-                sizes="(max-width: 860px) 92vw, 46vw"
-              />
-            ) : (
-              <div className="galerie__vue substitut">
-                <span>{donnees.univers}</span>
-                <small>{donnees.categorieNom}</small>
-              </div>
-            )}
+            {/* Le cadre porte le balayage plutot que l'image : il englobe aussi
+                le substitut, et `touch-action: pan-y` s'applique a lui. */}
+            <div className="galerie__cadre" onTouchStart={debutToucher} onTouchEnd={finToucher}>
+              {visuelPrincipal ? (
+                <Image
+                  className="galerie__vue"
+                  src={visuelPrincipal}
+                  alt={donnees.titre}
+                  width={1000}
+                  height={1000}
+                  priority
+                  sizes="(max-width: 860px) 92vw, 46vw"
+                />
+              ) : (
+                <div className="galerie__vue substitut">
+                  <span>{donnees.univers}</span>
+                  <small>{donnees.categorieNom}</small>
+                </div>
+              )}
+            </div>
 
             {/* Les vignettes etaient six <img> avec un onClick : ni focusables,
                 ni actionnables au clavier, et aria-current ne veut rien dire
@@ -339,10 +389,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     className="galerie__vignette"
                     aria-pressed={i === vue}
                     aria-label={`${donnees.titre} — ${i + 1}/${Math.min(6, donnees.galerie.length)}`}
-                    onClick={() => {
-                      setVue(i);
-                      trackGalleryBrowsed(i, "vignette");
-                    }}
+                    onClick={() => allerAuVisuel(i, "vignette")}
                   >
                     <Image src={src} alt="" width={74} height={74} />
                   </button>
