@@ -133,6 +133,17 @@ export async function avisPublies(limite = 60): Promise<Avis[]> {
   return (rows as Record<string, unknown>[]).map(versAvis);
 }
 
+/**
+ * Nombre d'avis reels en dessous duquel on ne balise rien.
+ *
+ * Les temoignages de repli affiches en attendant ne sont rattaches a aucune
+ * commande : les baliser exposerait a une action manuelle de Google. Le seuil
+ * vit ici plutot que dans la page `/avis` parce que les fiches produit s'en
+ * servent aussi — deux seuils pour la meme regle finiraient par diverger, et
+ * c'est le genre d'ecart qui ne se voit qu'une fois la sanction tombee.
+ */
+export const MINIMUM_BALISAGE_AVIS = 3;
+
 export interface StatistiquesAvis {
   nombre: number;
   moyenne: number;

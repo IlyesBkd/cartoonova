@@ -16,6 +16,7 @@ import {
 import { getTranslations } from "next-intl/server";
 import { visuelsProduit } from "@/lib/visuels";
 import { getPricesForCurrency } from "@/lib/db";
+import { statistiquesAvis, MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
 import { PRINT_KEYS } from "@/lib/pricing";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
@@ -113,6 +114,25 @@ export default async function Page({
     // Repli : la fiche reste servie meme si la base est injoignable.
   }
 
+  /* Note moyenne, pour les etoiles du resultat enrichi.
+     Elle n'existait que sur la page `/avis` : les 36 fiches n'interrogeaient
+     jamais les avis, et le jour ou il y en aura, ce sont pourtant elles qui
+     doivent porter les etoiles — ce sont elles qui vendent.
+     Meme seuil que `/avis`, et il vient desormais du meme endroit : sous trois
+     avis reels on ne balise rien, parce que les temoignages de repli affiches
+     en attendant ne sont rattaches a aucune commande. */
+  const stats = await statistiquesAvis().catch(() => ({ nombre: 0, moyenne: 0 }));
+  const note =
+    stats.nombre >= MINIMUM_BALISAGE_AVIS
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: stats.moyenne,
+          reviewCount: stats.nombre,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : null;
+
   const donnees: DonneesFiche = {
     slug: p.slug,
     idProduit: p.idProduit,
@@ -169,6 +189,11 @@ export default async function Page({
                   url: `${SITE_URL}/${locale}/${slug}`,
                   seller: { "@type": "Organization", name: "Cartoonova" },
                 },
+                /* `sku` : l'identifiant stable du produit, celui du flux
+                   Merchant. Il aide les moteurs a reconnaitre qu'une fiche vue
+                   en francais et sa version anglaise sont le meme produit. */
+                sku: p.idProduit,
+                ...(note ? { aggregateRating: note } : {}),
               },
               {
                 "@type": "BreadcrumbList",

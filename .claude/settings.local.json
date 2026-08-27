@@ -33,7 +33,16 @@
       "Bash(npx eslint *)",
       "Bash(echo \"lint exit=$?\")",
       "Bash(node ./_shot.mjs)",
-      "Bash(rm -f ./_shot.mjs)"
+      "Bash(rm -f ./_shot.mjs)",
+      "Bash(git push *)",
+      "Bash(curl -s -o /dev/null -w \"  jeton absurde     → HTTP %{http_code}\\\\n\" https://www.cartoonova.com/depot/nimportequoi)",
+      "Bash(curl -s -o /dev/null -w \"  API sans jeton    → HTTP %{http_code} \\(400 attendu\\)\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{}' https://www.cartoonova.com/api/orders/photos)",
+      "Bash(curl -s -o /dev/null -w \"  %{http_code} → %{redirect_url}\\\\n\" https://www.cartoonova.com/depot/test)",
+      "Bash(gh workflow *)",
+      "Bash(gh run *)",
+      "Bash(export PYTHONIOENCODING=utf-8)",
+      "Bash(curl -s https://www.cartoonova.com/fr/simpson)",
+      "Bash(python -c ' *)"
     ]
   }
 }

@@ -3,18 +3,18 @@ import { getTranslations } from "next-intl/server";
 import { OG_LOCALE, alternatesPour, urlAbsolue } from "@/lib/seo";
 import type { Locale } from "@/i18n/config";
 import { SITE_URL } from "@/lib/site";
-import { avisPublies, statistiquesAvis } from "@/lib/reviewsDb";
+import { avisPublies, statistiquesAvis, MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
 import AvisClient from "./AvisClient";
 
 /* Le balisage `Review`/`AggregateRating` n'apparait qu'a partir de
-   `MINIMUM_BALISAGE` avis reels, deposes via un lien signe qui prouve l'achat.
-   Les temoignages de repli affiches en attendant ne sont rattaches a aucune
-   commande : les baliser exposerait a une action manuelle de Google.
-
+   `MINIMUM_BALISAGE_AVIS` avis reels, deposes via un lien signe qui prouve
+   l'achat.
    La moyenne est calculee sur tous les avis publies, sans filtre de note. Ne
    compter que les bonnes notes donnerait une note exacte au dixieme et fausse
-   sur le fond. */
-const MINIMUM_BALISAGE = 3;
+   sur le fond.
+
+   Le seuil lui-meme vit dans `lib/reviewsDb.ts` : les fiches produit s'en
+   servent aussi, et deux seuils pour la meme regle finiraient par diverger. */
 
 const CHEMIN = "/avis";
 
@@ -53,7 +53,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   ]);
 
   const balisage =
-    stats.nombre >= MINIMUM_BALISAGE
+    stats.nombre >= MINIMUM_BALISAGE_AVIS
       ? {
           "@context": "https://schema.org",
           "@type": "Product",
