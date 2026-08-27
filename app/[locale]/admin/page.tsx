@@ -52,6 +52,8 @@ export default function AdminPage() {
 
   // Poster confirmation
   const [sendingConfirmation, setSendingConfirmation] = useState(false);
+  const [askingReview, setAskingReview] = useState(false);
+  const [reviewAsked, setReviewAsked] = useState<string | null>(null);
   const [confirmationSent, setConfirmationSent] = useState(false);
 
   // Support inbox
@@ -259,6 +261,31 @@ export default function AdminPage() {
   };
 
   // Send poster confirmation email via Resend (before printing/shipping)
+  /* Demande d'avis a la demande.
+     Le cron sait le faire, mais seulement dix jours apres l'envoi de l'image
+     finale. Avec zero avis en base, aucune etoile n'apparait nulle part — ni
+     sur les 36 fiches, ni dans les resultats de recherche — et la boucle ne
+     peut pas s'amorcer toute seule. Ce bouton permet de solliciter au moment
+     choisi, portrait par portrait. */
+  const handleAskReview = async () => {
+    if (!selectedOrder || askingReview) return;
+    setAskingReview(true);
+    setReviewAsked(null);
+    try {
+      const r = await fetch("/api/orders/review-request", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ orderId: selectedOrder.id }),
+      });
+      const data = await r.json().catch(() => ({}));
+      setReviewAsked(r.ok ? "ok" : data.error || "Envoi impossible.");
+    } catch {
+      setReviewAsked("Envoi impossible.");
+    } finally {
+      setAskingReview(false);
+    }
+  };
+
   const handleSendPosterConfirmation = async () => {
     if (!selectedOrder?.final_image_url) return;
     setSendingConfirmation(true);
@@ -783,6 +810,42 @@ export default function AdminPage() {
                           </button>
                         ))}
                       </div>
+                    </div>
+
+                    {/* Demande d'avis a la demande.
+                        Zero avis en base, donc aucune etoile sur les 36 fiches
+                        ni dans les resultats de recherche — et un assistant qui
+                        arbitre entre marchands s'appuie massivement sur la
+                        reputation. Le cron ne sollicite qu'a J+10 apres l'envoi
+                        de l'image finale ; pour amorcer, il faut pouvoir le
+                        faire portrait par portrait, au moment choisi. */}
+                    <div className="rounded-lg p-3 border border-amber-200 bg-amber-50">
+                      <p className="text-xs text-amber-700 font-semibold mb-2">⭐ Avis client</p>
+                      <button
+                        onClick={handleAskReview}
+                        disabled={askingReview || !selectedOrder.customer_email}
+                        className="w-full px-3 py-2 text-xs font-bold rounded-lg border border-amber-500 bg-amber-500 text-white hover:bg-amber-600 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {askingReview
+                          ? "Envoi en cours..."
+                          : selectedOrder.review_request_sent_at
+                          ? "⭐ Redemander un avis"
+                          : "⭐ Demander un avis"}
+                      </button>
+                      {reviewAsked === "ok" && (
+                        <p className="mt-2 text-[11px] font-bold text-emerald-700 text-center">
+                          Invitation envoyée à {selectedOrder.customer_email}
+                        </p>
+                      )}
+                      {reviewAsked && reviewAsked !== "ok" && (
+                        <p className="mt-2 text-[11px] font-bold text-red-600 text-center">{reviewAsked}</p>
+                      )}
+                      {selectedOrder.review_request_sent_at && reviewAsked !== "ok" && (
+                        <p className="mt-2 text-[10px] text-gray-500 text-center">
+                          Déjà demandé le{" "}
+                          {new Date(selectedOrder.review_request_sent_at).toLocaleString("fr-FR")}
+                        </p>
+                      )}
                     </div>
 
                     {selectedOrder.payment_intent_id && (

@@ -57,6 +57,9 @@ export interface DbOrder {
      ignorait silencieusement. */
   promo_code: string | null;
   discount_amount: number | null;
+  /* Posee par `ensureLifecycleSchema`, meme oubli que ci-dessus : le tableau
+     de bord ne pouvait pas savoir qu'un avis avait deja ete demande. */
+  review_request_sent_at: string | null;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
