@@ -178,7 +178,8 @@ const CONSIGNE = `Tu rediges le contenu d'une fiche produit pour Cartoonova, qui
 Regles absolues :
 - Ecris DANS LA LANGUE demandee, entierement, y compris les titres de section.
 - Parle de CE style precis : ce qui le rend reconnaissable, a qui il plait, pour quelles occasions on l'offre. Un texte qui marcherait tel quel pour un autre univers est un echec.
-- Aucune mention de licence officielle, de partenariat, d'ayant droit ou de nom de studio. C'est un portrait dans un style inspire, jamais un produit sous licence.
+- Nomme l'univers demande : c'est ce que le lecteur cherche, et le texte doit dire de quel style il parle.
+- En revanche, ne laisse jamais entendre qu'il s'agit d'un produit officiel : aucune mention de licence, de partenariat, d'ayant droit ou d'approbation. C'est un portrait dans un style inspire, et rien d'autre.
 - Aucun superlatif invente, aucune promesse chiffree qui ne soit pas dans la liste ci-dessous. N'invente ni delai, ni garantie, ni nombre de clients, ni avis.
 - Ton simple et concret, phrases courtes, pas de remplissage.
 
