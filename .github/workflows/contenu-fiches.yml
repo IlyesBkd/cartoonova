@@ -3,15 +3,21 @@ name: Contenu des fiches produit
 # Redige le texte propre a chaque fiche produit, par petits lots.
 # Voir `scripts/genere-contenu-fiches.mts` pour le raisonnement.
 #
-# ── Pourquoi a la demande, et pas en cron ────────────────────────────────
+# ── Pourquoi en cron, et ce qui tient lieu de relecture ──────────────────
 #
-# Les 35 fiches sont la vitrine du site. Un cron qui ecrirait tout seul
-# publierait des centaines de pages sans que personne les ait lues — dans des
-# langues que vous ne pouvez pas relire. Le plan tient a l'inverse : FR et EN
-# d'abord, relus, la sonde de citation confirme que le gabarit fonctionne, et
-# les huit autres langues suivent seulement ensuite.
+# Personne ne relit les lots. Le travail ecrit donc seul, langue par langue :
+# le script epuise le francais avant de passer a l'anglais, puis aux huit
+# autres. La progression par vagues se fait d'elle-meme.
 #
-# Vous lancez donc un lot, vous le lisez sur le site, et vous relancez.
+# Ce qui remplace un lecteur humain, ce sont les trois gardes du script — un
+# texte trop court, un texte qui ne nomme jamais son univers, ou un texte trop
+# proche d'une fiche deja ecrite n'est pas publie — et le compte rendu Discord
+# de fin de passage. Une panne d'API ou un gabarit qui se mettrait a produire
+# la meme chose partout se voit le lendemain matin, sans avoir rien a ouvrir.
+#
+# Le juge final reste la sonde de citation : si la part de requetes citees ne
+# monte pas quelques semaines apres un lot, c'est le gabarit qu'il faut revoir,
+# pas le volume.
 #
 # ── Pourquoi ici plutot que sur Vercel ───────────────────────────────────
 #
@@ -28,16 +34,20 @@ name: Contenu des fiches produit
 #   AI_MODEL       modele redacteur         (defaut gpt-4o)
 
 on:
+  schedule:
+    # 02h10 UTC : entre le moteur de blog du soir et la sonde de 04h05. Deux
+    # travaux qui ecrivent dans la meme base n'ont aucune raison de se croiser.
+    - cron: "10 2 * * *"
   workflow_dispatch:
     inputs:
       langues:
-        description: "Langues a traiter, separees par une virgule"
+        description: "Langues a traiter, separees par une virgule (vide = les dix)"
         required: false
-        default: "fr"
+        default: ""
       nombre:
         description: "Fiches redigees au maximum pendant ce passage"
         required: false
-        default: "6"
+        default: "12"
 
 # Deux passages simultanes reliraient la meme table avant de s'ecrire dessus,
 # et la garde anti-doublon ne verrait pas ce que l'autre vient d'ecrire.
@@ -79,6 +89,9 @@ jobs:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_ENDPOINT: ${{ vars.AI_ENDPOINT }}
           AI_MODEL: ${{ vars.AI_MODEL }}
+          # Vides lors d'un declenchement planifie : le script retombe alors
+          # sur ses propres valeurs — les dix langues dans l'ordre des vagues.
           CONTENU_LANGUES: ${{ inputs.langues }}
-          CONTENU_PAR_PASSAGE: ${{ inputs.nombre }}
+          CONTENU_PAR_PASSAGE: ${{ inputs.nombre || vars.CONTENU_PAR_PASSAGE }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: npx tsx scripts/genere-contenu-fiches.mts

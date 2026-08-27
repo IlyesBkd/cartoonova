@@ -34,10 +34,18 @@
  * Mieux vaut une fiche au gabarit qu'une fiche remplie de bruit : la premiere
  * est ignoree, la seconde est penalisante.
  *
- * ── Marche a suivre ──────────────────────────────────────────────────────
+ * ── Comment il avance, sans personne ─────────────────────────────────────
  *
- * Le francais et l'anglais d'abord, seules langues relisables et seuls marches
- * avec du trafic reel. Les huit autres une fois le gabarit valide par la sonde.
+ * Une langue est epuisee avant que la suivante commence : le francais d'abord,
+ * puis l'anglais, puis les huit autres. Les vagues se font donc d'elles-memes,
+ * et un passage nocturne suffit a faire progresser le catalogue.
+ *
+ * Personne ne relit les lots. Ce qui tient lieu de relecture, ce sont les trois
+ * gardes ci-dessus, plus le compte rendu Discord de fin de passage : une panne
+ * d'API ou un gabarit qui se mettrait a produire la meme chose partout se voit
+ * le lendemain matin. Et le juge de fond reste la sonde de citation — si la
+ * part de requetes citees ne monte pas quelques semaines apres un lot, c'est le
+ * gabarit qu'il faut revoir, pas le volume.
  */
 
 import { CATALOGUE_EN_LIGNE, universProduit } from "../lib/catalogue";
@@ -53,11 +61,19 @@ import { createHash } from "node:crypto";
 
 /* ═══ reglages ══════════════════════════════════════════════════════════ */
 
-/** Fiches redigees par passage. Borne le cout et la duree d'un lancement. */
-const PAR_PASSAGE = Number(process.env.CONTENU_PAR_PASSAGE || 6);
+/**
+ * Fiches redigees par passage. A douze par nuit, les 350 fiches des dix
+ * langues sont couvertes en un mois, pour un cout quotidien negligeable.
+ */
+const PAR_PASSAGE = Number(process.env.CONTENU_PAR_PASSAGE || 12);
 
-/** Ordre de traitement. FR et EN d'abord — voir l'entete. */
-const LANGUES = (process.env.CONTENU_LANGUES || "fr,en")
+/**
+ * Ordre de traitement. Le script epuise une langue avant de passer a la
+ * suivante : le francais est donc entierement redige, puis l'anglais, puis le
+ * reste. La progression par vagues se fait toute seule, sans que personne ait
+ * a relancer quoi que ce soit langue par langue.
+ */
+const LANGUES = (process.env.CONTENU_LANGUES || "fr,en,es,de,it,nl,pl,sv,da,pt")
   .split(",")
   .map((l) => l.trim())
   .filter(Boolean) as Locale[];
@@ -226,6 +242,29 @@ async function rediger(univers: string, langue: string, requetes: string[]): Pro
 
 /* ═══ passage ═══════════════════════════════════════════════════════════ */
 
+/**
+ * Compte rendu sur Discord.
+ *
+ * Personne ne lit les journaux d'un travail planifie. Sans ce point, une panne
+ * d'API ou une garde qui refuserait tout passerait inapercue des semaines, et
+ * on croirait le catalogue en train de se remplir alors qu'il ne bouge pas.
+ */
+async function versDiscord(titre: string, texte: string, couleur: number) {
+  const url = process.env.DISCORD_WEBHOOK_URL;
+  if (!url) return;
+  try {
+    await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        embeds: [{ title: titre, description: texte.slice(0, 3800), color: couleur }],
+      }),
+    });
+  } catch {
+    /* Un compte rendu manque ne doit pas faire echouer des fiches deja ecrites. */
+  }
+}
+
 const texteDe = (c: Redige) =>
   [
     c.intro,
@@ -312,8 +351,43 @@ async function main() {
     }
   }
 
+  const couverture = await couvertureContenus();
+  const total = couverture.reduce((n, c) => n + c.redigees, 0);
+  const objectif = CATALOGUE_EN_LIGNE.length * LANGUES.length;
+
   console.log(`\n[contenu] ${ecrites} écrite(s), ${refusees} refusée(s)`);
-  console.log("[contenu] couverture après :", JSON.stringify(await couvertureContenus()));
+  console.log("[contenu] couverture après :", JSON.stringify(couverture));
+
+  const detail = couverture
+    .map((c) => `${c.locale} ${c.redigees}/${CATALOGUE_EN_LIGNE.length}`)
+    .join(" · ");
+
+  if (ecrites === 0 && refusees === 0) {
+    /* Plus rien a ecrire. Un mot une seule fois, quand le catalogue est
+       couvert : pas un rappel quotidien pour un travail qui tourne a vide. */
+    if (total >= objectif) {
+      await versDiscord(
+        "Contenu des fiches — terminé",
+        `${total} fiches rédigées sur ${objectif}.`,
+        0x4f9d69
+      );
+    }
+  } else if (ecrites === 0) {
+    /* Tout a ete refuse : c'est le signal qui compte. Soit l'API repond mal,
+       soit le gabarit produit des textes trop proches les uns des autres. */
+    await versDiscord(
+      "⚠️ Contenu des fiches — aucune fiche écrite",
+      `${refusees} tentative(s), toutes refusées. Couverture inchangée : ${detail}`,
+      0xd94f4f
+    );
+  } else {
+    await versDiscord(
+      "Contenu des fiches",
+      `**${ecrites}** fiche(s) écrite(s), ${refusees} refusée(s). ` +
+        `Couverture : ${total}/${objectif} — ${detail}`,
+      0xe9ba3b
+    );
+  }
 }
 
 await main();

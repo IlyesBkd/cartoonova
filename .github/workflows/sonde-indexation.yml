@@ -1,0 +1,69 @@
+name: Sonde d'indexation
+
+# Releve chaque nuit combien de pages sont reellement dans l'index de Google,
+# lesquelles n'y sont pas, et pourquoi.
+# Voir `scripts/sonde-indexation.mts` pour le raisonnement.
+#
+# ── Pourquoi cette sonde plutot qu'une console de webmaster ──────────────
+#
+# La question — « combien de pages sont indexees, et qu'est-ce qui bloque les
+# autres ? » — est celle qu'on serait alle poser a la main dans une interface.
+# L'API d'inspection d'URL y repond sans que personne ouvre quoi que ce soit,
+# avec le compte de service qui resoumet deja le plan du site.
+#
+# Le quota autorise 2 000 inspections par jour. On en fait soixante, toujours
+# les adresses vues il y a le plus longtemps : la serie historique se construit
+# sans a-coups, et une panne d'un jour ne laisse pas de trou.
+#
+# Secrets a definir dans Settings > Secrets and variables > Actions :
+#   DATABASE_URL          la meme chaine Neon que Vercel
+#   GSC_SITE_URL          la propriete Search Console (ex. sc-domain:exemple.com)
+#   GSC_CLIENT_EMAIL      compte de service, deja utilise par le cron SEO
+#   GSC_PRIVATE_KEY_B64   sa cle privee, encodee en base64
+#   DISCORD_WEBHOOK_URL   point quand le total bouge, alerte si une page sort
+#
+# Variables (Settings > Variables), facultatives :
+#   INDEX_PAR_PASSAGE     adresses inspectees par nuit  (defaut 60)
+
+on:
+  schedule:
+    # 03h20 UTC : apres la redaction des fiches (02h10), avant la sonde de
+    # citation (04h05). Les pages ecrites cette nuit sont donc relevees avec
+    # leur nouveau contenu des le lendemain.
+    - cron: "20 3 * * *"
+  workflow_dispatch:
+
+# Deux passages simultanes se disputeraient la meme ligne du jour.
+concurrency:
+  group: sonde-indexation
+  cancel-in-progress: false
+
+jobs:
+  relever:
+    runs-on: ubuntu-latest
+    # Soixante inspections espacees de 150 ms, plus l'installation. Large.
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # Le script importe `lib/catalogue.ts` et `lib/googleAuth.ts` : il lui
+      # faut les dependances du projet. `npm install` et non `npm ci` — le
+      # verrou n'est pas parfaitement synchronise, voir contenu-fiches.yml.
+      - name: Installer les dependances
+        run: npm install --no-audit --no-fund
+
+      - name: Relever l'indexation
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          GSC_CLIENT_EMAIL: ${{ secrets.GSC_CLIENT_EMAIL }}
+          GSC_PRIVATE_KEY_B64: ${{ secrets.GSC_PRIVATE_KEY_B64 }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          INDEX_PAR_PASSAGE: ${{ vars.INDEX_PAR_PASSAGE }}
+        run: npx tsx scripts/sonde-indexation.mts
