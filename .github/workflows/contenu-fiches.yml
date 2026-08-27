@@ -61,8 +61,17 @@ jobs:
 
       # Le script importe `lib/catalogue.ts` et `lib/contenuFiche.ts` : il lui
       # faut les dependances du projet, pas seulement le pilote Neon.
+      #
+      # `npm install` et non `npm ci` : le verrou n'est pas parfaitement
+      # synchronise — `next-intl` embarque un `@swc/core` qui reclame
+      # `@swc/helpers >=0.5.17` alors que la racine est en 0.5.15, et aucune
+      # entree ne satisfait cette contrainte. `npm install` la resout, `npm ci`
+      # refuse de deviner et s'arrete. C'est sans consequence ici : ce travail
+      # redige du texte, il ne construit pas le site, et il n'a pas besoin d'un
+      # arbre reproductible au paquet pres. Vercel installe de la meme facon et
+      # deploie sans probleme.
       - name: Installer les dependances
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Rediger le lot
         env:
