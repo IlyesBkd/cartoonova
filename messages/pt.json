@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "A qualidade da tela é impressionante. Parece um quadro a sério na nossa sala.",
     "review9Name": "Camille F.",
-    "review9Text": "Os meus filhos adoraram ver-se em cartoon! Uma recordação de família única."
+    "review9Text": "Os meus filhos adoraram ver-se em cartoon! Uma recordação de família única.",
+    "uploadPlusTard": "opcional aqui",
+    "uploadApresPaiement": "Não tem as fotos à mão? Poderá enviá-las logo após o pagamento, através de um link que lhe enviaremos."
   },
   "checkout": {
     "orderConfirmed": "Encomenda confirmada",

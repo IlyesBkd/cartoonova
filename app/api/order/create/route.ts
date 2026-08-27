@@ -54,8 +54,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Données manquantes." }, { status: 400 });
     }
 
-    // Second verrou : cette route est appelee juste avant la confirmation du
-    // paiement, donc un refus ici arrete la commande avant le debit.
+    /* Les photos sont nettoyees, plus exigees : la commande peut naitre sans,
+       et le client les depose apres paiement par un lien signe. Ce qui reste
+       verrouille, c'est leur forme — voir `lib/orderPhotos.ts`. */
     const photos = parsePhotoUrls(photoUrls);
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });

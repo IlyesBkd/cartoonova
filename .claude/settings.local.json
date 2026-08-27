@@ -28,7 +28,12 @@
       "mcp__posthog__exec",
       "mcp__claude_ai_PostHog__exec",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 8 http://localhost:3000/fr)",
-      "PowerShell(Select-String *)"
+      "PowerShell(Select-String *)",
+      "Bash(grep -n \"^  // ───\\\\|^  /\\\\* ───\\\\|await sql\\\\`\\\\|const orders = await\\\\|const subs = await\" app/api/cron/lifecycle-emails/route.ts)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"lint exit=$?\")",
+      "Bash(node ./_shot.mjs)",
+      "Bash(rm -f ./_shot.mjs)"
     ]
   }
 }

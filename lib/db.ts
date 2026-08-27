@@ -114,6 +114,41 @@ export async function marquerPayee(orderId: string): Promise<boolean> {
   return rows.length > 0;
 }
 
+/**
+ * Enregistre les photos deposees apres paiement.
+ *
+ * La liste remplace la precedente plutot que de s'y ajouter : la page de depot
+ * envoie toujours l'etat complet de ce que le client a choisi, et un ajout
+ * cumulatif rendrait impossible de retirer une photo envoyee par erreur.
+ *
+ * Renvoie la commande mise a jour, ou null si l'identifiant n'existe pas — ce
+ * qui laisse a l'appelant le soin de distinguer un lien perime d'un echec.
+ */
+export async function enregistrerPhotosCommande(
+  orderId: string,
+  photoUrls: string[]
+): Promise<DbOrder | null> {
+  const rows = await sql`
+    UPDATE orders
+    SET photo_urls = ${JSON.stringify(photoUrls)}::jsonb
+    WHERE id = ${orderId}::uuid
+    RETURNING *
+  `;
+  return (rows[0] as unknown as DbOrder) || null;
+}
+
+/** Commandes payees dont les photos manquent encore, pour la relance. */
+export async function getOrdersAwaitingPhotos(minHours: number): Promise<DbOrder[]> {
+  const rows = await sql`
+    SELECT * FROM orders
+    WHERE status = 'PAID'
+      AND (photo_urls IS NULL OR jsonb_array_length(photo_urls) = 0)
+      AND created_at < NOW() - (${minHours} || ' hours')::interval
+    ORDER BY created_at
+  `;
+  return rows as unknown as DbOrder[];
+}
+
 export async function updateOrderFinalImage(orderId: string, finalImageUrl: string): Promise<void> {
   await sql`
     UPDATE orders SET final_image_url = ${finalImageUrl} WHERE id = ${orderId}::uuid

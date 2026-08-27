@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { orderConfig, currency, promoCode, description, style, photoUrls } = body;
 
-    // Pas de photo, pas de PaymentIntent : sans modele l'illustrateur ne peut
-    // rien dessiner, et la commande arriverait impossible a honorer. C'est le
-    // premier des deux verrous — le second est a l'enregistrement en base.
+    /* Les photos sont nettoyees mais plus exigees : une commande peut naitre
+       sans, le client les depose apres paiement (voir `lib/orderPhotos.ts`).
+       Le nettoyage reste — seules des URL https du stockage distant passent. */
     const photos = parsePhotoUrls(photoUrls);
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });

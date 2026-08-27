@@ -10,6 +10,7 @@ import {
   markReorderEmailSent,
   markAbandonedEmailSent,
   getOrderById,
+  getOrdersAwaitingPhotos,
   type LifecycleOrder,
 } from "@/lib/db";
 import { sendWelcomeStep, WELCOME_DELAYS_DAYS } from "@/lib/welcomeSequence";
@@ -18,10 +19,12 @@ import {
   reviewRequestEmail,
   reorderEmail,
   abandonedCartEmail,
+  depotPhotosPage,
 } from "@/lib/email-i18n";
 import { signEmail, orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 import { finaliserCommande } from "@/lib/finaliserCommande";
+import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -296,6 +299,82 @@ async function sendWelcomeSteps(): Promise<{ sent: number; failed: number }> {
   return { sent, failed };
 }
 
+/**
+ * Relance des commandes payees dont les photos manquent encore.
+ *
+ * Contrepartie directe de la levee du barrage photo : on peut desormais payer
+ * sans avoir rien envoye, donc certains clients ne reviendront pas d'eux-memes.
+ * Sans cette relance, la commande resterait bloquee sans que personne ne le
+ * sache — exactement le genre de silence qui a deja coute cinq semaines a la
+ * synchronisation IMAP.
+ *
+ * Deux passages, pas plus : a J+1 et a J+3. Au-dela, ce n'est plus un oubli et
+ * c'est a un humain de decider — d'ou l'alerte Discord.
+ */
+const RELANCE_PHOTOS_HEURES = [24, 72] as const;
+
+async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: number }> {
+  let sent = 0;
+  let alertes = 0;
+
+  const enAttente = await getOrdersAwaitingPhotos(RELANCE_PHOTOS_HEURES[0]).catch(() => []);
+
+  for (const order of enAttente) {
+    const heures = (Date.now() - new Date(order.created_at).getTime()) / 3_600_000;
+    const lang = getLangFromCountry(order.detected_country);
+    const t = depotPhotosPage[lang];
+
+    /* Passe le second delai sans reponse : ce n'est plus un oubli. On previent
+       l'equipe plutot que de relancer une troisieme fois. */
+    if (heures > RELANCE_PHOTOS_HEURES[1] + 24) {
+      await alerteDiscord({
+        titre: "⏳ COMMANDE BLOQUÉE — photos jamais envoyées",
+        couleur: COULEUR_ATTENTION,
+        champs: [
+          { name: "📦 Commande", value: order.id.slice(0, 8), inline: true },
+          { name: "📧 Client", value: order.customer_email, inline: true },
+          { name: "⌛ Depuis", value: `${Math.round(heures / 24)} jours`, inline: true },
+        ],
+        piedDePage: "Cartoonova • à relancer à la main",
+      });
+      alertes++;
+      continue;
+    }
+
+    /* Une seule relance par palier. `Math.floor` sur le palier franchi evite
+       de renvoyer le meme e-mail a chaque passage du cron : entre J+1 et J+3,
+       le palier ne change pas. */
+    const palierFranchi = RELANCE_PHOTOS_HEURES.filter((h) => heures >= h).length;
+    if (palierFranchi === 0) continue;
+
+    try {
+      await resend.emails.send({
+        from: "Cartoonova <noreply@cartoonova.com>",
+        to: [order.customer_email],
+        replyTo: "support@cartoonova.com",
+        subject: t.emailRappel,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
+            <div style="background: white; border: 3px solid #000; padding: 30px;">
+              <h1 style="font-size: 26px; font-weight: 900; text-align: center; color: #000; margin: 0 0 16px;">${t.emailRappel}</h1>
+              <p style="font-size: 16px; color: #000; text-align: center;">${t.description(order.id.slice(0, 8))}</p>
+              <div style="text-align: center; margin: 26px 0 6px;">
+                <a href="${SITE_URL}/depot/${orderTrackingToken(order.id)}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">${t.submit}</a>
+              </div>
+              <p style="font-size: 13px; color: #555; text-align: center;">${t.hint}</p>
+            </div>
+          </div>
+        `,
+      });
+      sent++;
+    } catch (erreur) {
+      console.error("[CRON lifecycle-emails] relance photos impossible:", order.id, erreur);
+    }
+  }
+
+  return { sent, alertes };
+}
+
 export async function GET(req: NextRequest) {
   // Sans CRON_SECRET configure, la comparaison ci-dessous laisserait passer un
   // header "Bearer undefined" : on refuse explicitement plutot que d'ouvrir la
@@ -316,7 +395,8 @@ export async function GET(req: NextRequest) {
     const reviewRequests = await sendReviewRequests();
     const reorders = await sendReorderEmails();
     const abandoned = await sendAbandonedCartEmails();
-    const result = { welcome, reviewRequests, reorders, abandoned };
+    const photos = await relancerPhotosManquantes();
+    const result = { welcome, reviewRequests, reorders, abandoned, photos };
     console.log("[CRON lifecycle-emails]", JSON.stringify(result));
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {

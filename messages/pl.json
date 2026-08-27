@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "Jakość płótna jest niesamowita. Wygląda jak prawdziwy obraz w salonie.",
     "review9Name": "Camille F.",
-    "review9Text": "Dzieci uwielbiały zobaczyć siebie jako postacie z kreskówki! Wyjątkowa pamiątka rodzinna."
+    "review9Text": "Dzieci uwielbiały zobaczyć siebie jako postacie z kreskówki! Wyjątkowa pamiątka rodzinna.",
+    "uploadPlusTard": "tutaj opcjonalnie",
+    "uploadApresPaiement": "Nie masz zdjęć pod ręką? Możesz je wysłać zaraz po płatności, przez link, który do Ciebie wyślemy."
   },
   "checkout": {
     "orderConfirmed": "Zamówienie potwierdzone",

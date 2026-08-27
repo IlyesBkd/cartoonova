@@ -96,8 +96,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(cible, 308);
   }
 
-  // Skip next-intl for /success and /confirm-poster (standalone pages, no locale needed)
-  if (pathname.startsWith("/success") || pathname.startsWith("/confirm-poster")) {
+  // Skip next-intl for /success, /confirm-poster and /depot (standalone pages,
+  // reached from an e-mail, no locale prefix)
+  if (
+    pathname.startsWith("/success") ||
+    pathname.startsWith("/confirm-poster") ||
+    pathname.startsWith("/depot")
+  ) {
     console.log("[PROXY] ✅ standalone bypass — skipping next-intl:", pathname);
     const response = NextResponse.next();
 
@@ -162,6 +167,10 @@ export const config = {
     // exclusion, la regle « premier segment inconnu » plus haut renverrait un
     // 308 vers /fr/ingest/... : la requete de mesure ne suit pas la
     // redirection, et absolument aucun evenement n'arriverait.
-    "/((?!api|_next|_vercel|ingest|success|confirm-poster|suivi|.*\\..*).*)",
+    // `depot` rejoint la liste : la page de depot des photos arrive par
+    // e-mail, tire sa langue du pays detecte a la commande, et un prefixe de
+    // langue n'y aurait rien a faire. Sans cette exclusion, /depot/... etait
+    // redirige vers /fr/depot/... qui n'existe pas.
+    "/((?!api|_next|_vercel|ingest|success|confirm-poster|depot|suivi|.*\\..*).*)",
   ],
 };

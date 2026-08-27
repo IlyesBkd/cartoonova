@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "La qualité du Canvas est folle. On dirait un vrai tableau d'artiste accroché dans notre salon.",
     "review9Name": "Camille F.",
-    "review9Text": "Mes enfants ont adoré se voir en cartoon ! Un souvenir de famille unique qu'on gardera pour toujours."
+    "review9Text": "Mes enfants ont adoré se voir en cartoon ! Un souvenir de famille unique qu'on gardera pour toujours.",
+    "uploadPlusTard": "facultatif ici",
+    "uploadApresPaiement": "Pas de photo sous la main ? Vous pourrez les envoyer juste après le paiement, par un lien qu'on vous enverra."
   },
   "checkout": {
     "orderConfirmed": "Commande confirmée",

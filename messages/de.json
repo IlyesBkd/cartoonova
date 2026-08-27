@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "Die Leinwandqualität ist verrückt. Es sieht aus wie ein echtes Gemälde im Wohnzimmer.",
     "review9Name": "Camille F.",
-    "review9Text": "Meine Kinder waren begeistert, sich als Cartoon zu sehen! Eine einzigartige Familienerinnerung."
+    "review9Text": "Meine Kinder waren begeistert, sich als Cartoon zu sehen! Eine einzigartige Familienerinnerung.",
+    "uploadPlusTard": "hier optional",
+    "uploadApresPaiement": "Keine Fotos zur Hand? Sie können sie direkt nach der Zahlung über einen Link senden, den wir Ihnen mailen."
   },
   "checkout": {
     "orderConfirmed": "Bestellung bestätigt",

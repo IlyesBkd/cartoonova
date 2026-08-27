@@ -1,13 +1,14 @@
 import { Resend } from "resend";
 import { marquerPayee } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
-import { getLangFromCountry, confirmationEmail } from "@/lib/email-i18n";
+import { getLangFromCountry, confirmationEmail, depotPhotosPage } from "@/lib/email-i18n";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 import { mesureServeur, personneServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
 import { alerteDiscord, COULEUR_SOLEIL, COULEUR_ATTENTION } from "@/lib/discord";
+import { attendDesPhotos } from "@/lib/orderPhotos";
 import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
 
 /**
@@ -34,6 +35,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
     const opts = order.options;
     const lang = getLangFromCountry(order.detected_country);
     const t = confirmationEmail[lang];
+    const td = depotPhotosPage[lang];
     const ref = order.id.slice(0, 8);
 
     await resend.emails.send({
@@ -64,6 +66,19 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
               <p style="font-size: 18px; font-weight: bold; color: #000;">${t.artistsWorking}</p>
               <p style="font-size: 16px; color: #000;">${t.deliveryTime}</p>
             </div>
+            ${
+              attendDesPhotos(order.photo_urls)
+                ? /* Sans photo, l'illustrateur ne peut rien commencer : le
+                     depot passe donc devant le suivi, et sur fond rouge.
+                     C'est la seule action que cet e-mail doit provoquer. */
+                  `<div style="background: #FEE2E2; border: 3px solid #000; padding: 18px; margin: 24px 0; text-align: center;">
+                <p style="font-size: 16px; font-weight: 900; color: #000; margin: 0 0 12px;">${td.emailRappel}</p>
+                <a href="${SITE_URL}/depot/${orderTrackingToken(order.id)}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">
+                  ${td.submit}
+                </a>
+              </div>`
+                : ""
+            }
             <!-- Lien de suivi : sans lui, le client n'a aucun moyen de verifier
                  l'avancement et chaque question part au support. -->
             <div style="text-align: center; margin: 28px 0 8px;">

@@ -450,6 +450,15 @@ export default function AdminPage() {
                               seulement en ouvrant chaque fiche une par une. */}
                           <td className="px-4 py-3 font-medium">
                             <span className="inline-flex items-center gap-1.5">
+                              {/* Photos manquantes : depuis qu'on peut payer
+                                  sans les envoyer, c'est l'état qui bloque
+                                  l'illustrateur et qui doit se voir en premier. */}
+                              {(() => {
+                                const u = typeof o.photo_urls === "string" ? JSON.parse(o.photo_urls) : o.photo_urls;
+                                return !Array.isArray(u) || u.length === 0 ? (
+                                  <span title="En attente des photos du client">📸</span>
+                                ) : null;
+                              })()}
                               {o.poster_confirmation_status === "changes_requested" && (
                                 <span title="Modification demandée par le client">✏️</span>
                               )}

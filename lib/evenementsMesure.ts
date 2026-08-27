@@ -53,9 +53,13 @@ export const MESURES = {
   envoiPhotoDemarre: "photo_upload_started",
   /** Depot reussi. */
   photoEnvoyee: "photo_uploaded",
-  /** Depot echoue. Le tunnel s'arrete la sans que rien ne le signale
-      aujourd'hui : une commande sans photo est impossible a honorer. */
+  /** Depot echoue. */
   envoiPhotoEchoue: "photo_upload_failed",
+  /** Photos deposees APRES paiement, par le lien signe.
+      Mesure serveur : c'est elle qui dira quelle part des clients revient
+      deposer, et au bout de combien de temps — donc si la relance a J+1 est
+      trop tot, trop tard, ou inutile. */
+  photosDeposees: "photos_submitted",
   /** Clic sur « commander » alors qu'aucune photo n'a ete deposee. Le
       formulaire refuse et renvoie a l'etape d'envoi — c'est un blocage, pas
       une erreur du client. */

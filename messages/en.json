@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "The canvas quality is unreal. It looks like a real painting hanging in our living room.",
     "review9Name": "Camille F.",
-    "review9Text": "My kids loved seeing themselves as cartoons! A unique family keepsake we'll keep forever."
+    "review9Text": "My kids loved seeing themselves as cartoons! A unique family keepsake we'll keep forever.",
+    "uploadPlusTard": "optional here",
+    "uploadApresPaiement": "No photo to hand? You can send them right after payment, using a link we'll email you."
   },
   "checkout": {
     "orderConfirmed": "Order confirmed",

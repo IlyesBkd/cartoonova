@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "De kwaliteit van het canvas is bizar goed. Het lijkt een echt schilderij in onze woonkamer.",
     "review9Name": "Camille F.",
-    "review9Text": "Mijn kinderen vonden het geweldig om zichzelf als cartoon te zien! Een uniek familieaandenken."
+    "review9Text": "Mijn kinderen vonden het geweldig om zichzelf als cartoon te zien! Een uniek familieaandenken.",
+    "uploadPlusTard": "hier optioneel",
+    "uploadApresPaiement": "Geen foto bij de hand? U kunt ze direct na betaling sturen, via een link die we u mailen."
   },
   "checkout": {
     "orderConfirmed": "Bestelling bevestigd",

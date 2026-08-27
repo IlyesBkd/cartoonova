@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "Kvaliteten af lærredet er helt vild. Det ligner et rigtigt maleri i stuen.",
     "review9Name": "Camille F.",
-    "review9Text": "Mine børn elskede at se sig selv som tegnede figurer! Et helt unikt familieminde."
+    "review9Text": "Mine børn elskede at se sig selv som tegnede figurer! Et helt unikt familieminde.",
+    "uploadPlusTard": "valgfrit her",
+    "uploadApresPaiement": "Har du ikke billederne ved hånden? Du kan sende dem lige efter betaling via et link, vi mailer til dig."
   },
   "checkout": {
     "orderConfirmed": "Bestilling bekræftet",

@@ -88,7 +88,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     trackPhotoUploadStarted,
     trackPhotoUploaded,
     trackPhotoUploadFailed,
-    trackPurchaseBlocked,
     trackBuyClicked,
     trackCheckoutStarted,
   } = useProductTracking({
@@ -115,7 +114,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const boutonAchat = useRef<HTMLButtonElement>(null);
   const etapePhotos = useRef<HTMLDivElement>(null);
   const [boutonHorsEcran, setBoutonHorsEcran] = useState(false);
-  const [erreurPhoto, setErreurPhoto] = useState(false);
 
   useEffect(() => {
     fetch(`/api/prices?currency=${currency}`)
@@ -211,7 +209,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
         urls.push(blob.url);
       }
       setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));
-      setErreurPhoto(false);
       trackPhotoUploaded(urls.length, Date.now() - debut);
     } catch (erreur) {
       setErreurEnvoi(tp("uploadError"));
@@ -238,18 +235,17 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const ouvrirCaisse = (emplacement: "principal" | "barre_collante" = "principal") => {
     trackBuyClicked(emplacement, total, currency);
 
-    if (photos.length === 0) {
-      /* Ce refus est invisible dans les chiffres actuels : le visiteur a
-         clique sur « commander », donc il voulait acheter, et pourtant aucun
-         evenement de caisse ne part. Il ressemble a un abandon spontane alors
-         que c'est le formulaire qui l'arrete. */
-      trackPurchaseBlocked(emplacement);
-      setErreurPhoto(true);
-      etapePhotos.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-      champFichier.current?.focus();
-      return;
-    }
-    setErreurPhoto(false);
+    /* La caisse s'ouvre desormais sans photo. Le refus qui se trouvait ici
+       arretait sept visiteurs sur dix : sur trente jours, dix personnes
+       configuraient un portrait et trois seulement envoyaient une photo.
+       Et il ne se voyait dans aucun chiffre — `purchase_blocked` n'est jamais
+       parti, parce que personne n'allait jusqu'a se heurter au mur. Les gens
+       partaient a l'etape d'envoi, ce qui ressemblait a un abandon spontane.
+
+       Les photos se deposent maintenant apres paiement, par un lien signe
+       envoye avec la confirmation. `photosDifferees` sert a le dire au client
+       dans la caisse : payer sans avoir rien envoye doit etre un choix
+       explique, pas une impression d'oubli. */
     trackCheckoutStarted(total, currency, {
       format: cadrage,
       people: personnes,
@@ -588,10 +584,12 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               </div>
             </Etape>
 
-            <Etape numero titre={tp("uploadStep")} precision={tp("uploadMax8")} ref={etapePhotos} requis>
-              {/* Etait un <div onClick> : l'envoi de photo, etape obligatoire
-                  pour commander, etait donc impossible au clavier. En <button>,
-                  le glisser-deposer continue de fonctionner a l'identique. */}
+            {/* L'etape n'est plus `requis` : on peut payer sans avoir envoye
+                de photo, et les deposer ensuite. Voir `ouvrirCaisse`. */}
+            <Etape numero titre={tp("uploadStep")} precision={tp("uploadPlusTard")} ref={etapePhotos}>
+              {/* Etait un <div onClick> : l'envoi de photo, alors etape
+                  obligatoire pour commander, etait donc impossible au clavier.
+                  En <button>, le glisser-deposer fonctionne a l'identique. */}
               <button
                 type="button"
                 className={`depot${survol ? " survol" : ""}`}
@@ -630,10 +628,13 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   {erreurEnvoi}
                 </div>
               )}
-              {erreurPhoto && (
-                <div className="depot__erreur" role="alert">
-                  {tp("photoRequired")}
-                </div>
+              {/* Rassurance a la place du refus. Le message d'erreur
+                  « photo requise » a disparu avec le blocage ; ce qui le
+                  remplace explique que rien n'est perdu si on n'envoie rien
+                  maintenant — sans cette phrase, payer sans photo donnerait
+                  l'impression d'un oubli. */}
+              {photos.length === 0 && (
+                <p className="depot__note">{tp("uploadApresPaiement")}</p>
               )}
               {photos.length > 0 && (
                 <div className="depot-apercus">
@@ -964,11 +965,13 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 /* Etape du configurateur. Le numero n'est pas passe en propriete : le systeme
    renumerote les etapes visibles en CSS-compteur, exactement comme le script
    du gabarit d'origine — un produit sans decor affiche 1,2,3,4 et non 1,2,4,5. */
+/* `requis` a disparu avec la derniere etape obligatoire. L'envoi de photos
+   etait la seule a le porter ; depuis qu'on peut payer sans, plus aucune ne
+   l'est, et une astérisque qui ne s'affiche jamais est du code mort. */
 function Etape({
   titre,
   precision,
   pour,
-  requis,
   ref,
   children,
 }: {
@@ -977,8 +980,6 @@ function Etape({
   precision?: string;
   /** id du champ que ce titre nomme : le titre devient alors un vrai <label>. */
   pour?: string;
-  /** Marque l'etape comme obligatoire — une seule l'est : l'envoi de photos. */
-  requis?: boolean;
   ref?: React.Ref<HTMLDivElement>;
   children: ReactNode;
 }) {
@@ -986,7 +987,6 @@ function Etape({
     <>
       <b />
       {titre}
-      {requis && <i className="etape-conf__requis" aria-hidden="true">*</i>}
       {precision && <em>{precision}</em>}
     </>
   );

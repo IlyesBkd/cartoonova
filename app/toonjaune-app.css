@@ -345,6 +345,13 @@
 .depot { cursor: pointer; transition: border-color .16s ease, background-color .16s ease; }
 .depot:hover, .depot.survol { border-color: var(--soleil); background: var(--creme); }
 .depot__erreur { color: #C8202F; font-weight: 600; font-size: 13.5px; margin-top: 10px; }
+/* Rassurance, pas alerte : elle remplace le message « photo requise » qui
+   bloquait le paiement. Ton neutre — un visiteur qui n'a pas ses photos sous
+   la main ne fait rien de mal. */
+.depot__note {
+  color: var(--encre-doux); font-weight: 500; font-size: 13.5px;
+  margin: 10px 0 0; line-height: 1.5;
+}
 .depot-apercus { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
 .depot-apercu {
   position: relative; width: 68px; height: 68px; border-radius: 12px;

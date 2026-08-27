@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "La calidad del lienzo es increíble. Parece un cuadro de verdad colgado en el salón.",
     "review9Name": "Camille F.",
-    "review9Text": "¡A mis hijos les encantó verse en cartoon! Un recuerdo familiar único que guardaremos siempre."
+    "review9Text": "¡A mis hijos les encantó verse en cartoon! Un recuerdo familiar único que guardaremos siempre.",
+    "uploadPlusTard": "opcional aquí",
+    "uploadApresPaiement": "¿No tienes las fotos a mano? Podrás enviarlas justo después del pago, con un enlace que te mandaremos."
   },
   "checkout": {
     "orderConfirmed": "Pedido confirmado",

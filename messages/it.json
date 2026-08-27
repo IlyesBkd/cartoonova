@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "La qualità della tela è pazzesca. Sembra un vero quadro appeso in salotto.",
     "review9Name": "Camille F.",
-    "review9Text": "I miei figli hanno adorato vedersi in versione cartoon! Un ricordo di famiglia unico."
+    "review9Text": "I miei figli hanno adorato vedersi in versione cartoon! Un ricordo di famiglia unico.",
+    "uploadPlusTard": "facoltativo qui",
+    "uploadApresPaiement": "Non hai le foto sottomano? Potrai inviarle subito dopo il pagamento, con un link che ti manderemo."
   },
   "checkout": {
     "orderConfirmed": "Ordine confermato",

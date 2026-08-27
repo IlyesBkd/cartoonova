@@ -330,7 +330,9 @@
     "review8Name": "Maxime P.",
     "review8Text": "Canvaskvaliteten är helt otrolig. Det ser ut som en riktig tavla i vardagsrummet.",
     "review9Name": "Camille F.",
-    "review9Text": "Mina barn älskade att se sig själva som tecknade figurer! Ett unikt familjeminne."
+    "review9Text": "Mina barn älskade att se sig själva som tecknade figurer! Ett unikt familjeminne.",
+    "uploadPlusTard": "valfritt här",
+    "uploadApresPaiement": "Har du inga foton till hands? Du kan skicka dem direkt efter betalning, via en länk vi mejlar dig."
   },
   "checkout": {
     "orderConfirmed": "Beställning bekräftad",
