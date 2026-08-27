@@ -168,6 +168,35 @@ export async function textesDeLangue(locale: string): Promise<{ produit: string;
   });
 }
 
+/**
+ * Fiches dont le texte a change depuis une date, pour le signalement IndexNow.
+ *
+ * Sans elle, le cron SEO n'envoie les URL de fiches qu'une seule fois, au tout
+ * premier passage, puis ne signale plus que les nouveaux articles de blog. Une
+ * fiche qui gagne quatre cents mots changerait donc profondement sans que Bing
+ * en soit informe, et le texte attendrait des semaines d'etre redecouvert.
+ *
+ * Ne leve jamais : un signalement manque se rattrape au passage suivant, alors
+ * qu'une exception ici ferait aussi perdre le signalement des articles.
+ */
+export async function fichesMisesAJourDepuis(
+  depuis: Date
+): Promise<{ produit: string; locale: string }[]> {
+  try {
+    await assurerSchema();
+    const rows = await sql`
+      SELECT produit, locale FROM contenus_fiche WHERE maj_le >= ${depuis.toISOString()}
+    `;
+    return (rows as unknown as Record<string, unknown>[]).map((r) => ({
+      produit: String(r.produit),
+      locale: String(r.locale),
+    }));
+  } catch (erreur) {
+    console.error("[contenuFiche] fiches mises a jour illisibles:", erreur);
+    return [];
+  }
+}
+
 /** Etat d'avancement, pour le generateur et le suivi. */
 export async function couvertureContenus(): Promise<
   { locale: string; redigees: number }[]

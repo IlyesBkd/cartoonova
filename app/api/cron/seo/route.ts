@@ -7,6 +7,7 @@ import { lireEtat, ecrireEtat } from "@/lib/seoState";
 import { getArticlesPublishedSince, getAllPublishedArticleRefs } from "@/lib/blogDb";
 import { getPricesForCurrency } from "@/lib/db";
 import { CATALOGUE_EN_LIGNE, slugsProduit } from "@/lib/catalogue";
+import { fichesMisesAJourDepuis } from "@/lib/contenuFiche";
 import { compteMerchant, etatMerchant, anomaliesMerchant } from "@/lib/merchant";
 
 /**
@@ -73,6 +74,21 @@ async function tacheIndexNow() {
   const depuis = new Date(new Date(etat.dernierSignalement).getTime() - 3_600_000);
   const articles = await getArticlesPublishedSince(depuis);
   const urls = articles.map((a) => `${SITE_URL}/${a.locale}/blog/${a.slug}`);
+
+  /* Les fiches dont le texte vient d'etre redige comptent autant que les
+     articles : une fiche qui gagne quatre cents mots n'est plus la meme page.
+     Le socle ne les a signalees qu'une fois, au tout premier passage — sans ce
+     rappel, le contenu ecrit ensuite attendrait des semaines d'etre redecouvert.
+
+     Le libelle stocke est le slug canonique ; l'URL, elle, porte le slug de la
+     langue concernee, sinon on signalerait une adresse qui repond en 308. */
+  const parSlug = new Map(CATALOGUE_EN_LIGNE.map((p) => [p.slug, p]));
+  for (const fiche of await fichesMisesAJourDepuis(depuis)) {
+    const produit = parSlug.get(fiche.produit);
+    if (!produit) continue; // fiche retiree du catalogue depuis la redaction
+    const slug = slugsProduit(produit)[fiche.locale as keyof ReturnType<typeof slugsProduit>];
+    if (slug) urls.push(`${SITE_URL}/${fiche.locale}/${slug}`);
+  }
 
   const resultat = urls.length ? await signalerAIndexNow(urls) : { envoyees: 0, statut: null };
 
