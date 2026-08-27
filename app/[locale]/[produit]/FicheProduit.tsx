@@ -64,6 +64,15 @@ export interface DonneesFiche {
   decors: Decor[];
   supports: Record<PrintKey, string>;
   similaires: Similaire[];
+  /* Contenu long propre a cet univers, lu en base (voir `lib/contenuFiche.ts`).
+     Absent tant qu'il n'a pas ete redige : la fiche s'affiche alors exactement
+     comme avant, avec la FAQ partagee. C'est un supplement, pas une
+     dependance. */
+  contenu?: {
+    intro: string | null;
+    sections: { titre: string; corps: string }[];
+    faq: { question: string; reponse: string }[];
+  } | null;
 }
 
 /* Gabarit produit du systeme ToonJaune (gabarit/produit.html) :
@@ -813,6 +822,33 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
         </section>
 
         {/* ---------- FAQ ---------- */}
+        {/* ---------- CONTENU PROPRE A L'UNIVERS ----------
+             Le seul bloc de la fiche qui ne soit pas partage avec les
+             trente-cinq autres. C'est lui qui fait passer la part de texte
+             unique de 2 % a la majorite de la page — et donc lui qui decide
+             si Google indexe la fiche ou la classe en doublon.
+             Absent tant qu'il n'est pas redige : la fiche reste exactement
+             celle d'avant. */}
+        {donnees.contenu && (donnees.contenu.intro || donnees.contenu.sections.length > 0) && (
+          <section className="section" id="a-propos">
+            <div className="enveloppe fiche-contenu">
+              {donnees.contenu.intro && (
+                <p className="fiche-contenu__intro">{donnees.contenu.intro}</p>
+              )}
+              {donnees.contenu.sections.map((bloc, i) => (
+                <div key={i} className="fiche-contenu__bloc">
+                  <h2>{bloc.titre}</h2>
+                  {/* Une ligne vide separe deux paragraphes. Le texte reste du
+                      texte : aucun HTML n'est injecte depuis la base. */}
+                  {bloc.corps.split(/\n\s*\n/).map((para, j) => (
+                    <p key={j}>{para.trim()}</p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="section" id="faq">
           <div className="enveloppe faq-illus">
             <div className="faq-visuel">
@@ -822,13 +858,24 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <h2 style={{ fontSize: "var(--t-section)", marginBottom: 12 }}>
                 {t("faqTitre")} <span className="accent">{t("faqAccent")}</span>
               </h2>
+              {/* La FAQ propre a l'univers prend la main sur la FAQ partagee.
+                  Les cinq questions generiques etaient identiques sur les
+                  trente-six fiches : elles rassuraient le visiteur mais ne
+                  distinguaient aucune page d'une autre. */}
               <div className="faq">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <details key={n} name="faq" open={n === 1}>
-                    <summary>{tProduit(`faqQ${n}` as "faqQ1")}</summary>
-                    <p>{tProduit(`faqA${n}` as "faqA1")}</p>
-                  </details>
-                ))}
+                {donnees.contenu?.faq?.length
+                  ? donnees.contenu.faq.map((q, i) => (
+                      <details key={i} name="faq" open={i === 0}>
+                        <summary>{q.question}</summary>
+                        <p>{q.reponse}</p>
+                      </details>
+                    ))
+                  : [1, 2, 3, 4, 5].map((n) => (
+                      <details key={n} name="faq" open={n === 1}>
+                        <summary>{tProduit(`faqQ${n}` as "faqQ1")}</summary>
+                        <p>{tProduit(`faqA${n}` as "faqA1")}</p>
+                      </details>
+                    ))}
               </div>
             </div>
           </div>

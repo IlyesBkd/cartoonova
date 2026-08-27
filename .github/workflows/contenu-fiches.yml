@@ -1,0 +1,75 @@
+name: Contenu des fiches produit
+
+# Redige le texte propre a chaque fiche produit, par petits lots.
+# Voir `scripts/genere-contenu-fiches.mts` pour le raisonnement.
+#
+# ── Pourquoi a la demande, et pas en cron ────────────────────────────────
+#
+# Les 35 fiches sont la vitrine du site. Un cron qui ecrirait tout seul
+# publierait des centaines de pages sans que personne les ait lues — dans des
+# langues que vous ne pouvez pas relire. Le plan tient a l'inverse : FR et EN
+# d'abord, relus, la sonde de citation confirme que le gabarit fonctionne, et
+# les huit autres langues suivent seulement ensuite.
+#
+# Vous lancez donc un lot, vous le lisez sur le site, et vous relancez.
+#
+# ── Pourquoi ici plutot que sur Vercel ───────────────────────────────────
+#
+# Six redactions longues en serie depassent le budget d'une fonction Vercel.
+# Actions n'a pas cette contrainte, ecrit dans la meme base Neon, et le moteur
+# de contenu y tourne deja.
+#
+# Secrets (Settings > Secrets and variables > Actions) :
+#   DATABASE_URL   la meme chaine Neon que Vercel
+#   AI_API_KEY     deja presente pour le moteur de contenu
+#
+# Variables facultatives (Settings > Variables) :
+#   AI_ENDPOINT    point compatible OpenAI  (defaut api.openai.com)
+#   AI_MODEL       modele redacteur         (defaut gpt-4o)
+
+on:
+  workflow_dispatch:
+    inputs:
+      langues:
+        description: "Langues a traiter, separees par une virgule"
+        required: false
+        default: "fr"
+      nombre:
+        description: "Fiches redigees au maximum pendant ce passage"
+        required: false
+        default: "6"
+
+# Deux passages simultanes reliraient la meme table avant de s'ecrire dessus,
+# et la garde anti-doublon ne verrait pas ce que l'autre vient d'ecrire.
+concurrency:
+  group: contenu-fiches
+  cancel-in-progress: false
+
+jobs:
+  rediger:
+    runs-on: ubuntu-latest
+    # Une redaction longue prend une a deux minutes ; large, mais borne.
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # Le script importe `lib/catalogue.ts` et `lib/contenuFiche.ts` : il lui
+      # faut les dependances du projet, pas seulement le pilote Neon.
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Rediger le lot
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          AI_ENDPOINT: ${{ vars.AI_ENDPOINT }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          CONTENU_LANGUES: ${{ inputs.langues }}
+          CONTENU_PAR_PASSAGE: ${{ inputs.nombre }}
+        run: npx tsx scripts/genere-contenu-fiches.mts

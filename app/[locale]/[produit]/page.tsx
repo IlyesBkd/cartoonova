@@ -17,6 +17,7 @@ import { getTranslations } from "next-intl/server";
 import { visuelsProduit } from "@/lib/visuels";
 import { getPricesForCurrency } from "@/lib/db";
 import { statistiquesAvis, MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
+import { contenuFiche } from "@/lib/contenuFiche";
 import { PRINT_KEYS } from "@/lib/pricing";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
@@ -101,7 +102,7 @@ export default async function Page({
      Le composant les lit dans le meme espace de noms : une question ajoutee
      cote messages apparait des deux cotes ou d'aucun. */
   const tProduit = await getTranslations({ locale, namespace: "product" });
-  const faq = [1, 2, 3, 4, 5].map((n) => ({
+  const faqPartagee = [1, 2, 3, 4, 5].map((n) => ({
     question: tProduit(`faqQ${n}` as "faqQ1"),
     reponse: tProduit(`faqA${n}` as "faqA1"),
   }));
@@ -113,6 +114,10 @@ export default async function Page({
   } catch {
     // Repli : la fiche reste servie meme si la base est injoignable.
   }
+
+  /* Contenu long propre a cet univers. Null tant qu'il n'a pas ete redige :
+     la fiche s'affiche alors comme avant, avec la FAQ partagee. */
+  const contenu = await contenuFiche(p.slug, locale);
 
   /* Note moyenne, pour les etoiles du resultat enrichi.
      Elle n'existait que sur la page `/avis` : les 36 fiches n'interrogeaient
@@ -133,6 +138,12 @@ export default async function Page({
         }
       : null;
 
+  /* Le balisage FAQPage doit decrire la FAQ REELLEMENT VISIBLE. Quand la
+     fiche a sa propre FAQ, c'est elle qu'on balise : declarer les questions
+     partagees alors que la page en affiche d'autres serait un balisage
+     trompeur, et Google le sanctionne. */
+  const faq = contenu?.faq?.length ? contenu.faq : faqPartagee;
+
   const donnees: DonneesFiche = {
     slug: p.slug,
     idProduit: p.idProduit,
@@ -146,6 +157,7 @@ export default async function Page({
     legendes: visuels.legendes,
     decors: visuels.decors,
     supports: visuels.supports,
+    contenu,
     similaires: produitsSimilaires(p).map((s) => ({
       // Le lien porte le slug de la langue courante ; le visuel se lit
       // toujours sous le slug canonique, qui nomme le dossier dans public/.

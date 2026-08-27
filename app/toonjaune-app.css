@@ -1921,3 +1921,20 @@
 .suivi__aide b { display: block; margin-bottom: 5px; }
 .suivi__aide p { margin: 0; color: var(--encre-doux); }
 .suivi__aide a { color: var(--accent-texte-petit); font-weight: 700; }
+
+/* ---------- contenu propre a la fiche produit ----------
+   Le seul bloc que les trente-six fiches ne partagent pas. Colonne de lecture
+   etroite : c'est du texte long, pas de la mise en avant. */
+.fiche-contenu { max-width: 780px; }
+.fiche-contenu__intro {
+  font-size: clamp(18px, 1.6vw, 21px); line-height: 1.6;
+  color: var(--encre); font-weight: 600; margin: 0 0 34px;
+}
+.fiche-contenu__bloc { margin-bottom: 30px; }
+.fiche-contenu__bloc h2 {
+  font-size: clamp(22px, 2.4vw, 28px); margin: 0 0 12px;
+}
+.fiche-contenu__bloc p {
+  color: var(--encre-doux); margin: 0 0 14px; line-height: 1.7;
+}
+.fiche-contenu__bloc p:last-child { margin-bottom: 0; }
