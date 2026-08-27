@@ -1,0 +1,79 @@
+name: Sonde de citation
+
+# Mesure chaque nuit si les assistants citent Cartoonova, et sur quelles
+# questions. Voir `scripts/sonde-citations.mjs` pour le raisonnement.
+#
+# Pourquoi ici plutot que sur Vercel : les fonctions y sont limitees a
+# quelques dizaines de secondes, et une vingtaine de questions posees en serie
+# a plusieurs assistants depasse largement ce budget. GitHub Actions n'a pas
+# cette contrainte, ecrit dans la meme base Neon, et le moteur de contenu y
+# tourne deja — aucune machine de plus a entretenir.
+#
+# Secrets a definir dans Settings > Secrets and variables > Actions :
+#   DATABASE_URL          la meme chaine Neon que Vercel
+#   OPENAI_API_KEY        surface OpenAI  (a defaut, AI_API_KEY est utilisee)
+#   DISCORD_WEBHOOK_URL   alerte quand une citation est perdue
+#
+# Facultatifs :
+#   PERPLEXITY_API_KEY    ajoute Perplexity, la surface la plus fidele
+#   SERPAPI_API_KEY       deja present pour le moteur de contenu
+#
+# Variables (Settings > Variables), facultatives :
+#   SONDE_PAR_LANGUE      questions par langue        (defaut 10)
+#   SONDE_LANGUES         langues mesurees            (defaut fr,en)
+#   SONDE_PHARE           univers prioritaire         (defaut simpson)
+#   SONDE_PHARE_PAR_LANGUE  places reservees au phare (defaut 4)
+#   SONDE_SERPAPI_MAX     budget SerpAPI par passage  (defaut 0 = eteint)
+#   SONDE_MODELE_OPENAI   modele interroge            (defaut gpt-5.6)
+#
+# Reglage en vigueur : SONDE_SERPAPI_MAX = 3. Le forfait SerpAPI est de 250
+# recherches par mois, partage avec le moteur de contenu ; 3 par jour font
+# 90 par mois et laissent le reste a la decouverte de sujets.
+
+on:
+  schedule:
+    # 04h05 UTC : apres minuit sur tous les marches europeens, et bien avant
+    # le cron SEO de 06h — deux travaux qui ecrivent dans la meme base n'ont
+    # aucune raison de se croiser.
+    - cron: "5 4 * * *"
+  workflow_dispatch:
+
+# Deux passages simultanes ecriraient la meme ligne du jour. Le second attend.
+concurrency:
+  group: sonde-citations
+  cancel-in-progress: false
+
+jobs:
+  sonder:
+    runs-on: ubuntu-latest
+    # Une vingtaine de questions en serie, avec des appels de recherche web qui
+    # prennent plusieurs secondes chacun. Large, mais borne.
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # Seul `@neondatabase/serverless` est necessaire : le script n'utilise
+      # sinon que `fetch` et la bibliotheque standard.
+      - name: Installer la dependance base de donnees
+        run: npm install --no-save --no-audit --no-fund @neondatabase/serverless
+
+      - name: Relever les citations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SONDE_PAR_LANGUE: ${{ vars.SONDE_PAR_LANGUE }}
+          SONDE_LANGUES: ${{ vars.SONDE_LANGUES }}
+          SONDE_PHARE: ${{ vars.SONDE_PHARE }}
+          SONDE_PHARE_PAR_LANGUE: ${{ vars.SONDE_PHARE_PAR_LANGUE }}
+          SONDE_SERPAPI_MAX: ${{ vars.SONDE_SERPAPI_MAX }}
+          SONDE_MODELE_OPENAI: ${{ vars.SONDE_MODELE_OPENAI }}
+        run: node scripts/sonde-citations.mjs
