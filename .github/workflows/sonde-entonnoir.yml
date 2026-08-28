@@ -1,0 +1,61 @@
+name: Sonde d'entonnoir
+
+# Releve chaque semaine ou les visiteurs s'arretent.
+# Voir `scripts/sonde-entonnoir.mts` pour le raisonnement.
+#
+# ── Pourquoi hebdomadaire, et pourquoi planifiee ─────────────────────────
+#
+# Un entonnoir quotidien a ce volume ne mesurerait que du bruit : trois
+# commandes par mois ne font pas une courbe. La semaine est la plus petite
+# maille ou une variation veut dire quelque chose.
+#
+# Contrairement aux sondes nocturnes, celle-ci n'a rien a enchainer : elle lit
+# Search Console et la table des commandes, deux sources qui ne dependent
+# d'aucun travail du depot. Le retard de plusieurs heures que GitHub inflige
+# aux taches planifiees est ici sans consequence.
+#
+# Secrets a definir dans Settings > Secrets and variables > Actions :
+#   DATABASE_URL          la meme chaine Neon que Vercel
+#   GSC_SITE_URL          la propriete Search Console
+#   GSC_CLIENT_EMAIL      compte de service
+#   GSC_PRIVATE_KEY_B64   sa cle privee, encodee en base64
+#   DISCORD_WEBHOOK_URL   point hebdomadaire, alerte si une marche s'effondre
+
+on:
+  schedule:
+    # Lundi matin : la semaine complete qui vient de s'achever est mesurable,
+    # et Search Console a rattrape son retard de trois jours.
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: sonde-entonnoir
+  cancel-in-progress: false
+
+jobs:
+  relever:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      # `npm install` et non `npm ci` : voir contenu-fiches.yml.
+      - name: Installer les dependances
+        run: npm install --no-audit --no-fund
+
+      - name: Relever l'entonnoir
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          GSC_CLIENT_EMAIL: ${{ secrets.GSC_CLIENT_EMAIL }}
+          GSC_PRIVATE_KEY_B64: ${{ secrets.GSC_PRIVATE_KEY_B64 }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ENTONNOIR_VOLUME_MIN: ${{ vars.ENTONNOIR_VOLUME_MIN }}
+          ENTONNOIR_CHUTE: ${{ vars.ENTONNOIR_CHUTE }}
+        run: npx tsx scripts/sonde-entonnoir.mts

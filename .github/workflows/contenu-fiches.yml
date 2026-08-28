@@ -33,10 +33,14 @@ name: Contenu des fiches produit
 #   AI_ENDPOINT    point compatible OpenAI  (defaut api.openai.com)
 #   AI_MODEL       modele redacteur         (defaut gpt-4o)
 
+# Tete de chaine. En finissant, ce travail declenche les sondes d'indexation
+# et de diffusion, qui declenchent a leur tour la sonde de citation. C'est le
+# seul horaire de la chaine, et le seul qui n'ait pas besoin d'etre precis :
+# GitHub le retardera de quelques heures, les trois etapes resteront dans
+# l'ordre.
+
 on:
   schedule:
-    # 02h10 UTC : entre le moteur de blog du soir et la sonde de 04h05. Deux
-    # travaux qui ecrivent dans la meme base n'ont aucune raison de se croiser.
     - cron: "10 2 * * *"
   workflow_dispatch:
     inputs:

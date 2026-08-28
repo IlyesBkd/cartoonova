@@ -30,12 +30,15 @@ name: Sonde de citation
 # recherches par mois, partage avec le moteur de contenu ; 3 par jour font
 # 90 par mois et laissent le reste a la decouverte de sujets.
 
+# Declenchee par la fin des sondes d'indexation, elles-memes declenchees par
+# la redaction. L'horaire annonce ne tenait pas : GitHub deprogramme les taches
+# planifiees de plusieurs heures — celle-ci partait a 16h32 pour un cron de
+# 04h05. L'enchainement, lui, est deterministe.
+
 on:
-  schedule:
-    # 04h05 UTC : apres minuit sur tous les marches europeens, et bien avant
-    # le cron SEO de 06h — deux travaux qui ecrivent dans la meme base n'ont
-    # aucune raison de se croiser.
-    - cron: "5 4 * * *"
+  workflow_run:
+    workflows: ["Sondes d'indexation et de diffusion"]
+    types: [completed]
   workflow_dispatch:
 
 # Deux passages simultanes ecriraient la meme ligne du jour. Le second attend.
@@ -45,6 +48,9 @@ concurrency:
 
 jobs:
   sonder:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     # Une vingtaine de questions en serie, avec des appels de recherche web qui
     # prennent plusieurs secondes chacun. Large, mais borne.

@@ -30,12 +30,22 @@ name: Sondes d'indexation et de diffusion
 # service, tournent a la meme heure, et n'ont aucune raison d'occuper deux
 # machines. La seconde ne doit pas faire echouer la premiere — voir son etape.
 
+# ── Pourquoi un enchainement et non un horaire ───────────────────────────
+#
+# Ce travail etait planifie a 03h20, apres la redaction de 02h10. Sur le
+# papier. En pratique GitHub deprogramme les taches planifiees de plusieurs
+# heures : la redaction est partie a 14h17 et la sonde de citation a 16h32 pour
+# des horaires annonces a 02h10 et 04h05. L'ordre n'existait que dans les
+# commentaires.
+#
+# `workflow_run` le rend reel : la sonde part quand la redaction a fini, quoi
+# qu'il arrive a l'horloge. Les pages ecrites cette nuit sont donc relevees
+# avec leur nouveau contenu, et non avec celui de la veille.
+
 on:
-  schedule:
-    # 03h20 UTC : apres la redaction des fiches (02h10), avant la sonde de
-    # citation (04h05). Les pages ecrites cette nuit sont donc relevees avec
-    # leur nouveau contenu des le lendemain.
-    - cron: "20 3 * * *"
+  workflow_run:
+    workflows: ["Contenu des fiches produit"]
+    types: [completed]
   workflow_dispatch:
 
 # Deux passages simultanes se disputeraient la meme ligne du jour.
@@ -45,6 +55,11 @@ concurrency:
 
 jobs:
   relever:
+    # Une redaction en echec n'empeche pas de mesurer — les pages d'hier sont
+    # toujours la. Une execution annulee, elle, ne doit rien entrainer.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     # Soixante inspections espacees de 150 ms, plus l'installation. Large.
     timeout-minutes: 20
@@ -85,3 +100,20 @@ jobs:
           MERCHANT_ACCOUNT_ID: ${{ secrets.MERCHANT_ACCOUNT_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: npx tsx scripts/sonde-marchand.mts
+
+      # Playwright a besoin de son navigateur, et de lui seul : `--with-deps`
+      # installerait des paquets systeme dont un runner Ubuntu dispose deja.
+      - name: Installer le navigateur
+        continue-on-error: true
+        run: npx playwright install chromium
+
+      # Meme raison que pour Merchant : une mesure de vitesse ratee ne doit pas
+      # faire passer en echec un releve d'indexation reussi.
+      - name: Mesurer la vitesse
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SITE_URL: https://www.cartoonova.com
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          VITESSE_PASSAGES: ${{ vars.VITESSE_PASSAGES }}
+        run: npx tsx scripts/sonde-vitesse.mts

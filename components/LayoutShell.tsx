@@ -39,13 +39,27 @@ export default function LayoutShell({
     .filter(Boolean)
     .some((segment) => SLUGS_PRODUIT_TOUTES_LANGUES.includes(segment));
 
+  /* Le blog aussi. Il ne captait rien : un lecteur d'article repartait sans
+     qu'on lui ait rien propose, alors que le pied de page seul ne retient
+     personne. Or le blog devient la porte d'entree — les sujets tires du
+     corpus visent la longue traine, la seule que ce site puisse gagner
+     aujourd'hui. Un lecteur qui repart est plus cher ici qu'ailleurs.
+
+     La liste des articles est exclue a dessein : on y est encore en train de
+     choisir, l'interruption y serait gratuite. */
+  const surArticle = /\/blog\/[^/]+/.test(pathname);
+
+  const captureUtile = surFicheProduit || surArticle;
+
   return (
     <>
       <Navbar vignettes={vignettes} evenement={evenement} />
       <main>{children}</main>
       <FooterCartoon />
       <ChatWidget />
-      {surFicheProduit && <ExitIntentDialog />}
+      {captureUtile && (
+        <ExitIntentDialog source={surArticle ? "exit_intent_blog" : "exit_intent_fiche"} />
+      )}
     </>
   );
 }

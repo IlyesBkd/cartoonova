@@ -27,7 +27,13 @@ function markSeen() {
   }
 }
 
-export default function ExitIntentDialog() {
+/**
+ * @param source d'ou vient l'inscription. La fiche produit et l'article de
+ *   blog captent des lecteurs differents, et il faut pouvoir dire lequel
+ *   fonctionne : sans cette distinction, on saurait seulement qu'une pop-in
+ *   a converti, pas laquelle vaut la peine d'etre gardee.
+ */
+export default function ExitIntentDialog({ source = "exit_intent" }: { source?: string }) {
   const t = useTranslations("exitIntent");
   const [open, setOpen] = useState(false);
 
@@ -107,7 +113,7 @@ export default function ExitIntentDialog() {
         </h2>
         <p style={{ color: "var(--encre-doux)", margin: "0 0 18px" }}>{t("subtitle")}</p>
 
-        <NewsletterForm source="exit_intent" />
+        <NewsletterForm source={source} />
 
         <button
           type="button"

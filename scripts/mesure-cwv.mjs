@@ -17,13 +17,23 @@
  * Ce n'est pas Lighthouse et ce ne sont pas des donnees de terrain. C'est une
  * mesure reproductible, faite dans les memes conditions avant et apres.
  * L'INP n'y figure pas : il demande une interaction reelle, pas un chargement.
+ *
+ * Ce fichier sert deux usages. Lance directement, il affiche le tableau
+ * ci-dessus. Importe, il expose `mesurer()` : c'est ainsi que la sonde
+ * nocturne s'en sert, sans dupliquer quarante lignes de pilotage de
+ * navigateur qui derivent ensuite chacune de leur cote.
  */
 
 import { chromium, devices } from "playwright";
+import { fileURLToPath } from "node:url";
 
 const args = process.argv.slice(2);
 const BASE = (args.find((a) => !a.startsWith("--")) ?? "http://localhost:3000").replace(/\/$/, "");
 const PASSAGES = Number(args.find((a) => a.startsWith("--passes="))?.split("=")[1] ?? 5);
+
+/** Vrai seulement si ce fichier est le point d'entree, pas s'il est importe. */
+const lanceDirectement =
+  process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 
 const mediane = (valeurs) => {
   const tri = [...valeurs].sort((a, b) => a - b);
@@ -38,12 +48,19 @@ const GABARITS = [
   ["pilier", "/fr/portrait-personnalise-cartoon"],
 ];
 
+/**
+ * Mesure les gabarits et renvoie un resultat par gabarit.
+ *
+ * @param {string} base       racine du site, sans barre finale
+ * @param {number} passages_  chargements par gabarit ; la mediane est retenue
+ */
+export async function mesurer(base = BASE, passages_ = PASSAGES) {
 const navigateur = await chromium.launch();
 const resultats = [];
 
 for (const [nom, chemin] of GABARITS) {
  const passages = [];
- for (let passage = 0; passage < PASSAGES; passage++) {
+ for (let passage = 0; passage < passages_; passage++) {
   const ctx = await navigateur.newContext({ ...devices["Pixel 7"] });
   const page = await ctx.newPage();
   const cdp = await ctx.newCDPSession(page);
@@ -98,7 +115,7 @@ for (const [nom, chemin] of GABARITS) {
     }).observe({ type: "paint", buffered: true });
   });
 
-  await page.goto(BASE + chemin, { waitUntil: "load", timeout: 90000 });
+  await page.goto(base + chemin, { waitUntil: "load", timeout: 90000 });
   await page.waitForTimeout(4000);
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight / 2));
   await page.waitForTimeout(1500);
@@ -144,28 +161,33 @@ for (const [nom, chemin] of GABARITS) {
 }
 
 await navigateur.close();
+  return resultats;
+}
 
 const ms = (v) => `${Math.round(v)}`;
 const ko = (v) => `${Math.round(v / 1024)}`;
 const vert = (lcp) => (lcp <= 2500 ? "vert" : lcp <= 4000 ? "orange" : "ROUGE");
 
-console.log(`\nbase : ${BASE}   —   Pixel 7, CPU /4, 1,6 Mbit/s, mediane de ${PASSAGES} passages\n`);
-console.log("gabarit         LCP med  etat    ecart min-max     CLS     TTFB    FCP     poids   JS");
-for (const r of resultats) {
-  const ecart = `${ms(r.lcpMin)}–${ms(r.lcpMax)}`;
-  console.log(
-    `${r.nom.padEnd(15)} ${ms(r.lcp).padStart(5)}    ${vert(r.lcp).padEnd(6)}  ${ecart.padStart(12)}      ${r.cls.toFixed(3)}   ${ms(r.ttfb).padStart(4)}    ${ms(r.fcp).padStart(4)}    ${ko(r.octets).padStart(5)}   ${ko(r.js).padStart(5)}`
-  );
-}
-
-console.log("\nce qui porte le LCP");
-for (const r of resultats) {
-  console.log(`  ${r.nom.padEnd(15)} ${r.cible}`);
-  if (r.url) {
-    console.log(`  ${" ".repeat(15)} ${r.url.replace(BASE, "").slice(0, 88)}`);
-    console.log(`  ${" ".repeat(15)} decouverte ${ms(r.ressourceDebut - r.htmlFini)} ms apres la fin du HTML, recue a ${ms(r.ressourceFin)} ms`);
+if (lanceDirectement) {
+  const resultats = await mesurer();
+  console.log(`\nbase : ${BASE}   —   Pixel 7, CPU /4, 1,6 Mbit/s, mediane de ${PASSAGES} passages\n`);
+  console.log("gabarit         LCP med  etat    ecart min-max     CLS     TTFB    FCP     poids   JS");
+  for (const r of resultats) {
+    const ecart = `${ms(r.lcpMin)}–${ms(r.lcpMax)}`;
+    console.log(
+      `${r.nom.padEnd(15)} ${ms(r.lcp).padStart(5)}    ${vert(r.lcp).padEnd(6)}  ${ecart.padStart(12)}      ${r.cls.toFixed(3)}   ${ms(r.ttfb).padStart(4)}    ${ms(r.fcp).padStart(4)}    ${ko(r.octets).padStart(5)}   ${ko(r.js).padStart(5)}`
+    );
   }
-}
 
-const rouges = resultats.filter((r) => r.lcp > 2500).length;
-console.log(`\n${rouges} gabarit(s) sur ${resultats.length} au-dessus du seuil LCP de 2 500 ms.`);
+  console.log("\nce qui porte le LCP");
+  for (const r of resultats) {
+    console.log(`  ${r.nom.padEnd(15)} ${r.cible}`);
+    if (r.url) {
+      console.log(`  ${" ".repeat(15)} ${r.url.replace(BASE, "").slice(0, 88)}`);
+      console.log(`  ${" ".repeat(15)} decouverte ${ms(r.ressourceDebut - r.htmlFini)} ms apres la fin du HTML, recue a ${ms(r.ressourceFin)} ms`);
+    }
+  }
+
+  const rouges = resultats.filter((r) => r.lcp > 2500).length;
+  console.log(`\n${rouges} gabarit(s) sur ${resultats.length} au-dessus du seuil LCP de 2 500 ms.`);
+}
