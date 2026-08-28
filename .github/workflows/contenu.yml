@@ -123,6 +123,16 @@ jobs:
         if: steps.config.outputs.pret == 'true'
         run: npm run migrate
 
+      # La file de sujets est recalculee a chaque passage plutot que versionnee.
+      # Deux raisons : la fraicheur depend du calendrier — la Saint-Valentin ne
+      # vaut rien en juin — et le fichier reste ainsi le reflet du corpus, pas
+      # une copie qui derive. Le script ne depend que de Node, donc il tourne
+      # avant meme l'installation des paquets du moteur.
+      - name: Recalculer la file de sujets
+        if: steps.config.outputs.pret == 'true'
+        working-directory: ${{ github.workspace }}
+        run: node scripts/genere-sujets.mjs
+
       - name: Decouvrir des sujets
         if: steps.config.outputs.pret == 'true'
         run: node --import tsx src/app/cli.ts topics:discover

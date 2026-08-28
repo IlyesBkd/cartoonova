@@ -55,6 +55,7 @@ import {
   textesDeLangue,
   couvertureContenus,
 } from "../lib/contenuFiche";
+import { produitsRecales } from "../lib/indexation";
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -300,7 +301,23 @@ async function main() {
     const faites = new Set(deja.map((d) => d.produit));
     const voisins = deja.map((d) => d.texte);
 
-    for (const produit of CATALOGUE_EN_LIGNE) {
+    /* Les fiches que Google a explicitement recalees passent devant.
+       « Autre page avec balise canonique correcte » et « exploree, actuellement
+       non indexee » veulent dire qu'il a lu la page et l'a jugee redondante :
+       c'est precisement ce que du texte propre corrige, et il serait absurde de
+       traiter d'abord une fiche qu'il a deja acceptee. */
+    const recales = await produitsRecales(langue);
+    const rang = new Map(recales.map((slug, i) => [slug, i]));
+    const aTraiter = [...CATALOGUE_EN_LIGNE].sort(
+      (x, y) =>
+        (rang.get(x.slug) ?? Number.MAX_SAFE_INTEGER) -
+        (rang.get(y.slug) ?? Number.MAX_SAFE_INTEGER)
+    );
+    if (recales.length) {
+      console.log(`  · ${langue} : ${recales.length} fiche(s) recalees par Google, traitees en premier`);
+    }
+
+    for (const produit of aTraiter) {
       if (ecrites >= PAR_PASSAGE) break;
       if (faites.has(produit.slug)) continue;
 

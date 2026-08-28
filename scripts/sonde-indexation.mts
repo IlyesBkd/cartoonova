@@ -42,8 +42,14 @@
  * un rapport tous les matins pour que la mesure serve.
  */
 
-import { neon } from "@neondatabase/serverless";
 import { jetonGoogle, lireCompteDeService } from "../lib/googleAuth";
+import {
+  enregistrerReleve,
+  verdictsConnus,
+  dernierReleveParUrl,
+  totalIndexation,
+  enregistrerJour,
+} from "../lib/indexation";
 import { CATALOGUE_EN_LIGNE, slugsProduit } from "../lib/catalogue";
 import { locales, type Locale } from "../i18n/config";
 
@@ -62,41 +68,7 @@ const PAUSE_MS = Number(process.env.INDEX_PAUSE_MS || 150);
 
 const PORTEE = "https://www.googleapis.com/auth/webmasters";
 
-/* La connexion est ouverte tard : sans elle, une configuration incomplete
-   echouerait sur une erreur de pilote au lieu du message qui explique quoi
-   definir. Meme raison que dans la sonde de citation. */
-let _sql: ReturnType<typeof neon> | null = null;
-const sql = () => (_sql ??= neon(process.env.DATABASE_URL!));
-
 const dors = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-/* ═══ schema ════════════════════════════════════════════════════════════ */
-
-async function assurerSchema() {
-  await sql()`
-    CREATE TABLE IF NOT EXISTS indexation_pages (
-      url          TEXT PRIMARY KEY,
-      locale       TEXT,
-      produit      TEXT,
-      /* PASS / NEUTRAL / FAIL, stable quelle que soit la langue demandee. */
-      verdict      TEXT,
-      /* Le motif tel que Google le formule : c'est lui qui distingue une page
-         trop pauvre d'une page bloquee. */
-      motif        TEXT,
-      exploree_le  TIMESTAMPTZ,
-      releve_le    TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-  await sql()`
-    CREATE TABLE IF NOT EXISTS indexation_jours (
-      jour       DATE PRIMARY KEY,
-      indexees   INTEGER NOT NULL,
-      connues    INTEGER NOT NULL,
-      bloquees   INTEGER NOT NULL,
-      releve_le  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    )
-  `;
-}
 
 /* ═══ le perimetre ══════════════════════════════════════════════════════ */
 
@@ -125,11 +97,7 @@ function perimetre(): Cible[] {
 
 /** Le lot du jour : les adresses jamais vues d'abord, puis les plus anciennes. */
 async function lotDuJour(cibles: Cible[]): Promise<Cible[]> {
-  const rows = (await sql()`
-    SELECT url, releve_le FROM indexation_pages
-  `) as unknown as { url: string; releve_le: string }[];
-
-  const vues = new Map(rows.map((r) => [r.url, new Date(r.releve_le).getTime()]));
+  const vues = await dernierReleveParUrl();
   return [...cibles]
     .sort((a, b) => (vues.get(a.url) ?? 0) - (vues.get(b.url) ?? 0))
     .slice(0, PAR_PASSAGE);
@@ -195,19 +163,12 @@ async function main() {
     process.exit(1);
   }
 
-  await assurerSchema();
-
   const cibles = perimetre();
   const lot = await lotDuJour(cibles);
   console.log(`[indexation] ${lot.length} adresse(s) sur ${cibles.length} · site ${SITE}`);
 
   /* Ce qui etait indexe avant ce passage, pour reperer une sortie d'index. */
-  const avant = new Map(
-    ((await sql()`SELECT url, verdict FROM indexation_pages`) as unknown as {
-      url: string;
-      verdict: string;
-    }[]).map((r) => [r.url, r.verdict])
-  );
+  const avant = await verdictsConnus();
 
   const jeton = await jetonGoogle(PORTEE);
   const perdues: string[] = [];
@@ -220,14 +181,14 @@ async function main() {
 
     if (avant.get(c.url) === "PASS" && r.verdict !== "PASS") perdues.push(c.url);
 
-    await sql()`
-      INSERT INTO indexation_pages (url, locale, produit, verdict, motif, exploree_le, releve_le)
-      VALUES (${c.url}, ${c.locale}, ${c.produit}, ${r.verdict}, ${r.motif}, ${r.exploreeLe}, NOW())
-      ON CONFLICT (url) DO UPDATE SET
-        locale = EXCLUDED.locale, produit = EXCLUDED.produit,
-        verdict = EXCLUDED.verdict, motif = EXCLUDED.motif,
-        exploree_le = EXCLUDED.exploree_le, releve_le = NOW()
-    `;
+    await enregistrerReleve({
+      url: c.url,
+      locale: c.locale,
+      produit: c.produit,
+      verdict: r.verdict,
+      motif: r.motif,
+      exploreeLe: r.exploreeLe,
+    });
 
     const etiquette = r.verdict === "PASS" ? "indexée" : r.verdict === "FAIL" ? "bloquée" : "connue";
     console.log(`  ${etiquette.padEnd(8)} ${c.url}${r.motif ? ` — ${r.motif}` : ""}`);
@@ -235,28 +196,9 @@ async function main() {
   }
 
   /* ── total du jour ── */
-  const t = ((await sql()`
-    SELECT
-      count(*) FILTER (WHERE verdict = 'PASS')::int    AS indexees,
-      count(*) FILTER (WHERE verdict = 'NEUTRAL')::int AS connues,
-      count(*) FILTER (WHERE verdict = 'FAIL')::int    AS bloquees
-    FROM indexation_pages
-  `) as unknown as { indexees: number; connues: number; bloquees: number }[])[0];
+  const t = await totalIndexation();
+  const ecart = await enregistrerJour(t);
 
-  const veille = ((await sql()`
-    SELECT indexees FROM indexation_jours
-    WHERE jour < CURRENT_DATE ORDER BY jour DESC LIMIT 1
-  `) as unknown as { indexees: number }[])[0];
-
-  await sql()`
-    INSERT INTO indexation_jours (jour, indexees, connues, bloquees, releve_le)
-    VALUES (CURRENT_DATE, ${t.indexees}, ${t.connues}, ${t.bloquees}, NOW())
-    ON CONFLICT (jour) DO UPDATE SET
-      indexees = EXCLUDED.indexees, connues = EXCLUDED.connues,
-      bloquees = EXCLUDED.bloquees, releve_le = NOW()
-  `;
-
-  const ecart = veille ? t.indexees - veille.indexees : null;
   const signe = ecart === null ? "" : ecart > 0 ? ` (+${ecart})` : ecart < 0 ? ` (${ecart})` : " (stable)";
   console.log(
     `\n[indexation] ${ok}/${lot.length} relevées · ${t.indexees} indexées${signe}, ` +

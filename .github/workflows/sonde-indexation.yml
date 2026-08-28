@@ -1,4 +1,4 @@
-name: Sonde d'indexation
+name: Sondes d'indexation et de diffusion
 
 # Releve chaque nuit combien de pages sont reellement dans l'index de Google,
 # lesquelles n'y sont pas, et pourquoi.
@@ -20,10 +20,15 @@ name: Sonde d'indexation
 #   GSC_SITE_URL          la propriete Search Console (ex. sc-domain:exemple.com)
 #   GSC_CLIENT_EMAIL      compte de service, deja utilise par le cron SEO
 #   GSC_PRIVATE_KEY_B64   sa cle privee, encodee en base64
+#   MERCHANT_ACCOUNT_ID   compte Google Merchant, pour la seconde sonde
 #   DISCORD_WEBHOOK_URL   point quand le total bouge, alerte si une page sort
 #
 # Variables (Settings > Variables), facultatives :
 #   INDEX_PAR_PASSAGE     adresses inspectees par nuit  (defaut 60)
+#
+# Les deux sondes partagent un travail : elles interrogent le meme compte de
+# service, tournent a la meme heure, et n'ont aucune raison d'occuper deux
+# machines. La seconde ne doit pas faire echouer la premiere — voir son etape.
 
 on:
   schedule:
@@ -67,3 +72,16 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           INDEX_PAR_PASSAGE: ${{ vars.INDEX_PAR_PASSAGE }}
         run: npx tsx scripts/sonde-indexation.mts
+
+      # `continue-on-error` : un incident cote Merchant ne doit pas faire passer
+      # tout le travail en echec alors que le releve d'indexation, lui, a
+      # reussi. Les deux mesures sont independantes.
+      - name: Relever la diffusion Shopping
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GSC_CLIENT_EMAIL: ${{ secrets.GSC_CLIENT_EMAIL }}
+          GSC_PRIVATE_KEY_B64: ${{ secrets.GSC_PRIVATE_KEY_B64 }}
+          MERCHANT_ACCOUNT_ID: ${{ secrets.MERCHANT_ACCOUNT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: npx tsx scripts/sonde-marchand.mts
