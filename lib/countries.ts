@@ -25,6 +25,10 @@ export const COUNTRIES: CountryEntry[] = [
   { code: "CA", callingCode: "+1" },
   { code: "AU", callingCode: "+61" },
   { code: "NZ", callingCode: "+64" },
+  /* La Malaisie a produit huit clics sur quatre-vingt-dix jours, plus que tout
+     autre pays — et n'etait pas livrable. Le meilleur pays du site ne pouvait
+     pas commander. */
+  { code: "MY", callingCode: "+60" },
   { code: "ZA", callingCode: "+27" },
   { code: "MX", callingCode: "+52" },
   { code: "AR", callingCode: "+54" },

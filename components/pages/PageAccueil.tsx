@@ -1,6 +1,7 @@
 import Accueil, { type TextesHero } from "@/components/pages/Accueil";
 import { visuelsProduit } from "@/lib/visuels";
 import { getPricesForCurrency } from "@/lib/db";
+import { unstable_cache } from "next/cache";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import { evenementAffiche } from "@/lib/evenements";
 import { SITE_URL } from "@/lib/site";
@@ -72,6 +73,24 @@ function baliseIdentite(locale: string) {
    meme jour en France, au Royaume-Uni et en Allemagne, et c'est elle qui
    decide du discours du hero. */
 
+/**
+ * Prix de depart, mis en cache.
+ *
+ * La page d'accueil interrogeait Neon a chaque rendu pour un nombre qui change
+ * une fois par trimestre. Le rendu est dynamique — la devise se lit dans les
+ * en-tetes — donc ce n'etait pas un aller-retour occasionnel mais un par
+ * visiteur, sur le chemin critique du premier octet.
+ *
+ * Cinq minutes : une modification de prix depuis le tableau de bord apparait
+ * dans le quart d'heure, ce qui est largement assez pour un tarif, et le
+ * visiteur cesse de payer une requete pour l'afficher.
+ */
+const prixDepartEnCache = unstable_cache(
+  () => getPricesForCurrency("EUR"),
+  ["prix-depart-eur"],
+  { revalidate: 300, tags: ["prix"] }
+);
+
 export default async function PageAccueil({
   locale,
   textesHero = null,
@@ -88,7 +107,7 @@ export default async function PageAccueil({
 
   let prixDepart = DEFAULT_PRICE_SET.base;
   try {
-    prixDepart = (await getPricesForCurrency("EUR")).base;
+    prixDepart = (await prixDepartEnCache()).base;
   } catch {
     // Prix de repli : la page reste servie meme si la base est injoignable.
   }

@@ -42,8 +42,14 @@ const nextConfig: NextConfig = {
       { pathname: "/**", search: "" },
       { pathname: "/catalogue/**", search: `?v=${VERSION_VISUELS}` },
     ],
-    deviceSizes: [360, 640, 750, 828, 1080, 1200, 1920, 2048],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    /* Seize tailles candidates produisaient 306 attributs `srcSet` sur la seule
+       page d'accueil, soit 35 Ko — 18 % du document. Une vignette de 170 px y
+       declarait des candidats jusqu'a 2048 w, que le navigateur n'utilisera
+       jamais. Dix suffisent : les paliers retires (750 et 1080) sont a moins
+       de 12 % de leur voisin, et 2048 ne servait qu'aux ecrans 4K en double
+       densite. */
+    deviceSizes: [360, 640, 828, 1200, 1920],
+    imageSizes: [32, 64, 128, 256, 384],
     minimumCacheTTL: 31536000,
     remotePatterns: [
       {
