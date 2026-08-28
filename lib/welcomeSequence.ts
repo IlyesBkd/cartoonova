@@ -3,6 +3,9 @@ import { markWelcomeStepSent, type NewsletterSubscriber } from "./db";
 import { welcomeSequence, LANGS, type Lang } from "./email-i18n";
 import { signEmail } from "./emailToken";
 import { SITE_URL } from "./site";
+import { mesureServeur } from "./analyticsServeur";
+import { MESURES } from "./evenementsMesure";
+import { lienEmail } from "./utmEmail";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -55,7 +58,7 @@ export async function sendWelcomeStep(
           <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 24px; color: #000;">${content.title}</h1>
           ${paragraphs}
           <div style="text-align: center; margin: 28px 0 8px;">
-            <a href="${SITE_URL}/${lang}${content.ctaPath}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
+            <a href="${lienEmail(`${SITE_URL}/${lang}${content.ctaPath}`, "bienvenue")}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
               ${content.cta}
             </a>
           </div>
@@ -66,6 +69,12 @@ export async function sendWelcomeStep(
         </div>
       </div>
     `,
+  });
+  /* L'envoi compte autant que le clic : sans denominateur,
+     un taux d'ouverture n'est pas un taux. */
+  await mesureServeur(MESURES.emailEnvoye, {
+    identifiant: subscriber.email,
+    proprietes: { campagne: "bienvenue" },
   });
 
   await markWelcomeStepSent(subscriber.email, step);

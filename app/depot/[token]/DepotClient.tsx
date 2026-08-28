@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { depotPhotosPage, type Lang } from "@/lib/email-i18n";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
@@ -26,6 +26,14 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
   const [survol, setSurvol] = useState(false);
   const [erreur, setErreur] = useState("");
   const [termine, setTermine] = useState(false);
+
+  /* L'ouverture de la page compte autant que l'envoi : sans elle, on sait
+     combien de clients deposent leurs photos, jamais combien ont ouvert le
+     lien sans aller au bout. C'est cette difference qui dira si le probleme
+     est l'e-mail ou la page. */
+  useEffect(() => {
+    mesure(MESURES.depotOuvert, { langue: lang });
+  }, [lang]);
 
   const envoyer = async (fichiers: FileList | null) => {
     if (!fichiers?.length) return;

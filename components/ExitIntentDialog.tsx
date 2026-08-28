@@ -55,7 +55,7 @@ export default function ExitIntentDialog({ source = "exit_intent" }: { source?: 
 
       markSeen();
       setOpen(true);
-      mesure(MESURES.relanceSortieAffichee, { reason });
+      mesure(MESURES.relanceSortieAffichee, { reason, source });
     };
 
     const onMouseOut = (e: MouseEvent) => {
@@ -86,7 +86,7 @@ export default function ExitIntentDialog({ source = "exit_intent" }: { source?: 
 
   const close = () => {
     setOpen(false);
-    mesure(MESURES.relanceSortieFermee);
+    mesure(MESURES.relanceSortieFermee, { source });
   };
 
   return (

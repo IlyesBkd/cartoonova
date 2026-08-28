@@ -10,6 +10,7 @@ import { toEUR } from "@/lib/currency";
 import { alerteDiscord, COULEUR_SOLEIL, COULEUR_ATTENTION } from "@/lib/discord";
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
+import { lienEmail } from "./utmEmail";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -73,7 +74,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
                      C'est la seule action que cet e-mail doit provoquer. */
                   `<div style="background: #FEE2E2; border: 3px solid #000; padding: 18px; margin: 24px 0; text-align: center;">
                 <p style="font-size: 16px; font-weight: 900; color: #000; margin: 0 0 12px;">${td.emailRappel}</p>
-                <a href="${SITE_URL}/depot/${orderTrackingToken(order.id)}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">
+                <a href="${lienEmail(`${SITE_URL}/depot/${orderTrackingToken(order.id)}`, "depot_photos")}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">
                   ${td.submit}
                 </a>
               </div>`
@@ -82,7 +83,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
             <!-- Lien de suivi : sans lui, le client n'a aucun moyen de verifier
                  l'avancement et chaque question part au support. -->
             <div style="text-align: center; margin: 28px 0 8px;">
-              <a href="${SITE_URL}/suivi/${orderTrackingToken(order.id)}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
+              <a href="${lienEmail(`${SITE_URL}/suivi/${orderTrackingToken(order.id)}`, "suivi")}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
                 ${t.trackOrder}
               </a>
             </div>
@@ -93,6 +94,12 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
           </div>
         </div>
       `,
+    });
+    /* L'envoi compte autant que le clic : sans denominateur,
+       un taux d'ouverture n'est pas un taux. */
+    await mesureServeur(MESURES.emailEnvoye, {
+      identifiant: order.customer_email,
+      proprietes: { campagne: "confirmation" },
     });
   } catch (erreur) {
     /* Une commande payee ne se perd pas parce que Resend est en panne : on

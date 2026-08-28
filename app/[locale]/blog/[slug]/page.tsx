@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getArticleBySlug, getRelatedArticles } from "@/lib/blogDb";
 import { liensPourArticle } from "@/lib/maillage";
+import LiensProduits from "@/components/blog/LiensProduits";
 import type { Locale } from "@/i18n/config";
 import { ArticleJsonLd, BreadcrumbJsonLd } from "@/components/structured-data";
 import ArticleBody from "@/components/blog/ArticleBody";
@@ -119,31 +120,12 @@ export default async function BlogArticlePage({
         )}
       </article>
 
-      {fiches.length > 0 && (
-        <section className="enveloppe" style={{ paddingBlock: "clamp(30px,4vw,52px)" }}>
-          <h2 className="text-2xl font-black text-black uppercase mb-6">{t("productLinks")}</h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {fiches.map((fiche) => (
-              <Link key={fiche.slug} href={`/${locale}/${fiche.slug}`} className="carte">
-                {fiche.visuel && (
-                  <div style={{ position: "relative", aspectRatio: "16 / 10", background: "var(--cendre)" }}>
-                    <Image
-                      src={fiche.visuel}
-                      alt={fiche.univers}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  </div>
-                )}
-                <div className="p-4">
-                  <h3 className="font-black text-base leading-snug text-black">{fiche.univers}</h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+      <LiensProduits
+        locale={locale}
+        titre={t("productLinks")}
+        fiches={fiches}
+        slugArticle={article.slug}
+      />
 
       <section className="section" style={{ background: "var(--soleil)" }}>
         <div className="enveloppe" style={{ textAlign: "center" }}>

@@ -55,6 +55,13 @@ export const MESURES = {
   photoEnvoyee: "photo_uploaded",
   /** Depot echoue. */
   envoiPhotoEchoue: "photo_upload_failed",
+  /**
+   * Page de depot ouverte. `photosDeposees` disait combien de clients
+   * envoyaient leurs photos, jamais combien avaient ouvert la page — donc
+   * jamais le taux. Sur une etape qui vit d'un lien dans un e-mail, c'est le
+   * denominateur qui dit si le lien fonctionne.
+   */
+  depotOuvert: "photo_deposit_opened",
   /** Photos deposees APRES paiement, par le lien signe.
       Mesure serveur : c'est elle qui dira quelle part des clients revient
       deposer, et au bout de combien de temps — donc si la relance a J+1 est
@@ -116,6 +123,17 @@ export const MESURES = {
   posterConfirme: "poster_confirmed",
 
   /* ═══ engagement ══════════════════════════════════════════════════════ */
+
+  /**
+   * E-mail de cycle de vie parti. La campagne voyage en propriete plutot qu'en
+   * evenement distinct : six evenements jumeaux se compareraient mal, alors
+   * qu'une seule propriete se decoupe dans n'importe quel rapport.
+   *
+   * Sans lui, on connaissait les clics — depuis que les liens portent des
+   * parametres de campagne — mais jamais le denominateur. Un taux d'ouverture
+   * sans envois n'est pas un taux.
+   */
+  emailEnvoye: "email_sent",
 
   inscriptionNewsletter: "newsletter_subscribed",
   desinscriptionNewsletter: "newsletter_unsubscribed",

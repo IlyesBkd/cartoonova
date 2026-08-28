@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import Stripe from "stripe";
+import { mesureServeur } from "@/lib/analyticsServeur";
+import { MESURES } from "@/lib/evenementsMesure";
+import { lienEmail } from "@/lib/utmEmail";
 import {
   getOrdersDueForReviewRequest,
   getOrdersDueForReorderEmail,
@@ -93,10 +96,16 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
             <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
             <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
             <p style="font-size: 16px; margin: 0; color: #333;">${t.ask}</p>
-            ${button(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, t.cta)}
+            ${button(lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "demande_avis"), t.cta)}
           `,
           `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>`
         ),
+      });
+      /* L'envoi compte autant que le clic : sans denominateur,
+         un taux d'ouverture n'est pas un taux. */
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: order.customer_email,
+        proprietes: { campagne: "demande_avis" },
       });
 
       await markReviewRequestSent(order.id);
@@ -143,11 +152,17 @@ async function sendReorderEmails(): Promise<{ sent: number; failed: number }> {
             <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
             <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
             <p style="font-size: 16px; margin: 0; color: #333;">${t.body}</p>
-            ${button(`${SITE_URL}/${lang}/collections`, t.cta)}
+            ${button(lienEmail(`${SITE_URL}/${lang}/collections`, "rachat"), t.cta)}
           `,
           `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
            <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
         ),
+      });
+      /* L'envoi compte autant que le clic : sans denominateur,
+         un taux d'ouverture n'est pas un taux. */
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: order.customer_email,
+        proprietes: { campagne: "rachat" },
       });
 
       await markReorderEmailSent(order.customer_email);
@@ -225,7 +240,10 @@ async function sendAbandonedCartEmails(): Promise<{
       }
 
       const style = order.options?.style;
-      const reprise = style ? `${SITE_URL}/${lang}/${style}` : `${SITE_URL}/${lang}/collections`;
+      const reprise = lienEmail(
+    style ? `${SITE_URL}/${lang}/${style}` : `${SITE_URL}/${lang}/collections`,
+    "panier_abandonne"
+  );
       const unsubscribeUrl =
         `${SITE_URL}/api/newsletter/unsubscribe` +
         `?email=${encodeURIComponent(order.customer_email)}` +
@@ -252,6 +270,12 @@ async function sendAbandonedCartEmails(): Promise<{
           `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
            <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
         ),
+      });
+      /* L'envoi compte autant que le clic : sans denominateur,
+         un taux d'ouverture n'est pas un taux. */
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: order.customer_email,
+        proprietes: { campagne: "panier_abandonne" },
       });
 
       await markAbandonedEmailSent(order.id);
@@ -359,12 +383,18 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
               <h1 style="font-size: 26px; font-weight: 900; text-align: center; color: #000; margin: 0 0 16px;">${t.emailRappel}</h1>
               <p style="font-size: 16px; color: #000; text-align: center;">${t.description(order.id.slice(0, 8))}</p>
               <div style="text-align: center; margin: 26px 0 6px;">
-                <a href="${SITE_URL}/depot/${orderTrackingToken(order.id)}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">${t.submit}</a>
+                <a href="${lienEmail(`${SITE_URL}/depot/${orderTrackingToken(order.id)}`, "rappel_photos")}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">${t.submit}</a>
               </div>
               <p style="font-size: 13px; color: #555; text-align: center;">${t.hint}</p>
             </div>
           </div>
         `,
+      });
+      /* L'envoi compte autant que le clic : sans denominateur,
+         un taux d'ouverture n'est pas un taux. */
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: order.customer_email,
+        proprietes: { campagne: "rappel_photos" },
       });
       sent++;
     } catch (erreur) {
