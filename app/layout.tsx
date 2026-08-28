@@ -55,6 +55,14 @@ export default async function RootLayout({
             demande : precharger ce qui ne sert pas retarde ce qui sert. */}
         <link rel="preload" href="/polices/kefir-800.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preload" href="/polices/rebond-500.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        {/* Atma manquait, et c'est elle qui decalait la page. Releve de cascade
+            sur mobile bride : Kefir arrivait a 2 327 ms, Rebond a 2 156 ms —
+            mais Atma, decouverte seulement quand la feuille de style est
+            analysee, demarrait a 2 420 ms pour n'arriver qu'a 5 594 ms. Le
+            decalage mesure tombait a 5 403 ms : les mots accentues du titre
+            changeaient de largeur, le h1 se recomposait, et tout le bloc hero
+            remontait de 29 px. J'avais d'abord accuse Kefir a tort. */}
+        <link rel="preload" href="/polices/atma-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
         {/* Google Ads — gtag.js */}
