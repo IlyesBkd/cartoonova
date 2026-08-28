@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { capturerOrigine } from "@/lib/origineVisite";
 import Navbar from "@/components/Navbar";
 import FooterCartoon from "@/components/FooterCartoon";
 import { SLUGS_PRODUIT_TOUTES_LANGUES } from "@/lib/catalogue";
@@ -27,6 +29,14 @@ export default function LayoutShell({
   evenement?: EvenementAffiche | null;
 }) {
   const pathname = usePathname();
+
+  /* L'origine est retenue au tout premier passage, et jamais ecrasee ensuite :
+     un client amene par un assistant qui revient deux jours plus tard en tapant
+     l'adresse a bien ete amene par l'assistant. Le dernier contact ne dirait
+     que « direct », ce qui est vrai et sans interet. */
+  useEffect(() => {
+    capturerOrigine();
+  }, []);
   const nu = pathname.includes("/admin") || pathname.includes("/simpson-mockups");
 
   if (nu) return <>{children}</>;

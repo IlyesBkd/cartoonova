@@ -3,6 +3,7 @@ import type { Prices, PriceSet, PricesByCurrency } from "./types";
 import { DEFAULT_PRICES, DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
 import { convertPrice, currencies, exchangeRates } from "./currency";
+import type { OrigineVisite } from "./origineVisite";
 
 // ─── SQL Connection ──────────────────────────────────────────────────
 export const sql = neon(process.env.DATABASE_URL!);
@@ -60,6 +61,8 @@ export interface DbOrder {
   /* Posee par `ensureLifecycleSchema`, meme oubli que ci-dessus : le tableau
      de bord ne pouvait pas savoir qu'un avis avait deja ete demande. */
   review_request_sent_at: string | null;
+  /** Origine de la premiere visite. Null pour les commandes anterieures. */
+  origine: OrigineVisite | null;
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
@@ -176,6 +179,10 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_status TEXT`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_responded_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_note TEXT`;
+    /* D'ou vient le client, retenu au premier contact. La question s'est posee
+       sur une vente reelle sans pouvoir etre tranchee : rien n'etait garde ici,
+       et la reponse dormait dans un outil tiers. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS origine JSONB`;
   })().catch((e) => {
     posterConfirmationSchemaReady = null;
     throw e;

@@ -548,6 +548,28 @@ export default function AdminPage() {
                       </div>
                     )}
 
+                    {/* L'origine du premier contact. Sans elle, la question
+                        « cette vente vient d'où ? » restait sans réponse, et
+                        l'information dormait dans un outil tiers. */}
+                    {selectedOrder.origine && (
+                      <div className="bg-amber-50 rounded-lg p-3">
+                        <p className="text-xs text-amber-700 font-semibold mb-1">🧭 Origine (première visite)</p>
+                        <p className="font-semibold">
+                          {selectedOrder.origine.utm_source
+                            ? `${selectedOrder.origine.utm_source}${
+                                selectedOrder.origine.utm_campaign
+                                  ? ` · ${selectedOrder.origine.utm_campaign}`
+                                  : ""
+                              }`
+                            : selectedOrder.origine.referent}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          arrivée sur {selectedOrder.origine.arrivee} le{" "}
+                          {new Date(selectedOrder.origine.le).toLocaleDateString("fr-FR")}
+                        </p>
+                      </div>
+                    )}
+
                     {selectedOrder.customer_address && (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-xs text-blue-600 font-semibold mb-1">📦 Adresse de livraison</p>

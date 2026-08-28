@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { lireOrigine } from "@/lib/origineVisite";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -107,6 +108,7 @@ function PaymentForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         paymentIntentId,
+        origine: lireOrigine(),
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,

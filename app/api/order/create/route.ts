@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validerOrigine } from "@/lib/origineVisite";
 import Stripe from "stripe";
 import { sql } from "@/lib/db";
 import { consumePromoCode } from "@/lib/promoCodes";
@@ -18,6 +19,12 @@ async function ensureOrderPromoSchema(): Promise<void> {
   orderPromoSchemaReady = (async () => {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS promo_code TEXT`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount NUMERIC`;
+    /* `origine` est aussi declaree dans `lib/db.ts`, pour les lecteurs. Il faut
+       qu'elle le soit ICI aussi : c'est la seule fonction de schema appelee
+       avant l'insertion, et sans elle la toute premiere commande echouerait sur
+       une colonne inconnue — la creation etant portee par un autre schema, qui
+       n'est jamais appele sur ce chemin. Les deux sont idempotentes. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS origine JSONB`;
   })().catch((e) => {
     orderPromoSchemaReady = null;
     throw e;
@@ -48,6 +55,7 @@ export async function POST(req: NextRequest) {
       style,
       detectedCountry,
       gift,
+      origine,
     } = await req.json();
 
     if (!paymentIntentId || !email) {
@@ -58,6 +66,11 @@ export async function POST(req: NextRequest) {
        et le client les depose apres paiement par un lien signe. Ce qui reste
        verrouille, c'est leur forme — voir `lib/orderPhotos.ts`. */
     const photos = parsePhotoUrls(photoUrls);
+
+    /* Le cookie d'origine est modifiable par le visiteur : on ne recopie que
+       des champs connus et tronques. Une origine invalide devient null — on
+       perd l'attribution de cette commande, on ne pollue pas la colonne. */
+    const origineValidee = validerOrigine(origine);
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });
     }
@@ -120,7 +133,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO orders (
         payment_intent_id, customer_email, customer_name, customer_address,
         total_price, currency, options, photo_urls, status, detected_country,
-        promo_code, discount_amount
+        promo_code, discount_amount, origine
       ) VALUES (
         ${paymentIntentId},
         ${email},
@@ -133,7 +146,8 @@ export async function POST(req: NextRequest) {
         'PENDING',
         ${detectedCountry || null},
         ${promoCode || null},
-        ${discount || null}
+        ${discount || null},
+        ${origineValidee ? JSON.stringify(origineValidee) : null}::jsonb
       )
       RETURNING id
     `;
