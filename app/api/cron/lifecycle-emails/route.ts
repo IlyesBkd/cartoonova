@@ -14,6 +14,7 @@ import {
   markAbandonedEmailSent,
   getOrderById,
   getOrdersAwaitingPhotos,
+  marquerAlertePhotos,
   type LifecycleOrder,
 } from "@/lib/db";
 import { sendWelcomeStep, WELCOME_DELAYS_DAYS } from "@/lib/welcomeSequence";
@@ -349,8 +350,15 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
     const t = depotPhotosPage[lang];
 
     /* Passe le second delai sans reponse : ce n'est plus un oubli. On previent
-       l'equipe plutot que de relancer une troisieme fois. */
+       l'equipe plutot que de relancer une troisieme fois.
+
+       UNE SEULE FOIS. La condition portait sur l'age seul, donc elle restait
+       vraie a chaque passage : cinq commandes d'essai vieilles de cinq mois ont
+       produit une alerte quotidienne jusqu'a ce qu'on la remarque. Le marqueur
+       en base est ce qui distingue « signale » de « toujours vieux ». */
     if (heures > RELANCE_PHOTOS_HEURES[1] + 24) {
+      if (order.photos_alerte_le) continue;
+      await marquerAlertePhotos(order.id);
       await alerteDiscord({
         titre: "⏳ COMMANDE BLOQUÉE — photos jamais envoyées",
         couleur: COULEUR_ATTENTION,

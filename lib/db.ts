@@ -61,6 +61,8 @@ export interface DbOrder {
   /* Posee par `ensureLifecycleSchema`, meme oubli que ci-dessus : le tableau
      de bord ne pouvait pas savoir qu'un avis avait deja ete demande. */
   review_request_sent_at: string | null;
+  /** Date a laquelle l'absence de photos a ete signalee. Null = jamais. */
+  photos_alerte_le: string | null;
   /** Origine de la premiere visite. Null pour les commandes anterieures. */
   origine: OrigineVisite | null;
 }
@@ -144,15 +146,33 @@ export async function enregistrerPhotosCommande(
 }
 
 /** Commandes payees dont les photos manquent encore, pour la relance. */
-export async function getOrdersAwaitingPhotos(minHours: number): Promise<DbOrder[]> {
+/**
+ * Commandes payees sans photo, dans une fenetre bornee des DEUX cotes.
+ *
+ * La borne haute manquait, et c'est ce qui a produit une alerte quotidienne
+ * pendant cinq mois : une commande de 159 jours ressortait a chaque passage,
+ * franchissait le seuil, declenchait le signalement, et recommencait le
+ * lendemain. Meme raison que pour le panier abandonne — au-dela d'un certain
+ * age le contexte a disparu, et un rappel de plus ne sauve rien.
+ */
+export async function getOrdersAwaitingPhotos(
+  minHours: number,
+  maxJours = 30
+): Promise<DbOrder[]> {
   const rows = await sql`
     SELECT * FROM orders
     WHERE status = 'PAID'
       AND (photo_urls IS NULL OR jsonb_array_length(photo_urls) = 0)
       AND created_at < NOW() - (${minHours} || ' hours')::interval
+      AND created_at > NOW() - (${maxJours} || ' days')::interval
     ORDER BY created_at
   `;
   return rows as unknown as DbOrder[];
+}
+
+/** Marque qu'on a signale cette commande, pour ne pas le refaire chaque nuit. */
+export async function marquerAlertePhotos(orderId: string): Promise<void> {
+  await sql`UPDATE orders SET photos_alerte_le = NOW() WHERE id = ${orderId}::uuid`;
 }
 
 export async function updateOrderFinalImage(orderId: string, finalImageUrl: string): Promise<void> {
@@ -183,6 +203,9 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
        sur une vente reelle sans pouvoir etre tranchee : rien n'etait garde ici,
        et la reponse dormait dans un outil tiers. */
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS origine JSONB`;
+    /* Date du signalement « photos jamais envoyees ». Sans elle, l'alerte
+       repartait a chaque passage du cron pour la meme commande. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS photos_alerte_le TIMESTAMPTZ`;
   })().catch((e) => {
     posterConfirmationSchemaReady = null;
     throw e;
