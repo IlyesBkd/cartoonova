@@ -56,6 +56,10 @@ jobs:
           GSC_CLIENT_EMAIL: ${{ secrets.GSC_CLIENT_EMAIL }}
           GSC_PRIVATE_KEY_B64: ${{ secrets.GSC_PRIVATE_KEY_B64 }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # PostHog : la moitie haute de l'entonnoir. Sans cette cle la sonde
+          # tourne quand meme, mais elle ne voit que Google — c'est-a-dire le
+          # canal le moins performant du site.
+          POSTHOG: ${{ secrets.POSTHOG }}
           ENTONNOIR_VOLUME_MIN: ${{ vars.ENTONNOIR_VOLUME_MIN }}
           ENTONNOIR_CHUTE: ${{ vars.ENTONNOIR_CHUTE }}
         run: npx tsx scripts/sonde-entonnoir.mts

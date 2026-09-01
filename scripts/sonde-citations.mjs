@@ -63,9 +63,29 @@ const PAR_LANGUE = Number(process.env.SONDE_PAR_LANGUE || 10);
    Pas 70 % de l'echantillon pour autant : la longue traine des autres univers
    est justement le terrain ou un petit site peut se faire citer, et le perdre
    de vue serait se priver du seul angle gagnable. */
-const PHARE = process.env.SONDE_PHARE || "simpson";
+/* Le phare n'est pas celui des ventes, c'est celui des assistants. Releve
+   PostHog sur 60 jours des arrivees depuis chatgpt.com : carte Pokemon 12
+   sessions (fr, de, it), page pilier 6, Simpson 5, Disney 2. On mesurait
+   Simpson parce qu'il fait le chiffre ; c'est la carte Pokemon qu'il faut
+   surveiller, parce que c'est elle qu'on recommande. */
+const PHARE = process.env.SONDE_PHARE || "carte-pokemon-personnalisee";
 const PHARE_PAR_LANGUE = Number(process.env.SONDE_PHARE_PAR_LANGUE || 4);
-const LANGUES = (process.env.SONDE_LANGUES || "fr,en").split(",").map((l) => l.trim());
+
+/* Meme releve : fr 17, en 9, de 2, it 2. L'allemand et l'italien envoyaient du
+   trafic sans jamais etre mesures. */
+const LANGUES = (process.env.SONDE_LANGUES || "fr,en,de,it").split(",").map((l) => l.trim());
+
+/* Part des questions explicatives dans l'echantillon.
+ *
+ * La sonde ne testait que des requetes transactionnelles — « portrait simpson
+ * personnalise » et ses variantes. Elle a renvoye zero citation pendant des
+ * semaines, ce qui etait exact et trompeur : pendant ce temps ChatGPT etait la
+ * PREMIERE source de trafic du site, devant Google. Les gens ne dictent pas
+ * une requete commerciale a un assistant, ils lui posent une question.
+ *
+ * On garde des transactionnelles — c'est la ou une citation vaut le plus — et
+ * on ajoute des explicatives, qui sont ce qu'on demande reellement. */
+const PART_EXPLICATIVE = Number(process.env.SONDE_PART_EXPLICATIVE || 0.4);
 
 /** Nombre de requetes SerpAPI autorisees par passage. 0 = surface eteinte. */
 const SERPAPI_MAX = Number(process.env.SONDE_SERPAPI_MAX || 0);
@@ -122,6 +142,9 @@ function choisirQuestions() {
     const dansLaLangue = toutes.filter(
       (q) => q.langue === langue && q.intention === "transactionnel"
     );
+    const explicatives = toutes.filter(
+      (q) => q.langue === langue && q.intention === "informationnel"
+    );
 
     /* L'univers phare d'abord, avec ses variantes : c'est la ou se fera le
        chiffre, donc la ou une perte de citation coute le plus cher. */
@@ -134,11 +157,16 @@ function choisirQuestions() {
        panther », « deadpool »… et l'echantillon perdrait toute logique
        editoriale. L'ordre d'ecriture porte une intention ; on la garde, et
        elle reste deterministe. */
+    /* Les questions explicatives : ce qu'on pose vraiment a un assistant. */
+    const reste = Math.max(0, PAR_LANGUE - duPhare.length);
+    const nbExplicatives = Math.min(explicatives.length, Math.round(reste * PART_EXPLICATIVE));
+    const questions = explicatives.slice(0, nbExplicatives);
+
     const autres = dansLaLangue
       .filter((q) => q.entite !== PHARE && q.rang === "pivot")
-      .slice(0, Math.max(0, PAR_LANGUE - duPhare.length));
+      .slice(0, reste - questions.length);
 
-    retenues.push(...duPhare, ...autres);
+    retenues.push(...duPhare, ...questions, ...autres);
   }
   return retenues;
 }

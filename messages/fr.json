@@ -790,7 +790,9 @@
     "legCadre": "Cadre en bois premium",
     "legCadreAcc": "prêt à accrocher",
     "prixUnite": "par personnage",
-    "prixNote": "Une famille de 4 personnages : {prix}. Sans frais cachés."
+    "prixNote": "Une famille de 4 personnages : {prix}. Sans frais cachés.",
+    "agrandir": "Agrandir l'image",
+    "fermer": "Fermer"
   },
   "metaPages": {
     "aPropos": {

@@ -790,7 +790,9 @@
     "legCadre": "Gedigen träram",
     "legCadreAcc": "klar att hänga upp",
     "prixUnite": "per figur",
-    "prixNote": "En familj på 4 figurer: {prix}. Inga dolda avgifter."
+    "prixNote": "En familj på 4 figurer: {prix}. Inga dolda avgifter.",
+    "agrandir": "Förstora bilden",
+    "fermer": "Stäng"
   },
   "metaPages": {
     "aPropos": {

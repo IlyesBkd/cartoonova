@@ -790,7 +790,9 @@
     "legCadre": "Premium wooden frame",
     "legCadreAcc": "ready to hang",
     "prixUnite": "per character",
-    "prixNote": "A family of 4 characters: {prix}. No hidden fees."
+    "prixNote": "A family of 4 characters: {prix}. No hidden fees.",
+    "agrandir": "Enlarge image",
+    "fermer": "Close"
   },
   "metaPages": {
     "aPropos": {

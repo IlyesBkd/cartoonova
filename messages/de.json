@@ -790,7 +790,9 @@
     "legCadre": "Premium-Holzrahmen",
     "legCadreAcc": "aufhängefertig",
     "prixUnite": "pro Figur",
-    "prixNote": "Eine Familie mit 4 Figuren: {prix}. Keine versteckten Kosten."
+    "prixNote": "Eine Familie mit 4 Figuren: {prix}. Keine versteckten Kosten.",
+    "agrandir": "Bild vergrößern",
+    "fermer": "Schließen"
   },
   "metaPages": {
     "aPropos": {

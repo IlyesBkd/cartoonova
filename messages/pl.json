@@ -790,7 +790,9 @@
     "legCadre": "Solidna drewniana rama",
     "legCadreAcc": "gotowa do powieszenia",
     "prixUnite": "za postać",
-    "prixNote": "Rodzina 4 postaci: {prix}. Bez ukrytych opłat."
+    "prixNote": "Rodzina 4 postaci: {prix}. Bez ukrytych opłat.",
+    "agrandir": "Powiększ zdjęcie",
+    "fermer": "Zamknij"
   },
   "metaPages": {
     "aPropos": {

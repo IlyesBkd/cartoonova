@@ -790,7 +790,9 @@
     "legCadre": "Moldura de madeira de qualidade",
     "legCadreAcc": "pronta a pendurar",
     "prixUnite": "por personagem",
-    "prixNote": "Uma família de 4 personagens: {prix}. Sem custos ocultos."
+    "prixNote": "Uma família de 4 personagens: {prix}. Sem custos ocultos.",
+    "agrandir": "Ampliar a imagem",
+    "fermer": "Fechar"
   },
   "metaPages": {
     "aPropos": {

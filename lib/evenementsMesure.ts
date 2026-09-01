@@ -48,6 +48,14 @@ export const MESURES = {
   optionChoisie: "option_selected",
   /** Navigation dans la galerie de visuels. */
   galerieParcourue: "gallery_browsed",
+  /**
+   * Visuel agrandi au clic.
+   *
+   * Le releve des clics morts a montre que les gens cliquaient les photos de
+   * la galerie en attendant un agrandissement, et que rien ne se passait.
+   * L'evenement dit si, une fois pose, le geste sert vraiment.
+   */
+  visuelAgrandi: "gallery_zoomed",
   /** Depot de photos commence — mesure avant l'envoi, pour tenir le
       denominateur du taux d'echec. */
   envoiPhotoDemarre: "photo_upload_started",

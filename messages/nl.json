@@ -790,7 +790,9 @@
     "legCadre": "Houten lijst van hoge kwaliteit",
     "legCadreAcc": "klaar om op te hangen",
     "prixUnite": "per figuur",
-    "prixNote": "Een gezin van 4 figuren: {prix}. Geen verborgen kosten."
+    "prixNote": "Een gezin van 4 figuren: {prix}. Geen verborgen kosten.",
+    "agrandir": "Afbeelding vergroten",
+    "fermer": "Sluiten"
   },
   "metaPages": {
     "aPropos": {

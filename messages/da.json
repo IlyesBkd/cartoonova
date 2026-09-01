@@ -790,7 +790,9 @@
     "legCadre": "Solid træramme",
     "legCadreAcc": "klar til ophæng",
     "prixUnite": "pr. figur",
-    "prixNote": "En familie på 4 figurer: {prix}. Ingen skjulte gebyrer."
+    "prixNote": "En familie på 4 figurer: {prix}. Ingen skjulte gebyrer.",
+    "agrandir": "Forstør billedet",
+    "fermer": "Luk"
   },
   "metaPages": {
     "aPropos": {

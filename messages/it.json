@@ -790,7 +790,9 @@
     "legCadre": "Cornice in legno premium",
     "legCadreAcc": "pronta da appendere",
     "prixUnite": "a personaggio",
-    "prixNote": "Una famiglia di 4 personaggi: {prix}. Nessun costo nascosto."
+    "prixNote": "Una famiglia di 4 personaggi: {prix}. Nessun costo nascosto.",
+    "agrandir": "Ingrandisci l'immagine",
+    "fermer": "Chiudi"
   },
   "metaPages": {
     "aPropos": {

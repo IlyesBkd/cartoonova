@@ -94,6 +94,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const {
     trackOptionSelected,
     trackGalleryBrowsed,
+    trackGalleryZoomed,
     trackPhotoUploadStarted,
     trackPhotoUploaded,
     trackPhotoUploadFailed,
@@ -282,6 +283,39 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   /** Deplacement minimal, en pixels, pour distinguer un balayage d'un appui. */
   const SEUIL_BALAYAGE = 40;
 
+  /* Agrandissement du visuel.
+   *
+   * Le releve des clics morts a montre que les gens cliquaient la photo en
+   * attendant qu'elle s'ouvre, et que rien ne se passait : c'est le seul motif
+   * de ce releve qui soit un vrai manque, les autres etant des faux positifs
+   * (clic dans une zone de texte, re-clic sur une option deja active).
+   *
+   * `balayageEnCours` empeche le geste de balayage de se terminer en
+   * agrandissement : sur mobile, un doigt qui glisse leve aussi un clic. */
+  const [agrandi, setAgrandi] = useState(false);
+  const balayageEnCours = useRef(false);
+
+  useEffect(() => {
+    if (!agrandi) return;
+    const auClavier = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAgrandi(false);
+    };
+    window.addEventListener("keydown", auClavier);
+    // Le fond ne doit pas defiler derriere l'agrandissement.
+    const avant = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", auClavier);
+      document.body.style.overflow = avant;
+    };
+  }, [agrandi]);
+
+  const ouvrirAgrandissement = () => {
+    if (balayageEnCours.current || !visuelPrincipal) return;
+    setAgrandi(true);
+    trackGalleryZoomed(vue);
+  };
+
   const allerAuVisuel = (index: number, source: "vignette" | "balayage") => {
     if (nbVisuels < 1) return;
     // Modulo positif : le balayage boucle dans les deux sens.
@@ -309,6 +343,11 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
        confondre avec un balayage ferait sauter le visuel des qu'on fait
        defiler la fiche, ce qui est pire que l'absence de balayage. */
     if (Math.abs(dx) < SEUIL_BALAYAGE || Math.abs(dx) <= Math.abs(dy)) return;
+
+    /* Un balayage leve aussi un clic : on neutralise l'agrandissement le temps
+       que l'evenement de clic passe. */
+    balayageEnCours.current = true;
+    setTimeout(() => { balayageEnCours.current = false; }, 350);
 
     allerAuVisuel(vue + (dx < 0 ? 1 : -1), "balayage");
   };
@@ -364,15 +403,24 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 le substitut, et `touch-action: pan-y` s'applique a lui. */}
             <div className="galerie__cadre" onTouchStart={debutToucher} onTouchEnd={finToucher}>
               {visuelPrincipal ? (
-                <Image
-                  className="galerie__vue"
-                  src={visuelPrincipal}
-                  alt={donnees.titre}
-                  width={1000}
-                  height={1000}
-                  priority
-                  sizes="(max-width: 860px) 92vw, 46vw"
-                />
+                /* Un bouton, pas un `onClick` sur l'image : sans cela le geste
+                   n'existe pas au clavier ni pour un lecteur d'ecran. */
+                <button
+                  type="button"
+                  className="galerie__loupe"
+                  onClick={ouvrirAgrandissement}
+                  aria-label={t("agrandir")}
+                >
+                  <Image
+                    className="galerie__vue"
+                    src={visuelPrincipal}
+                    alt={donnees.titre}
+                    width={1000}
+                    height={1000}
+                    priority
+                    sizes="(max-width: 860px) 92vw, 46vw"
+                  />
+                </button>
               ) : (
                 <div className="galerie__vue substitut">
                   <span>{donnees.univers}</span>
@@ -380,6 +428,33 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 </div>
               )}
             </div>
+
+            {agrandi && visuelPrincipal && (
+              <div
+                className="agrandissement"
+                role="dialog"
+                aria-modal="true"
+                aria-label={donnees.titre}
+                onClick={() => setAgrandi(false)}
+              >
+                <button
+                  type="button"
+                  className="agrandissement__fermer"
+                  onClick={() => setAgrandi(false)}
+                  aria-label={t("fermer")}
+                >
+                  ×
+                </button>
+                <Image
+                  src={visuelPrincipal}
+                  alt={donnees.titre}
+                  width={1400}
+                  height={1400}
+                  className="agrandissement__vue"
+                  sizes="92vw"
+                />
+              </div>
+            )}
 
             {/* Les vignettes etaient six <img> avec un onClick : ni focusables,
                 ni actionnables au clavier, et aria-current ne veut rien dire

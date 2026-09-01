@@ -80,6 +80,17 @@ export function useProductTracking(config: ProductConfig) {
     [base]
   );
 
+  /* Le releve des clics morts a montre que les gens cliquaient la photo en
+     attendant un agrandissement. L'evenement dit si, une fois le geste pose,
+     il sert vraiment — sans quoi on aurait ajoute une fonction sans jamais
+     savoir si elle repond a un besoin reel. */
+  const trackGalleryZoomed = useCallback(
+    (index: number) => {
+      mesure(MESURES.visuelAgrandi, { ...base(), index });
+    },
+    [base]
+  );
+
   /* ═══ depot de photos ══════════════════════════════════════════════════
      Trois evenements la ou il n'y en avait qu'un. Le succes seul ne dit rien :
      il faut le denominateur (combien de depots commences) et les echecs pour
@@ -144,6 +155,7 @@ export function useProductTracking(config: ProductConfig) {
   return {
     trackOptionSelected,
     trackGalleryBrowsed,
+    trackGalleryZoomed,
     trackPhotoUploadStarted,
     trackPhotoUploaded,
     trackPhotoUploadFailed,

@@ -790,7 +790,9 @@
     "legCadre": "Marco de madera premium",
     "legCadreAcc": "listo para colgar",
     "prixUnite": "por personaje",
-    "prixNote": "Una familia de 4 personajes: {prix}. Sin gastos ocultos."
+    "prixNote": "Una familia de 4 personajes: {prix}. Sin gastos ocultos.",
+    "agrandir": "Ampliar la imagen",
+    "fermer": "Cerrar"
   },
   "metaPages": {
     "aPropos": {
