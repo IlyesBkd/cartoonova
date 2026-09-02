@@ -336,6 +336,10 @@ export const posterConfirmationEmail: Record<Lang, {
  intro: (ref: string) =>string;
  attachmentNote: string;
  cta: string;
+ /* Invitation explicite a demander une retouche. La page l'a toujours
+    proposee ; l'e-mail, lui, ne parlait que de confirmer — un client qui
+    voulait un ajustement n'avait aucun signal que c'etait possible. */
+ modification: string;
  reassurance: string;
  thanks: string;
  team: string;
@@ -346,7 +350,8 @@ export const posterConfirmationEmail: Record<Lang, {
  greeting: (name) =>name? `Bonjour ${name},`: "Bonjour,",
  intro: (ref) =>`Votre poster de la commande <strong>#${ref}</strong>est prêt à partir en impression. Vous trouverez la photo finale ci-dessous et en pièce jointe de cet email.`,
  attachmentNote: "Le visuel final est joint à cet email.",
- cta: "Voir et valider mon visuel",
+ cta: "Voir et répondre",
+ modification: "Si quelque chose ne va pas — un détail, une couleur, un visage — vous pouvez demander une modification depuis la même page. Rien ne part à l'impression sans votre accord.",
  reassurance: "Une fois votre confirmation reçue, nous lançons l'impression et l'expédition de votre poster.",
  thanks: "Merci pour votre confiance! ",
  team: "L'équipe Cartoonova",
@@ -357,7 +362,8 @@ export const posterConfirmationEmail: Record<Lang, {
  greeting: (name) =>name? `Hello ${name},`: "Hello,",
  intro: (ref) =>`Your poster for order <strong>#${ref}</strong>is ready to go to print. You'll find the final photo below and attached to this email.`,
  attachmentNote: "The final artwork is attached to this email.",
- cta: "View and confirm my artwork",
+ cta: "View and respond",
+ modification: "If something isn't right — a detail, a colour, a face — you can request a change from the same page. Nothing goes to print without your approval.",
  reassurance: "Once we receive your confirmation, we'll start printing and shipping your poster.",
  thanks: "Thank you for your trust! ",
  team: "The Cartoonova Team",
@@ -368,7 +374,8 @@ export const posterConfirmationEmail: Record<Lang, {
  greeting: (name) =>name? `Hola ${name},`: "Hola,",
  intro: (ref) =>`Tu póster del pedido <strong>#${ref}</strong>está listo para imprimirse. Encontrarás la foto final debajo y adjunta a este correo.`,
  attachmentNote: "El diseño final está adjunto a este correo.",
- cta: "Ver y confirmar mi diseño",
+ cta: "Ver y responder",
+ modification: "Si algo no está bien — un detalle, un color, una cara — puedes solicitar un cambio desde la misma página. Nada se imprime sin tu aprobación.",
  reassurance: "En cuanto recibamos tu confirmación, empezaremos a imprimir y enviar tu póster.",
  thanks: "¡Gracias por tu confianza! ",
  team: "El equipo Cartoonova",
@@ -379,7 +386,8 @@ export const posterConfirmationEmail: Record<Lang, {
  greeting: (name) =>name? `Hallo ${name},`: "Hallo,",
  intro: (ref) =>`Ihr Poster zur Bestellung <strong>#${ref}</strong>ist druckfertig. Das finale Bild finden Sie unten und im Anhang dieser E-Mail.`,
  attachmentNote: "Das finale Motiv ist dieser E-Mail beigefügt.",
- cta: "Motiv ansehen und bestätigen",
+ cta: "Ansehen und antworten",
+ modification: "Wenn etwas nicht stimmt — ein Detail, eine Farbe, ein Gesicht — kannst du auf derselben Seite eine Änderung anfragen. Ohne deine Zustimmung geht nichts in den Druck.",
  reassurance: "Sobald Ihre Bestätigung eingeht, starten wir den Druck und Versand Ihres Posters.",
  thanks: "Vielen Dank für Ihr Vertrauen! ",
  team: "Das Cartoonova-Team",
@@ -390,7 +398,8 @@ export const posterConfirmationEmail: Record<Lang, {
  greeting: (name) =>name? `Ciao ${name},`: "Ciao,",
  intro: (ref) =>`Il tuo poster dell'ordine <strong>#${ref}</strong>è pronto per la stampa. Trovi la foto finale qui sotto e in allegato a questa email.`,
  attachmentNote: "La grafica finale è allegata a questa email.",
- cta: "Visualizza e conferma la mia grafica",
+ cta: "Vedi e rispondi",
+ modification: "Se qualcosa non va — un dettaglio, un colore, un volto — puoi chiedere una modifica dalla stessa pagina. Niente va in stampa senza la tua approvazione.",
  reassurance: "Non appena riceviamo la tua conferma, avviamo la stampa e la spedizione del tuo poster.",
  thanks: "Grazie per la tua fiducia! ",
  team: "Il team Cartoonova",
@@ -401,7 +410,9 @@ export const posterConfirmationEmail: Record<Lang, {
   greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
   intro: (ref) => `Je poster voor bestelling <strong>#${ref}</strong> is klaar om gedrukt te worden. Hieronder en in de bijlage vind je de definitieve foto.`,
   attachmentNote: "Het definitieve ontwerp zit als bijlage bij deze mail.",
-  cta: "Bekijken en bevestigen",
+  cta: "Bekijken en reageren",
+  modification:
+    "Klopt er iets niet — een detail, een kleur, een gezicht — dan kun je op dezelfde pagina een wijziging aanvragen. Er gaat niets naar de drukker zonder jouw akkoord.",
   reassurance: "Zodra we je bevestiging binnen hebben, gaan we drukken en versturen we je poster.",
   thanks: "Bedankt voor je vertrouwen! ",
   team: "Het Cartoonova-team",
@@ -412,7 +423,9 @@ export const posterConfirmationEmail: Record<Lang, {
   greeting: (name) => (name ? `Cześć ${name},` : "Cześć,"),
   intro: (ref) => `Plakat do zamówienia <strong>#${ref}</strong> jest gotowy do druku. Poniżej i w załączniku znajdziesz ostateczną wersję.`,
   attachmentNote: "Ostateczna grafika jest w załączniku tej wiadomości.",
-  cta: "Zobacz i potwierdź",
+  cta: "Zobacz i odpowiedz",
+  modification:
+    "Jeśli coś się nie zgadza — szczegół, kolor, twarz — możesz poprosić o zmianę na tej samej stronie. Nic nie trafia do druku bez Twojej zgody.",
   reassurance: "Gdy tylko dostaniemy potwierdzenie, drukujemy i wysyłamy plakat.",
   thanks: "Dziękujemy za zaufanie! ",
   team: "Zespół Cartoonova",
@@ -423,7 +436,9 @@ export const posterConfirmationEmail: Record<Lang, {
   greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
   intro: (ref) => `Affischen till beställning <strong>#${ref}</strong> är redo att tryckas. Nedan och i bilagan hittar du den färdiga bilden.`,
   attachmentNote: "Den färdiga bilden är bifogad det här mejlet.",
-  cta: "Visa och godkänn",
+  cta: "Se och svara",
+  modification:
+    "Om något inte stämmer — en detalj, en färg, ett ansikte — kan du begära en ändring på samma sida. Ingenting går till tryck utan ditt godkännande.",
   reassurance: "Så fort vi fått ditt godkännande trycker vi och skickar affischen.",
   thanks: "Tack för förtroendet! ",
   team: "Cartoonova-teamet",
@@ -434,7 +449,9 @@ export const posterConfirmationEmail: Record<Lang, {
   greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
   intro: (ref) => `Plakaten til bestilling <strong>#${ref}</strong> er klar til tryk. Herunder og i vedhæftningen finder du det færdige billede.`,
   attachmentNote: "Det færdige billede er vedhæftet denne mail.",
-  cta: "Se og godkend",
+  cta: "Se og svar",
+  modification:
+    "Hvis noget ikke passer — en detalje, en farve, et ansigt — kan du bede om en ændring på samme side. Intet går i tryk uden din godkendelse.",
   reassurance: "Så snart vi har din godkendelse, trykker vi og sender plakaten.",
   thanks: "Tak for tilliden! ",
   team: "Cartoonova-teamet",
@@ -445,7 +462,9 @@ export const posterConfirmationEmail: Record<Lang, {
   greeting: (name) => (name ? `Olá ${name},` : "Olá,"),
   intro: (ref) => `O poster da encomenda <strong>#${ref}</strong> está pronto para ir para impressão. Em baixo e em anexo encontras a imagem final.`,
   attachmentNote: "A imagem final segue em anexo neste email.",
-  cta: "Ver e confirmar",
+  cta: "Ver e responder",
+  modification:
+    "Se algo não estiver bem — um detalhe, uma cor, um rosto — podes pedir uma alteração na mesma página. Nada vai para impressão sem a tua aprovação.",
   reassurance: "Assim que recebermos a tua confirmação, imprimimos e enviamos o poster.",
   thanks: "Obrigado pela confiança! ",
   team: "A equipa Cartoonova",

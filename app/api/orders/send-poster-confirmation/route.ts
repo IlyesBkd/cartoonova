@@ -61,7 +61,13 @@ export async function POST(req: NextRequest) {
                 ${t.cta}
               </a>
             </div>
-            <p style="font-size: 14px; text-align: center; color: #555; margin-top: 20px;">
+            <!-- Avant la phrase qui parle d'impression : un client qui veut une
+                 retouche doit l'apprendre AVANT de lire « nous lançons
+                 l'impression », sinon il croit que le seul chemin est oui. -->
+            <p style="font-size: 14px; text-align: center; color: #333; margin: 0 0 14px 0; padding: 12px; background: #fef3c7; border: 2px solid #000; border-radius: 10px;">
+              ${t.modification}
+            </p>
+            <p style="font-size: 14px; text-align: center; color: #555; margin-top: 0;">
               ${t.reassurance}
             </p>
           </div>
