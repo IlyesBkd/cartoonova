@@ -811,6 +811,29 @@ export default function AdminPage() {
                                     {selectedOrder.poster_confirmation_note}
                                   </p>
                                 )}
+                                {/* Les photos jointes a la demande. Sans elles,
+                                    « il manque mes tatouages » est illisible. */}
+                                {(() => {
+                                  const jointes = typeof selectedOrder.poster_confirmation_photos === "string"
+                                    ? JSON.parse(selectedOrder.poster_confirmation_photos)
+                                    : selectedOrder.poster_confirmation_photos;
+                                  if (!Array.isArray(jointes) || jointes.length === 0) return null;
+                                  return (
+                                    <div className="grid grid-cols-4 gap-2">
+                                      {jointes.map((url: string, i: number) => (
+                                        <a
+                                          key={i}
+                                          href={url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="block aspect-square rounded-lg overflow-hidden border border-amber-300 hover:ring-2 hover:ring-amber-400 transition-all"
+                                        >
+                                          <img src={url} alt={`Retouche ${i + 1}`} className="w-full h-full object-cover" />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  );
+                                })()}
                               </div>
                             ) : selectedOrder.poster_confirmation_sent_at ? (
                               <p className="text-[10px] text-gray-500 font-semibold text-center">

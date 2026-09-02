@@ -489,6 +489,8 @@ export const posterConfirmationPage: Record<Lang, {
  alreadyRespondedChanges: (date: string) =>string;
  invalidTitle: string;
  invalidBody: string;
+ attachPhotos: string;
+ removePhoto: string;
  sending: string;
 }>= {
  fr: {
@@ -508,6 +510,8 @@ export const posterConfirmationPage: Record<Lang, {
  alreadyRespondedChanges: (date) =>`Vous avez déjà demandé une modification le ${date}. Vous pouvez changer d'avis ci-dessous.`,
  invalidTitle: "Lien invalide ou expiré",
  invalidBody: "Ce lien de confirmation n'est plus valide. Contactez-nous à info.cartoonova@gmail.com avec votre numéro de commande.",
+ attachPhotos: "Joindre des photos",
+ removePhoto: "Retirer cette photo",
  sending: "Envoi en cours...",
  },
  en: {
@@ -527,6 +531,8 @@ export const posterConfirmationPage: Record<Lang, {
  alreadyRespondedChanges: (date) =>`You already requested a change on ${date}. You can change your mind below.`,
  invalidTitle: "Invalid or expired link",
  invalidBody: "This confirmation link is no longer valid. Contact us at info.cartoonova@gmail.com with your order number.",
+ attachPhotos: "Attach photos",
+ removePhoto: "Remove this photo",
  sending: "Sending...",
  },
  es: {
@@ -546,6 +552,8 @@ export const posterConfirmationPage: Record<Lang, {
  alreadyRespondedChanges: (date) =>`Ya pediste un cambio el ${date}. Puedes cambiar de opinión abajo.`,
  invalidTitle: "Enlace no válido o caducado",
  invalidBody: "Este enlace de confirmación ya no es válido. Contáctanos en info.cartoonova@gmail.com con tu número de pedido.",
+ attachPhotos: "Adjuntar fotos",
+ removePhoto: "Quitar esta foto",
  sending: "Enviando...",
  },
  de: {
@@ -565,6 +573,8 @@ export const posterConfirmationPage: Record<Lang, {
  alreadyRespondedChanges: (date) =>`Sie haben bereits am ${date} eine Änderung angefragt. Sie können Ihre Meinung unten ändern.`,
  invalidTitle: "Ungültiger oder abgelaufener Link",
  invalidBody: "Dieser Bestätigungslink ist nicht mehr gültig. Kontaktieren Sie uns unter info.cartoonova@gmail.com mit Ihrer Bestellnummer.",
+ attachPhotos: "Fotos anhängen",
+ removePhoto: "Dieses Foto entfernen",
  sending: "Wird gesendet...",
  },
  it: {
@@ -584,6 +594,8 @@ export const posterConfirmationPage: Record<Lang, {
  alreadyRespondedChanges: (date) =>`Hai già richiesto una modifica il ${date}. Puoi cambiare idea qui sotto.`,
  invalidTitle: "Link non valido o scaduto",
  invalidBody: "Questo link di conferma non è più valido. Contattaci a info.cartoonova@gmail.com con il numero del tuo ordine.",
+ attachPhotos: "Allega foto",
+ removePhoto: "Rimuovi questa foto",
  sending: "Invio in corso...",
  },
  nl: {
@@ -603,6 +615,8 @@ export const posterConfirmationPage: Record<Lang, {
   alreadyRespondedChanges: (date) => `Je hebt op ${date} al een wijziging gevraagd. Je kunt hieronder alsnog van gedachten veranderen.`,
   invalidTitle: "Ongeldige of verlopen link",
   invalidBody: "Deze bevestigingslink werkt niet meer. Neem contact op via support@cartoonova.com met je bestelnummer.",
+  attachPhotos: "Foto's toevoegen",
+  removePhoto: "Deze foto verwijderen",
   sending: "Versturen...",
  },
  pl: {
@@ -622,6 +636,8 @@ export const posterConfirmationPage: Record<Lang, {
   alreadyRespondedChanges: (date) => `Poprosiłeś o zmianę ${date}. Poniżej możesz zmienić zdanie.`,
   invalidTitle: "Nieprawidłowy lub wygasły link",
   invalidBody: "Ten link potwierdzający już nie działa. Napisz na support@cartoonova.com, podając numer zamówienia.",
+  attachPhotos: "Dołącz zdjęcia",
+  removePhoto: "Usuń to zdjęcie",
   sending: "Wysyłanie...",
  },
  sv: {
@@ -641,6 +657,8 @@ export const posterConfirmationPage: Record<Lang, {
   alreadyRespondedChanges: (date) => `Du bad om en ändring den ${date}. Du kan ändra dig nedan.`,
   invalidTitle: "Ogiltig eller utgången länk",
   invalidBody: "Den här länken fungerar inte längre. Kontakta oss på support@cartoonova.com och ange ditt ordernummer.",
+  attachPhotos: "Bifoga foton",
+  removePhoto: "Ta bort detta foto",
   sending: "Skickar...",
  },
  da: {
@@ -660,6 +678,8 @@ export const posterConfirmationPage: Record<Lang, {
   alreadyRespondedChanges: (date) => `Du bad om en ændring den ${date}. Du kan skifte mening herunder.`,
   invalidTitle: "Ugyldigt eller udløbet link",
   invalidBody: "Dette bekræftelseslink virker ikke længere. Skriv til support@cartoonova.com med dit ordrenummer.",
+  attachPhotos: "Vedhæft billeder",
+  removePhoto: "Fjern dette billede",
   sending: "Sender...",
  },
  pt: {
@@ -679,6 +699,8 @@ export const posterConfirmationPage: Record<Lang, {
   alreadyRespondedChanges: (date) => `Já pediste uma alteração a ${date}. Podes mudar de ideias aqui em baixo.`,
   invalidTitle: "Ligação inválida ou expirada",
   invalidBody: "Esta ligação de confirmação já não é válida. Escreve para support@cartoonova.com indicando o número da encomenda.",
+  attachPhotos: "Anexar fotos",
+  removePhoto: "Remover esta foto",
   sending: "A enviar...",
  }
 };

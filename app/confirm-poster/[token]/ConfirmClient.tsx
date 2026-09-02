@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
+import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { posterConfirmationPage, type Lang } from "@/lib/email-i18n";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -25,6 +27,35 @@ export default function ConfirmClient({
   const [showChangesForm, setShowChangesForm] = useState(false);
   const [note, setNote] = useState("");
 
+  /* Une demande de retouche sur un portrait est presque toujours visuelle : un
+     tatouage oublie, une coupe de cheveux, une photo de reference. Sans ce
+     champ, le client devait sortir de la page et repondre par e-mail — c'est
+     exactement ce qui est arrive en mai, et la reponse a fini dans une boite
+     que personne ne relevait. */
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [envoiPhotos, setEnvoiPhotos] = useState(false);
+  const champFichier = useRef<HTMLInputElement>(null);
+
+  const ajouterPhotos = async (fichiers: FileList | null) => {
+    if (!fichiers?.length) return;
+    setEnvoiPhotos(true);
+    try {
+      const urls: string[] = [];
+      for (const fichier of Array.from(fichiers).slice(0, MAX_PHOTOS)) {
+        const blob = await upload(`retouches/${Date.now()}-${fichier.name}`, fichier, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        urls.push(blob.url);
+      }
+      setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));
+    } catch {
+      setError(true);
+    } finally {
+      setEnvoiPhotos(false);
+    }
+  };
+
   const respond = async (action: "confirm" | "changes", noteText?: string) => {
     setSending(action);
     setError(false);
@@ -32,7 +63,7 @@ export default function ConfirmClient({
       const r = await fetch("/api/orders/confirm-poster", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, action, note: noteText }),
+        body: JSON.stringify({ token, action, note: noteText, photos }),
       });
       if (r.ok) {
         /* Le taux de demandes de retouche est la mesure de qualite du travail
@@ -88,6 +119,44 @@ export default function ConfirmClient({
               className="w-full rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
+
+          <div>
+            <input
+              ref={champFichier}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => ajouterPhotos(e.target.files)}
+            />
+            <button
+              type="button"
+              onClick={() => champFichier.current?.click()}
+              disabled={envoiPhotos || photos.length >= MAX_PHOTOS}
+              className="w-full rounded-xl border-2 border-dashed border-black/30 px-4 py-3 text-sm font-bold text-black/70 hover:border-black/60 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {envoiPhotos ? t.sending : `📎 ${t.attachPhotos}`}
+            </button>
+            {photos.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mt-2">
+                {photos.map((url, i) => (
+                  <div key={url} className="relative aspect-square rounded-lg overflow-hidden border-2 border-black/20">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
+                      aria-label={t.removePhoto}
+                      className="absolute top-0.5 right-0.5 w-6 h-6 rounded-full bg-black/70 text-white text-xs leading-none cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-col gap-3">
             <button
               onClick={() => respond("changes", note)}

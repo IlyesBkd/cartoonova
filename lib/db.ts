@@ -53,6 +53,7 @@ export interface DbOrder {
   poster_confirmation_status: "confirmed" | "changes_requested" | null;
   poster_confirmation_responded_at: string | null;
   poster_confirmation_note: string | null;
+  poster_confirmation_photos: string[] | null;
   /* Ajoutees par `ensureOrderPromoSchema` dans app/api/order/create : les
      colonnes existaient en base mais pas dans le type, donc toute lecture les
      ignorait silencieusement. */
@@ -199,6 +200,11 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_status TEXT`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_responded_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_note TEXT`;
+    /* Photos jointes a une demande de retouche. Une demande sur un portrait est
+       presque toujours visuelle — un tatouage oublie, une coupe de cheveux, une
+       photo de reference — et sans ce champ le client devait sortir de la page
+       pour envoyer un e-mail. C'est exactement ce qui s'est passe en mai. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_photos JSONB`;
     /* D'ou vient le client, retenu au premier contact. La question s'est posee
        sur une vente reelle sans pouvoir etre tranchee : rien n'etait garde ici,
        et la reponse dormait dans un outil tiers. */
@@ -237,14 +243,16 @@ export async function getOrderByConfirmationToken(token: string): Promise<DbOrde
 export async function recordPosterConfirmationResponse(
   token: string,
   status: "confirmed" | "changes_requested",
-  note?: string | null
+  note?: string | null,
+  photos?: string[] | null
 ): Promise<DbOrder | null> {
   await ensurePosterConfirmationSchema();
   const rows = await sql`
     UPDATE orders
     SET poster_confirmation_status = ${status},
         poster_confirmation_responded_at = NOW(),
-        poster_confirmation_note = ${note || null}
+        poster_confirmation_note = ${note || null},
+        poster_confirmation_photos = ${photos?.length ? JSON.stringify(photos) : null}::jsonb
     WHERE poster_confirmation_token = ${token}
     RETURNING *
   `;
