@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import { setPosterConfirmationToken, setOrderLastOutboundMessageId } from "@/lib/db";
 import { getLangFromCountry, posterConfirmationEmail } from "@/lib/email-i18n";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -27,9 +28,9 @@ export async function POST(req: NextRequest) {
     const confirmUrl = `${new URL(req.url).origin}/confirm-poster/${token}`;
 
     const result = await resend.emails.send({
-      from: "Cartoonova <noreply@cartoonova.com>",
+      from: EXPEDITEUR,
       to: [customerEmail],
-      replyTo: "support@cartoonova.com",
+      replyTo: SUPPORT_EMAIL,
       subject: t.subject,
       attachments: [
         {

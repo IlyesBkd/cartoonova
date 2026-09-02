@@ -6,6 +6,7 @@ import { SITE_URL } from "./site";
 import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
 import { lienEmail } from "./utmEmail";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -44,9 +45,9 @@ export async function sendWelcomeStep(
     .join("");
 
   await resend.emails.send({
-    from: "Cartoonova <noreply@cartoonova.com>",
+    from: EXPEDITEUR,
     to: [subscriber.email],
-    replyTo: "support@cartoonova.com",
+    replyTo: SUPPORT_EMAIL,
     subject: content.subject,
     headers: {
       "List-Unsubscribe": `<${unsubscribeUrl}>`,

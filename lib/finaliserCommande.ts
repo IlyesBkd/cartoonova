@@ -11,6 +11,7 @@ import { alerteDiscord, COULEUR_SOLEIL, COULEUR_ATTENTION } from "@/lib/discord"
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
 import { lienEmail } from "./utmEmail";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -40,9 +41,9 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
     const ref = order.id.slice(0, 8);
 
     await resend.emails.send({
-      from: "Cartoonova <noreply@cartoonova.com>",
+      from: EXPEDITEUR,
       to: [order.customer_email],
-      replyTo: "support@cartoonova.com",
+      replyTo: SUPPORT_EMAIL,
       subject: t.subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">

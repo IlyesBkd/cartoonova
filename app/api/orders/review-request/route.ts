@@ -6,6 +6,7 @@ import { orderTrackingToken } from "@/lib/emailToken";
 import { avisExistePourCommande } from "@/lib/reviewsDb";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { SITE_URL } from "@/lib/site";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 
 /**
  * Demande d'avis envoyee a la main depuis le tableau de bord.
@@ -57,9 +58,9 @@ export async function POST(req: NextRequest) {
     const lien = `${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`;
 
     await resend.emails.send({
-      from: "Cartoonova <noreply@cartoonova.com>",
+      from: EXPEDITEUR,
       to: [order.customer_email],
-      replyTo: "support@cartoonova.com",
+      replyTo: SUPPORT_EMAIL,
       subject: t.subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">

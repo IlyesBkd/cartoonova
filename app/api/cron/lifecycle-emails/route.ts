@@ -29,6 +29,7 @@ import { signEmail, orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 import { finaliserCommande } from "@/lib/finaliserCommande";
 import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -51,7 +52,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // de masse a toute la base en une seule execution.
 const MAX_PER_RUN = 25;
 
-const SUPPORT_EMAIL = "support@cartoonova.com";
 
 function shell(inner: string, footer: string) {
   return `
@@ -87,7 +87,7 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
 
     try {
       await resend.emails.send({
-        from: "Cartoonova <noreply@cartoonova.com>",
+        from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
         subject: t.subject,
@@ -139,7 +139,7 @@ async function sendReorderEmails(): Promise<{ sent: number; failed: number }> {
 
     try {
       await resend.emails.send({
-        from: "Cartoonova <noreply@cartoonova.com>",
+        from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
         subject: t.subject,
@@ -251,7 +251,7 @@ async function sendAbandonedCartEmails(): Promise<{
         `&t=${signEmail(order.customer_email)}&lang=${lang}`;
 
       await resend.emails.send({
-        from: "Cartoonova <noreply@cartoonova.com>",
+        from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
         subject: t.subject,
@@ -381,9 +381,9 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
 
     try {
       await resend.emails.send({
-        from: "Cartoonova <noreply@cartoonova.com>",
+        from: EXPEDITEUR,
         to: [order.customer_email],
-        replyTo: "support@cartoonova.com",
+        replyTo: SUPPORT_EMAIL,
         subject: t.emailRappel,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">

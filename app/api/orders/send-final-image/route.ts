@@ -3,6 +3,7 @@ import { Resend } from "resend";
 import { updateOrderFinalImage, markFinalImageSent, setOrderLastOutboundMessageId } from "@/lib/db";
 import { getLangFromCountry, finalImageEmail } from "@/lib/email-i18n";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
@@ -35,9 +36,9 @@ export async function POST(req: NextRequest) {
     const ref = (orderRef || orderId).slice(0, 8);
 
     const result = await resend.emails.send({
-      from: "Cartoonova <noreply@cartoonova.com>",
+      from: EXPEDITEUR,
       to: [customerEmail],
-      replyTo: "support@cartoonova.com",
+      replyTo: SUPPORT_EMAIL,
       subject: t.subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
