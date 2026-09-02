@@ -123,6 +123,10 @@ function PaymentForm({
         animals: orderConfig.animals,
         background: orderConfig.background,
         printOption: orderConfig.printOption,
+        /* La cle du support, en plus de son libelle traduit : c'est elle qui
+           permettra de savoir si la commande part a l'impression, sans
+           dependre de la langue du client. */
+        printKey: orderConfig.printKey,
         // Montant et devise ne sont pas transmis : le serveur les lit sur le
         // PaymentIntent Stripe, seule source fiable de ce qui a ete paye.
         description: orderConfig.description,

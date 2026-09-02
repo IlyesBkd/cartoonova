@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       animals,
       background,
       printOption,
+      printKey,
       description,
       photoUrls,
       style,
@@ -116,6 +117,9 @@ export async function POST(req: NextRequest) {
       animals,
       background,
       printOption,
+      /* Cle stable du support. `printOption` est traduit — « Digitale » en
+         italien — donc il ne peut pas servir a decider si on imprime. */
+      printKey: typeof printKey === "string" ? printKey : null,
       gift: estCadeau ? cadeau : null,
       style: style || null,
       description,

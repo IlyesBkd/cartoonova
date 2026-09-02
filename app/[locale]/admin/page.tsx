@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { estPhysique } from "@/lib/supportCommande";
 import { upload } from "@vercel/blob/client";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
@@ -227,7 +228,27 @@ export default function AdminPage() {
   };
 
   // Send final image email via Resend
+  /* Sur une commande physique, « votre illustration est prete, telechargez-la »
+     est le mauvais message : le client attend un objet, et rien ne lui a demande
+     s'il voulait une retouche avant que la toile ne parte a l'impression. On ne
+     bloque pas — il y a des cas legitimes, un renvoi par exemple — mais on ne
+     laisse plus passer le geste par inadvertance. */
   const handleSendFinalImage = async () => {
+    const opts = typeof selectedOrder?.options === "string"
+      ? JSON.parse(selectedOrder.options)
+      : selectedOrder?.options;
+    if (
+      selectedOrder &&
+      estPhysique(opts) &&
+      selectedOrder.poster_confirmation_status !== "confirmed" &&
+      !confirm(
+        "Cette commande est un tirage physique et le client n'a pas encore validé son portrait.\n\n" +
+          "Cet e-mail lui dira que son illustration est prête à télécharger — pas qu'on attend son accord avant impression.\n\n" +
+          "Envoyer quand même ?"
+      )
+    ) {
+      return;
+    }
     if (!selectedOrder?.final_image_url) return;
     setSendingImage(true);
     setImageSent(false);
@@ -746,6 +767,21 @@ export default function AdminPage() {
 
                           {/* Poster confirmation before printing/shipping */}
                           <div className="pt-2 mt-2 border-t border-emerald-200 space-y-2">
+                            {/* Sur un tirage, la validation n'est pas une option :
+                                une toile partie sans accord se refait a perte. */}
+                            {(() => {
+                              const opts = typeof selectedOrder.options === "string"
+                                ? JSON.parse(selectedOrder.options)
+                                : selectedOrder.options;
+                              if (!estPhysique(opts)) return null;
+                              if (selectedOrder.poster_confirmation_status === "confirmed") return null;
+                              return (
+                                <p className="text-[11px] font-semibold text-amber-800 bg-amber-100 border border-amber-300 rounded-lg px-2 py-1.5">
+                                  🖼️ Tirage physique — faites valider le portrait avant
+                                  de lancer l&apos;impression.
+                                </p>
+                              );
+                            })()}
                             <button
                               onClick={handleSendPosterConfirmation}
                               disabled={sendingConfirmation}
