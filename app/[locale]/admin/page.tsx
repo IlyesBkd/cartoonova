@@ -570,6 +570,70 @@ export default function AdminPage() {
                       </div>
                     )}
 
+                    {/* Les réponses du client, rattachées à CETTE commande.
+                        Le lien existait déjà en base — la synchro IMAP lit
+                        `In-Reply-To` et retombe sur l'adresse du client — mais
+                        il ne vivait que dans l'onglet Support, où une demande
+                        de retouche se perd entre deux sollicitations
+                        commerciales. Elle se lit maintenant là où on la
+                        traite. */}
+                    {(() => {
+                      const reponses = supportMessages
+                        .filter((m) => m.order_id === selectedOrder.id && m.category !== "spam")
+                        .sort((a, b) => +new Date(b.received_at) - +new Date(a.received_at));
+                      if (!reponses.length) return null;
+                      const nonLus = reponses.filter((m) => !m.read_at).length;
+                      return (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                          <p className="text-xs text-amber-700 font-semibold mb-2">
+                            💬 Réponses du client ({reponses.length}
+                            {nonLus > 0 ? ` · ${nonLus} non lue${nonLus > 1 ? "s" : ""}` : ""})
+                          </p>
+                          <div className="space-y-2">
+                            {reponses.slice(0, 5).map((m) => (
+                              <div
+                                key={m.id}
+                                className={`rounded-md p-2 text-sm ${
+                                  m.read_at ? "bg-white/60" : "bg-white border border-amber-300"
+                                }`}
+                              >
+                                <div className="flex items-baseline justify-between gap-2">
+                                  <span className="font-semibold text-gray-800 truncate">
+                                    {m.subject || "(sans objet)"}
+                                  </span>
+                                  <span className="text-[11px] text-gray-500 shrink-0">
+                                    {new Date(m.received_at).toLocaleString("fr-FR", {
+                                      day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
+                                    })}
+                                  </span>
+                                </div>
+                                {m.body_text && (
+                                  <p className="text-gray-700 mt-1 whitespace-pre-line">
+                                    {m.body_text.slice(0, 400)}
+                                    {m.body_text.length > 400 ? "…" : ""}
+                                  </p>
+                                )}
+                                {!m.read_at && (
+                                  <button
+                                    onClick={() => handleMarkSupportRead(m.id)}
+                                    className="mt-2 text-xs font-semibold text-amber-700 hover:text-amber-900 cursor-pointer"
+                                  >
+                                    Marquer comme lue
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                          <a
+                            href={`mailto:${selectedOrder.customer_email}`}
+                            className="inline-block mt-2 text-xs font-semibold text-amber-700 hover:text-amber-900"
+                          >
+                            Répondre par e-mail →
+                          </a>
+                        </div>
+                      );
+                    })()}
+
                     {selectedOrder.customer_address && (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-xs text-blue-600 font-semibold mb-1">📦 Adresse de livraison</p>
