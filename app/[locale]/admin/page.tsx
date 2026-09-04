@@ -806,30 +806,73 @@ export default function AdminPage() {
                                   {selectedOrder.poster_confirmation_responded_at &&
                                     new Date(selectedOrder.poster_confirmation_responded_at).toLocaleString("fr-FR")}
                                 </p>
-                                {selectedOrder.poster_confirmation_note && (
-                                  <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 whitespace-pre-wrap">
-                                    {selectedOrder.poster_confirmation_note}
-                                  </p>
-                                )}
-                                {/* Les photos jointes a la demande. Sans elles,
-                                    « il manque mes tatouages » est illisible. */}
+                                {/* TOUTES les demandes, pas seulement la
+                                    derniere. Une retouche est une conversation :
+                                    « We are almost there. One other edit. »
+                                    suppose une demande precedente, que
+                                    l'ecrasement de la colonne faisait
+                                    disparaitre. */}
                                 {(() => {
-                                  const jointes = typeof selectedOrder.poster_confirmation_photos === "string"
-                                    ? JSON.parse(selectedOrder.poster_confirmation_photos)
-                                    : selectedOrder.poster_confirmation_photos;
-                                  if (!Array.isArray(jointes) || jointes.length === 0) return null;
+                                  const histo = (selectedOrder as { retouches?: {
+                                    id: number; note: string | null; photos: string[]; demandeeLe: string;
+                                  }[] }).retouches ?? [];
+
+                                  /* Repli sur la colonne pour les demandes
+                                     anterieures a l'historique. */
+                                  const liste = histo.length
+                                    ? histo
+                                    : selectedOrder.poster_confirmation_note
+                                    ? [{
+                                        id: 0,
+                                        note: selectedOrder.poster_confirmation_note,
+                                        photos: (typeof selectedOrder.poster_confirmation_photos === "string"
+                                          ? JSON.parse(selectedOrder.poster_confirmation_photos)
+                                          : selectedOrder.poster_confirmation_photos) ?? [],
+                                        demandeeLe: selectedOrder.poster_confirmation_responded_at ?? "",
+                                      }]
+                                    : [];
+                                  if (!liste.length) return null;
+
                                   return (
-                                    <div className="grid grid-cols-4 gap-2">
-                                      {jointes.map((url: string, i: number) => (
-                                        <a
-                                          key={i}
-                                          href={url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="block aspect-square rounded-lg overflow-hidden border border-amber-300 hover:ring-2 hover:ring-amber-400 transition-all"
+                                    <div className="space-y-2">
+                                      <p className="text-[10px] font-bold text-amber-700 uppercase">
+                                        {liste.length} demande{liste.length > 1 ? "s" : ""} de retouche
+                                      </p>
+                                      {liste.map((r, i) => (
+                                        <div
+                                          key={r.id || i}
+                                          className="bg-amber-50 border border-amber-200 rounded-lg p-2 space-y-2"
                                         >
-                                          <img src={url} alt={`Retouche ${i + 1}`} className="w-full h-full object-cover" />
-                                        </a>
+                                          <div className="flex items-baseline justify-between gap-2">
+                                            <span className="text-[10px] font-bold text-amber-700">
+                                              n°{liste.length - i}
+                                              {i === 0 && liste.length > 1 ? " · la plus récente" : ""}
+                                            </span>
+                                            {r.demandeeLe && (
+                                              <span className="text-[10px] text-gray-500">
+                                                {new Date(r.demandeeLe).toLocaleString("fr-FR")}
+                                              </span>
+                                            )}
+                                          </div>
+                                          {r.note && (
+                                            <p className="text-xs text-amber-900 whitespace-pre-wrap">{r.note}</p>
+                                          )}
+                                          {Array.isArray(r.photos) && r.photos.length > 0 && (
+                                            <div className="grid grid-cols-4 gap-2">
+                                              {r.photos.map((url: string, k: number) => (
+                                                <a
+                                                  key={k}
+                                                  href={url}
+                                                  target="_blank"
+                                                  rel="noopener noreferrer"
+                                                  className="block aspect-square rounded-lg overflow-hidden border border-amber-300 hover:ring-2 hover:ring-amber-400 transition-all"
+                                                >
+                                                  <img src={url} alt={`Retouche ${k + 1}`} className="w-full h-full object-cover" />
+                                                </a>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
                                       ))}
                                     </div>
                                   );

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrders, updateOrderStatus } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
+import { retouchesParCommande } from "@/lib/retouches";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,14 @@ export async function GET(req: NextRequest) {
 
   try {
     const orders = await getOrders();
-    return NextResponse.json(orders);
+
+    /* L'historique des retouches, joint a chaque commande. Une seule requete
+       pour toutes plutot qu'une par fiche : le tableau de bord les affiche au
+       clic, et un aller-retour par ouverture serait du gaspillage. */
+    const parCommande = await retouchesParCommande();
+    return NextResponse.json(
+      orders.map((o) => ({ ...o, retouches: parCommande.get(o.id) ?? [] }))
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[GET /api/orders] Error:", message);
