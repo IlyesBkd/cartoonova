@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { estPhysique } from "@/lib/supportCommande";
+import { toEUR } from "@/lib/currency";
 import { upload } from "@vercel/blob/client";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
@@ -114,6 +115,25 @@ export default function AdminPage() {
     setSyncingSupport(false);
   };
 
+  /* Cout de revient. Saisi en euros : le chiffre d'affaires arrive en neuf
+     devises, la depense se fait dans une seule. */
+  const [coutSaisi, setCoutSaisi] = useState("");
+  const [coutNoteSaisie, setCoutNoteSaisie] = useState("");
+  const [coutEnregistre, setCoutEnregistre] = useState(false);
+
+  const enregistrerCout = async () => {
+    if (!selectedOrder) return;
+    const valeur = coutSaisi.trim() === "" ? null : coutSaisi.trim();
+    await fetch("/api/orders", {
+      method: "PATCH",
+      headers: headers(),
+      body: JSON.stringify({ id: selectedOrder.id, cout: valeur, coutNote: coutNoteSaisie }),
+    });
+    setCoutEnregistre(true);
+    setTimeout(() => setCoutEnregistre(false), 2500);
+    fetchOrders();
+  };
+
   const handleMarkSupportRead = async (id: number) => {
     setSupportMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: new Date().toISOString() } : m)));
     await fetch("/api/support/messages", {
@@ -157,6 +177,14 @@ export default function AdminPage() {
       alert(`Erreur réseau : ${e instanceof Error ? e.message : "Connexion impossible"}`);
     }
   };
+
+  /* Recharge les champs quand on change de commande, sinon la saisie de la
+     precedente reste affichee sur la suivante — et on l'enregistrerait sur la
+     mauvaise. */
+  useEffect(() => {
+    setCoutSaisi(selectedOrder?.cout != null ? String(selectedOrder.cout) : "");
+    setCoutNoteSaisie(selectedOrder?.cout_note ?? "");
+  }, [selectedOrder?.id, selectedOrder?.cout, selectedOrder?.cout_note]);
 
   useEffect(() => {
     if (authed) {
@@ -683,6 +711,53 @@ export default function AdminPage() {
                         <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.background}</span></div>
                         <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.printOption}</span></div>
                         <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
+                      </div>
+
+                      {/* Cout de revient et marge. Sans lui, une toile a 73 $
+                          et un fichier a 5 € se ressemblent dans la liste,
+                          alors que l'une paie un imprimeur et un transporteur. */}
+                      <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                        <p className="text-xs text-gray-500 font-semibold">💶 Coût de revient (en euros)</p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={coutSaisi}
+                            onChange={(e) => setCoutSaisi(e.target.value)}
+                            placeholder="0,00"
+                            className="w-24 rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                          />
+                          <input
+                            type="text"
+                            value={coutNoteSaisie}
+                            onChange={(e) => setCoutNoteSaisie(e.target.value)}
+                            placeholder="impression, port…"
+                            className="flex-1 rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                          />
+                          <button
+                            onClick={enregistrerCout}
+                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-800 text-white hover:bg-black transition-colors cursor-pointer"
+                          >
+                            {coutEnregistre ? "✓" : "Enregistrer"}
+                          </button>
+                        </div>
+                        {(() => {
+                          if (selectedOrder.cout == null) return null;
+                          const ca = toEUR(Number(selectedOrder.total_price), selectedOrder.currency);
+                          const marge = ca - Number(selectedOrder.cout);
+                          const part = ca > 0 ? (marge / ca) * 100 : 0;
+                          return (
+                            <p className="text-sm">
+                              <span className="text-gray-500">Marge :</span>{" "}
+                              <span className={`font-bold ${marge >= 0 ? "text-green-600" : "text-red-600"}`}>
+                                {marge.toFixed(2)} € ({part.toFixed(0)} %)
+                              </span>
+                              <span className="text-xs text-gray-400">
+                                {" "}— {ca.toFixed(2)} € encaissés − {Number(selectedOrder.cout).toFixed(2)} €
+                              </span>
+                            </p>
+                          );
+                        })()}
                       </div>
                     </div>
 

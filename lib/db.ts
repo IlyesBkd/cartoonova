@@ -54,6 +54,10 @@ export interface DbOrder {
   poster_confirmation_responded_at: string | null;
   poster_confirmation_note: string | null;
   poster_confirmation_photos: string[] | null;
+  /** Cout de revient en euros. Null tant qu'il n'a pas ete saisi. */
+  cout: number | null;
+  /** Ce que ce cout recouvre — impression, port, sous-traitance. */
+  cout_note: string | null;
   /* Ajoutees par `ensureOrderPromoSchema` dans app/api/order/create : les
      colonnes existaient en base mais pas dans le type, donc toute lecture les
      ignorait silencieusement. */
@@ -176,6 +180,25 @@ export async function marquerAlertePhotos(orderId: string): Promise<void> {
   await sql`UPDATE orders SET photos_alerte_le = NOW() WHERE id = ${orderId}::uuid`;
 }
 
+/**
+ * Enregistre le cout de revient d'une commande.
+ *
+ * `null` efface la saisie plutot que d'ecrire zero : « pas encore renseigne »
+ * et « ne m'a rien coute » sont deux choses differentes, et les confondre
+ * fausserait toute moyenne.
+ */
+export async function enregistrerCoutCommande(
+  orderId: string,
+  cout: number | null,
+  note: string | null
+): Promise<void> {
+  await ensurePosterConfirmationSchema();
+  await sql`
+    UPDATE orders SET cout = ${cout}, cout_note = ${note}
+    WHERE id = ${orderId}::uuid
+  `;
+}
+
 export async function updateOrderFinalImage(orderId: string, finalImageUrl: string): Promise<void> {
   await sql`
     UPDATE orders SET final_image_url = ${finalImageUrl} WHERE id = ${orderId}::uuid
@@ -205,6 +228,13 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
        photo de reference — et sans ce champ le client devait sortir de la page
        pour envoyer un e-mail. C'est exactement ce qui s'est passe en mai. */
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_photos JSONB`;
+    /* Ce que la commande a coute, EN EUROS.
+       Le chiffre d'affaires arrive en neuf devises ; la depense, elle, se
+       fait dans une seule — imprimeur, expedition, illustrateur. Stocker les
+       deux dans la meme unite rendrait la marge incalculable sans connaitre
+       le taux du jour de la commande, qu'on ne garde pas. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS cout NUMERIC`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS cout_note TEXT`;
     /* D'ou vient le client, retenu au premier contact. La question s'est posee
        sur une vente reelle sans pouvoir etre tranchee : rien n'etait garde ici,
        et la reponse dormait dans un outil tiers. */
