@@ -2019,3 +2019,162 @@ export const depotPhotosPage: Record<Lang, {
     error: "Ocorreu um erro. Tente novamente.",
   },
 };
+
+/* ─── Expedition du colis ─────────────────────────────────────────────
+   Envoye a la main depuis le tableau de bord, au moment ou l'imprimeur remet
+   le colis au transporteur — c'est-a-dire au seul moment ou le lien de suivi
+   existe. Rien ne peut le declencher automatiquement : le numero de suivi
+   arrive dans une confirmation d'expedition chez le sous-traitant, pas chez
+   nous.
+
+   Ce que l'e-mail dit, et pourquoi : le portrait est parti, voici le lien pour
+   le suivre, et le delai reste une fourchette. Un client qui a paye un objet
+   physique n'avait, jusqu'ici, plus aucune nouvelle apres avoir valide son
+   apercu — c'est exactement la fenetre ou les questions au support arrivent. */
+export const shippingEmail: Record<Lang, {
+  subject: string;
+  title: string;
+  greeting: (name: string | null) => string;
+  intro: (ref: string) => string;
+  trackingIntro: string;
+  carrierLabel: string;
+  cta: string;
+  /* Le delai reste une fourchette : le colis part d'un imprimeur europeen et
+     la duree depend du pays. Annoncer une date ferme ferait ecrire tous ceux
+     dont le colis a un jour de retard. */
+  delay: string;
+  help: string;
+  thanks: string;
+  team: string;
+}> = {
+  fr: {
+    subject: "Votre portrait est en route !",
+    title: "Votre portrait est parti !",
+    greeting: (name) => (name ? `Bonjour ${name},` : "Bonjour,"),
+    intro: (ref) => `Votre commande <strong>#${ref}</strong> vient d'être expédiée. Votre portrait est en route vers votre adresse.`,
+    trackingIntro: "Vous pouvez suivre votre colis à tout moment :",
+    carrierLabel: "Transporteur :",
+    cta: "Suivre mon colis",
+    delay: "Comptez généralement 3 à 7 jours ouvrés selon votre pays. Le suivi peut mettre quelques heures avant de s'activer.",
+    help: "Une question sur votre livraison ? Répondez simplement à cet e-mail.",
+    thanks: "Merci pour votre confiance !",
+    team: "L'équipe Cartoonova",
+  },
+  en: {
+    subject: "Your portrait is on its way!",
+    title: "Your portrait has shipped!",
+    greeting: (name) => (name ? `Hello ${name},` : "Hello,"),
+    intro: (ref) => `Your order <strong>#${ref}</strong> has just been shipped. Your portrait is on its way to you.`,
+    trackingIntro: "You can follow your parcel at any time:",
+    carrierLabel: "Carrier:",
+    cta: "Track my parcel",
+    delay: "Delivery usually takes 3 to 7 working days depending on your country. Tracking can take a few hours to go live.",
+    help: "Any question about your delivery? Just reply to this email.",
+    thanks: "Thank you for your trust!",
+    team: "The Cartoonova Team",
+  },
+  es: {
+    subject: "¡Tu retrato ya está en camino!",
+    title: "¡Tu retrato ha salido!",
+    greeting: (name) => (name ? `Hola ${name},` : "Hola,"),
+    intro: (ref) => `Tu pedido <strong>#${ref}</strong> acaba de ser enviado. Tu retrato está de camino a tu dirección.`,
+    trackingIntro: "Puedes seguir tu paquete en cualquier momento:",
+    carrierLabel: "Transportista:",
+    cta: "Seguir mi paquete",
+    delay: "La entrega suele tardar de 3 a 7 días laborables según tu país. El seguimiento puede tardar unas horas en activarse.",
+    help: "¿Alguna duda sobre la entrega? Responde simplemente a este email.",
+    thanks: "¡Gracias por tu confianza!",
+    team: "El equipo Cartoonova",
+  },
+  de: {
+    subject: "Ihr Porträt ist unterwegs!",
+    title: "Ihr Porträt wurde versandt!",
+    greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
+    intro: (ref) => `Ihre Bestellung <strong>#${ref}</strong> wurde soeben versandt. Ihr Porträt ist auf dem Weg zu Ihnen.`,
+    trackingIntro: "Sie können Ihr Paket jederzeit verfolgen:",
+    carrierLabel: "Versanddienstleister:",
+    cta: "Mein Paket verfolgen",
+    delay: "Die Lieferung dauert je nach Land in der Regel 3 bis 7 Werktage. Die Sendungsverfolgung kann einige Stunden brauchen, bis sie aktiv ist.",
+    help: "Fragen zur Lieferung? Antworten Sie einfach auf diese E-Mail.",
+    thanks: "Vielen Dank für Ihr Vertrauen!",
+    team: "Das Cartoonova-Team",
+  },
+  it: {
+    subject: "Il tuo ritratto è in viaggio!",
+    title: "Il tuo ritratto è partito!",
+    greeting: (name) => (name ? `Ciao ${name},` : "Ciao,"),
+    intro: (ref) => `Il tuo ordine <strong>#${ref}</strong> è stato appena spedito. Il tuo ritratto sta arrivando al tuo indirizzo.`,
+    trackingIntro: "Puoi seguire il tuo pacco in qualsiasi momento:",
+    carrierLabel: "Corriere:",
+    cta: "Segui il mio pacco",
+    delay: "La consegna richiede di solito dai 3 ai 7 giorni lavorativi a seconda del paese. Il tracciamento può impiegare qualche ora ad attivarsi.",
+    help: "Hai domande sulla consegna? Rispondi semplicemente a questa email.",
+    thanks: "Grazie per la tua fiducia!",
+    team: "Il team Cartoonova",
+  },
+  nl: {
+    subject: "Je portret is onderweg!",
+    title: "Je portret is verstuurd!",
+    greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
+    intro: (ref) => `Je bestelling <strong>#${ref}</strong> is zojuist verzonden. Je portret is onderweg naar je adres.`,
+    trackingIntro: "Je kunt je pakket op elk moment volgen:",
+    carrierLabel: "Vervoerder:",
+    cta: "Mijn pakket volgen",
+    delay: "De levering duurt meestal 3 tot 7 werkdagen, afhankelijk van je land. Het kan een paar uur duren voordat track & trace actief is.",
+    help: "Vragen over de levering? Beantwoord gewoon deze mail.",
+    thanks: "Bedankt voor je vertrouwen!",
+    team: "Het Cartoonova-team",
+  },
+  pl: {
+    subject: "Twój portret jest w drodze!",
+    title: "Twój portret został wysłany!",
+    greeting: (name) => (name ? `Cześć ${name},` : "Cześć,"),
+    intro: (ref) => `Twoje zamówienie <strong>#${ref}</strong> zostało właśnie wysłane. Portret jest już w drodze do Ciebie.`,
+    trackingIntro: "Możesz śledzić przesyłkę w każdej chwili:",
+    carrierLabel: "Przewoźnik:",
+    cta: "Śledź przesyłkę",
+    delay: "Dostawa trwa zwykle od 3 do 7 dni roboczych, zależnie od kraju. Śledzenie może aktywować się dopiero po kilku godzinach.",
+    help: "Masz pytania o dostawę? Wystarczy odpowiedzieć na tego maila.",
+    thanks: "Dziękujemy za zaufanie!",
+    team: "Zespół Cartoonova",
+  },
+  sv: {
+    subject: "Ditt porträtt är på väg!",
+    title: "Ditt porträtt har skickats!",
+    greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
+    intro: (ref) => `Din beställning <strong>#${ref}</strong> har precis skickats. Ditt porträtt är på väg till dig.`,
+    trackingIntro: "Du kan följa ditt paket när som helst:",
+    carrierLabel: "Fraktbolag:",
+    cta: "Följ mitt paket",
+    delay: "Leveransen tar normalt 3 till 7 arbetsdagar beroende på land. Spårningen kan ta några timmar innan den aktiveras.",
+    help: "Frågor om leveransen? Svara bara på det här mejlet.",
+    thanks: "Tack för förtroendet!",
+    team: "Cartoonova-teamet",
+  },
+  da: {
+    subject: "Dit portræt er på vej!",
+    title: "Dit portræt er sendt afsted!",
+    greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
+    intro: (ref) => `Din bestilling <strong>#${ref}</strong> er netop sendt afsted. Dit portræt er på vej til dig.`,
+    trackingIntro: "Du kan følge din pakke når som helst:",
+    carrierLabel: "Fragtfirma:",
+    cta: "Følg min pakke",
+    delay: "Leveringen tager normalt 3 til 7 hverdage afhængigt af land. Der kan gå et par timer, før sporingen er aktiv.",
+    help: "Spørgsmål til leveringen? Svar bare på denne mail.",
+    thanks: "Tak for tilliden!",
+    team: "Cartoonova-teamet",
+  },
+  pt: {
+    subject: "O teu retrato está a caminho!",
+    title: "O teu retrato já seguiu!",
+    greeting: (name) => (name ? `Olá ${name},` : "Olá,"),
+    intro: (ref) => `A tua encomenda <strong>#${ref}</strong> acaba de ser expedida. O teu retrato está a caminho da tua morada.`,
+    trackingIntro: "Podes seguir a tua encomenda a qualquer momento:",
+    carrierLabel: "Transportadora:",
+    cta: "Seguir a minha encomenda",
+    delay: "A entrega demora normalmente 3 a 7 dias úteis consoante o país. O seguimento pode demorar algumas horas a ficar ativo.",
+    help: "Alguma dúvida sobre a entrega? Basta responderes a este email.",
+    thanks: "Obrigado pela confiança!",
+    team: "A equipa Cartoonova",
+  },
+};

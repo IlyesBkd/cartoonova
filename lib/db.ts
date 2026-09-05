@@ -58,6 +58,16 @@ export interface DbOrder {
   cout: number | null;
   /** Ce que ce cout recouvre — impression, port, sous-traitance. */
   cout_note: string | null;
+  /** Numero de commande chez l'imprimeur (Optimal Print). Usage interne. */
+  fournisseur_ref: string | null;
+  /** Lien de suivi du colis, tel que le transporteur le fournit. */
+  suivi_url: string | null;
+  /** Nom du transporteur, saisi librement. Null quand il n'est pas connu. */
+  suivi_transporteur: string | null;
+  /** Date de remise au transporteur. Null tant que le colis n'est pas parti. */
+  expedie_le: string | null;
+  /** Date du dernier envoi de l'e-mail d'expedition au client. */
+  expedition_email_envoye_le: string | null;
   /* Ajoutees par `ensureOrderPromoSchema` dans app/api/order/create : les
      colonnes existaient en base mais pas dans le type, donc toute lecture les
      ignorait silencieusement. */
@@ -73,6 +83,10 @@ export interface DbOrder {
 }
 
 export async function getOrders(): Promise<DbOrder[]> {
+  /* `SELECT *` ne ramene que les colonnes qui existent. Sans cette garantie,
+     le tableau de bord d'une base pas encore migree afficherait un bloc
+     Expedition vide et sans explication. */
+  await ensureExpeditionSchema();
   const rows = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows as unknown as DbOrder[];
 }
@@ -195,6 +209,80 @@ export async function enregistrerCoutCommande(
   await ensurePosterConfirmationSchema();
   await sql`
     UPDATE orders SET cout = ${cout}, cout_note = ${note}
+    WHERE id = ${orderId}::uuid
+  `;
+}
+
+// ─── Expedition (commandes physiques) ────────────────────────────────
+
+/**
+ * Les colonnes du suivi de colis.
+ *
+ * Posees a part plutot qu'ajoutees a `ensurePosterConfirmationSchema` : ce
+ * bloc-la porte deja trois sujets etrangers a son nom, et chaque ajout rend
+ * plus difficile de savoir quelle migration a pose quoi.
+ */
+let expeditionSchemaReady: Promise<void> | null = null;
+
+async function ensureExpeditionSchema(): Promise<void> {
+  if (expeditionSchemaReady) return expeditionSchemaReady;
+  expeditionSchemaReady = (async () => {
+    /* Le numero de commande chez l'imprimeur. Il ne part JAMAIS au client :
+       c'est la reference qui permet de retrouver le dossier chez le
+       sous-traitant quand un colis se perd, rien d'autre. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS fournisseur_ref TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS suivi_url TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS suivi_transporteur TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS expedie_le TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS expedition_email_envoye_le TIMESTAMPTZ`;
+  })().catch((e) => {
+    expeditionSchemaReady = null;
+    throw e;
+  });
+  return expeditionSchemaReady;
+}
+
+/**
+ * Enregistre le dossier d'expedition, sans rien envoyer au client.
+ *
+ * Les trois champs s'ecrivent ensemble parce qu'ils se saisissent ensemble :
+ * le tableau de bord les presente dans le meme bloc et poste toujours l'etat
+ * complet. `null` efface — c'est ainsi qu'on corrige une faute de frappe.
+ */
+export async function enregistrerExpedition(
+  orderId: string,
+  fournisseurRef: string | null,
+  suiviUrl: string | null,
+  transporteur: string | null
+): Promise<void> {
+  await ensureExpeditionSchema();
+  await sql`
+    UPDATE orders
+    SET fournisseur_ref = ${fournisseurRef},
+        suivi_url = ${suiviUrl},
+        suivi_transporteur = ${transporteur}
+    WHERE id = ${orderId}::uuid
+  `;
+}
+
+/**
+ * Marque le colis comme parti et l'e-mail comme envoye.
+ *
+ * `expedie_le` ne se reecrit pas a chaque renvoi : la date d'expedition est
+ * celle du premier depart, meme si le client redemande le lien trois jours
+ * plus tard. La date d'e-mail, elle, suit le dernier envoi.
+ *
+ * Le statut passe a `shipped` dans la foulee. C'est le meme evenement dit deux
+ * fois — un colis dont le client a recu le lien de suivi EST expedie — et le
+ * laisser a une seconde manipulation garantissait qu'il resterait a « Terminée ».
+ */
+export async function marquerExpediee(orderId: string): Promise<void> {
+  await ensureExpeditionSchema();
+  await sql`
+    UPDATE orders
+    SET expedie_le = COALESCE(expedie_le, NOW()),
+        expedition_email_envoye_le = NOW(),
+        status = 'shipped'
     WHERE id = ${orderId}::uuid
   `;
 }

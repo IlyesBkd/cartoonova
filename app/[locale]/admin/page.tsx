@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { estPhysique } from "@/lib/supportCommande";
+import { estPhysique, decrireSupport } from "@/lib/supportCommande";
 import { toEUR } from "@/lib/currency";
 import { upload } from "@vercel/blob/client";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
@@ -134,6 +134,85 @@ export default function AdminPage() {
     fetchOrders();
   };
 
+  /* Expedition d'une commande physique.
+
+     Le portrait part chez l'imprimeur, a l'adresse du client. Deux choses
+     naissent la : le numero de commande chez l'imprimeur — pour nous seuls,
+     c'est ce qui permet de retrouver le dossier quand un colis se perd — et,
+     quelques jours plus tard, le lien de suivi.
+
+     Deux boutons parce que ce sont deux moments : on note la reference le jour
+     de la commande, on previent le client le jour ou le colis part. */
+  const [refFournisseur, setRefFournisseur] = useState("");
+  const [suiviUrl, setSuiviUrl] = useState("");
+  const [transporteur, setTransporteur] = useState("");
+  const [expeditionEnregistree, setExpeditionEnregistree] = useState(false);
+  const [envoiExpedition, setEnvoiExpedition] = useState(false);
+  const [erreurExpedition, setErreurExpedition] = useState<string | null>(null);
+
+  const corpsExpedition = () =>
+    JSON.stringify({
+      orderId: selectedOrder?.id,
+      fournisseurRef: refFournisseur,
+      suiviUrl,
+      transporteur,
+    });
+
+  const enregistrerExpedition = async () => {
+    if (!selectedOrder) return;
+    setErreurExpedition(null);
+    const r = await fetch("/api/orders/expedition", {
+      method: "PATCH",
+      headers: headers(),
+      body: corpsExpedition(),
+    });
+    if (!r.ok) {
+      const data = await r.json().catch(() => null);
+      setErreurExpedition(data?.error || "Enregistrement impossible.");
+      return;
+    }
+    setExpeditionEnregistree(true);
+    setTimeout(() => setExpeditionEnregistree(false), 2500);
+    fetchOrders();
+  };
+
+  const envoyerAvisExpedition = async () => {
+    if (!selectedOrder) return;
+    setEnvoiExpedition(true);
+    setErreurExpedition(null);
+    try {
+      const r = await fetch("/api/orders/expedition", {
+        method: "POST",
+        headers: headers(),
+        body: corpsExpedition(),
+      });
+      const data = await r.json().catch(() => null);
+      if (!r.ok) {
+        setErreurExpedition(data?.error || "Envoi impossible.");
+        return;
+      }
+      /* Etat local mis a jour tout de suite : le rechargement suit, mais la
+         fiche doit dire « envoye » avant qu'il n'arrive, sinon on reclique. */
+      const maintenant = new Date().toISOString();
+      const updated = {
+        ...selectedOrder,
+        fournisseur_ref: refFournisseur.trim() || null,
+        suivi_url: suiviUrl.trim() || null,
+        suivi_transporteur: transporteur.trim() || null,
+        expedie_le: selectedOrder.expedie_le || maintenant,
+        expedition_email_envoye_le: maintenant,
+        status: "shipped",
+      };
+      setSelectedOrder(updated);
+      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+      fetchOrders();
+    } catch (e) {
+      setErreurExpedition(e instanceof Error ? e.message : "Erreur réseau.");
+    } finally {
+      setEnvoiExpedition(false);
+    }
+  };
+
   const handleMarkSupportRead = async (id: number) => {
     setSupportMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: new Date().toISOString() } : m)));
     await fetch("/api/support/messages", {
@@ -185,6 +264,20 @@ export default function AdminPage() {
     setCoutSaisi(selectedOrder?.cout != null ? String(selectedOrder.cout) : "");
     setCoutNoteSaisie(selectedOrder?.cout_note ?? "");
   }, [selectedOrder?.id, selectedOrder?.cout, selectedOrder?.cout_note]);
+
+  /* Meme raison pour l'expedition : un lien de suivi laisse a l'ecran, c'est
+     un colis annonce au mauvais client. */
+  useEffect(() => {
+    setRefFournisseur(selectedOrder?.fournisseur_ref ?? "");
+    setSuiviUrl(selectedOrder?.suivi_url ?? "");
+    setTransporteur(selectedOrder?.suivi_transporteur ?? "");
+    setErreurExpedition(null);
+  }, [
+    selectedOrder?.id,
+    selectedOrder?.fournisseur_ref,
+    selectedOrder?.suivi_url,
+    selectedOrder?.suivi_transporteur,
+  ]);
 
   useEffect(() => {
     if (authed) {
@@ -709,7 +802,34 @@ export default function AdminPage() {
                         <div><span className="text-gray-500">Personnes:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.people}</span></div>
                         <div><span className="text-gray-500">Animaux:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.animals}</span></div>
                         <div><span className="text-gray-500">Fond:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.background}</span></div>
-                        <div><span className="text-gray-500">Impression:</span> <span className="font-semibold">{(typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options)?.printOption}</span></div>
+                        {/* Le support, en français et avec sa taille.
+                            La fiche affichait `printOption`, c'est-à-dire le
+                            libellé DANS LA LANGUE DU CLIENT : une commande
+                            polonaise annonçait « Portret na płótnie ». Et la
+                            taille n'apparaissait nulle part, alors que c'est la
+                            première chose à saisir chez l'imprimeur — elle ne
+                            se choisit pas, elle se déduit du support. */}
+                        {(() => {
+                          const opts = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options;
+                          const support = decrireSupport(opts);
+                          return (
+                            <div className="col-span-2">
+                              <span className="text-gray-500">Support:</span>{" "}
+                              <span className="font-bold text-gray-900">
+                                {support.libelle}
+                                {support.taille && ` — ${support.taille}`}
+                              </span>
+                              {support.detail && (
+                                <span className="text-gray-400"> ({support.detail})</span>
+                              )}
+                              {/* Ce que le client a lu, gardé sous les yeux :
+                                  c'est le mot qu'il emploiera s'il écrit. */}
+                              {opts?.printOption && opts.printOption !== support.libelle && (
+                                <span className="text-gray-400"> · vu comme « {opts.printOption} »</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
                       </div>
 
@@ -1054,6 +1174,120 @@ export default function AdminPage() {
                         </div>
                       );
                     })()}
+
+                    {/* Expédition — commandes physiques uniquement.
+                        Un fichier numérique n'a pas de colis, et proposer un
+                        lien de suivi dessus, c'est le même piège que les deux
+                        boutons d'envoi avant `estPhysique`. */}
+                    {estPhysique(typeof selectedOrder.options === "string" ? JSON.parse(selectedOrder.options) : selectedOrder.options) && (
+                      <div className="rounded-lg p-3 border border-indigo-200 bg-indigo-50 space-y-3">
+                        <p className="text-xs text-indigo-700 font-semibold">📦 Expédition</p>
+
+                        {/* Ce qu'il faut commander, répété ici. C'est à ce
+                            moment précis qu'on ouvre Optimal Print, et remonter
+                            chercher le support trois blocs plus haut est
+                            exactement ce qui fait commander un poster à la
+                            place d'une toile. */}
+                        {(() => {
+                          const support = decrireSupport(typeof selectedOrder.options === "string" ? JSON.parse(selectedOrder.options) : selectedOrder.options);
+                          return (
+                            <p className="text-sm bg-white border border-indigo-200 rounded-lg px-2 py-1.5">
+                              <span className="text-gray-500 text-xs">À commander :</span>{" "}
+                              <span className="font-bold text-gray-900">
+                                {support.libelle}
+                                {support.taille && ` ${support.taille}`}
+                              </span>
+                              {support.detail && (
+                                <span className="text-gray-500 text-xs"> — {support.detail}</span>
+                              )}
+                            </p>
+                          );
+                        })()}
+
+                        {/* Référence imprimeur — interne, jamais envoyée au client. */}
+                        <div>
+                          <label className="block text-[10px] font-semibold text-gray-500 mb-1">
+                            N° de commande Optimal Print (interne)
+                          </label>
+                          <input
+                            type="text"
+                            value={refFournisseur}
+                            onChange={(e) => setRefFournisseur(e.target.value)}
+                            placeholder="ex. OP-123456789"
+                            className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="col-span-2">
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-1">
+                              Lien de suivi du colis
+                            </label>
+                            <input
+                              type="url"
+                              value={suiviUrl}
+                              onChange={(e) => setSuiviUrl(e.target.value)}
+                              placeholder="https://…"
+                              className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-semibold text-gray-500 mb-1">
+                              Transporteur
+                            </label>
+                            <input
+                              type="text"
+                              value={transporteur}
+                              onChange={(e) => setTransporteur(e.target.value)}
+                              placeholder="Colissimo…"
+                              className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={enregistrerExpedition}
+                            className="px-3 py-2 text-xs font-bold rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-all cursor-pointer"
+                          >
+                            {expeditionEnregistree ? "✓ Enregistré" : "Enregistrer"}
+                          </button>
+                          <button
+                            onClick={envoyerAvisExpedition}
+                            disabled={envoiExpedition || !suiviUrl.trim() || !selectedOrder.customer_email}
+                            className="flex-1 px-3 py-2 text-xs font-bold rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {envoiExpedition
+                              ? "Envoi en cours..."
+                              : selectedOrder.expedition_email_envoye_le
+                              ? "📨 Renvoyer l'e-mail de suivi"
+                              : "📨 Prévenir le client de l'expédition"}
+                          </button>
+                        </div>
+
+                        {erreurExpedition && (
+                          <p className="text-[11px] font-bold text-red-600">{erreurExpedition}</p>
+                        )}
+                        {selectedOrder.expedition_email_envoye_le && (
+                          <p className="text-[10px] text-gray-500">
+                            Client prévenu le{" "}
+                            {new Date(selectedOrder.expedition_email_envoye_le).toLocaleString("fr-FR")}
+                            {selectedOrder.expedie_le &&
+                              ` — expédiée le ${new Date(selectedOrder.expedie_le).toLocaleDateString("fr-FR")}`}
+                          </p>
+                        )}
+                        {selectedOrder.suivi_url && (
+                          <a
+                            href={selectedOrder.suivi_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block text-[11px] font-semibold text-indigo-700 underline break-all"
+                          >
+                            Ouvrir le suivi →
+                          </a>
+                        )}
+                      </div>
+                    )}
 
                     {/* Status update */}
                     <div>
