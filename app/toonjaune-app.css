@@ -1160,6 +1160,17 @@
   font-family: var(--texte); font-weight: 700; font-size: 15.5px;
   color: var(--encre); line-height: 1.25; padding: 7px 10px 0;
 }
+/* Le descripteur sous le nom : taille et finition. Plus petit et plus pale
+   que le nom, pour qu'il se lise sans lui disputer la premiere ligne.
+
+   Pas de `text-wrap: balance` : a quatre colonnes il equilibrait les lignes en
+   laissant le point median seul sur la sienne. Le retour a la coupure normale
+   garde « 30x40 cm · » ensemble, l'espace insecable de TAILLE_IMPRESSION
+   protegeant deja le nombre de son unite. */
+.vignette--large .vignette__sous {
+  font-family: var(--texte); font-weight: 500; font-size: 12px;
+  color: var(--encre-doux); line-height: 1.3; padding: 0 8px 3px;
+}
 .vignette--large .vignette__prix {
   font-family: var(--texte); font-weight: 600; font-size: 14px; color: var(--encre-doux);
 }

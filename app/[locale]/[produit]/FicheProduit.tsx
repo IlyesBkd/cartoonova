@@ -28,6 +28,7 @@ import type { Decor, LegendeVisuel } from "@/lib/visuels";
 /* Plafond partage avec la validation serveur : deux constantes qui divergent
    donneraient un formulaire qui accepte ce que le serveur refuse. */
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
+import { tailleImpression } from "@/lib/supportCommande";
 
 /* Prix barré : -40 % affiché comme remise, donc le prix barré vaut le prix
    actuel divise par 0.6. Recalcule automatiquement des que le prix change
@@ -37,11 +38,13 @@ function prixBarreDe(montantActuel: number): number {
   return montantActuel / PART_PRIX_REMISE;
 }
 
-/* Format compact de la dimension pour la vignette de support ("Poster •
-   30x40cm") : derive de la traduction complete ("30×40 cm · papier mat")
-   pour rester en phase avec elle sans dupliquer la donnee. */
-function tailleCourte(sous: string): string {
-  return sous.split(" · ")[0].replace("×", "x").replace(" cm", "cm");
+/* Format compact pour la vignette de support ("Poster • 30x40cm").
+   Cette fonction decoupait auparavant la chaine traduite pour y retrouver la
+   dimension, faute de la connaitre autrement. Elle est desormais une donnee de
+   code : il n'y a plus rien a deviner, et plus rien a casser le jour ou une
+   traduction change de separateur. */
+function tailleCourte(taille: string): string {
+  return taille.replace("×", "x").replace(/\s/g, "");
 }
 
 export interface Similaire {
@@ -177,12 +180,17 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     return tDecor(d.cle as "bgBar");
   };
 
+  /* Centimetres ou pouces, selon le marche. Un client americain lisait
+     « 30×40 cm » sur les trois supports : une dimension qu'aucun de ses cadres
+     ne porte, sur la page ou il decide d'acheter. */
+  const taille = tailleImpression(currency);
+
   const supports: { cle: PrintKey; libelle: string; sous: string; supplement: number }[] = prix
     ? [
         { cle: "digital", libelle: tp("digital"), sous: tp("digitalSub"), supplement: prix.digital },
-        { cle: "posterSimple", libelle: tp("posterOption"), sous: tp("posterSimpleSub"), supplement: prix.posterSimple },
-        { cle: "canvas", libelle: tp("canvas"), sous: tp("canvasSub"), supplement: prix.canvas },
-        { cle: "framed", libelle: tp("poster"), sous: tp("framedSub"), supplement: prix.poster },
+        { cle: "posterSimple", libelle: tp("posterOption"), sous: tp("posterSimpleSub", { taille }), supplement: prix.posterSimple },
+        { cle: "canvas", libelle: tp("canvas"), sous: tp("canvasSub", { taille }), supplement: prix.canvas },
+        { cle: "framed", libelle: tp("poster"), sous: tp("framedSub", { taille }), supplement: prix.poster },
       ]
     : [];
 
@@ -636,7 +644,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               precision={
                 supportChoisi
                   ? `: ${supportChoisi.libelle}${
-                      supportChoisi.cle !== "digital" ? ` • ${tailleCourte(supportChoisi.sous)}` : ""
+                      supportChoisi.cle !== "digital" ? ` • ${tailleCourte(taille)}` : ""
                     }`
                   : undefined
               }
@@ -660,6 +668,13 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   >
                     <Image src={donnees.supports[s.cle]} alt="" width={92} height={68} />
                     <span className="vignette__nom">{s.libelle}</span>
+                    {/* Le descripteur — taille, finition, format de fichier.
+                        Il etait traduit dans les dix langues et affiche nulle
+                        part : la vignette ne portait que le nom et le prix.
+                        C'est pourtant ici que le client tranche entre une toile
+                        et un poster, et « prete a accrocher » ou « cadre chene »
+                        est exactement ce qui fait la difference. */}
+                    <span className="vignette__sous">{s.sous}</span>
                     <span className="vignette__prix">
                       {s.supplement === 0 ? tp("included") : `+${formatPrix(s.supplement)}`}
                     </span>
