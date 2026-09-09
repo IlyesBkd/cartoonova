@@ -73,12 +73,27 @@ export class OpenAiCompatibleAdapter implements AiAdapter {
     const endpoint = String(this.config.adapters.ai.options.endpoint ?? "");
     const apiKey = String(this.config.adapters.ai.options.apiKey ?? "");
     if (!endpoint || !apiKey) throw new Error("AI endpoint and apiKey are required");
+    // Reasoning models (gpt-5*, o1/o3/o4) reject any temperature other than the
+    // default and answer 400 — so the parameter is simply omitted for them
+    // rather than forcing the config to carry a per-model quirk.
+    const body: Record<string, unknown> = {
+      model,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, { role: "user", content: JSON.stringify(payload) }],
+    };
+    if (!/^(gpt-5|o[1-9])/.test(model)) body.temperature = this.config.ai.temperature;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, temperature: this.config.ai.temperature, response_format: { type: "json_object" }, messages: [{ role: "system", content: system }, { role: "user", content: JSON.stringify(payload) }] }),
+      body: JSON.stringify(body),
     });
-    if (!response.ok) throw new Error(`AI request failed with ${response.status}`);
+    if (!response.ok) {
+      // The provider's own message is the only thing that says *why* — without
+      // it a 400 is indistinguishable from a bad key, a bad model or a bad
+      // parameter, and the workflow log shows nothing actionable.
+      const detail = await response.text().catch(() => "");
+      throw new Error(`AI request failed with ${response.status}: ${detail.slice(0, 300)}`);
+    }
     const json = (await response.json()) as ChatResponse;
     const content = json.choices?.[0]?.message?.content;
     if (!content) throw new Error("AI response is empty");
