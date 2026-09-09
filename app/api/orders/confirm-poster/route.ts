@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
+import { libelleSupportCourt } from "@/lib/supportCommande";
 import { enregistrerRetouche, nombreRetouches } from "@/lib/retouches";
 import { recordPosterConfirmationResponse } from "@/lib/db";
 
@@ -10,16 +11,22 @@ async function sendDiscordNotification(order: {
   note?: string | null;
   photos?: string[] | null;
   rang?: number;
+  support?: string;
 }) {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) return;
 
     const isConfirmed = order.status === "confirmed";
-    const fields = [
+    const fields: { name: string; value: string; inline: boolean }[] = [
       { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
       { name: "📧 Email", value: order.customer_email, inline: true },
     ];
+    /* Le support reel, pas « poster » : vous en vendez trois, et c'est la
+       premiere chose a saisir chez l'imprimeur. */
+    if (order.support) {
+      fields.push({ name: "🖼️ Support", value: order.support, inline: true });
+    }
     if (!isConfirmed && order.note) {
       fields.push({
         name: `✏️ Modification demandée${order.rang && order.rang > 1 ? ` — demande n°${order.rang}` : ""}`,
@@ -44,11 +51,11 @@ async function sendDiscordNotification(order: {
         embeds: [
           {
             title: isConfirmed
-              ? "✅ Client a confirmé son poster !"
+              ? "✅ Client a confirmé son portrait !"
               : "✏️ Client demande une modification",
             color: isConfirmed ? 5763719 : 15844367,
             fields,
-            footer: { text: "Cartoonova • Confirmation poster" },
+            footer: { text: "Cartoonova • Validation avant impression" },
             timestamp: new Date().toISOString(),
           },
         ],
@@ -108,6 +115,9 @@ export async function POST(req: NextRequest) {
       note: order.poster_confirmation_note,
       photos: jointes,
       rang,
+      support: libelleSupportCourt(
+        typeof order.options === "string" ? JSON.parse(order.options) : order.options
+      ),
     });
 
     return NextResponse.json({ ok: true, status });
