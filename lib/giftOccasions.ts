@@ -42,7 +42,7 @@ const fr: OccasionTable = {
     label: "un anniversaire",
     headline: (style) => `${style} pour un anniversaire`,
     intro:
-      "Un anniversaire revient chaque année, et c'est justement le problème : au bout d'un moment, on a fait le tour des idées. Un portrait dessiné à la main sort du lot parce qu'il ne peut pas être offert deux fois — il est fait à partir d'une photo précise, de cette personne-là.",
+      "Un anniversaire revient chaque année, et c'est justement le problème : au bout d'un moment, on a fait le tour des idées. Un portrait personnalisé sort du lot parce qu'il ne peut pas être offert deux fois — il est fait à partir d'une photo précise, de cette personne-là.",
     bullets: [
       "Personne d'autre ne peut offrir le même : le dessin part de votre photo.",
       "Ça se garde et ça s'accroche, contrairement à la plupart des cadeaux d'anniversaire.",
@@ -66,7 +66,7 @@ const fr: OccasionTable = {
     label: "Noël",
     headline: (style) => `${style} comme cadeau de Noël`,
     intro:
-      "À Noël, le problème n'est pas de trouver un cadeau, c'est d'en trouver un qui ne finisse pas dans un placard en janvier. Un portrait de famille dessiné à la main est un objet qu'on accroche, et qui rappelle une année précise.",
+      "À Noël, le problème n'est pas de trouver un cadeau, c'est d'en trouver un qui ne finisse pas dans un placard en janvier. Un portrait de famille personnalisé est un objet qu'on accroche, et qui rappelle une année précise.",
     bullets: [
       "Un cadeau qui se déballe devant tout le monde et qui se commente.",
       "Idéal pour offrir à des parents ou grands-parents qui « n'ont besoin de rien ».",
@@ -105,7 +105,7 @@ const fr: OccasionTable = {
       {
         question: "Faut-il une photo où l'on est déjà tous les deux ?",
         answer:
-          "Ce n'est pas obligatoire. Deux photos individuelles nettes fonctionnent très bien : l'illustrateur compose ensuite la scène.",
+          "Ce n'est pas obligatoire. Deux photos individuelles nettes fonctionnent très bien : on compose ensuite la scène.",
       },
     ],
   },
@@ -114,7 +114,7 @@ const fr: OccasionTable = {
     label: "la fête des mères",
     headline: (style) => `${style} pour la fête des mères`,
     intro:
-      "La fête des mères est l'occasion où le fait main compte le plus. Un portrait dessiné à partir d'une photo de famille est un cadeau que l'on ne peut pas acheter en rayon la veille.",
+      "La fête des mères est l'occasion où un cadeau personnel compte le plus. Un portrait créé à partir d'une photo de famille est un cadeau que l'on ne peut pas acheter en rayon la veille.",
     bullets: [
       "Un cadeau personnel, qui montre le temps qu'on y a mis plutôt que le prix.",
       "Les portraits de famille et les portraits avec les enfants sont les plus demandés pour cette occasion.",
@@ -138,7 +138,7 @@ const fr: OccasionTable = {
     label: "un mariage",
     headline: (style) => `${style} comme cadeau de mariage`,
     intro:
-      "Un cadeau de mariage est comparé aux autres, souvent le jour même. Un portrait dessiné à la main du couple échappe à la liste et se remarque, précisément parce qu'il ne vient pas d'une liste.",
+      "Un cadeau de mariage est comparé aux autres, souvent le jour même. Un portrait personnalisé du couple échappe à la liste et se remarque, précisément parce qu'il ne vient pas d'une liste.",
     bullets: [
       "Un cadeau que personne d'autre n'aura pensé à offrir.",
       "Peut être réalisé à partir d'une photo des fiançailles ou d'une photo ancienne du couple.",
@@ -162,7 +162,7 @@ const fr: OccasionTable = {
     label: "un départ",
     headline: (style) => `${style} pour un départ ou une retraite`,
     intro:
-      "Un pot de départ finit souvent par une carte signée par tout le monde. Un portrait dessiné à la main de la personne qui part est un cadeau collectif qui coûte peu par personne et qui reste des années.",
+      "Un pot de départ finit souvent par une carte signée par tout le monde. Un portrait personnalisé de la personne qui part est un cadeau collectif qui coûte peu par personne et qui reste des années.",
     bullets: [
       "Un cadeau collectif facile à organiser entre collègues.",
       "Le style choisi permet un clin d'œil à la personne plutôt qu'un cadeau protocolaire.",
@@ -172,7 +172,7 @@ const fr: OccasionTable = {
       {
         question: "Peut-on ajouter un texte ou une dédicace au portrait ?",
         answer:
-          "Vous pouvez préciser vos souhaits dans le champ de description au moment de la commande. L'illustrateur en tient compte lorsque c'est réalisable dans le style choisi.",
+          "Vous pouvez préciser vos souhaits dans le champ de description au moment de la commande. On en tient compte lorsque c'est réalisable dans le style choisi.",
       },
       {
         question: "Quel délai prévoir pour un pot de départ ?",
@@ -189,7 +189,7 @@ const en: OccasionTable = {
     label: "a birthday",
     headline: (style) => `${style} for a birthday`,
     intro:
-      "Birthdays come round every year, and that's the problem: eventually you run out of ideas. A hand-drawn portrait stands out because it can't be given twice — it's made from one specific photo, of that one person.",
+      "Birthdays come round every year, and that's the problem: eventually you run out of ideas. A custom portrait stands out because it can't be given twice — it's made from one specific photo, of that one person.",
     bullets: [
       "Nobody else can give the same thing: the drawing starts from your photo.",
       "It gets kept and hung up, unlike most birthday presents.",
@@ -213,7 +213,7 @@ const en: OccasionTable = {
     label: "Christmas",
     headline: (style) => `${style} as a Christmas gift`,
     intro:
-      "At Christmas the hard part isn't finding a gift, it's finding one that doesn't end up in a cupboard by January. A hand-drawn family portrait is something people hang up, tied to one particular year.",
+      "At Christmas the hard part isn't finding a gift, it's finding one that doesn't end up in a cupboard by January. A custom family portrait is something people hang up, tied to one particular year.",
     bullets: [
       "A gift that gets unwrapped in front of everyone and gets talked about.",
       "Ideal for parents or grandparents who 'don't need anything'.",
@@ -252,7 +252,7 @@ const en: OccasionTable = {
       {
         question: "Do we need a photo where we're already together?",
         answer:
-          "Not necessarily. Two sharp individual photos work well: the illustrator composes the scene afterwards.",
+          "Not necessarily. Two sharp individual photos work well: we compose the scene afterwards.",
       },
     ],
   },
@@ -261,7 +261,7 @@ const en: OccasionTable = {
     label: "Mother's Day",
     headline: (style) => `${style} for Mother's Day`,
     intro:
-      "Mother's Day is the occasion where handmade counts most. A portrait drawn from a family photo is a gift you can't grab off a shelf the night before.",
+      "Mother's Day is the occasion where a personal gift counts most. A portrait made from a family photo is a gift you can't grab off a shelf the night before.",
     bullets: [
       "A personal gift that shows the thought rather than the price.",
       "Family portraits and portraits with the children are the most requested for this occasion.",
@@ -285,7 +285,7 @@ const en: OccasionTable = {
     label: "a wedding",
     headline: (style) => `${style} as a wedding gift`,
     intro:
-      "Wedding gifts get compared to each other, often on the day. A hand-drawn portrait of the couple escapes the registry and gets noticed, precisely because it didn't come from one.",
+      "Wedding gifts get compared to each other, often on the day. A custom portrait of the couple escapes the registry and gets noticed, precisely because it didn't come from one.",
     bullets: [
       "A gift nobody else will have thought of.",
       "Can be made from an engagement photo or an older photo of the couple.",
@@ -309,7 +309,7 @@ const en: OccasionTable = {
     label: "a farewell",
     headline: (style) => `${style} for a farewell or retirement`,
     intro:
-      "Leaving parties usually end with a card everyone signed. A hand-drawn portrait of the person leaving is a group gift that costs little per head and lasts for years.",
+      "Leaving parties usually end with a card everyone signed. A custom portrait of the person leaving is a group gift that costs little per head and lasts for years.",
     bullets: [
       "A group gift that's easy to organise between colleagues.",
       "The style lets you nod to the person rather than give something formal.",
@@ -319,7 +319,7 @@ const en: OccasionTable = {
       {
         question: "Can we add a message or dedication to the portrait?",
         answer:
-          "You can describe what you'd like in the description field at checkout. The illustrator takes it into account where the chosen style allows.",
+          "You can describe what you'd like in the description field at checkout. We take it into account where the chosen style allows.",
       },
       {
         question: "How long should we allow for a leaving party?",
@@ -336,7 +336,7 @@ const es: OccasionTable = {
     label: "un cumpleaños",
     headline: (style) => `${style} para un cumpleaños`,
     intro:
-      "Un cumpleaños vuelve cada año, y ahí está el problema: al final se acaban las ideas. Un retrato dibujado a mano destaca porque no se puede regalar dos veces — parte de una foto concreta, de esa persona.",
+      "Un cumpleaños vuelve cada año, y ahí está el problema: al final se acaban las ideas. Un retrato personalizado destaca porque no se puede regalar dos veces — parte de una foto concreta, de esa persona.",
     bullets: [
       "Nadie más puede regalar lo mismo: el dibujo parte de tu foto.",
       "Se guarda y se cuelga, al contrario que la mayoría de regalos de cumpleaños.",
@@ -360,7 +360,7 @@ const es: OccasionTable = {
     label: "la Navidad",
     headline: (style) => `${style} como regalo de Navidad`,
     intro:
-      "En Navidad lo difícil no es encontrar un regalo, sino uno que no acabe en un armario en enero. Un retrato familiar dibujado a mano se cuelga y queda asociado a un año concreto.",
+      "En Navidad lo difícil no es encontrar un regalo, sino uno que no acabe en un armario en enero. Un retrato familiar personalizado se cuelga y queda asociado a un año concreto.",
     bullets: [
       "Un regalo que se abre delante de todos y del que se habla.",
       "Ideal para padres o abuelos que « no necesitan nada ».",
@@ -399,7 +399,7 @@ const es: OccasionTable = {
       {
         question: "¿Hace falta una foto en la que ya salgamos juntos?",
         answer:
-          "No es obligatorio. Dos fotos individuales nítidas funcionan muy bien: el ilustrador compone la escena después.",
+          "No es obligatorio. Dos fotos individuales nítidas funcionan muy bien: componemos la escena después.",
       },
     ],
   },
@@ -408,7 +408,7 @@ const es: OccasionTable = {
     label: "el Día de la Madre",
     headline: (style) => `${style} para el Día de la Madre`,
     intro:
-      "El Día de la Madre es la ocasión en la que más cuenta lo hecho a mano. Un retrato dibujado a partir de una foto de familia no se compra en una estantería la víspera.",
+      "El Día de la Madre es la ocasión en la que más cuenta un regalo personal. Un retrato creado a partir de una foto de familia no se compra en una estantería la víspera.",
     bullets: [
       "Un regalo personal, que demuestra el tiempo dedicado más que el precio.",
       "Los retratos de familia y con los hijos son los más pedidos para esta ocasión.",
@@ -432,7 +432,7 @@ const es: OccasionTable = {
     label: "una boda",
     headline: (style) => `${style} como regalo de boda`,
     intro:
-      "Los regalos de boda se comparan entre sí, a menudo el mismo día. Un retrato dibujado a mano de la pareja se sale de la lista y se nota, precisamente porque no viene de una lista.",
+      "Los regalos de boda se comparan entre sí, a menudo el mismo día. Un retrato personalizado de la pareja se sale de la lista y se nota, precisamente porque no viene de una lista.",
     bullets: [
       "Un regalo que nadie más habrá pensado en hacer.",
       "Puede hacerse a partir de una foto de la pedida o de una foto antigua de la pareja.",
@@ -456,7 +456,7 @@ const es: OccasionTable = {
     label: "una despedida",
     headline: (style) => `${style} para una despedida o jubilación`,
     intro:
-      "Las despedidas suelen acabar con una tarjeta firmada por todos. Un retrato dibujado a mano de quien se va es un regalo colectivo que sale barato por persona y dura años.",
+      "Las despedidas suelen acabar con una tarjeta firmada por todos. Un retrato personalizado de quien se va es un regalo colectivo que sale barato por persona y dura años.",
     bullets: [
       "Un regalo colectivo fácil de organizar entre compañeros.",
       "El estilo permite un guiño a la persona en lugar de un regalo protocolario.",
@@ -466,7 +466,7 @@ const es: OccasionTable = {
       {
         question: "¿Se puede añadir un texto o una dedicatoria?",
         answer:
-          "Puedes indicar lo que quieras en el campo de descripción del pedido. El ilustrador lo tiene en cuenta cuando el estilo elegido lo permite.",
+          "Puedes indicar lo que quieras en el campo de descripción del pedido. Lo tenemos en cuenta cuando el estilo elegido lo permite.",
       },
       {
         question: "¿Qué plazo hay que prever para una despedida?",
@@ -483,7 +483,7 @@ const de: OccasionTable = {
     label: "einen Geburtstag",
     headline: (style) => `${style} zum Geburtstag`,
     intro:
-      "Ein Geburtstag kommt jedes Jahr wieder — und genau das ist das Problem: irgendwann sind die Ideen aufgebraucht. Ein handgezeichnetes Portrait fällt auf, weil es sich kein zweites Mal verschenken lässt: es entsteht aus einem bestimmten Foto dieser einen Person.",
+      "Ein Geburtstag kommt jedes Jahr wieder — und genau das ist das Problem: irgendwann sind die Ideen aufgebraucht. Ein personalisiertes Portrait fällt auf, weil es sich kein zweites Mal verschenken lässt: es entsteht aus einem bestimmten Foto dieser einen Person.",
     bullets: [
       "Niemand sonst kann dasselbe schenken: die Zeichnung entsteht aus Ihrem Foto.",
       "Es wird aufgehoben und aufgehängt — anders als die meisten Geburtstagsgeschenke.",
@@ -507,7 +507,7 @@ const de: OccasionTable = {
     label: "Weihnachten",
     headline: (style) => `${style} als Weihnachtsgeschenk`,
     intro:
-      "An Weihnachten ist nicht das Finden eines Geschenks schwer, sondern eines, das im Januar nicht im Schrank landet. Ein handgezeichnetes Familienportrait wird aufgehängt und bleibt mit einem bestimmten Jahr verbunden.",
+      "An Weihnachten ist nicht das Finden eines Geschenks schwer, sondern eines, das im Januar nicht im Schrank landet. Ein personalisiertes Familienportrait wird aufgehängt und bleibt mit einem bestimmten Jahr verbunden.",
     bullets: [
       "Ein Geschenk, das vor allen ausgepackt wird und für Gesprächsstoff sorgt.",
       "Ideal für Eltern oder Großeltern, die „nichts brauchen“.",
@@ -546,7 +546,7 @@ const de: OccasionTable = {
       {
         question: "Brauchen wir ein Foto, auf dem wir schon zusammen sind?",
         answer:
-          "Nicht unbedingt. Zwei scharfe Einzelfotos funktionieren gut: der Illustrator setzt die Szene anschließend zusammen.",
+          "Nicht unbedingt. Zwei scharfe Einzelfotos funktionieren gut: wir setzen die Szene anschließend zusammen.",
       },
     ],
   },
@@ -579,7 +579,7 @@ const de: OccasionTable = {
     label: "eine Hochzeit",
     headline: (style) => `${style} als Hochzeitsgeschenk`,
     intro:
-      "Hochzeitsgeschenke werden miteinander verglichen, oft noch am selben Tag. Ein handgezeichnetes Portrait des Paares steht neben der Wunschliste und fällt genau deshalb auf.",
+      "Hochzeitsgeschenke werden miteinander verglichen, oft noch am selben Tag. Ein personalisiertes Portrait des Paares steht neben der Wunschliste und fällt genau deshalb auf.",
     bullets: [
       "Ein Geschenk, an das sonst niemand gedacht hat.",
       "Möglich nach einem Verlobungsfoto oder einem älteren Foto des Paares.",
@@ -603,7 +603,7 @@ const de: OccasionTable = {
     label: "einen Abschied",
     headline: (style) => `${style} zum Abschied oder Ruhestand`,
     intro:
-      "Abschiedsfeiern enden meist mit einer Karte, die alle unterschrieben haben. Ein handgezeichnetes Portrait der Person, die geht, ist ein Gemeinschaftsgeschenk, das pro Kopf wenig kostet und Jahre bleibt.",
+      "Abschiedsfeiern enden meist mit einer Karte, die alle unterschrieben haben. Ein personalisiertes Portrait der Person, die geht, ist ein Gemeinschaftsgeschenk, das pro Kopf wenig kostet und Jahre bleibt.",
     bullets: [
       "Ein Gemeinschaftsgeschenk, das sich im Team leicht organisieren lässt.",
       "Der Stil erlaubt ein Augenzwinkern statt eines förmlichen Geschenks.",
@@ -613,7 +613,7 @@ const de: OccasionTable = {
       {
         question: "Kann man einen Text oder eine Widmung ergänzen?",
         answer:
-          "Sie können Ihre Wünsche im Beschreibungsfeld der Bestellung angeben. Der Illustrator berücksichtigt sie, soweit der gewählte Stil es zulässt.",
+          "Sie können Ihre Wünsche im Beschreibungsfeld der Bestellung angeben. Wir berücksichtigen sie, soweit der gewählte Stil es zulässt.",
       },
       {
         question: "Wie viel Zeit sollte man für eine Abschiedsfeier einplanen?",
@@ -630,7 +630,7 @@ const it: OccasionTable = {
     label: "un compleanno",
     headline: (style) => `${style} per un compleanno`,
     intro:
-      "Un compleanno torna ogni anno, ed è proprio questo il problema: a un certo punto le idee finiscono. Un ritratto disegnato a mano si distingue perché non si può regalare due volte — nasce da una foto precisa, di quella persona.",
+      "Un compleanno torna ogni anno, ed è proprio questo il problema: a un certo punto le idee finiscono. Un ritratto personalizzato si distingue perché non si può regalare due volte — nasce da una foto precisa, di quella persona.",
     bullets: [
       "Nessun altro può regalare la stessa cosa: il disegno parte dalla tua foto.",
       "Si conserva e si appende, al contrario della maggior parte dei regali di compleanno.",
@@ -654,7 +654,7 @@ const it: OccasionTable = {
     label: "il Natale",
     headline: (style) => `${style} come regalo di Natale`,
     intro:
-      "A Natale il difficile non è trovare un regalo, ma trovarne uno che a gennaio non finisca in un armadio. Un ritratto di famiglia disegnato a mano si appende e resta legato a un anno preciso.",
+      "A Natale il difficile non è trovare un regalo, ma trovarne uno che a gennaio non finisca in un armadio. Un ritratto di famiglia personalizzato si appende e resta legato a un anno preciso.",
     bullets: [
       "Un regalo che si apre davanti a tutti e di cui si parla.",
       "Ideale per genitori o nonni che « non hanno bisogno di niente ».",
@@ -693,7 +693,7 @@ const it: OccasionTable = {
       {
         question: "Serve una foto in cui siamo già insieme?",
         answer:
-          "Non è obbligatorio. Due foto individuali nitide funzionano benissimo: l'illustratore compone poi la scena.",
+          "Non è obbligatorio. Due foto individuali nitide funzionano benissimo: componiamo poi la scena.",
       },
     ],
   },
@@ -702,7 +702,7 @@ const it: OccasionTable = {
     label: "la festa della mamma",
     headline: (style) => `${style} per la festa della mamma`,
     intro:
-      "La festa della mamma è l'occasione in cui il fatto a mano conta di più. Un ritratto disegnato da una foto di famiglia non si compra su uno scaffale la sera prima.",
+      "La festa della mamma è l'occasione in cui un regalo personale conta di più. Un ritratto creato da una foto di famiglia non si compra su uno scaffale la sera prima.",
     bullets: [
       "Un regalo personale, che mostra il pensiero più del prezzo.",
       "I ritratti di famiglia e con i figli sono i più richiesti per questa occasione.",
@@ -726,7 +726,7 @@ const it: OccasionTable = {
     label: "un matrimonio",
     headline: (style) => `${style} come regalo di matrimonio`,
     intro:
-      "I regali di matrimonio vengono confrontati tra loro, spesso lo stesso giorno. Un ritratto disegnato a mano della coppia esce dalla lista nozze e si nota, proprio perché non viene da lì.",
+      "I regali di matrimonio vengono confrontati tra loro, spesso lo stesso giorno. Un ritratto personalizzato della coppia esce dalla lista nozze e si nota, proprio perché non viene da lì.",
     bullets: [
       "Un regalo a cui nessun altro avrà pensato.",
       "Può nascere da una foto del fidanzamento o da una foto più vecchia della coppia.",
@@ -750,7 +750,7 @@ const it: OccasionTable = {
     label: "un saluto",
     headline: (style) => `${style} per un saluto o una pensione`,
     intro:
-      "Le feste di saluto finiscono quasi sempre con un biglietto firmato da tutti. Un ritratto disegnato a mano di chi se ne va è un regalo collettivo che costa poco a testa e resta per anni.",
+      "Le feste di saluto finiscono quasi sempre con un biglietto firmato da tutti. Un ritratto personalizzato di chi se ne va è un regalo collettivo che costa poco a testa e resta per anni.",
     bullets: [
       "Un regalo collettivo facile da organizzare tra colleghi.",
       "Lo stile permette una strizzata d'occhio invece di un regalo formale.",
@@ -760,7 +760,7 @@ const it: OccasionTable = {
       {
         question: "Si può aggiungere un testo o una dedica?",
         answer:
-          "Puoi indicare le tue richieste nel campo descrizione dell'ordine. L'illustratore ne tiene conto quando lo stile scelto lo consente.",
+          "Puoi indicare le tue richieste nel campo descrizione dell'ordine. Ne teniamo conto quando lo stile scelto lo consente.",
       },
       {
         question: "Che tempi prevedere per una festa di saluto?",
@@ -781,7 +781,7 @@ const nl: OccasionTable = {
     label: "een verjaardag",
     headline: (style) => `${style} voor een verjaardag`,
     intro:
-      "Een verjaardag komt elk jaar terug, en dat is precies het probleem: op een gegeven moment heb je alle cadeaus wel gehad. Een met de hand getekend portret valt op omdat het geen tweede keer gegeven kan worden — het begint bij één specifieke foto, van díé persoon.",
+      "Een verjaardag komt elk jaar terug, en dat is precies het probleem: op een gegeven moment heb je alle cadeaus wel gehad. Een gepersonaliseerd portret valt op omdat het geen tweede keer gegeven kan worden — het begint bij één specifieke foto, van díé persoon.",
     bullets: [
       "Niemand anders kan hetzelfde geven: de tekening begint bij jouw foto.",
       "Het hangt straks aan de muur, in tegenstelling tot de meeste verjaardagscadeaus.",
@@ -805,7 +805,7 @@ const nl: OccasionTable = {
     label: "Kerst",
     headline: (style) => `${style} als kerstcadeau`,
     intro:
-      "Met Kerst is het probleem niet een cadeau vinden, maar er een vinden dat in januari niet in een kast verdwijnt. Een met de hand getekend familieportret hang je op, en het blijft herinneren aan een bepaald jaar.",
+      "Met Kerst is het probleem niet een cadeau vinden, maar er een vinden dat in januari niet in een kast verdwijnt. Een gepersonaliseerd familieportret hang je op, en het blijft herinneren aan een bepaald jaar.",
     bullets: [
       "Een cadeau dat je voor iedereen uitpakt en waar over gepraat wordt.",
       "Ideaal voor ouders of grootouders die ‘niets nodig hebben’.",
@@ -839,7 +839,7 @@ const nl: OccasionTable = {
       {
         question: "Kunnen we met z'n tweeën op het portret?",
         answer:
-          "Ja, dat is de meest gevraagde variant. Twee losse foto's volstaan; de tekenaar zet jullie samen in beeld.",
+          "Ja, dat is de meest gevraagde variant. Twee losse foto's volstaan; wij zetten jullie samen in beeld.",
       },
       {
         question: "Wanneer moet ik uiterlijk bestellen voor 14 februari?",
@@ -916,7 +916,7 @@ const nl: OccasionTable = {
       {
         question: "Kunnen we er een boodschap bij doen?",
         answer:
-          "Je kunt bij de bestelling een notitie achterlaten met wat je graag wilt. De tekenaar houdt daar rekening mee.",
+          "Je kunt bij de bestelling een notitie achterlaten met wat je graag wilt. Daar houden we rekening mee.",
       },
     ],
   },
@@ -932,7 +932,7 @@ const pl: OccasionTable = {
     label: "urodziny",
     headline: (style) => `${style} na urodziny`,
     intro:
-      "Urodziny wracają co roku i na tym polega problem: w pewnym momencie pomysły się kończą. Ręcznie rysowany portret wyróżnia się dlatego, że nie da się go podarować dwa razy — powstaje z jednego konkretnego zdjęcia, tej jednej osoby.",
+      "Urodziny wracają co roku i na tym polega problem: w pewnym momencie pomysły się kończą. Spersonalizowany portret wyróżnia się dlatego, że nie da się go podarować dwa razy — powstaje z jednego konkretnego zdjęcia, tej jednej osoby.",
     bullets: [
       "Nikt inny nie podaruje tego samego: rysunek powstaje z Twojego zdjęcia.",
       "Zawiśnie na ścianie, w przeciwieństwie do większości prezentów urodzinowych.",
@@ -956,7 +956,7 @@ const pl: OccasionTable = {
     label: "Święta",
     headline: (style) => `${style} na prezent świąteczny`,
     intro:
-      "W Święta problemem nie jest znalezienie prezentu, tylko znalezienie takiego, który w styczniu nie wyląduje w szafie. Ręcznie rysowany portret rodzinny się wiesza — i przypomina o konkretnym roku.",
+      "W Święta problemem nie jest znalezienie prezentu, tylko znalezienie takiego, który w styczniu nie wyląduje w szafie. Spersonalizowany portret rodzinny się wiesza — i przypomina o konkretnym roku.",
     bullets: [
       "Prezent, który rozpakowuje się przy wszystkich i o którym się rozmawia.",
       "Idealny dla rodziców i dziadków, którzy „niczego nie potrzebują”.",
@@ -990,7 +990,7 @@ const pl: OccasionTable = {
       {
         question: "Czy na portrecie możemy być we dwoje?",
         answer:
-          "Tak, to najczęściej zamawiany wariant. Wystarczą dwa osobne zdjęcia — rysownik połączy Was w jednym kadrze.",
+          "Tak, to najczęściej zamawiany wariant. Wystarczą dwa osobne zdjęcia — połączymy Was w jednym kadrze.",
       },
       {
         question: "Do kiedy zamówić na 14 lutego?",
@@ -1066,7 +1066,7 @@ const pl: OccasionTable = {
       {
         question: "Czy możemy dołączyć wiadomość?",
         answer:
-          "Przy zamówieniu możesz zostawić notatkę z tym, czego oczekujesz. Rysownik weźmie ją pod uwagę.",
+          "Przy zamówieniu możesz zostawić notatkę z tym, czego oczekujesz. Weźmiemy ją pod uwagę.",
       },
     ],
   },
@@ -1082,7 +1082,7 @@ const sv: OccasionTable = {
     label: "en födelsedag",
     headline: (style) => `${style} till en födelsedag`,
     intro:
-      "En födelsedag kommer tillbaka varje år, och det är just problemet: till slut har man gett allt. Ett handritat porträtt sticker ut för att det inte går att ge två gånger — det utgår från ett bestämt foto, av just den personen.",
+      "En födelsedag kommer tillbaka varje år, och det är just problemet: till slut har man gett allt. Ett personligt porträtt sticker ut för att det inte går att ge två gånger — det utgår från ett bestämt foto, av just den personen.",
     bullets: [
       "Ingen annan kan ge samma sak: teckningen utgår från ditt foto.",
       "Det hamnar på väggen, till skillnad från de flesta födelsedagspresenter.",
@@ -1106,7 +1106,7 @@ const sv: OccasionTable = {
     label: "julen",
     headline: (style) => `${style} som julklapp`,
     intro:
-      "Till jul är problemet inte att hitta en present, utan att hitta en som inte ligger i en låda i januari. Ett handritat familjeporträtt hänger man upp, och det påminner om ett bestämt år.",
+      "Till jul är problemet inte att hitta en present, utan att hitta en som inte ligger i en låda i januari. Ett personligt familjeporträtt hänger man upp, och det påminner om ett bestämt år.",
     bullets: [
       "En present som packas upp inför alla och som det pratas om.",
       "Perfekt för föräldrar eller mor- och farföräldrar som ”inte behöver något”.",
@@ -1140,7 +1140,7 @@ const sv: OccasionTable = {
       {
         question: "Kan vi vara två på porträttet?",
         answer:
-          "Ja, det är den vanligaste varianten. Två separata foton räcker — tecknaren sätter ihop er i samma bild.",
+          "Ja, det är den vanligaste varianten. Två separata foton räcker — vi sätter ihop er i samma bild.",
       },
       {
         question: "När senast behöver jag beställa till den 14 februari?",
@@ -1216,7 +1216,7 @@ const sv: OccasionTable = {
       {
         question: "Kan vi lägga till en hälsning?",
         answer:
-          "Du kan lämna en notering i beställningen med vad du önskar. Tecknaren tar hänsyn till den.",
+          "Du kan lämna en notering i beställningen med vad du önskar. Vi tar hänsyn till den.",
       },
     ],
   },
@@ -1231,7 +1231,7 @@ const da: OccasionTable = {
     label: "en fødselsdag",
     headline: (style) => `${style} til en fødselsdag`,
     intro:
-      "En fødselsdag kommer igen hvert år, og det er lige præcis problemet: på et tidspunkt har man givet det hele. Et håndtegnet portræt skiller sig ud, fordi det ikke kan gives to gange — det tager udgangspunkt i ét bestemt foto, af netop den person.",
+      "En fødselsdag kommer igen hvert år, og det er lige præcis problemet: på et tidspunkt har man givet det hele. Et personligt portræt skiller sig ud, fordi det ikke kan gives to gange — det tager udgangspunkt i ét bestemt foto, af netop den person.",
     bullets: [
       "Ingen andre kan give det samme: tegningen tager udgangspunkt i dit foto.",
       "Det ender på væggen, i modsætning til de fleste fødselsdagsgaver.",
@@ -1255,7 +1255,7 @@ const da: OccasionTable = {
     label: "julen",
     headline: (style) => `${style} som julegave`,
     intro:
-      "Til jul er problemet ikke at finde en gave, men at finde en der ikke ligger i et skab i januar. Et håndtegnet familieportræt hænger man op, og det minder om et bestemt år.",
+      "Til jul er problemet ikke at finde en gave, men at finde en der ikke ligger i et skab i januar. Et personligt familieportræt hænger man op, og det minder om et bestemt år.",
     bullets: [
       "En gave, der pakkes op foran alle, og som der bliver snakket om.",
       "Perfekt til forældre eller bedsteforældre, der ”ikke mangler noget”.",
@@ -1289,7 +1289,7 @@ const da: OccasionTable = {
       {
         question: "Kan vi være to på portrættet?",
         answer:
-          "Ja, det er den mest bestilte variant. To separate fotos er nok — tegneren sætter jer sammen i ét billede.",
+          "Ja, det er den mest bestilte variant. To separate fotos er nok — vi sætter jer sammen i ét billede.",
       },
       {
         question: "Hvornår skal jeg senest bestille til 14. februar?",
@@ -1365,7 +1365,7 @@ const da: OccasionTable = {
       {
         question: "Kan vi lægge en hilsen ved?",
         answer:
-          "Du kan skrive en note i bestillingen med det, du gerne vil. Tegneren tager højde for den.",
+          "Du kan skrive en note i bestillingen med det, du gerne vil. Vi tager højde for den.",
       },
     ],
   },
@@ -1382,7 +1382,7 @@ const pt: OccasionTable = {
     label: "um aniversário",
     headline: (style) => `${style} para um aniversário`,
     intro:
-      "Um aniversário volta todos os anos, e é exatamente esse o problema: a certa altura já se deu tudo. Um retrato desenhado à mão destaca-se porque não pode ser oferecido duas vezes — parte de uma foto concreta, daquela pessoa.",
+      "Um aniversário volta todos os anos, e é exatamente esse o problema: a certa altura já se deu tudo. Um retrato personalizado destaca-se porque não pode ser oferecido duas vezes — parte de uma foto concreta, daquela pessoa.",
     bullets: [
       "Mais ninguém pode oferecer o mesmo: o desenho parte da tua foto.",
       "Fica na parede, ao contrário da maioria das prendas de aniversário.",
@@ -1406,7 +1406,7 @@ const pt: OccasionTable = {
     label: "o Natal",
     headline: (style) => `${style} como prenda de Natal`,
     intro:
-      "No Natal o problema não é encontrar uma prenda, é encontrar uma que não acabe num armário em janeiro. Um retrato de família desenhado à mão pendura-se, e lembra um ano em concreto.",
+      "No Natal o problema não é encontrar uma prenda, é encontrar uma que não acabe num armário em janeiro. Um retrato de família personalizado pendura-se, e lembra um ano em concreto.",
     bullets: [
       "Uma prenda que se abre à frente de todos e que dá conversa.",
       "Ideal para pais ou avós que «não precisam de nada».",
@@ -1440,7 +1440,7 @@ const pt: OccasionTable = {
       {
         question: "Podemos aparecer os dois no retrato?",
         answer:
-          "Sim, é a variante mais pedida. Bastam duas fotos separadas — o ilustrador junta-vos na mesma imagem.",
+          "Sim, é a variante mais pedida. Bastam duas fotos separadas — juntamo-vos na mesma imagem.",
       },
       {
         question: "Até quando devo encomendar para 14 de fevereiro?",
@@ -1516,7 +1516,7 @@ const pt: OccasionTable = {
       {
         question: "Podemos juntar uma mensagem?",
         answer:
-          "Podes deixar uma nota na encomenda com o que pretendes. O ilustrador tem isso em conta.",
+          "Podes deixar uma nota na encomenda com o que pretendes. Temos isso em conta.",
       },
     ],
   },

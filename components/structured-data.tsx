@@ -99,37 +99,37 @@ interface ProductStyleMeta {
 export const PRODUCT_STYLE_META: Record<string, ProductStyleMeta> = {
   simpson: {
     name: "Portrait Simpson personnalisé",
-    description: "Transformez vos photos en personnage Simpsons. Dessiné à la main par un artiste en 24h, imprimé et livré sous 3 à 5 jours ouvrés.",
+    description: "Transformez vos photos en personnage Simpsons. Aperçu sous 2 jours, imprimé et livré sous 3 à 5 jours ouvrés.",
     image: "/simpson_photos_produit/0009_1.jpg",
     sku: "cartoonova-simpson",
   },
   dbz: {
     name: "Portrait Dragon Ball Z personnalisé",
-    description: "Devenez un Saiyan. Portrait style Dragon Ball Z dessiné main en 24h, imprimé et livré sous 3 à 5 jours ouvrés.",
+    description: "Devenez un Saiyan. Portrait style Dragon Ball Z, aperçu sous 2 jours, imprimé et livré sous 3 à 5 jours ouvrés.",
     image: "/DBZ/Photo_produits/1.png",
     sku: "cartoonova-dbz",
   },
   disney: {
     name: "Portrait Disney personnalisé",
-    description: "Votre photo transformée en personnage Disney par un artiste en 24h. Imprimé et livré sous 3 à 5 jours ouvrés.",
+    description: "Votre photo transformée en personnage Disney, aperçu sous 2 jours. Imprimé et livré sous 3 à 5 jours ouvrés.",
     image: "/Disney/Photo_produits/1.png",
     sku: "cartoonova-disney",
   },
   ghibli: {
     name: "Portrait Studio Ghibli personnalisé",
-    description: "Portrait inspiré de l'univers Studio Ghibli, dessiné à la main en 24h. Imprimé et livré sous 3 à 5 jours ouvrés.",
+    description: "Portrait inspiré de l'univers Studio Ghibli, aperçu sous 2 jours. Imprimé et livré sous 3 à 5 jours ouvrés.",
     image: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
     sku: "cartoonova-ghibli",
   },
   onepiece: {
     name: "Affiche Wanted One Piece personnalisée",
-    description: "Votre avis de recherche style One Piece, dessiné main en 24h. Imprimé et livré sous 3 à 5 jours ouvrés.",
+    description: "Votre avis de recherche style One Piece, aperçu sous 2 jours. Imprimé et livré sous 3 à 5 jours ouvrés.",
     image: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
     sku: "cartoonova-onepiece",
   },
   rickandmorty: {
     name: "Portrait Rick & Morty personnalisé",
-    description: "Portrait style Rick & Morty dessiné par un artiste en 24h. Imprimé et livré sous 3 à 5 jours ouvrés.",
+    description: "Portrait style Rick & Morty, aperçu sous 2 jours. Imprimé et livré sous 3 à 5 jours ouvrés.",
     image: "/rickandmorty/Photo_produits/1.png",
     sku: "cartoonova-rickandmorty",
   },

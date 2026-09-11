@@ -25,7 +25,7 @@ export default function CGV() {
 
         <section>
           <h2>Article 2 — Produits et services</h2>
-          <p>Cartoonova propose un service de création de caricatures et portraits personnalisés de style cartoon, réalisés à la main par des artistes professionnels. Les produits proposés comprennent :</p>
+          <p>Cartoonova propose un service de création de caricatures et portraits personnalisés de style cartoon, réalisés à partir des photos fournies par le Client. Les produits proposés comprennent :</p>
           <ul>
             <li>Fichiers numériques (JPG, PNG haute résolution)</li>
             <li>Impressions sur poster</li>

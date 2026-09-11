@@ -5,7 +5,7 @@
     "name": "Cartoonova",
     "siteUrl": "${SITE_URL:-https://www.cartoonova.com}",
     "timezone": "Europe/Paris",
-    "topic": "personalized hand-drawn cartoon caricature portraits and gift ideas",
+    "topic": "personalized cartoon caricature portraits and gift ideas",
     "description": "Blog Cartoonova : idées cadeaux, guides de style et conseils pratiques autour du portrait caricature personnalisé.",
     "editorial": {
       "voice": "chaleureuse, inspirante, orientée cadeaux, honnête sur les délais et le processus, jamais survendeuse",

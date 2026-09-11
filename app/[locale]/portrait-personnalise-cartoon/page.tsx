@@ -36,11 +36,11 @@ const CHEMIN = "/portrait-personnalise-cartoon";
    l'accueil, et c'est le bloc qui compte : il porte le h1 et l'accroche. La
    requete cible y figure telle qu'elle est cherchee. */
 const TEXTES_HERO = {
-  oeil: "Portrait cartoon dessiné à la main",
+  oeil: "Portrait cartoon personnalisé",
   titre1: "Portrait personnalisé cartoon",
   titre2: "d'après votre photo",
   sous:
-    "Vos photos transformées en caricature personnalisée par de vrais illustrateurs. " +
+    "Vos photos transformées en caricature personnalisée, unique au monde. " +
     "Aperçu sous 2 jours, retouches illimitées.",
   note: "Aperçu sous 2 jours, sans engagement",
 };

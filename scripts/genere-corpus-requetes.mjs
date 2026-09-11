@@ -97,7 +97,6 @@ const MOTIFS_STYLE = {
     ["longue_traine", T, (s) => `commander un portrait ${s}`],
     ["longue_traine", T, (s) => `portrait ${s} personnalisé pas cher`],
     ["longue_traine", T, (s) => `portrait de famille ${s}`],
-    ["longue_traine", T, (s) => `portrait ${s} dessiné à la main`],
     ["longue_traine", I, (s) => `transformer sa photo en ${s}`],
     ["variante", I, (s) => `se transformer en ${s}`],
     ["longue_traine", I, (s) => `devenir un personnage ${s}`],
@@ -112,7 +111,6 @@ const MOTIFS_STYLE = {
     ["variante", T, (s) => `buy custom ${s} portrait`],
     ["variante", T, (s) => `${s} portrait commission`],
     ["longue_traine", T, (s) => `${s} portrait from photo`],
-    ["longue_traine", T, (s) => `hand drawn ${s} portrait`],
     ["longue_traine", T, (s) => `order ${s} portrait online`],
     ["longue_traine", T, (s) => `custom ${s} family portrait`],
     ["longue_traine", T, (s) => `${s} portrait maker`],
@@ -317,7 +315,6 @@ const MOTIFS_GENERIQUES = {
   fr: [
     ["pivot", T, "portrait personnalisé cartoon", "pilier"],
     ["variante", T, "caricature personnalisée", "pilier"],
-    ["variante", T, "portrait dessiné à la main d'après photo", "pilier"],
     ["variante", T, "dessin personnalisé d'après photo", "pilier"],
     ["longue_traine", T, "portrait de famille personnalisé cartoon", "pilier"],
     ["longue_traine", I, "transformer une photo en dessin animé", "pilier"],
@@ -327,7 +324,6 @@ const MOTIFS_GENERIQUES = {
   en: [
     ["pivot", T, "custom cartoon portrait", "pilier"],
     ["variante", T, "personalized caricature from photo", "pilier"],
-    ["variante", T, "hand drawn portrait from photo", "pilier"],
     ["variante", T, "cartoon yourself", "pilier"],
     ["longue_traine", T, "custom family cartoon portrait", "pilier"],
     ["longue_traine", I, "turn photo into cartoon", "pilier"],

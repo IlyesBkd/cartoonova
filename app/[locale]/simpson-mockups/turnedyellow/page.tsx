@@ -82,7 +82,7 @@ const FONT = 'Assistant, "Segoe UI", system-ui, -apple-system, sans-serif';
 const SCRIPT = '"Bradley Hand", "Segoe Script", "Comic Sans MS", cursive';
 
 const SIDE_BADGES = [
-  { icon: "🧑‍🎨", label: "Vrais illustrateurs" },
+  { icon: "🎨", label: "D'après votre photo" },
   { icon: "♾️", label: "Retouches illimitées" },
   { icon: "🖼️", label: "N'importe quelle photo" },
   { icon: "⚡", label: "Prêt en 2 jours" },
@@ -95,9 +95,9 @@ const BENEFITS = [
     desc: "On retravaille le portrait jusqu'à ce qu'il vous plaise. Chaque détail est ajusté à vos photos.",
   },
   {
-    icon: "✍️",
-    title: "100 % dessiné à la main par des illustrateurs",
-    desc: "Aucun filtre IA — votre portrait est créé par de vraies personnes, ce qui en fait une pièce unique.",
+    icon: "🎨",
+    title: "Un portrait unique, d'après votre photo",
+    desc: "Chaque portrait part de vos photos et de vos indications, ce qui en fait une pièce unique.",
   },
   {
     icon: "⚡",
@@ -234,11 +234,11 @@ export default function TurnedYellowMockup() {
             <span style={{ color: ACCENT_DEEP }} aria-hidden="true">
               ★★★★★
             </span>
-            Dessiné à la main, jamais généré
+            Portrait unique, d&apos;après votre photo
           </p>
 
           <h1 className="text-[42px] leading-[1.08] font-extrabold mt-2 tracking-tight">
-            Portrait cartoon dessiné à la main
+            Portrait cartoon personnalisé
           </h1>
 
           <p className="mt-3 font-bold" style={{ color: ACCENT_DEEP }}>
@@ -246,8 +246,7 @@ export default function TurnedYellowMockup() {
           </p>
 
           <p className="mt-4 text-[15px]" style={{ color: MUTED }}>
-            Envoyez n&apos;importe quelle photo — vous, votre couple, votre famille, votre animal — et un
-            illustrateur vous redessine en personnage cartoon jaune. <span className="underline font-semibold" style={{ color: INK }}>Lire la suite</span>
+            Envoyez n&apos;importe quelle photo — vous, votre couple, votre famille, votre animal — et on vous transforme en personnage cartoon jaune. <span className="underline font-semibold" style={{ color: INK }}>Lire la suite</span>
           </p>
 
           {/* Upsell */}
@@ -486,7 +485,7 @@ export default function TurnedYellowMockup() {
         <div className="max-w-5xl mx-auto mt-12 grid sm:grid-cols-3 gap-10">
           {[
             ["Envoyez votre photo", "Un selfie suffit. Vous pouvez aussi l'envoyer après la commande."],
-            ["On dessine à la main", "Un illustrateur reprend votre photo trait par trait, en 2 jours."],
+            ["On crée votre portrait", "À partir de votre photo, en 2 jours."],
             ["Vous validez", "Aperçu envoyé avant impression, retouches gratuites jusqu'à validation."],
           ].map(([title, desc], i) => (
             <div key={title} className="text-center">

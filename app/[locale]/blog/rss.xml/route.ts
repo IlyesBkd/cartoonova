@@ -20,16 +20,16 @@ const CHANNEL_TITLE: Record<Locale, string> = {
 };
 
 const CHANNEL_DESCRIPTION: Record<Locale, string> = {
-  fr: "Idées cadeaux, portraits dessinés à la main et coulisses de l'atelier Cartoonova.",
-  en: "Gift ideas, hand-drawn portraits and behind the scenes at the Cartoonova studio.",
-  es: "Ideas de regalo, retratos dibujados a mano y entre bastidores del taller Cartoonova.",
-  de: "Geschenkideen, handgezeichnete Portraits und Einblicke in das Cartoonova-Atelier.",
-  it: "Idee regalo, ritratti disegnati a mano e dietro le quinte dell'atelier Cartoonova.",
-  nl: "Cadeau-ideeën, handgetekende portretten en een kijkje achter de schermen bij Cartoonova.",
-  pl: "Pomysły na prezent, ręcznie rysowane portrety i kulisy pracowni Cartoonova.",
-  sv: "Presenttips, handritade porträtt och en titt bakom kulisserna hos Cartoonova.",
-  da: "Gaveidéer, håndtegnede portrætter og et kig bag kulisserne hos Cartoonova.",
-  pt: "Ideias de prenda, retratos desenhados à mão e os bastidores do atelier Cartoonova.",
+  fr: "Idées cadeaux, portraits personnalisés et conseils pour bien choisir votre style.",
+  en: "Gift ideas, custom portraits and tips for choosing your style.",
+  es: "Ideas de regalo, retratos personalizados y consejos para elegir tu estilo.",
+  de: "Geschenkideen, personalisierte Porträts und Tipps zur Wahl des Stils.",
+  it: "Idee regalo, ritratti personalizzati e consigli per scegliere lo stile.",
+  nl: "Cadeau-ideeën, gepersonaliseerde portretten en tips om je stijl te kiezen.",
+  pl: "Pomysły na prezent, spersonalizowane portrety i porady, jak wybrać styl.",
+  sv: "Presenttips, personliga porträtt och råd för att välja stil.",
+  da: "Gaveidéer, personlige portrætter og råd til at vælge stil.",
+  pt: "Ideias de prenda, retratos personalizados e conselhos para escolher o estilo.",
 };
 
 const LANGUAGE_TAG: Record<Locale, string> = {

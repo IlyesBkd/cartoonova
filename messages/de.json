@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Cartoonova - Verwandeln Sie Ihre Fotos in Cartoon-Karikaturen",
-    "description": "Bestellen Sie Ihre personalisierte Karikatur im Simpson-Stil. Professionelle Künstler, Zufriedenheit garantiert.",
+    "description": "Bestellen Sie Ihre personalisierte Karikatur im Simpson-Stil nach Ihren Fotos. Unbegrenzte Korrekturen, Zufriedenheit garantiert.",
     "ogTitle": "Personalisiertes Cartoon-Portrait - Cartoonova",
     "ogDescription": "Bestellen Sie Ihre personalisierte Karikatur aus Ihrem Foto. Ein einzigartiges und originelles Geschenk!"
   },
@@ -60,23 +60,23 @@
       "title": "Disney Porträt",
       "description": "Leben Sie Ihr Märchen"
     },
-    "reassurance1": "Von unseren Künstlern handgezeichnet",
+    "reassurance1": "Einzigartig, nach Ihrem Foto",
     "reassurance2": "Digitale Lieferung innerhalb 2 Tagen",
     "reassurance3": "Zufriedenheit garantiert",
     "ctaTitle": "Können Sie sich nicht entscheiden?",
     "ctaSubtitle": "Beginnen Sie mit unserem Bestseller!",
     "ctaButton": "Simpson entdecken",
     "badgeSatisfied": "Zufrieden oder Geld zurück",
-    "badgeHandDrawn": "Handgezeichnet",
+    "badgeHandDrawn": "Nach Ihrem Foto",
     "badgeDelivery24h": "Lieferung in 2 Tagen",
-    "trustBar": "Handgezeichnet · Lieferung in 2 Tagen · Zufrieden oder Geld zurück"
+    "trustBar": "Nach Ihrem Foto · Lieferung in 2 Tagen · Zufrieden oder Geld zurück"
   },
   "hero": {
     "badge": "4.8",
     "title1": "Verwandeln Sie",
     "title2": "Ihre Fotos",
     "title3": "in Cartoon!",
-    "subtitle": "Erhalten Sie eine einzigartige handgezeichnete Karikatur. Das perfekte personalisierte Geschenk!",
+    "subtitle": "Erhalten Sie eine einzigartige Karikatur nach Ihrem Foto. Das perfekte personalisierte Geschenk!",
     "cta": "Mein Porträt bestellen",
     "ctaSecondary": "Wie funktioniert es?"
   },
@@ -85,14 +85,14 @@
     "step1Title": "Foto senden",
     "step1Desc": "Laden Sie ein Foto von sich, Ihrer Familie, Freunden oder Haustieren hoch.",
     "step2Title": "Wir zeichnen Sie",
-    "step2Desc": "Unsere professionellen Künstler erstellen Ihre einzigartige Cartoon-Karikatur.",
+    "step2Desc": "Wir erstellen Ihre einzigartige Cartoon-Karikatur.",
     "step3Title": "Kunstwerk erhalten",
     "step3Desc": "Erhalten Sie Ihre digitale Datei und/oder Ihren Premium-Druck.",
     "cta": "Jetzt starten →"
   },
   "gallery": {
     "title": "Unsere Werke",
-    "subtitle": "Jedes Portrait wird mit Leidenschaft von Hand gezeichnet!",
+    "subtitle": "Jedes Porträt ist einzigartig und entsteht nach Ihren Fotos.",
     "cta": "Ganzes Portfolio ansehen →"
   },
   "reviews": {
@@ -105,7 +105,7 @@
     "q1": "Wie lange dauert die Erstellung der Karikatur?",
     "a1": "Die Zeichnung wird innerhalb von 2 Tagen fertiggestellt. Bei einem physischen Druck (Poster, Leinwand) kommen 3 Werktage für Herstellung und Versand hinzu.",
     "q2": "Müssen die Personen auf dem gleichen Foto sein?",
-    "a2": "Überhaupt nicht! Senden Sie uns Einzelfotos und unsere Künstler zeichnen alle zusammen in einem Bild.",
+    "a2": "Überhaupt nicht! Senden Sie uns Einzelfotos, wir bringen alle in einem Bild zusammen.",
     "q3": "Was passiert, wenn ich nicht zufrieden bin?",
     "a3": "Wir bieten unbegrenzte kostenlose Überarbeitungen bis zu Ihrer vollständigen Zufriedenheit!",
     "q4": "Kann mein Haustier auch ein Cartoon werden?",
@@ -117,8 +117,8 @@
     "breadcrumb": "Mein Porträt bestellen",
     "heroTitle1": "Bestellen Sie Ihre",
     "heroTitle2": "Simpson Caricature",
-    "heroSubtitle": "Verwandeln Sie sich in eine handgezeichnete Cartoon-Figur. Das perfekte einzigartige und personalisierte Geschenk!",
-    "handDrawn": "Handgezeichnet",
+    "heroSubtitle": "Werden Sie zur Cartoon-Figur, nach Ihrem Foto. Das perfekte einzigartige und personalisierte Geschenk!",
+    "handDrawn": "Nach Ihrem Foto",
     "freeRevision": "Kostenlose Überarbeitung",
     "fastDelivery": "Schnelle Lieferung",
     "socialProof": "hat gerade sein Porträt bestellt",
@@ -127,12 +127,12 @@
     "averageRating": "Durchschnittsbewertung",
     "delivery": "Lieferung",
     "satisfactionGuarantee": "Zufriedenheitsgarantie",
-    "portraitsCount": "Handgezeichnete Porträts",
+    "portraitsCount": "Gelieferte Porträts",
     "digitalDelivery48h": "Digitale Lieferung in 2 Tagen",
     "guaranteeStep1Title": "Senden Sie Ihr Foto",
     "guaranteeStep1Desc": "Ein Selfie reicht aus",
     "guaranteeStep2Title": "Wir zeichnen Ihr Porträt",
-    "guaranteeStep2Desc": "Von einem engagierten Künstler",
+    "guaranteeStep2Desc": "Nach Ihren Fotos",
     "guaranteeStep3Title": "Nicht zufrieden?",
     "guaranteeStep3Desc": "Wir machen es kostenlos neu",
     "ourWork": "Unsere Arbeiten",
@@ -144,7 +144,7 @@
     "readyToBecome": "Bereit zu werden",
     "joinClients": "Erhalten Sie Ihr personalisiertes Porträt in 2 Tagen",
     "createMyPortrait": "Mein Porträt erstellen",
-    "handDrawnIcon": "Handgezeichnet",
+    "handDrawnIcon": "Nach Ihrem Foto",
     "delivered48h": "Geliefert in 2 Tagen",
     "satisfiedOrRefunded": "Zufrieden oder Geld zurück",
     "formatLabel": "Format",
@@ -215,7 +215,7 @@
     "bgSnow": "Schnee",
     "bgValentines": "Valentinstag",
     "galleryTitle": "Unsere Werke",
-    "gallerySubtitle": "Entdecken Sie, was unsere Künstler für Sie schaffen können!",
+    "gallerySubtitle": "Entdecken Sie, was wir aus Ihren Fotos machen können!",
     "videoTitle": "Wie wir Sie zeichnen",
     "videoSubtitle": "Sehen Sie die Magie geschehen — vom Foto zum Cartoon!",
     "reviewsTitle": "Danke für Ihr Vertrauen",
@@ -235,7 +235,7 @@
     "faqQ1": "Wie lange dauert es, die Karikatur zu erstellen?",
     "faqA1": "Die Zeichnung wird innerhalb von 2 Tagen fertiggestellt. Bei einem physischen Druck (Poster, Leinwand) kommen 3 Werktage für Herstellung und Versand hinzu.",
     "faqQ2": "Müssen alle Personen auf demselben Foto sein?",
-    "faqA2": "Überhaupt nicht! Senden Sie uns Einzelfotos und unsere Künstler zeichnen alle zusammen in einem Bild.",
+    "faqA2": "Überhaupt nicht! Senden Sie uns Einzelfotos, wir bringen alle in einem Bild zusammen.",
     "faqQ3": "Was passiert, wenn ich nicht zufrieden bin?",
     "faqA3": "Wir bieten unbegrenzte kostenlose Überarbeitungen bis zu Ihrer vollständigen Zufriedenheit. Ihr Glück ist unsere Priorität!",
     "faqQ4": "Kann mein Haustier auch gelb werden?",
@@ -253,7 +253,7 @@
     "orderArrow": "Bestellen →",
     "selectedDecor": "Ausgewählter Hintergrund",
     "exampleWork": "Beispielarbeit",
-    "verifiedReviewsCount": "Professionelle Künstler",
+    "verifiedReviewsCount": "Unbegrenzte Korrekturen",
     "portraitAlt": "Personalisiertes Portrait",
     "realizationAlt": "Umsetzung",
     "readyToEnterGhibli": "Bereit, das Ghibli-Universum zu betreten?",
@@ -293,10 +293,10 @@
     "hoverToPreview": "Zum Vorschauen darüberfahren",
     "howItWorks": "So funktioniert's",
     "howItWorksTitle": "3 Schritte, kein Aufwand.",
-    "illustrativePreview": "[ illustrative Vorschau — handgezeichnetes Ergebnis ]",
+    "illustrativePreview": "[ illustrative Vorschau — Beispielergebnis ]",
     "livePreview": "Live-Vorschau",
     "madeInFrance": "Made in France",
-    "noteForArtist": "Notiz für den Künstler",
+    "noteForArtist": "Hinweise zu Ihrem Porträt",
     "notePlaceholder": "Z. B.: mein Vater trägt immer seine Kappe, meine Katze heißt Pixel, zieht uns alle weihnachtlich an…",
     "optional": "optional",
     "orderCta": "Mein Porträt bestellen",
@@ -305,7 +305,7 @@
     "peoplePlural": "Personen",
     "peopleSingular": "Person",
     "pillDelivered48h": "Lieferung in 2 Tagen",
-    "pillDrawnHand": "Handgezeichnet",
+    "pillDrawnHand": "Nach Ihrem Foto",
     "pillSatisfied": "Zufrieden oder Geld zurück",
     "portraitsDelivered": "gelieferte Porträts",
     "portraitSub": "Gesicht + Büste",
@@ -324,7 +324,7 @@
     "uploadMax8": "Bis zu 8 Fotos",
     "uploadStep": "Lade deine Fotos hoch",
     "whoOnPortrait": "Wer ist auf dem Porträt?",
-    "photoRequired": "Fügen Sie mindestens ein Foto hinzu — ohne Vorlage kann der Illustrator nicht zeichnen.",
+    "photoRequired": "Fügen Sie mindestens ein Foto hinzu — ohne Vorlage können wir Ihr Porträt nicht erstellen.",
     "economie": "Du sparst",
     "review7Name": "Laura G.",
     "review7Text": "Ich habe meinem Freund zu Weihnachten ein Porträt geschenkt. Er war zu Tränen gerührt!",
@@ -455,7 +455,7 @@
     "paymentInProgress": "Zahlung läuft...",
     "orderConfirmedTitle": "Bestellung bestätigt!",
     "confirmationEmailSent": "Eine Bestätigungs-E-Mail wurde gesendet an",
-    "artistsAtWork": "Unsere Künstler machen sich sofort an die Arbeit, um Ihr Cartoon-Meisterwerk zu erstellen!",
+    "artistsAtWork": "Wir machen uns sofort an Ihr Cartoon-Porträt!",
     "savingOrder": "Ihre Bestellung wird gespeichert...",
     "close": "Schließen",
     "errorValidEmail": "Bitte geben Sie eine gültige E-Mail ein.",
@@ -483,7 +483,7 @@
     "faqTitle": "Häufige Fragen",
     "ctaTitle": "Bereit zu bestellen?",
     "ctaButton": "Mein Portrait erstellen",
-    "ctaNote": "Handgezeichnet · Vorschau vor dem Druck · kostenlose Korrekturen",
+    "ctaNote": "Nach Ihrem Foto · Vorschau vor dem Druck · kostenlose Korrekturen",
     "otherOccasions": "Derselbe Stil für einen anderen Anlass",
     "otherStyles": "Ein anderer Stil für denselben Anlass",
     "metaSuffix": "Cartoonova"
@@ -494,49 +494,49 @@
       "promoFort": "Vorschau in 2 Tagen",
       "heroTitre1": "Das Geburtstagsgeschenk",
       "heroTitre2": "über das alle lachen",
-      "heroSous": "Ihr Foto als Porträt, von unseren Zeichnern von Hand gezeichnet. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Ihr Foto als einzigartiges Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
     },
     "saintValentin": {
-      "promo": "Valentinstag — von Hand gezeichnet, unbegrenzte Korrekturen,",
+      "promo": "Valentinstag — einzigartiges Porträt, unbegrenzte Korrekturen,",
       "promoFort": "bestellen bis {date}",
       "heroTitre1": "Ein Valentinsgeschenk,",
       "heroTitre2": "das man nicht kaufen kann",
-      "heroSous": "Euer schönstes Foto zu zweit, von Hand gezeichnet. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Euer schönstes Foto zu zweit als einzigartiges Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
     },
     "feteDesMeres": {
       "promo": "Muttertag —",
       "promoFort": "bestellen bis {date}",
       "heroTitre1": "Das Muttertagsgeschenk,",
       "heroTitre2": "das sie behält",
-      "heroSous": "Euer Familienfoto als handgezeichnetes Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Euer Familienfoto als einzigartiges Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
     },
     "feteDesPeres": {
       "promo": "Vatertag —",
       "promoFort": "bestellen bis {date}",
       "heroTitre1": "Ein Vatertagsgeschenk,",
       "heroTitre2": "das keine Krawatte ist",
-      "heroSous": "Sein Foto, von Hand gezeichnet in seiner Lieblingswelt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Sein Foto in seiner Lieblingswelt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
     },
     "halloween": {
       "promo": "Halloween steht vor der Tür —",
       "promoFort": "bestellen bis {date}",
       "heroTitre1": "Dein Porträt,",
       "heroTitre2": "Halloween-Edition",
-      "heroSous": "Die ganze Familie von Hand gezeichnet, im Cartoon-Stil. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Die ganze Familie im Cartoon-Stil. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
     },
     "blackFriday": {
       "promo": "Black Friday —",
       "promoFort": "der beste Moment zum Schenken",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "schenk etwas Einzigartiges",
-      "heroSous": "Ein handgezeichnetes Porträt statt noch eines Geräts. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Ein Porträt statt noch eines Geräts. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
     },
     "noel": {
       "promo": "Weihnachten —",
       "promoFort": "bestellen bis {date}",
       "heroTitre1": "Das Weihnachtsgeschenk,",
       "heroTitre2": "das man nicht vergisst",
-      "heroSous": "Euer Foto, von unseren Künstlern gezeichnet und rechtzeitig zum 25. geliefert. Vorschau in 2 Tagen."
+      "heroSous": "Euer Foto als einzigartiges Porträt, rechtzeitig zum 25. geliefert. Vorschau in 2 Tagen."
     }
   },
   "gift": {
@@ -595,15 +595,15 @@
     "bg8": "Hyperbolic"
   },
   "home": {
-    "heroRating": "Personalisiertes Porträt, handgezeichnet",
+    "heroRating": "Personalisiertes Porträt, nach Ihrem Foto",
     "heroTitle1": "Verwandeln Sie sich in eine",
     "heroTitle2": "Cartoon-Figur",
-    "heroSubtitle": "Personalisiertes Portrait, handgezeichnet von unseren Künstlern. Simpson, Disney, Ghibli und mehr!",
+    "heroSubtitle": "Personalisiertes Porträt nach Ihrem Foto. Simpson, Disney, Ghibli und mehr!",
     "createMyPortrait": "Mein Portrait erstellen",
     "createFlagship": "Mein {univers}-Porträt erstellen",
     "howItWorksLink": "Wie funktioniert es?",
     "satisfiedOrRefunded": "Zufrieden oder Geld zurück",
-    "handDrawn": "Handgezeichnet",
+    "handDrawn": "Nach Ihrem Foto",
     "delivered48h": "Lieferung in 2 Tagen",
     "portraitsCreated": "Erstellte Portraits",
     "averageRating": "Durchschnittsbewertung",
@@ -616,22 +616,22 @@
     "step1Title": "Senden Sie Ihr Foto",
     "step1Desc": "Laden Sie ein Foto von sich, Ihrer Familie oder Ihren Haustieren hoch.",
     "step2Title": "Wir zeichnen Sie",
-    "step2Desc": "Unsere Künstler erstellen Ihr einzigartiges Cartoon-Portrait.",
+    "step2Desc": "Wir erstellen Ihr einzigartiges Cartoon-Porträt.",
     "step3Title": "Erhalten Sie Ihr Kunstwerk",
     "step3Desc": "Erhalten Sie Ihre digitale Datei innerhalb von 2 Tagen.",
     "startNow": "Jetzt starten →",
     "galleryTitle": "Unsere Kreationen",
-    "gallerySubtitle": "Entdecken Sie, was unsere Künstler für Sie schaffen können!",
+    "gallerySubtitle": "Entdecken Sie, was wir aus Ihren Fotos machen können!",
     "viewPortfolio": "Ganzes Portfolio ansehen →",
     "whyUsTitle": "Warum Cartoonova?",
     "whyUs1Title": "Zufriedenheitsgarantie",
     "whyUs1Desc": "Unbegrenzte kostenlose Überarbeitungen bis zu Ihrer vollsten Zufriedenheit!",
-    "whyUs2Title": "Profi-Künstler",
-    "whyUs2Desc": "Unsere talentierten Zeichner erstellen einzigartige Portraits.",
+    "whyUs2Title": "Maßgeschneidert",
+    "whyUs2Desc": "Jedes Porträt entsteht nach Ihren Fotos, nur für Sie.",
     "whyUs3Title": "Lieferung in 2 Tagen",
     "whyUs3Desc": "Erhalten Sie Ihr digitales Portrait in maximal 2 Tagen.",
     "reviewsTitle": "Was unsere Kunden sagen",
-    "verifiedReviewsCount": "Professionelle Künstler",
+    "verifiedReviewsCount": "Unbegrenzte Korrekturen",
     "verified": "Verifiziert",
     "viewAllReviews": "Alle Bewertungen ansehen →",
     "review1Name": "Sophie M.",
@@ -650,7 +650,7 @@
     "faqQ1": "Wie lange dauert die Erstellung der Karikatur?",
     "faqA1": "Die Zeichnung wird innerhalb von 2 Tagen fertiggestellt. Bei einem physischen Druck (Poster, Leinwand, Rahmen) kommen 3 Werktage für Produktion und Versand hinzu.",
     "faqQ2": "Müssen die Personen auf dem gleichen Foto sein?",
-    "faqA2": "Überhaupt nicht! Senden Sie uns Einzelfotos und unsere Künstler zeichnen alle zusammen.",
+    "faqA2": "Überhaupt nicht! Senden Sie uns Einzelfotos, wir bringen alle zusammen.",
     "faqQ3": "Was passiert, wenn ich nicht zufrieden bin?",
     "faqA3": "Wir bieten unbegrenzte kostenlose Überarbeitungen bis zu Ihrer vollsten Zufriedenheit!",
     "faqQ4": "Kann mein Haustier auch ein Cartoon werden?",
@@ -659,10 +659,10 @@
     "faqA5": "Ja! Wir können Objekte, Fahrzeuge, Hintergründe oder Accessoires gegen einen kleinen Aufpreis hinzufügen.",
     "ctaTitle": "Bereit, ein Cartoon zu werden?",
     "ctaSubtitle": "Möchten Sie ein Porträt, das wie Sie aussieht? Sie sind dran!",
-    "ctaReassurance": "Handgezeichnet · Lieferung in 2 Tagen · Zufrieden oder Geld zurück",
+    "ctaReassurance": "Nach Ihrem Foto · Lieferung in 2 Tagen · Zufrieden oder Geld zurück",
     "portraitAlt": "Cartoon-Portrait",
     "realizationAlt": "Kreation",
-    "trustBar": "Handgezeichnet · Lieferung in 2 Tagen · Zufrieden oder Geld zurück"
+    "trustBar": "Nach Ihrem Foto · Lieferung in 2 Tagen · Zufrieden oder Geld zurück"
   },
   "socialProof": {
     "names": [
@@ -677,13 +677,13 @@
     ]
   },
   "tj": {
-    "promo": "Handgezeichnet, unbegrenzte Korrekturen —",
+    "promo": "Einzigartiges Porträt, unbegrenzte Korrekturen —",
     "promoFort": "Vorschau in 2 Tagen",
     "navStyles": "Stile",
     "navEtapes": "So funktioniert es",
     "navFaq": "Fragen",
     "navTousStyles": "Alle 36 Stile ansehen",
-    "heroOeil": "Handgezeichnetes Porträt",
+    "heroOeil": "Personalisiertes Porträt",
     "heroNote": "Vorschau in 2 Tagen, unverbindlich",
     "etapesTitre": "Drei Schritte,",
     "etapesAccent": "mehr nicht",
@@ -692,14 +692,14 @@
     "stylesTous": "Alle 36 Stile ansehen",
     "temoinsTitre": "Cartoonisiert…",
     "temoinsAccent": "und begeistert!",
-    "temoinsTexte": "Mehr als 85 000 handgezeichnete Porträts haben schon jemanden zum Lächeln gebracht. Du auch?",
+    "temoinsTexte": "Mehr als 85 000 Porträts haben schon jemanden zum Lächeln gebracht. Du auch?",
     "avisTitre": "Sie haben es",
     "avisAccent": "aufgehängt",
     "achatVerifie": "Verifizierter Kauf",
     "atoutsSurtitre": "Warum wir",
     "atoutsTitre": "Was den",
     "atoutsAccent": "Unterschied macht",
-    "atoutsSous": "Jedes Porträt wird von einem Illustrator handgezeichnet. Keine KI, keine Vorlagen.",
+    "atoutsSous": "Jedes Porträt entsteht aus deinem Foto, aus nichts anderem.",
     "atout1T": "Schnelle Vorschau",
     "atout1D": "Deine erste Vorschau kommt in 2 Tagen. Sobald du sie freigibst, geht die hochauflösende Datei per E-Mail raus.",
     "atout2T": "Unbegrenzte Korrekturen",
@@ -709,18 +709,18 @@
     "atout4T": "Sichere Zahlung",
     "atout4D": "Verschlüsselte Transaktionen und reibungslose Bestellung, von der Datei bis zum gerahmten Druck.",
     "preuveNombre": "85 000+",
-    "preuveTexte": "handgezeichnete Porträts",
+    "preuveTexte": "gelieferte Porträts",
     "comparatifTitre": "Wenn Kunst auf",
     "comparatifAccent": "deine Lieblingsfiguren trifft",
     "recitMarqueur": "Unsere Geschichte",
     "recitTitre": "Warum wir das",
     "recitAccent": "machen",
     "recitP1": "Alles begann mit einer einfachen Idee: Was, wenn jeder zur Zeichentrickfigur werden könnte?",
-    "recitP2": "Heute zeichnet ein Team von Illustratoren jede Bestellung neu, eine nach der anderen. Keine automatische Generierung, kein Filter: eine Zeichnung, von jemandem gemacht.",
+    "recitP2": "Heute wird jede Bestellung einzeln bearbeitet, ausgehend von den Fotos, die du schickst. Nichts wird von einem Porträt zum nächsten übernommen: deins entsteht aus deinem Foto, aus nichts anderem.",
     "faqTitre": "Eure",
     "faqAccent": "Fragen",
-    "dessineTitre": "Handgezeichnet von",
-    "dessineAccent": "echten Künstlern",
+    "dessineTitre": "Erstellt nach",
+    "dessineAccent": "deinem Foto",
     "catSloganManga": "Werde dein eigener Anime-Held",
     "catSloganCartoon": "Deine witzige und stilvolle Karikatur",
     "catSloganComics": "Werde dein Lieblings-Superheld",
@@ -742,14 +742,14 @@
     "similairesAccent": "auch",
     "ctaTitre": "Bereit, dich",
     "ctaAccent": "als Cartoon zu sehen",
-    "ctaTexte": "Unterstütze echte Illustratoren und verschenke etwas, das sonst niemand schenken kann.",
+    "ctaTexte": "Verschenke etwas, das sonst niemand schenken kann.",
     "ctaAtout1": "Fertig in 2 Tagen",
     "ctaAtout2": "Unbegrenzte Korrekturen",
     "ctaAtout3": "Jedes Foto geht",
-    "piedBaseline": "Handgezeichnete Porträts, nach euren Fotos.",
+    "piedBaseline": "Einzigartige Porträts, nach euren Fotos.",
     "piedStyles": "Stile",
     "piedAide": "Hilfe",
-    "piedMention": "Handgezeichnete Illustrationen",
+    "piedMention": "Illustrationen nach euren Fotos",
     "piedSuivi": "Bestellverfolgung",
     "filAccueil": "Startseite",
     "tuilePerso": "Unbegrenzte Anpassung",
@@ -768,8 +768,8 @@
     "catalogueSous": "Jeder Stil hat seinen eigenen Strich, seine Kulissen und sein Publikum. Wähle deinen.",
     "filtreTous": "Alle",
     "produitsCompte": "Stile",
-    "comparatifEux": "Generiertes Porträt",
-    "cmp1": "Von einem Illustrator handgezeichnet",
+    "comparatifEux": "Ein Standard-Poster",
+    "cmp1": "Einzigartiges Porträt, nach deinem Foto",
     "cmp2": "Unbegrenzte kostenlose Korrekturen",
     "cmp3": "Vorschau vor dem Druck freigegeben",
     "cmp4": "Poster, Leinwand oder Rahmen zur Wahl",
@@ -796,12 +796,12 @@
   },
   "metaPages": {
     "aPropos": {
-      "title": "Über Cartoonova — handgezeichnete Cartoon-Porträts",
-      "description": "Hinter Cartoonova stehen Illustratoren, die jedes Porträt von Hand nach Ihren Fotos zeichnen. Vorschau in 48 Stunden, unbegrenzte Korrekturen, Lieferung in 3 bis 5 Tagen."
+      "title": "Über Cartoonova — personalisierte Cartoon-Porträts",
+      "description": "Hinter Cartoonova stehen Cartoon-Porträts, die einzeln nach Ihren Fotos entstehen. Vorschau in 48 Stunden, unbegrenzte Korrekturen, Lieferung in 3 bis 5 Tagen."
     },
     "avis": {
       "title": "Kundenbewertungen — was Kunden über ihr Cartoonova-Porträt sagen",
-      "description": "Rückmeldungen von Kundinnen und Kunden, die ihr Cartoon-Porträt zeichnen ließen: Ähnlichkeit, Druckqualität, Lieferzeit. Lesen Sie mit, bevor Sie bestellen."
+      "description": "Rückmeldungen von Kundinnen und Kunden, die ihr Cartoon-Porträt bestellt haben: Ähnlichkeit, Druckqualität, Lieferzeit. Lesen Sie mit, bevor Sie bestellen."
     },
     "contact": {
       "title": "Kontakt — Fragen zu Ihrem personalisierten Porträt?",
@@ -809,7 +809,7 @@
     },
     "portfolio": {
       "title": "Portfolio — maßgefertigte Cartoon-Porträts",
-      "description": "Dutzende handgezeichnete Porträts: Simpsons, Dragon Ball Z, Ghibli, Disney, One Piece. Sehen Sie das Ergebnis, bevor Sie sich für einen Stil entscheiden."
+      "description": "Dutzende personalisierte Porträts: Simpsons, Dragon Ball Z, Ghibli, Disney, One Piece. Sehen Sie das Ergebnis, bevor Sie sich für einen Stil entscheiden."
     },
     "cgv": {
       "title": "Allgemeine Geschäftsbedingungen — Cartoonova",
@@ -827,7 +827,7 @@
   "alt": {
     "realisationClient": "Personalisiertes Cartoon-Porträt, für einen Kunden gezeichnet",
     "exempleFaq": "Gerahmtes Cartoon-Porträt bei einem Kunden zu Hause",
-    "posterDessine": "Handgezeichnetes Cartoon-Poster",
+    "posterDessine": "Personalisiertes Cartoon-Porträt",
     "photoEnvoyee": "Das Foto, das Sie gerade hochgeladen haben"
   }
 }

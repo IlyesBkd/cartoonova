@@ -112,7 +112,6 @@ export default function Accueil({
     photo: photosAvis[n - 1] ?? photosAvis[0],
   }));
 
-  const [videoLance, setVideoLance] = useState(false);
 
   /* Tous les appels a l'action de l'accueil menaient a `/collections`, la
      grille des 36 fiches. Avec un univers attendu a 70 % des ventes, c'etait
@@ -523,64 +522,11 @@ export default function Accueil({
         </div>
       </section>
 
-      {/* ═══ DESSINÉ À LA MAIN ═══ */}
-      <section className="dessine">
-        <div className="dessine__halo" aria-hidden="true" />
-        <h2 className="dessine__titre">
-          {t("dessineTitre")}
-          <br />
-          <span className="accent">{t("dessineAccent")}</span>
-        </h2>
-        <div className="dessine__video" onClick={() => setVideoLance(true)}>
-          {videoLance ? (
-            <video
-              src="/toonjaune/handdrawn-video.mp4"
-              poster="/toonjaune/handdrawn-poster.jpg"
-              controls
-              autoPlay
-              muted
-              playsInline
-            />
-          ) : (
-            <>
-              <Image
-                src="/toonjaune/handdrawn-poster.jpg"
-                alt={tAlt("posterDessine")}
-                width={870}
-                height={454}
-                sizes="(max-width: 900px) 92vw, 870px"
-              />
-              <button type="button" className="dessine__jouer" aria-label={th("createMyPortrait")}>
-                <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M6.5 4.5C6.5 3 8 2.3 9.3 3.1L21 10.6C22.2 11.4 22.2 13.1 21 13.9L9.3 21.4C8 22.2 6.5 21.5 6.5 20V4.5Z" fill="#fff" />
-                </svg>
-              </button>
-            </>
-          )}
-        </div>
-        <Link className="dessine__bouton" href={lienPhare}>
-          {ctaPhare}
-          <svg width="24" height="24" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path
-              d="M18.632 25C18.4085 25.0013 18.1896 24.9347 18.0033 24.8087C17.817 24.6827 17.6718 24.5029 17.586 24.2924C17.5003 24.0818 17.478 23.85 17.522 23.6265C17.566 23.403 17.6742 23.1979 17.8329 23.0374L23.798 16.9658L17.8329 10.8943C17.6486 10.6747 17.5522 10.3923 17.5631 10.1034C17.5741 9.81458 17.6915 9.54057 17.892 9.33616C18.0924 9.13176 18.3611 9.01201 18.6443 9.00086C18.9276 8.9897 19.2046 9.08795 19.4199 9.27598L26.1727 16.1624C26.3823 16.3774 26.5 16.6683 26.5 16.9716C26.5 17.2748 26.3823 17.5657 26.1727 17.7807L19.4199 24.6671C19.2102 24.8792 18.9273 24.9987 18.632 25Z"
-              fill="currentColor"
-            />
-            <path
-              opacity="0.4"
-              d="M7.37936 23C7.20571 23.001 7.03569 22.9513 6.89098 22.8572C6.74627 22.7631 6.63342 22.6289 6.56683 22.4717C6.50024 22.3145 6.48292 22.1414 6.51708 21.9746C6.55124 21.8077 6.63533 21.6546 6.75863 21.5347L11.3923 17.0017L6.75863 12.4688C6.594 12.3074 6.50151 12.0886 6.50151 11.8604C6.50151 11.6322 6.594 11.4134 6.75863 11.252C6.92325 11.0906 7.14654 11 7.37936 11C7.61218 11 7.83547 11.0906 8.0001 11.252L13.2458 16.3934C13.4086 16.5539 13.5 16.7711 13.5 16.9975C13.5 17.2238 13.4086 17.441 13.2458 17.6016L8.0001 22.7429C7.91913 22.8239 7.82257 22.8883 7.71602 22.9324C7.60946 22.9766 7.49504 22.9995 7.37936 23Z"
-              fill="currentColor"
-            />
-          </svg>
-        </Link>
-        <div className="dessine__avis">
-          <span style={{ color: "#FFC107", display: "inline-flex" }}>
-            <Etoiles largeur={106} />
-          </span>
-          <span>
-            <strong>{t("preuveNombre")}</strong> {t("preuveTexte")}
-          </span>
-        </div>
-      </section>
+      {/* La section « Dessiné à la main par de vrais artistes » vivait ici,
+         avec une vidéo d'une main dessinant sur tablette. Retirée : le site ne
+         décrit plus la façon dont les portraits sont réalisés, et une vidéo
+         l'aurait affirmé plus fort qu'aucune phrase. Son bouton et ses étoiles
+         existaient déjà plus haut sur la page. */}
 
       {/* La section « Notre histoire / Pourquoi on fait ça » vivait ici.
           Retirée de l'accueil : c'est une digression au milieu d'un parcours

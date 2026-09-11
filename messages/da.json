@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "Cartoonova – dit foto som håndtegnet portræt",
-    "description": "Bestil et håndtegnet portræt efter dit foto. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som fil, plakat, lærred eller indrammet.",
+    "title": "Cartoonova – dit foto som personligt portræt",
+    "description": "Bestil et personligt portræt efter dit foto. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som fil, plakat, lærred eller indrammet.",
     "ogTitle": "Personligt portræt efter foto – Cartoonova",
-    "ogDescription": "Forvandl dit foto til et unikt håndtegnet portræt. En gave ingen andre giver."
+    "ogDescription": "Forvandl dit foto til et unikt, personligt portræt. En gave ingen andre giver."
   },
   "nav": {
     "home": "Forside",
@@ -18,7 +18,7 @@
   },
   "blog": {
     "metaTitle": "Cartoonova-bloggen — gaveidéer og stilguider",
-    "metaDescription": "Gaveidéer, stilguider og praktiske råd om personlige håndtegnede portrætter.",
+    "metaDescription": "Gaveidéer, stilguider og praktiske råd om personlige portrætter.",
     "title": "Cartoonova-bloggen",
     "subtitle": "Gaveidéer, stilguider og praktiske råd til dit portræt.",
     "readMore": "Læs artiklen",
@@ -60,23 +60,23 @@
       "title": "Disney-portræt",
       "description": "Lev dit eget eventyr"
     },
-    "reassurance1": "Tegnet i hånden af vores tegnere",
+    "reassurance1": "Unikt, ud fra dit foto",
     "reassurance2": "Digital levering på 2 dage",
     "reassurance3": "Tilfredshedsgaranti",
     "ctaTitle": "Kan du ikke vælge?",
     "ctaSubtitle": "Start med bestselleren!",
     "ctaButton": "Se Simpsons",
     "badgeSatisfied": "Tilfreds eller pengene tilbage",
-    "badgeHandDrawn": "Tegnet i hånden",
+    "badgeHandDrawn": "Ud fra dit foto",
     "badgeDelivery24h": "Leveres på 2 dage",
-    "trustBar": "Tegnet i hånden · Leveres på 2 dage · Tilfreds eller pengene tilbage"
+    "trustBar": "Ud fra dit foto · Leveres på 2 dage · Tilfreds eller pengene tilbage"
   },
   "hero": {
     "badge": "4.8",
     "title1": "Forvandl",
     "title2": "dine fotos",
     "title3": "til tegning!",
-    "subtitle": "Et unikt portræt, tegnet i hånden. Gaven ingen andre giver.",
+    "subtitle": "Et unikt portræt, lavet ud fra dit foto. Gaven ingen andre giver.",
     "cta": "Bestil mit portræt",
     "ctaSecondary": "Hvordan virker det?"
   },
@@ -85,14 +85,14 @@
     "step1Title": "Send dit foto",
     "step1Desc": "Upload et foto af dig selv, familien, vennerne eller kæledyret.",
     "step2Title": "Vi tegner dig",
-    "step2Desc": "Vores tegnere laver dit unikke portræt.",
+    "step2Desc": "Vi laver dit unikke portræt.",
     "step3Title": "Få dit portræt",
     "step3Desc": "Du får den digitale fil og/eller trykket leveret hjem.",
     "cta": "Kom i gang →"
   },
   "gallery": {
     "title": "Vores arbejde",
-    "subtitle": "Hvert portræt tegnes i hånden.",
+    "subtitle": "Hvert portræt er unikt og laves ud fra dine fotos.",
     "cta": "Se hele porteføljen →"
   },
   "reviews": {
@@ -105,7 +105,7 @@
     "q1": "Hvor lang tid tager portrættet?",
     "a1": "Tegningen er klar på 2 dage. Vælger du et tryk (plakat, lærred), kommer der 3 hverdage til produktion og forsendelse.",
     "q2": "Skal alle være på det samme foto?",
-    "a2": "Nej da. Send separate fotos, så sætter tegnerne alle sammen i ét billede.",
+    "a2": "Nej da. Send separate fotos, så sætter vi alle sammen i ét billede.",
     "q3": "Hvad hvis jeg ikke er tilfreds?",
     "a3": "Vi retter til så mange gange, det skal være, uden ekstra betaling, indtil du er helt tilfreds.",
     "q4": "Kan mit kæledyr også være med?",
@@ -117,8 +117,8 @@
     "breadcrumb": "Bestil mit portræt",
     "heroTitle1": "Bestil din",
     "heroTitle2": "Simpsons-karikatur",
-    "heroSubtitle": "Bliv en håndtegnet figur. Den perfekte unikke, personlige gave!",
-    "handDrawn": "Tegnet i hånden",
+    "heroSubtitle": "Bliv en tegnet figur, ud fra dit foto. Den perfekte unikke, personlige gave!",
+    "handDrawn": "Ud fra dit foto",
     "freeRevision": "Gratis rettelser",
     "fastDelivery": "Hurtig levering",
     "socialProof": "har lige bestilt et portræt",
@@ -127,12 +127,12 @@
     "averageRating": "Gennemsnit",
     "delivery": "Levering",
     "satisfactionGuarantee": "Tilfredshedsgaranti",
-    "portraitsCount": "Håndtegnede portrætter",
+    "portraitsCount": "Leverede portrætter",
     "digitalDelivery48h": "Digital levering på 2 dage",
     "guaranteeStep1Title": "Send dit foto",
     "guaranteeStep1Desc": "En selfie er nok",
     "guaranteeStep2Title": "Vi tegner portrættet",
-    "guaranteeStep2Desc": "Af en fast tegner",
+    "guaranteeStep2Desc": "Ud fra dine fotos",
     "guaranteeStep3Title": "Ikke tilfreds?",
     "guaranteeStep3Desc": "Vi tegner det om gratis",
     "ourWork": "Vores arbejde",
@@ -144,7 +144,7 @@
     "readyToBecome": "Klar til at blive:",
     "joinClients": "Dit personlige portræt på 2 dage",
     "createMyPortrait": "Lav mit portræt",
-    "handDrawnIcon": "Tegnet i hånden",
+    "handDrawnIcon": "Ud fra dit foto",
     "delivered48h": "Leveres på 2 dage",
     "satisfiedOrRefunded": "Tilfreds eller pengene tilbage",
     "formatLabel": "Format",
@@ -215,7 +215,7 @@
     "bgSnow": "Sne",
     "bgValentines": "Valentinsdag",
     "galleryTitle": "Vores arbejde",
-    "gallerySubtitle": "Se hvad vores tegnere kan lave til dig!",
+    "gallerySubtitle": "Se hvad vi kan lave ud fra dine fotos!",
     "videoTitle": "Sådan tegner vi dig",
     "videoSubtitle": "Se hvordan fotoet bliver til en tegning!",
     "reviewsTitle": "Tak for tilliden",
@@ -235,7 +235,7 @@
     "faqQ1": "Hvor lang tid tager karikaturen?",
     "faqA1": "Tegningen er klar på 2 dage. Vælger du et tryk (plakat, lærred), kommer der 3 hverdage til produktion og forsendelse.",
     "faqQ2": "Skal alle være på det samme foto?",
-    "faqA2": "Nej da. Send separate fotos, så sætter tegnerne alle sammen i ét billede.",
+    "faqA2": "Nej da. Send separate fotos, så sætter vi alle sammen i ét billede.",
     "faqQ3": "Hvad hvis jeg ikke er tilfreds?",
     "faqA3": "Vi retter til så mange gange, det skal være, uden ekstra betaling, indtil du er helt tilfreds. Din tilfredshed kommer først.",
     "faqQ4": "Kan mit kæledyr også blive en gul figur?",
@@ -253,7 +253,7 @@
     "orderArrow": "Bestil →",
     "selectedDecor": "Valgt baggrund",
     "exampleWork": "Eksempel",
-    "verifiedReviewsCount": "Professionelle tegnere",
+    "verifiedReviewsCount": "Ubegrænsede rettelser",
     "portraitAlt": "Personligt portræt",
     "realizationAlt": "Arbejde",
     "readyToEnterGhibli": "Klar til at træde ind i Ghiblis verden?",
@@ -293,10 +293,10 @@
     "hoverToPreview": "Hold musen over for at se",
     "howItWorks": "Sådan virker det",
     "howItWorksTitle": "3 trin, uden bøvl.",
-    "illustrativePreview": "[ eksempelvisning — håndtegnet resultat ]",
+    "illustrativePreview": "[ eksempelvisning — eksempel på resultat ]",
     "livePreview": "Løbende forhåndsvisning",
     "madeInFrance": "Fremstillet i Frankrig",
-    "noteForArtist": "Note til tegneren",
+    "noteForArtist": "Ønsker til portrættet",
     "notePlaceholder": "F.eks.: far har altid kasket på, katten hedder Pixel, giv os alle sammen juletøj på…",
     "optional": "valgfrit",
     "orderCta": "Bestil mit portræt",
@@ -305,7 +305,7 @@
     "peoplePlural": "personer",
     "peopleSingular": "person",
     "pillDelivered48h": "Levering på 2 dage",
-    "pillDrawnHand": "Tegnet i hånden",
+    "pillDrawnHand": "Ud fra dit foto",
     "pillSatisfied": "Tilfreds eller pengene tilbage",
     "portraitsDelivered": "leverede portrætter",
     "portraitSub": "Ansigt + buste",
@@ -324,7 +324,7 @@
     "uploadMax8": "Op til 8 fotos",
     "uploadStep": "Upload dine fotos",
     "whoOnPortrait": "Hvem er med på portrættet?",
-    "photoRequired": "Tilføj mindst ét foto — uden det har tegneren intet at gå ud fra.",
+    "photoRequired": "Tilføj mindst ét foto — uden det kan vi ikke lave portrættet.",
     "economie": "Du sparer",
     "review7Name": "Laura G.",
     "review7Text": "Jeg gav min kæreste et portræt i julegave. Han blev så rørt! Tak Cartoonova!",
@@ -455,7 +455,7 @@
     "paymentInProgress": "Betalingen behandles...",
     "orderConfirmedTitle": "Bestillingen er bekræftet!",
     "confirmationEmailSent": "En bekræftelse er sendt til",
-    "artistsAtWork": "Vores tegnere går i gang med dit portræt med det samme!",
+    "artistsAtWork": "Vi går i gang med dit portræt med det samme!",
     "savingOrder": "Gemmer din bestilling...",
     "close": "Luk",
     "errorValidEmail": "Angiv en gyldig e-mailadresse.",
@@ -483,7 +483,7 @@
     "faqTitle": "Ofte stillede spørgsmål",
     "ctaTitle": "Klar til at bestille?",
     "ctaButton": "Lav mit portræt",
-    "ctaNote": "Tegnet i hånden · forhåndsvisning før tryk · gratis rettelser",
+    "ctaNote": "Ud fra dit foto · forhåndsvisning før tryk · gratis rettelser",
     "otherOccasions": "Samme stil til en anden anledning",
     "otherStyles": "En anden stil til samme anledning",
     "metaSuffix": "Cartoonova"
@@ -494,21 +494,21 @@
       "promoFort": "forhåndsvisning på 2 dage",
       "heroTitre1": "Fødselsdagsgaven",
       "heroTitre2": "som får alle til at grine",
-      "heroSous": "Dit foto tegnet i hånden af vores tegnere. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Dit foto som et unikt portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
     },
     "saintValentin": {
-      "promo": "Valentinsdag — tegnet i hånden, ubegrænsede rettelser,",
+      "promo": "Valentinsdag — unikt portræt, ubegrænsede rettelser,",
       "promoFort": "bestil senest {date}",
       "heroTitre1": "En valentinsgave",
       "heroTitre2": "der ikke kan købes",
-      "heroSous": "Jeres bedste foto sammen, tegnet i hånden. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Jeres bedste foto sammen, som unikt portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
     },
     "feteDesMeres": {
       "promo": "Mors dag —",
       "promoFort": "bestil senest {date}",
       "heroTitre1": "Gaven til mors dag",
       "heroTitre2": "som hun gemmer",
-      "heroSous": "Jeres familiefoto som håndtegnet portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Jeres familiefoto som unikt portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
     },
     "feteDesPeres": {
       "promo": "Fars dag —",
@@ -522,21 +522,21 @@
       "promoFort": "bestil senest {date}",
       "heroTitre1": "Dit portræt,",
       "heroTitre2": "halloween-udgaven",
-      "heroSous": "Hele familien tegnet i hånden, i tegneseriestil. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Hele familien i tegneseriestil. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
     },
     "blackFriday": {
       "promo": "Det er Black Friday —",
       "promoFort": "det bedste tidspunkt at give",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "giv noget originalt",
-      "heroSous": "Et håndtegnet portræt, ikke endnu en dims. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Et portræt i stedet for endnu en dims. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
     },
     "noel": {
       "promo": "Jul —",
       "promoFort": "bestil senest {date}",
       "heroTitre1": "Julegaven",
       "heroTitre2": "ingen glemmer",
-      "heroSous": "Dit foto tegnet i hånden, klar til den 24. Forhåndsvisning på 2 dage."
+      "heroSous": "Dit foto som unikt portræt, klar til den 24. Forhåndsvisning på 2 dage."
     }
   },
   "gift": {
@@ -595,15 +595,15 @@
     "bg8": "Hyperbolic"
   },
   "home": {
-    "heroRating": "Personligt portræt, tegnet i hånden",
+    "heroRating": "Personligt portræt, ud fra dit foto",
     "heroTitle1": "Bliv en",
     "heroTitle2": "tegnet figur",
-    "heroSubtitle": "Personligt portræt tegnet i hånden af vores tegnere. Simpsons, Disney, Ghibli og flere!",
+    "heroSubtitle": "Personligt portræt lavet ud fra dit foto. Simpsons, Disney, Ghibli og flere!",
     "createMyPortrait": "Lav mit portræt",
     "createFlagship": "Lav mit {univers}-portræt",
     "howItWorksLink": "Hvordan virker det?",
     "satisfiedOrRefunded": "Tilfreds eller pengene tilbage",
-    "handDrawn": "Tegnet i hånden",
+    "handDrawn": "Ud fra dit foto",
     "delivered48h": "Leveres på 2 dage",
     "portraitsCreated": "Portrætter lavet",
     "averageRating": "Gennemsnit",
@@ -616,22 +616,22 @@
     "step1Title": "Send dit foto",
     "step1Desc": "Upload et foto af dig selv, familien eller kæledyret.",
     "step2Title": "Vi tegner dig",
-    "step2Desc": "Vores tegnere laver dit unikke portræt.",
+    "step2Desc": "Vi laver dit unikke portræt.",
     "step3Title": "Få dit portræt",
     "step3Desc": "Den digitale fil er klar på 2 dage.",
     "startNow": "Kom i gang →",
     "galleryTitle": "Vores arbejde",
-    "gallerySubtitle": "Se hvad vores tegnere kan lave til dig!",
+    "gallerySubtitle": "Se hvad vi kan lave ud fra dine fotos!",
     "viewPortfolio": "Se hele porteføljen →",
     "whyUsTitle": "Hvorfor Cartoonova?",
     "whyUs1Title": "Tilfredshedsgaranti",
     "whyUs1Desc": "Ubegrænsede gratis rettelser, indtil du er helt tilfreds.",
-    "whyUs2Title": "Rigtige tegnere",
-    "whyUs2Desc": "Hvert portræt tegnes i hånden, ikke automatisk.",
+    "whyUs2Title": "Efter dit foto",
+    "whyUs2Desc": "Hvert portræt laves ud fra dine fotos, kun til dig.",
     "whyUs3Title": "Levering på 2 dage",
     "whyUs3Desc": "Dit digitale portræt er klar inden for 2 dage.",
     "reviewsTitle": "Hvad vores kunder siger",
-    "verifiedReviewsCount": "Professionelle tegnere",
+    "verifiedReviewsCount": "Ubegrænsede rettelser",
     "verified": "Verificeret",
     "viewAllReviews": "Se alle anmeldelser →",
     "review1Name": "Sophie M.",
@@ -650,7 +650,7 @@
     "faqQ1": "Hvor lang tid tager portrættet?",
     "faqA1": "Tegningen er klar på 2 dage. Vælger du et tryk (plakat, lærred, ramme), kommer der 3 hverdage til produktion og levering.",
     "faqQ2": "Skal alle være på det samme foto?",
-    "faqA2": "Nej da. Send separate fotos, så sætter tegnerne alle sammen i ét billede.",
+    "faqA2": "Nej da. Send separate fotos, så sætter vi alle sammen i ét billede.",
     "faqQ3": "Hvad hvis jeg ikke er tilfreds?",
     "faqA3": "Vi retter til så mange gange, det skal være, uden ekstra betaling, indtil du er helt tilfreds.",
     "faqQ4": "Kan mit kæledyr også være med?",
@@ -659,10 +659,10 @@
     "faqA5": "Ja. Genstande, køretøjer, baggrunde og tilbehør tegnes med mod en mindre merpris.",
     "ctaTitle": "Klar til at blive tegnet?",
     "ctaSubtitle": "Vil du have et portræt, der ligner dig? Så er det din tur.",
-    "ctaReassurance": "Tegnet i hånden · Leveres på 2 dage · Tilfreds eller pengene tilbage",
+    "ctaReassurance": "Ud fra dit foto · Leveres på 2 dage · Tilfreds eller pengene tilbage",
     "portraitAlt": "Tegnet portræt",
     "realizationAlt": "Arbejde",
-    "trustBar": "Tegnet i hånden · Leveres på 2 dage · Tilfreds eller pengene tilbage"
+    "trustBar": "Ud fra dit foto · Leveres på 2 dage · Tilfreds eller pengene tilbage"
   },
   "socialProof": {
     "names": [
@@ -677,13 +677,13 @@
     ]
   },
   "tj": {
-    "promo": "Tegnet i hånden, ubegrænsede rettelser —",
+    "promo": "Unikt portræt, ubegrænsede rettelser —",
     "promoFort": "forhåndsvisning på 2 dage",
     "navStyles": "Stilarter",
     "navEtapes": "Sådan virker det",
     "navFaq": "Spørgsmål",
     "navTousStyles": "Se alle 35 stilarter",
-    "heroOeil": "Håndtegnet portræt",
+    "heroOeil": "Personligt portræt",
     "heroNote": "Forhåndsvisning på 2 dage, uforpligtende",
     "etapesTitre": "Tre trin,",
     "etapesAccent": "ikke mere",
@@ -692,14 +692,14 @@
     "stylesTous": "Se alle 35 stilarter",
     "temoinsTitre": "Tegnet…",
     "temoinsAccent": "og vildt glade!",
-    "temoinsTexte": "Over 85.000 håndtegnede portrætter har allerede gjort nogen glad. Din tur?",
+    "temoinsTexte": "Over 85.000 portrætter har allerede gjort nogen glad. Din tur?",
     "avisTitre": "De hængte det op",
     "avisAccent": "på væggen",
     "achatVerifie": "Verificeret køb",
     "atoutsSurtitre": "Hvorfor os",
     "atoutsTitre": "Det der gør",
     "atoutsAccent": "forskellen",
-    "atoutsSous": "Hvert portræt tegnes i hånden af en illustrator. Ingen AI, ingen skabeloner.",
+    "atoutsSous": "Hvert portræt tager udgangspunkt i dit foto, og intet andet.",
     "atout1T": "Hurtig forhåndsvisning",
     "atout1D": "Din første forhåndsvisning kommer inden for 2 dage. Når du godkender den, mailer vi filen i høj opløsning.",
     "atout2T": "Ubegrænsede rettelser",
@@ -709,18 +709,18 @@
     "atout4T": "Sikker betaling",
     "atout4D": "Krypterede transaktioner og en nem bestilling, fra digital fil til indrammet tryk.",
     "preuveNombre": "85.000+",
-    "preuveTexte": "håndtegnede portrætter",
+    "preuveTexte": "leverede portrætter",
     "comparatifTitre": "Hvor kunsten møder",
     "comparatifAccent": "dine yndlingsfigurer",
     "recitMarqueur": "Vores historie",
     "recitTitre": "Hvorfor vi",
     "recitAccent": "gør det her",
     "recitP1": "Det startede med en simpel idé: hvad nu hvis alle kunne blive en tegnet figur?",
-    "recitP2": "I dag gentegner et hold illustratorer hver eneste bestilling, én ad gangen. Ingen automatisk generering, intet filter: en tegning, lavet af et menneske.",
+    "recitP2": "I dag behandles hver bestilling én ad gangen, ud fra de fotos du sender. Intet føres videre fra ét portræt til det næste: dit tager udgangspunkt i dit foto, og intet andet.",
     "faqTitre": "Dine",
     "faqAccent": "spørgsmål",
-    "dessineTitre": "Tegnet i hånden af",
-    "dessineAccent": "rigtige tegnere",
+    "dessineTitre": "Lavet ud fra",
+    "dessineAccent": "dit foto",
     "catSloganManga": "Bliv din egen animehelt",
     "catSloganCartoon": "Din sjove karikatur",
     "catSloganComics": "Bliv din yndlingssuperhelt!",
@@ -742,14 +742,14 @@
     "similairesAccent": "sikkert også lide",
     "ctaTitre": "Klar til at se dig selv",
     "ctaAccent": "som tegnet figur",
-    "ctaTexte": "Støt rigtige illustratorer og giv en gave, ingen andre kan give.",
+    "ctaTexte": "Giv en gave, ingen andre kan give.",
     "ctaAtout1": "Klar på 2 dage",
     "ctaAtout2": "Ubegrænsede rettelser",
     "ctaAtout3": "Alle fotos virker",
-    "piedBaseline": "Håndtegnede portrætter, lavet efter dine fotos.",
+    "piedBaseline": "Unikke portrætter, lavet efter dine fotos.",
     "piedStyles": "Stilarter",
     "piedAide": "Hjælp",
-    "piedMention": "Håndtegnede illustrationer",
+    "piedMention": "Illustrationer lavet efter dine fotos",
     "piedSuivi": "Følg bestilling",
     "filAccueil": "Forside",
     "tuilePerso": "Fuld tilpasning",
@@ -768,8 +768,8 @@
     "catalogueSous": "Hver stil har sin egen streg, sine baggrunde og sit publikum. Vælg din.",
     "filtreTous": "Alle",
     "produitsCompte": "stilarter",
-    "comparatifEux": "Automatisk genereret portræt",
-    "cmp1": "Tegnet i hånden af en illustrator",
+    "comparatifEux": "En standardplakat",
+    "cmp1": "Unikt portræt, ud fra dit foto",
     "cmp2": "Ubegrænsede gratis rettelser",
     "cmp3": "Forhåndsvisning godkendt før tryk",
     "cmp4": "Plakat, lærred eller ramme efter eget valg",
@@ -796,8 +796,8 @@
   },
   "metaPages": {
     "aPropos": {
-      "title": "Om Cartoonova — håndtegnede portrætter",
-      "description": "Bag Cartoonova står tegnere, der tegner hvert portræt i hånden efter dine fotos. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, levering på 3 til 5 dage."
+      "title": "Om Cartoonova — personlige portrætter",
+      "description": "Bag Cartoonova er portrætter, der laves ét ad gangen ud fra dine fotos. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, levering på 3 til 5 dage."
     },
     "avis": {
       "title": "Kundeanmeldelser — hvad kunderne siger om deres Cartoonova-portræt",
@@ -809,7 +809,7 @@
     },
     "portfolio": {
       "title": "Portfolio — portrætter vi har tegnet",
-      "description": "Dusinvis af håndtegnede portrætter: Simpsons, Dragon Ball Z, Ghibli, Disney, One Piece. Se resultatet, før du vælger stil."
+      "description": "Dusinvis af personlige portrætter: Simpsons, Dragon Ball Z, Ghibli, Disney, One Piece. Se resultatet, før du vælger stil."
     },
     "cgv": {
       "title": "Handelsbetingelser — Cartoonova",
@@ -827,7 +827,7 @@
   "alt": {
     "realisationClient": "Personligt portræt tegnet til en kunde",
     "exempleFaq": "Indrammet portræt hjemme hos en kunde",
-    "posterDessine": "Håndtegnet plakat",
+    "posterDessine": "Personligt tegnet portræt",
     "photoEnvoyee": "Fotoet du lige har uploadet"
   }
 }

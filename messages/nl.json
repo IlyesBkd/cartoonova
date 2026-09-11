@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Cartoonova – jouw foto als handgetekend cartoonportret",
-    "description": "Laat je foto met de hand tekenen als cartoonportret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, geleverd als bestand, poster, canvas of ingelijst.",
+    "title": "Cartoonova – jouw foto als cartoonportret",
+    "description": "Laat je foto omtoveren tot een cartoonportret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, geleverd als bestand, poster, canvas of ingelijst.",
     "ogTitle": "Gepersonaliseerd cartoonportret – Cartoonova",
     "ogDescription": "Laat je foto tekenen als uniek cartoonportret. Een cadeau dat niemand anders geeft."
   },
@@ -60,23 +60,23 @@
       "title": "Disney-portret",
       "description": "Beleef je eigen sprookje"
     },
-    "reassurance1": "Met de hand getekend door onze tekenaars",
+    "reassurance1": "Uniek, naar jouw foto",
     "reassurance2": "Digitaal geleverd binnen 2 dagen",
     "reassurance3": "Tevredenheid gegarandeerd",
     "ctaTitle": "Kun je niet kiezen?",
     "ctaSubtitle": "Begin met onze bestseller!",
     "ctaButton": "Bekijk Simpsons",
     "badgeSatisfied": "Niet goed, geld terug",
-    "badgeHandDrawn": "Met de hand getekend",
+    "badgeHandDrawn": "Naar jouw foto",
     "badgeDelivery24h": "Geleverd in 2 dagen",
-    "trustBar": "Met de hand getekend · Geleverd in 2 dagen · Niet goed, geld terug"
+    "trustBar": "Naar jouw foto · Geleverd in 2 dagen · Niet goed, geld terug"
   },
   "hero": {
     "badge": "4.8",
     "title1": "Verander",
     "title2": "je foto's",
     "title3": "in cartoon!",
-    "subtitle": "Een uniek portret, met de hand getekend. Het cadeau dat niemand anders geeft.",
+    "subtitle": "Een uniek portret, gemaakt naar jouw foto. Het cadeau dat niemand anders geeft.",
     "cta": "Bestel mijn portret",
     "ctaSecondary": "Hoe werkt het?"
   },
@@ -85,14 +85,14 @@
     "step1Title": "Stuur je foto",
     "step1Desc": "Upload een foto van jezelf, je gezin, vrienden of huisdieren.",
     "step2Title": "Wij tekenen je",
-    "step2Desc": "Onze tekenaars maken jouw unieke cartoonportret.",
+    "step2Desc": "We maken jouw unieke cartoonportret.",
     "step3Title": "Ontvang je portret",
     "step3Desc": "Je krijgt het digitale bestand en/of de print thuisbezorgd.",
     "cta": "Nu beginnen →"
   },
   "gallery": {
     "title": "Ons werk",
-    "subtitle": "Elk portret wordt met de hand getekend.",
+    "subtitle": "Elk portret is uniek, gemaakt naar jouw foto's.",
     "cta": "Bekijk het hele portfolio →"
   },
   "reviews": {
@@ -105,7 +105,7 @@
     "q1": "Hoe lang duurt het voordat het portret klaar is?",
     "a1": "De tekening is binnen 2 dagen klaar. Kies je voor een print (poster, canvas), reken dan 3 werkdagen extra voor productie en verzending.",
     "q2": "Moeten alle personen op dezelfde foto staan?",
-    "a2": "Nee hoor. Stuur losse foto's op; onze tekenaars zetten iedereen samen in één beeld.",
+    "a2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in één beeld.",
     "q3": "Wat als ik niet tevreden ben?",
     "a3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent.",
     "q4": "Kan mijn huisdier er ook op?",
@@ -117,8 +117,8 @@
     "breadcrumb": "Bestel mijn portret",
     "heroTitle1": "Bestel je",
     "heroTitle2": "Simpsons-karikatuur",
-    "heroSubtitle": "Word zelf een handgetekende cartoonfiguur. Het perfecte unieke, persoonlijke cadeau!",
-    "handDrawn": "Met de hand getekend",
+    "heroSubtitle": "Word zelf een cartoonfiguur, naar jouw foto. Het perfecte unieke, persoonlijke cadeau!",
+    "handDrawn": "Naar jouw foto",
     "freeRevision": "Gratis aanpassen",
     "fastDelivery": "Snelle levering",
     "socialProof": "bestelde zojuist een portret",
@@ -127,12 +127,12 @@
     "averageRating": "Gemiddelde score",
     "delivery": "Levering",
     "satisfactionGuarantee": "Tevredenheidsgarantie",
-    "portraitsCount": "Handgetekende portretten",
+    "portraitsCount": "Geleverde portretten",
     "digitalDelivery48h": "Digitaal geleverd in 2 dagen",
     "guaranteeStep1Title": "Stuur je foto",
     "guaranteeStep1Desc": "Een selfie is genoeg",
     "guaranteeStep2Title": "Wij tekenen je portret",
-    "guaranteeStep2Desc": "Door een vaste tekenaar",
+    "guaranteeStep2Desc": "Naar jouw foto's",
     "guaranteeStep3Title": "Niet tevreden?",
     "guaranteeStep3Desc": "We tekenen het gratis opnieuw",
     "ourWork": "Ons werk",
@@ -144,7 +144,7 @@
     "readyToBecome": "Klaar om te worden:",
     "joinClients": "Je gepersonaliseerde portret binnen 2 dagen",
     "createMyPortrait": "Maak mijn portret",
-    "handDrawnIcon": "Met de hand getekend",
+    "handDrawnIcon": "Naar jouw foto",
     "delivered48h": "Geleverd in 2 dagen",
     "satisfiedOrRefunded": "Niet goed, geld terug",
     "formatLabel": "Formaat",
@@ -215,7 +215,7 @@
     "bgSnow": "Sneeuw",
     "bgValentines": "Valentijn",
     "galleryTitle": "Ons werk",
-    "gallerySubtitle": "Ontdek wat onze tekenaars voor je kunnen maken!",
+    "gallerySubtitle": "Ontdek wat we van jouw foto's kunnen maken!",
     "videoTitle": "Zo tekenen we je",
     "videoSubtitle": "Zie het gebeuren — van foto naar cartoon!",
     "reviewsTitle": "Bedankt voor het vertrouwen",
@@ -235,7 +235,7 @@
     "faqQ1": "Hoe lang duurt het voordat de karikatuur klaar is?",
     "faqA1": "De tekening is binnen 2 dagen klaar. Kies je voor een print (poster, canvas), reken dan 3 werkdagen extra voor productie en verzending.",
     "faqQ2": "Moeten alle personen op dezelfde foto staan?",
-    "faqA2": "Nee hoor. Stuur losse foto's op; onze tekenaars zetten iedereen samen in één beeld.",
+    "faqA2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in één beeld.",
     "faqQ3": "Wat als ik niet tevreden ben?",
     "faqA3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent. Jouw tevredenheid gaat voor.",
     "faqQ4": "Kan mijn huisdier ook een gele cartoonfiguur worden?",
@@ -253,7 +253,7 @@
     "orderArrow": "Bestellen →",
     "selectedDecor": "Gekozen achtergrond",
     "exampleWork": "Voorbeeld",
-    "verifiedReviewsCount": "Professionele tekenaars",
+    "verifiedReviewsCount": "Onbeperkt aanpassen",
     "portraitAlt": "Gepersonaliseerd portret",
     "realizationAlt": "Realisatie",
     "readyToEnterGhibli": "Klaar om de wereld van Ghibli in te stappen?",
@@ -293,10 +293,10 @@
     "hoverToPreview": "Beweeg voor een voorbeeld",
     "howItWorks": "Hoe het werkt",
     "howItWorksTitle": "3 stappen, geen gedoe.",
-    "illustrativePreview": "[ voorbeeldweergave — handgetekend resultaat ]",
+    "illustrativePreview": "[ voorbeeldweergave — voorbeeldresultaat ]",
     "livePreview": "Live voorbeeld",
     "madeInFrance": "Gemaakt in Frankrijk",
-    "noteForArtist": "Notitie voor de tekenaar",
+    "noteForArtist": "Opmerkingen voor je portret",
     "notePlaceholder": "Bijv.: mijn vader draagt altijd zijn pet, mijn kat heet Pixel, zet ons allemaal in kerstkleding…",
     "optional": "optioneel",
     "orderCta": "Bestel mijn portret",
@@ -305,7 +305,7 @@
     "peoplePlural": "personen",
     "peopleSingular": "persoon",
     "pillDelivered48h": "Levering in 2 dagen",
-    "pillDrawnHand": "Met de hand getekend",
+    "pillDrawnHand": "Naar jouw foto",
     "pillSatisfied": "Niet goed, geld terug",
     "portraitsDelivered": "portretten geleverd",
     "portraitSub": "Gezicht + buste",
@@ -324,7 +324,7 @@
     "uploadMax8": "Tot 8 foto's",
     "uploadStep": "Upload je foto's",
     "whoOnPortrait": "Wie staat er op het portret?",
-    "photoRequired": "Voeg minstens één foto toe — zonder foto heeft de tekenaar niets om mee te werken.",
+    "photoRequired": "Voeg minstens één foto toe — zonder foto kunnen we je portret niet maken.",
     "economie": "Je bespaart",
     "review7Name": "Laura G.",
     "review7Text": "Ik gaf mijn vriend met kerst een portret. Hij was zo ontroerd! Bedankt Cartoonova!",
@@ -455,7 +455,7 @@
     "paymentInProgress": "Betaling wordt verwerkt...",
     "orderConfirmedTitle": "Bestelling bevestigd!",
     "confirmationEmailSent": "Er is een bevestigingsmail gestuurd naar",
-    "artistsAtWork": "Onze tekenaars gaan meteen aan de slag met jouw cartoonportret!",
+    "artistsAtWork": "We gaan meteen aan de slag met jouw cartoonportret!",
     "savingOrder": "Je bestelling wordt opgeslagen...",
     "close": "Sluiten",
     "errorValidEmail": "Vul een geldig e-mailadres in.",
@@ -483,7 +483,7 @@
     "faqTitle": "Veelgestelde vragen",
     "ctaTitle": "Klaar om te bestellen?",
     "ctaButton": "Maak mijn portret",
-    "ctaNote": "Met de hand getekend · voorbeeld vóór het drukken · gratis aanpassingen",
+    "ctaNote": "Naar jouw foto · voorbeeld vóór het drukken · gratis aanpassingen",
     "otherOccasions": "Dezelfde stijl voor een andere gelegenheid",
     "otherStyles": "Een andere stijl voor dezelfde gelegenheid",
     "metaSuffix": "Cartoonova"
@@ -494,49 +494,49 @@
       "promoFort": "voorbeeld binnen 2 dagen",
       "heroTitre1": "Het verjaardagscadeau",
       "heroTitre2": "waar iedereen om lacht",
-      "heroSous": "Je foto met de hand getekend door onze tekenaars. Voorbeeld binnen 2 dagen, onbeperkt bijwerken."
+      "heroSous": "Je foto als uniek portret. Voorbeeld binnen 2 dagen, onbeperkt bijwerken."
     },
     "saintValentin": {
-      "promo": "Valentijnsdag — met de hand getekend, onbeperkt aanpassen,",
+      "promo": "Valentijnsdag — uniek portret, onbeperkt aanpassen,",
       "promoFort": "bestel vóór {date}",
       "heroTitre1": "Een valentijnscadeau",
       "heroTitre2": "dat je niet kunt kopen",
-      "heroSous": "Jullie mooiste foto samen, met de hand getekend door onze tekenaars. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Jullie mooiste foto samen, als uniek portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
     },
     "feteDesMeres": {
       "promo": "Moederdag —",
       "promoFort": "bestel vóór {date}",
       "heroTitre1": "Het moederdagcadeau",
       "heroTitre2": "dat ze bewaart",
-      "heroSous": "Jullie gezinsfoto als handgetekend portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Jullie gezinsfoto als uniek portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
     },
     "feteDesPeres": {
       "promo": "Vaderdag —",
       "promoFort": "bestel vóór {date}",
       "heroTitre1": "Een vaderdagcadeau",
       "heroTitre2": "dat geen stropdas is",
-      "heroSous": "Zijn foto, met de hand getekend in de wereld waar hij van houdt. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Zijn foto, in de wereld waar hij van houdt. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
     },
     "halloween": {
       "promo": "Halloween komt eraan —",
       "promoFort": "bestel vóór {date}",
       "heroTitre1": "Jouw portret,",
       "heroTitre2": "halloween-editie",
-      "heroSous": "Het hele gezin met de hand getekend, cartoonstijl. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Het hele gezin in cartoonstijl. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
     },
     "blackFriday": {
       "promo": "Het is Black Friday —",
       "promoFort": "hét moment om te geven",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "geef iets origineels",
-      "heroSous": "Een handgetekend portret, geen gadget erbij. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Een portret, geen gadget erbij. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
     },
     "noel": {
       "promo": "Kerst —",
       "promoFort": "bestel vóór {date}",
       "heroTitre1": "Het kerstcadeau",
       "heroTitre2": "dat niemand vergeet",
-      "heroSous": "Je foto met de hand getekend door onze tekenaars, op tijd voor de 25e. Voorbeeld binnen 2 dagen."
+      "heroSous": "Je foto als uniek portret, op tijd voor de 25e. Voorbeeld binnen 2 dagen."
     }
   },
   "gift": {
@@ -595,15 +595,15 @@
     "bg8": "Hyperbolic"
   },
   "home": {
-    "heroRating": "Gepersonaliseerd portret, met de hand getekend",
+    "heroRating": "Gepersonaliseerd portret, naar jouw foto",
     "heroTitle1": "Word zelf een",
     "heroTitle2": "cartoonfiguur",
-    "heroSubtitle": "Gepersonaliseerd portret, met de hand getekend door onze tekenaars. Simpsons, Disney, Ghibli en meer!",
+    "heroSubtitle": "Gepersonaliseerd portret, gemaakt naar jouw foto. Simpsons, Disney, Ghibli en meer!",
     "createMyPortrait": "Maak mijn portret",
     "createFlagship": "Maak mijn {univers}-portret",
     "howItWorksLink": "Hoe werkt het?",
     "satisfiedOrRefunded": "Niet goed, geld terug",
-    "handDrawn": "Met de hand getekend",
+    "handDrawn": "Naar jouw foto",
     "delivered48h": "Geleverd in 2 dagen",
     "portraitsCreated": "Portretten gemaakt",
     "averageRating": "Gemiddelde score",
@@ -616,22 +616,22 @@
     "step1Title": "Stuur je foto",
     "step1Desc": "Upload een foto van jezelf, je gezin of je huisdieren.",
     "step2Title": "Wij tekenen je",
-    "step2Desc": "Onze tekenaars maken jouw unieke cartoonportret.",
+    "step2Desc": "We maken jouw unieke cartoonportret.",
     "step3Title": "Ontvang je portret",
     "step3Desc": "Je digitale bestand is binnen 2 dagen klaar.",
     "startNow": "Nu beginnen →",
     "galleryTitle": "Ons werk",
-    "gallerySubtitle": "Bekijk wat onze tekenaars voor je kunnen maken!",
+    "gallerySubtitle": "Bekijk wat we van jouw foto's kunnen maken!",
     "viewPortfolio": "Bekijk het hele portfolio →",
     "whyUsTitle": "Waarom Cartoonova?",
     "whyUs1Title": "Tevredenheid gegarandeerd",
     "whyUs1Desc": "Onbeperkt gratis aanpassen tot je helemaal tevreden bent.",
-    "whyUs2Title": "Echte tekenaars",
-    "whyUs2Desc": "Onze tekenaars maken elk portret met de hand.",
+    "whyUs2Title": "Op maat",
+    "whyUs2Desc": "Elk portret wordt gemaakt naar jouw foto's, alleen voor jou.",
     "whyUs3Title": "Levering in 2 dagen",
     "whyUs3Desc": "Je digitale portret is binnen 2 dagen binnen.",
     "reviewsTitle": "Wat onze klanten zeggen",
-    "verifiedReviewsCount": "Professionele tekenaars",
+    "verifiedReviewsCount": "Onbeperkt aanpassen",
     "verified": "Geverifieerd",
     "viewAllReviews": "Alle reviews bekijken →",
     "review1Name": "Sophie M.",
@@ -650,7 +650,7 @@
     "faqQ1": "Hoe lang duurt het voordat het portret klaar is?",
     "faqA1": "De tekening is binnen 2 dagen klaar. Kies je voor een print (poster, canvas, lijst), reken dan 3 werkdagen extra voor productie en levering.",
     "faqQ2": "Moeten alle personen op dezelfde foto staan?",
-    "faqA2": "Nee hoor. Stuur losse foto's op; onze tekenaars zetten iedereen samen in beeld.",
+    "faqA2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in beeld.",
     "faqQ3": "Wat als ik niet tevreden ben?",
     "faqA3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent.",
     "faqQ4": "Kan mijn huisdier er ook op?",
@@ -659,10 +659,10 @@
     "faqA5": "Ja. Voorwerpen, voertuigen, decors of accessoires kunnen erbij tegen een kleine meerprijs.",
     "ctaTitle": "Klaar om cartoon te worden?",
     "ctaSubtitle": "Zin in een portret dat echt op je lijkt? Nu jij.",
-    "ctaReassurance": "Met de hand getekend · Geleverd in 2 dagen · Niet goed, geld terug",
+    "ctaReassurance": "Naar jouw foto · Geleverd in 2 dagen · Niet goed, geld terug",
     "portraitAlt": "Cartoonportret",
     "realizationAlt": "Realisatie",
-    "trustBar": "Met de hand getekend · Geleverd in 2 dagen · Niet goed, geld terug"
+    "trustBar": "Naar jouw foto · Geleverd in 2 dagen · Niet goed, geld terug"
   },
   "socialProof": {
     "names": [
@@ -677,13 +677,13 @@
     ]
   },
   "tj": {
-    "promo": "Met de hand getekend, onbeperkt aanpassen —",
+    "promo": "Uniek portret, onbeperkt aanpassen —",
     "promoFort": "voorbeeld binnen 2 dagen",
     "navStyles": "Stijlen",
     "navEtapes": "Hoe het werkt",
     "navFaq": "Vragen",
     "navTousStyles": "Bekijk alle 35 stijlen",
-    "heroOeil": "Handgetekend portret",
+    "heroOeil": "Gepersonaliseerd portret",
     "heroNote": "Voorbeeld binnen 2 dagen, vrijblijvend",
     "etapesTitre": "Drie stappen,",
     "etapesAccent": "meer niet",
@@ -692,14 +692,14 @@
     "stylesTous": "Bekijk alle 35 stijlen",
     "temoinsTitre": "Gecartooniseerd…",
     "temoinsAccent": "en dolblij!",
-    "temoinsTexte": "Meer dan 85.000 handgetekende portretten hebben al iemand blij gemaakt. Nu jij?",
+    "temoinsTexte": "Meer dan 85.000 portretten hebben al iemand blij gemaakt. Nu jij?",
     "avisTitre": "Ze hingen het",
     "avisAccent": "aan de muur",
     "achatVerifie": "Geverifieerde aankoop",
     "atoutsSurtitre": "Waarom wij",
     "atoutsTitre": "Wat het",
     "atoutsAccent": "verschil maakt",
-    "atoutsSous": "Elk portret wordt met de hand getekend door een illustrator. Geen AI, geen sjablonen.",
+    "atoutsSous": "Elk portret begint bij jouw foto, en niets anders.",
     "atout1T": "Snel een voorbeeld",
     "atout1D": "Je eerste voorbeeld komt binnen 2 dagen. Zodra je akkoord geeft, mailen we het bestand in hoge resolutie.",
     "atout2T": "Onbeperkt aanpassen",
@@ -709,18 +709,18 @@
     "atout4T": "Veilig betalen",
     "atout4D": "Versleutelde transacties en een vlotte bestelling, van digitaal bestand tot ingelijste print.",
     "preuveNombre": "85.000+",
-    "preuveTexte": "handgetekende portretten",
+    "preuveTexte": "geleverde portretten",
     "comparatifTitre": "Waar kunst je",
     "comparatifAccent": "favoriete figuren ontmoet",
     "recitMarqueur": "Ons verhaal",
     "recitTitre": "Waarom we",
     "recitAccent": "dit doen",
     "recitP1": "Het begon met een simpel idee: wat als iedereen een cartoonfiguur kon worden?",
-    "recitP2": "Vandaag hertekent een team illustratoren elke bestelling, stuk voor stuk. Geen automatische generatie, geen filter: een tekening, gemaakt door iemand.",
+    "recitP2": "Vandaag wordt elke bestelling stuk voor stuk behandeld, vanaf de foto's die je stuurt. Niets gaat van het ene portret naar het andere: dat van jou begint bij jouw foto, en niets anders.",
     "faqTitre": "Jouw",
     "faqAccent": "vragen",
-    "dessineTitre": "Met de hand getekend door",
-    "dessineAccent": "echte tekenaars",
+    "dessineTitre": "Gemaakt naar",
+    "dessineAccent": "jouw foto",
     "catSloganManga": "Word je eigen animeheld",
     "catSloganCartoon": "Je leukste caricatuur",
     "catSloganComics": "Word je favoriete superheld!",
@@ -742,14 +742,14 @@
     "similairesAccent": "vast ook leuk",
     "ctaTitre": "Klaar om jezelf",
     "ctaAccent": "als cartoon te zien",
-    "ctaTexte": "Steun echte illustratoren en geef een cadeau dat niemand anders geeft.",
+    "ctaTexte": "Geef een cadeau dat niemand anders geeft.",
     "ctaAtout1": "Klaar in 2 dagen",
     "ctaAtout2": "Onbeperkt aanpassen",
     "ctaAtout3": "Elke foto werkt",
-    "piedBaseline": "Handgetekende portretten, gemaakt vanaf jouw foto's.",
+    "piedBaseline": "Unieke portretten, gemaakt vanaf jouw foto's.",
     "piedStyles": "Stijlen",
     "piedAide": "Hulp",
-    "piedMention": "Handgetekende illustraties",
+    "piedMention": "Illustraties gemaakt naar jouw foto's",
     "piedSuivi": "Bestelling volgen",
     "filAccueil": "Home",
     "tuilePerso": "Onbeperkt aanpasbaar",
@@ -768,8 +768,8 @@
     "catalogueSous": "Elke stijl heeft zijn eigen lijn, decors en publiek. Kies die van jou.",
     "filtreTous": "Alle",
     "produitsCompte": "stijlen",
-    "comparatifEux": "Automatisch gegenereerd portret",
-    "cmp1": "Met de hand getekend door een illustrator",
+    "comparatifEux": "Een standaardposter",
+    "cmp1": "Uniek portret, naar jouw foto",
     "cmp2": "Onbeperkt gratis aanpassen",
     "cmp3": "Voorbeeld goedgekeurd vóór het drukken",
     "cmp4": "Poster, canvas of lijst naar keuze",
@@ -796,8 +796,8 @@
   },
   "metaPages": {
     "aPropos": {
-      "title": "Over Cartoonova — handgetekende cartoonportretten",
-      "description": "Achter Cartoonova zitten tekenaars die elk portret met de hand tekenen vanaf jouw foto's. Voorbeeld binnen 48 uur, onbeperkt aanpassen, geleverd in 3 tot 5 dagen."
+      "title": "Over Cartoonova — gepersonaliseerde cartoonportretten",
+      "description": "Achter Cartoonova: cartoonportretten die stuk voor stuk vanaf jouw foto's worden gemaakt. Voorbeeld binnen 48 uur, onbeperkt aanpassen, geleverd in 3 tot 5 dagen."
     },
     "avis": {
       "title": "Klantreviews — wat klanten van hun Cartoonova-portret vinden",
@@ -809,7 +809,7 @@
     },
     "portfolio": {
       "title": "Portfolio — cartoonportretten die we tekenden",
-      "description": "Tientallen handgetekende portretten: Simpsons, Dragon Ball Z, Ghibli, Disney, One Piece. Bekijk het resultaat voordat je een stijl kiest."
+      "description": "Tientallen gepersonaliseerde portretten: Simpsons, Dragon Ball Z, Ghibli, Disney, One Piece. Bekijk het resultaat voordat je een stijl kiest."
     },
     "cgv": {
       "title": "Algemene voorwaarden — Cartoonova",
@@ -827,7 +827,7 @@
   "alt": {
     "realisationClient": "Gepersonaliseerd cartoonportret, getekend voor een klant",
     "exempleFaq": "Ingelijst cartoonportret bij een klant thuis",
-    "posterDessine": "Met de hand getekende cartoonposter",
+    "posterDessine": "Gepersonaliseerd cartoonportret",
     "photoEnvoyee": "De foto die je zojuist hebt geüpload"
   }
 }

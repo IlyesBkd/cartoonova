@@ -108,7 +108,7 @@ export default function PolitiqueConfidentialite() {
           <h2>7. Partage des données</h2>
           <p>Vos données personnelles ne sont jamais vendues à des tiers. Elles peuvent être partagées avec :</p>
           <ul>
-            <li><strong>Nos artistes :</strong> uniquement les photos et instructions nécessaires à la réalisation de la caricature.</li>
+            <li><strong>Nos prestataires de réalisation :</strong> uniquement les photos et instructions nécessaires à la réalisation de la caricature.</li>
             <li><strong>Prestataires de paiement :</strong> Stripe et PayPal pour le traitement sécurisé des paiements.</li>
             <li><strong>Services d&apos;impression et de livraison :</strong> adresse de livraison pour l&apos;expédition des produits imprimés.</li>
             <li><strong>Hébergeur :</strong> Vercel Inc. pour l&apos;hébergement technique du Site.</li>

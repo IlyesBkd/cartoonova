@@ -257,7 +257,7 @@ function main() {
       title: `Transformer une photo en portrait ${univers} : comment ça se passe`,
       summary:
         `Les etapes concretes, de la photo envoyee au fichier livre : ce qui fait une bonne photo de depart, ` +
-        `ce que l'illustrateur peut ajuster, et combien de temps cela prend. ` +
+        `ce qui peut etre ajuste, et combien de temps cela prend. ` +
         `Recherches visees : ${e.requetes.slice(0, 3).join(", ")}.`,
       sourceUrls: [e.url],
       keywords: [...new Set(e.requetes)].slice(0, 8),

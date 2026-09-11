@@ -148,25 +148,25 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
   fr: (u) =>
-    `Transforme ta photo en portrait ${u} dessiné à la main. Aperçu sous 48 h, retouches illimitées, disponible en fichier numérique, poster, toile ou cadre.`,
+    `Transforme ta photo en portrait ${u} personnalisé. Aperçu sous 48 h, retouches illimitées, disponible en fichier numérique, poster, toile ou cadre.`,
   en: (u) =>
-    `Turn your photo into a hand-drawn ${u} portrait. Preview within 48 h, unlimited revisions, available as a digital file, poster, canvas or framed print.`,
+    `Turn your photo into a custom ${u} portrait. Preview within 48 h, unlimited revisions, available as a digital file, poster, canvas or framed print.`,
   es: (u) =>
-    `Convierte tu foto en un retrato ${u} dibujado a mano. Vista previa en 48 h, retoques ilimitados, disponible en digital, póster, lienzo o enmarcado.`,
+    `Convierte tu foto en un retrato ${u} personalizado. Vista previa en 48 h, retoques ilimitados, disponible en digital, póster, lienzo o enmarcado.`,
   de: (u) =>
-    `Verwandle dein Foto in ein handgezeichnetes ${u}-Porträt. Vorschau in 48 Std., unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
+    `Verwandle dein Foto in ein personalisiertes ${u}-Porträt. Vorschau in 48 Std., unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
   it: (u) =>
-    `Trasforma la tua foto in un ritratto ${u} disegnato a mano. Anteprima in 48 h, ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
+    `Trasforma la tua foto in un ritratto ${u} personalizzato. Anteprima in 48 h, ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
   nl: (u) =>
-    `Laat je foto omtoveren tot een handgetekend ${u} portret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
+    `Laat je foto omtoveren tot een gepersonaliseerd ${u} portret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
   pl: (u) =>
-    `Zamień swoje zdjęcie w ręcznie rysowany portret ${u}. Podgląd w 48 godzin, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
+    `Zamień swoje zdjęcie w spersonalizowany portret ${u}. Podgląd w 48 godzin, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
   sv: (u) =>
-    `Förvandla ditt foto till ett handritat ${u}-porträtt. Förhandsvisning inom 48 timmar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
+    `Förvandla ditt foto till ett personligt ${u}-porträtt. Förhandsvisning inom 48 timmar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
   da: (u) =>
-    `Forvandl dit foto til et håndtegnet ${u}-portræt. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
+    `Forvandl dit foto til et personligt ${u}-portræt. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
   pt: (u) =>
-    `Transforma a tua foto num retrato ${u} desenhado à mão. Pré-visualização em 48 h, retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
+    `Transforma a tua foto num retrato ${u} personalizado. Pré-visualização em 48 h, retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */
@@ -281,10 +281,10 @@ export const CATALOGUE: Produit[] = [
     },
     description: {
       fr: "Offre un cadre Dragon Ball Z personnalisé ! Transforme ta photo en portrait Saiyan avec un dessin unique sur tableau ou poster. Le cadeau DBZ parfait !",
-      en: "Transform into a Super Saiyan! Custom portrait in Dragon Ball Z style, hand-drawn.",
-      de: "Verwandeln Sie sich in einen Super-Saiyajin! Handgezeichnetes Portrait im Dragon Ball Z Stil.",
-      es: "¡Transfórmate en Super Saiyan! Retrato personalizado estilo Dragon Ball Z dibujado a mano.",
-      it: "Trasformati in Super Saiyan! Ritratto personalizzato in stile Dragon Ball Z disegnato a mano.",
+      en: "Transform into a Super Saiyan! Custom portrait in Dragon Ball Z style, made from your photo.",
+      de: "Verwandeln Sie sich in einen Super-Saiyajin! Personalisiertes Porträt im Dragon Ball Z Stil.",
+      es: "¡Transfórmate en Super Saiyan! Retrato personalizado estilo Dragon Ball Z, a partir de tu foto.",
+      it: "Trasformati in Super Saiyan! Ritratto personalizzato in stile Dragon Ball Z, dalla tua foto.",
     },
   },
   {
@@ -494,10 +494,10 @@ export const CATALOGUE: Produit[] = [
     decorsAttendus: 3,
     description: {
       fr: "Transforme ta photo en portrait Simpson personnalisé ! Pose en famille à Springfield avec un dessin fun. Affiche ta caricature en tableau, cadre ou poster !",
-      en: "Transform your photo into a beautiful hand-drawn Simpson caricature. The perfect gift!",
-      de: "Verwandeln Sie Ihr Foto in eine wunderschöne handgezeichnete Simpson-Karikatur. Das perfekte Geschenk!",
-      es: "Transforma tu foto en una hermosa caricatura Simpson dibujada a mano. ¡El regalo perfecto!",
-      it: "Trasforma la tua foto in una bellissima caricatura Simpson disegnata a mano. Il regalo perfetto!",
+      en: "Transform your photo into a beautiful custom Simpson caricature. The perfect gift!",
+      de: "Verwandeln Sie Ihr Foto in eine wunderschöne personalisierte Simpson-Karikatur. Das perfekte Geschenk!",
+      es: "Transforma tu foto en una hermosa caricatura Simpson personalizada. ¡El regalo perfecto!",
+      it: "Trasforma la tua foto in una bellissima caricatura Simpson personalizzata. Il regalo perfetto!",
     },
   },
   {
@@ -537,7 +537,7 @@ export const CATALOGUE: Produit[] = [
     personnages: true,
     decorsAttendus: 0,
     description: {
-      fr: "Transforme ta photo en portrait Tintin personnalisé. Dessiné à la main dans le style d'Hergé, c'est le cadeau idéal pour les fans de Tintin et Milou !",
+      fr: "Transforme ta photo en portrait Tintin personnalisé, dans le style d'Hergé. Le cadeau idéal pour les fans de Tintin et Milou !",
     },
   },
 
@@ -681,7 +681,7 @@ export const CATALOGUE: Produit[] = [
     personnages: true,
     decorsAttendus: 0,
     description: {
-      fr: "Offrez un portrait Les Indestructibles personnalisé dessiné à la main. L'idée cadeau en couple ou en famille, en poster ou en cadre.",
+      fr: "Offrez un portrait Les Indestructibles personnalisé, créé d'après vos photos. L'idée cadeau en couple ou en famille, en poster ou en cadre.",
     },
   },
   {

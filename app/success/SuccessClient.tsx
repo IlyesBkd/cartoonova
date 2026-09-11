@@ -117,7 +117,7 @@ export default function SuccessClient({
               <span className="text-yellow-400 bg-black px-1 sm:px-2">C&apos;est dans la boîte !</span>
             </h1>
             <p className="text-xs sm:text-sm lg:text-lg font-bold text-black/80">
-              Votre commande est confirmée et nos artistes sont déjà au travail.
+              Votre commande est confirmée et on s&apos;y met déjà.
             </p>
           </div>
 
@@ -174,7 +174,7 @@ export default function SuccessClient({
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm lg:text-base font-black text-black uppercase mb-1">
-                  Nos artistes se mettent au travail !
+                  On se met au travail !
                 </h3>
                 <p className="text-[10px] sm:text-xs font-bold text-black/80 leading-tight">
                   Le dessin est réalisé en 2 jours. Si vous avez commandé une impression (poster, toile),

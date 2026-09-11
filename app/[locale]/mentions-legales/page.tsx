@@ -46,14 +46,14 @@ export default function MentionsLegales() {
 
         <section>
           <h2>3. Activité</h2>
-          <p>Cartoonova est un service en ligne de création de caricatures et portraits personnalisés de style cartoon. Nos artistes professionnels transforment vos photos en œuvres d&apos;art uniques, disponibles en format numérique ou imprimées sur divers supports (poster, canvas, mug, etc.).</p>
+          <p>Cartoonova est un service en ligne de création de caricatures et portraits personnalisés de style cartoon. Cartoonova transforme vos photos en portraits uniques, disponibles en format numérique ou imprimées sur divers supports (poster, canvas, mug, etc.).</p>
         </section>
 
         <section>
           <h2>4. Propriété intellectuelle</h2>
           <p>L&apos;ensemble du contenu du site Cartoonova (textes, images, graphismes, logo, icônes, sons, logiciels, etc.) est protégé par les lois françaises et internationales relatives à la propriété intellectuelle.</p>
           <p>Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans l&apos;autorisation écrite préalable de Cartoonova SAS.</p>
-          <p>Les caricatures réalisées par nos artistes restent la propriété de Cartoonova SAS jusqu&apos;au paiement intégral de la commande. Après paiement, le client reçoit un droit d&apos;usage personnel et non commercial de l&apos;œuvre.</p>
+          <p>Les caricatures réalisées par Cartoonova restent la propriété de Cartoonova SAS jusqu&apos;au paiement intégral de la commande. Après paiement, le client reçoit un droit d&apos;usage personnel et non commercial de l&apos;œuvre.</p>
         </section>
 
         <section>

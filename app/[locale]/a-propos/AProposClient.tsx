@@ -15,8 +15,8 @@ export default function AProposPage() {
 
   const valeurs = [
     {
-      titre: "100 % fait main",
-      texte: "Chaque portrait est dessiné à la main par un artiste professionnel. Zéro IA, zéro modèle.",
+      titre: "100 % personnalisé",
+      texte: "Chaque portrait est créé d'après vos photos, pour vous seul. Rien n'est repris d'une commande à l'autre.",
     },
     {
       titre: "Satisfaction garantie",
@@ -27,8 +27,8 @@ export default function AProposPage() {
       texte: "Dessin en 2 jours, impressions livrées en 5 jours ouvrés. Livraison sécurisée partout dans le monde.",
     },
     {
-      titre: "Une vraie équipe",
-      texte: "Quinze illustrateurs, plus de 50 pays livrés, et un support qui répond vraiment.",
+      titre: "Partout dans le monde",
+      texte: "Plus de 50 pays livrés, et un support qui répond vraiment.",
     },
   ];
 
@@ -43,8 +43,8 @@ export default function AProposPage() {
             Bienvenue chez <span className="accent">Cartoonova</span>
           </h1>
           <p>
-            Nous transformons vos plus belles photos en caricatures cartoon uniques, dessinées à la
-            main par de vrais artistes.
+            Nous transformons vos plus belles photos en caricatures cartoon uniques, chacune créée
+            d&apos;après vos photos.
           </p>
         </div>
       </section>
@@ -62,7 +62,7 @@ export default function AProposPage() {
           <div>
             <span className="marqueur">{t("recitMarqueur")}</span>
             <h2>
-              D&apos;une passion à un <span className="accent">atelier</span>
+              D&apos;une idée à un <span className="accent">cadeau</span>
             </h2>
             <p>
               Tout a commencé avec une idée simple : et si on pouvait transformer n&apos;importe qui
@@ -73,8 +73,8 @@ export default function AProposPage() {
               et une communauté de clients fidèles, nous avons prouvé que l&apos;art du cartoon peut toucher tout le monde.
             </p>
             <p>
-              Aujourd&apos;hui, une équipe d&apos;illustrateurs redessine chaque commande, une par
-              une. Pas de génération automatique, pas de filtre : un dessin, fait par quelqu&apos;un.
+              Aujourd&apos;hui, chaque commande est traitée une par une, à partir de vos photos. Rien
+              n&apos;est repris d&apos;un portrait à l&apos;autre : le vôtre part de votre photo, et de rien d&apos;autre.
             </p>
           </div>
         </div>

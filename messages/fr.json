@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Cartoonova - Transformez vos photos en caricatures cartoon",
-    "description": "Créez votre caricature personnalisée style Simpson. Artistes professionnels, satisfaction garantie.",
+    "description": "Créez votre caricature personnalisée style Simpson à partir de vos photos. Retouches illimitées, satisfaction garantie.",
     "ogTitle": "Portrait Personnalisé Cartoon - Cartoonova",
     "ogDescription": "Créez votre caricature personnalisée à partir de votre photo. Cadeau unique et original !"
   },
@@ -60,23 +60,23 @@
       "title": "Portrait Disney",
       "description": "Vivez votre conte de fées"
     },
-    "reassurance1": "Dessiné à la main par nos artistes",
+    "reassurance1": "Unique, d'après votre photo",
     "reassurance2": "Livraison digitale sous 2 jours",
     "reassurance3": "Satisfait ou remboursé",
     "ctaTitle": "Vous ne savez pas lequel choisir ?",
     "ctaSubtitle": "Commencez par notre best-seller !",
     "ctaButton": "Découvrir Simpson",
     "badgeSatisfied": "Satisfait ou remboursé",
-    "badgeHandDrawn": "Dessiné à la main",
+    "badgeHandDrawn": "D'après votre photo",
     "badgeDelivery24h": "Livré en 2 jours",
-    "trustBar": "Dessiné à la main · Livré en 2 jours · Satisfait ou remboursé"
+    "trustBar": "D'après votre photo · Livré en 2 jours · Satisfait ou remboursé"
   },
   "hero": {
     "badge": "4.8",
     "title1": "Transformez",
     "title2": "vos photos",
     "title3": "en cartoon !",
-    "subtitle": "Recevez une caricature unique dessinée à la main. Le cadeau personnalisé parfait !",
+    "subtitle": "Recevez une caricature unique, créée d'après votre photo. Le cadeau personnalisé parfait !",
     "cta": "Commander mon portrait",
     "ctaSecondary": "Comment ça marche ?"
   },
@@ -85,14 +85,14 @@
     "step1Title": "Envoyez votre photo",
     "step1Desc": "Téléversez une photo de vous, votre famille, vos amis ou vos animaux.",
     "step2Title": "Nous vous dessinons",
-    "step2Desc": "Nos artistes professionnels créent votre caricature cartoon unique.",
+    "step2Desc": "On crée votre caricature cartoon unique.",
     "step3Title": "Recevez votre œuvre",
     "step3Desc": "Recevez votre fichier numérique et/ou votre impression premium.",
     "cta": "Commencer maintenant →"
   },
   "gallery": {
     "title": "Nos réalisations",
-    "subtitle": "Chaque portrait est dessiné à la main avec passion !",
+    "subtitle": "Chaque portrait est unique, créé d'après vos photos.",
     "cta": "Voir tout le portfolio →"
   },
   "reviews": {
@@ -105,7 +105,7 @@
     "q1": "Combien de temps faut-il pour réaliser la caricature ?",
     "a1": "Le dessin est réalisé en 2 jours. Si vous avez choisi une impression (poster, toile), comptez 3 jours ouvrés supplémentaires pour la fabrication et la livraison.",
     "q2": "Les personnes doivent-elles être sur la même photo ?",
-    "a2": "Pas du tout ! Envoyez-nous des photos individuelles et nos artistes dessineront tout le monde ensemble.",
+    "a2": "Pas du tout ! Envoyez-nous des photos individuelles, on réunira tout le monde sur une seule image.",
     "q3": "Que se passe-t-il si je ne suis pas satisfait(e) ?",
     "a3": "Nous offrons des révisions illimitées et gratuites jusqu'à votre entière satisfaction !",
     "q4": "Mon animal peut-il aussi devenir un cartoon ?",
@@ -117,8 +117,8 @@
     "breadcrumb": "Commander mon portrait",
     "heroTitle1": "Commandez Votre",
     "heroTitle2": "Simpson Caricature",
-    "heroSubtitle": "Transformez-vous en personnage cartoon dessiné à la main. Le cadeau unique et personnalisé parfait !",
-    "handDrawn": "Dessiné à la main",
+    "heroSubtitle": "Transformez-vous en personnage cartoon, d'après votre photo. Le cadeau unique et personnalisé parfait !",
+    "handDrawn": "D'après votre photo",
     "freeRevision": "Révision gratuite",
     "fastDelivery": "Livraison rapide",
     "socialProof": "vient de commander son portrait",
@@ -127,12 +127,12 @@
     "averageRating": "Note moyenne",
     "delivery": "Livraison",
     "satisfactionGuarantee": "Garantie satisfait",
-    "portraitsCount": "Portraits dessinés à la main",
+    "portraitsCount": "Portraits livrés",
     "digitalDelivery48h": "Livraison digitale en 2 jours",
     "guaranteeStep1Title": "Envoyez votre photo",
     "guaranteeStep1Desc": "Un selfie suffit",
     "guaranteeStep2Title": "On dessine votre portrait",
-    "guaranteeStep2Desc": "Par un artiste dédié",
+    "guaranteeStep2Desc": "D'après vos photos",
     "guaranteeStep3Title": "Pas satisfait ?",
     "guaranteeStep3Desc": "On recommence gratuitement",
     "ourWork": "Nos réalisations",
@@ -144,7 +144,7 @@
     "readyToBecome": "Prêt à devenir un",
     "joinClients": "Recevez votre portrait personnalisé en 2 jours",
     "createMyPortrait": "Créer mon portrait",
-    "handDrawnIcon": "Dessiné à la main",
+    "handDrawnIcon": "D'après votre photo",
     "delivered48h": "Livré en 2 jours",
     "satisfiedOrRefunded": "Satisfait ou remboursé",
     "formatLabel": "Format",
@@ -215,7 +215,7 @@
     "bgSnow": "Neige",
     "bgValentines": "Saint-Valentin",
     "galleryTitle": "Nos Réalisations",
-    "gallerySubtitle": "Découvrez ce que nos artistes peuvent créer pour vous !",
+    "gallerySubtitle": "Découvrez ce qu'on peut créer d'après vos photos !",
     "videoTitle": "Comment nous vous dessinons",
     "videoSubtitle": "Regardez la magie opérer — de la photo au cartoon !",
     "reviewsTitle": "Merci pour votre confiance",
@@ -235,7 +235,7 @@
     "faqQ1": "Combien de temps faut-il pour réaliser la caricature ?",
     "faqA1": "Le dessin est réalisé en 2 jours. Si vous avez choisi une impression (poster, toile), comptez 3 jours ouvrés supplémentaires pour la fabrication et la livraison.",
     "faqQ2": "Les personnes doivent-elles toutes être sur la même photo ?",
-    "faqA2": "Pas du tout ! Envoyez-nous des photos individuelles et nos artistes dessineront tout le monde ensemble sur une seule image.",
+    "faqA2": "Pas du tout ! Envoyez-nous des photos individuelles, on réunira tout le monde sur une seule image.",
     "faqQ3": "Que se passe-t-il si je ne suis pas satisfait(e) ?",
     "faqA3": "Nous offrons des révisions illimitées et gratuites jusqu'à votre entière satisfaction. Votre bonheur est notre priorité !",
     "faqQ4": "Mon animal de compagnie peut-il aussi devenir jaune ?",
@@ -253,7 +253,7 @@
     "orderArrow": "Commander →",
     "selectedDecor": "Décor sélectionné",
     "exampleWork": "Exemple de réalisation",
-    "verifiedReviewsCount": "Artistes professionnels",
+    "verifiedReviewsCount": "Retouches illimitées",
     "portraitAlt": "Portrait personnalisé",
     "realizationAlt": "Réalisation",
     "readyToEnterGhibli": "Prêt à entrer dans l'univers Ghibli ?",
@@ -293,10 +293,10 @@
     "hoverToPreview": "Survole pour prévisualiser",
     "howItWorks": "Comment ça marche",
     "howItWorksTitle": "3 étapes, zéro prise de tête.",
-    "illustrativePreview": "[ aperçu illustratif — résultat dessiné main ]",
+    "illustrativePreview": "[ aperçu illustratif — exemple de rendu ]",
     "livePreview": "Aperçu live",
     "madeInFrance": "Made in France",
-    "noteForArtist": "Note pour l'artiste",
+    "noteForArtist": "Précisions pour votre portrait",
     "notePlaceholder": "Ex : mon père porte sa casquette OM, ma chatte s'appelle Pixel, met-nous tous en tenue de Noël…",
     "optional": "optionnel",
     "orderCta": "Commander mon portrait",
@@ -305,7 +305,7 @@
     "peoplePlural": "personnes",
     "peopleSingular": "personne",
     "pillDelivered48h": "Livré 2 jours",
-    "pillDrawnHand": "Dessiné main",
+    "pillDrawnHand": "D'après votre photo",
     "pillSatisfied": "Satisfait ou remboursé",
     "portraitsDelivered": "portraits livrés",
     "portraitSub": "Visage + buste",
@@ -324,7 +324,7 @@
     "uploadMax8": "Jusqu'à 8 photos",
     "uploadStep": "Téléverse tes photos",
     "whoOnPortrait": "Qui est sur le portrait ?",
-    "photoRequired": "Ajoutez au moins une photo : sans elle, l'illustrateur n'a rien à dessiner.",
+    "photoRequired": "Ajoutez au moins une photo : sans elle, on ne peut pas créer votre portrait.",
     "economie": "Tu économises",
     "review7Name": "Laura G.",
     "review7Text": "J'ai offert un portrait à mon copain pour Noël. Il était tellement ému ! Merci Cartoonova !",
@@ -455,7 +455,7 @@
     "paymentInProgress": "Paiement en cours...",
     "orderConfirmedTitle": "Commande confirmée !",
     "confirmationEmailSent": "Un email de confirmation a été envoyé à",
-    "artistsAtWork": "Nos artistes se mettent au travail immédiatement pour créer votre chef-d'œuvre cartoon !",
+    "artistsAtWork": "On se met au travail tout de suite sur votre portrait cartoon !",
     "savingOrder": "Enregistrement de votre commande...",
     "close": "Fermer",
     "errorValidEmail": "Veuillez entrer un email valide.",
@@ -483,7 +483,7 @@
     "faqTitle": "Questions fréquentes",
     "ctaTitle": "Prêt à commander ?",
     "ctaButton": "Créer mon portrait",
-    "ctaNote": "Dessiné à la main · aperçu avant impression · retouches gratuites",
+    "ctaNote": "D'après votre photo · aperçu avant impression · retouches gratuites",
     "otherOccasions": "Le même style pour une autre occasion",
     "otherStyles": "Un autre style pour la même occasion",
     "metaSuffix": "Cartoonova"
@@ -494,49 +494,49 @@
       "promoFort": "aperçu sous 2 jours",
       "heroTitre1": "Le cadeau d'anniversaire",
       "heroTitre2": "qui fait rire toute la table",
-      "heroSous": "Votre photo transformée en portrait dessiné à la main par nos artistes. Aperçu sous 2 jours, retouches illimitées."
+      "heroSous": "Votre photo transformée en portrait unique. Aperçu sous 2 jours, retouches illimitées."
     },
     "saintValentin": {
-      "promo": "Saint-Valentin — dessiné à la main, retouches illimitées,",
+      "promo": "Saint-Valentin — portrait unique, retouches illimitées,",
       "promoFort": "commandez avant le {date}",
       "heroTitre1": "Un cadeau de Saint-Valentin",
       "heroTitre2": "qui ne se trouve nulle part",
-      "heroSous": "Votre plus belle photo à deux, dessinée à la main par nos artistes. Aperçu sous 2 jours, retouches illimitées."
+      "heroSous": "Votre plus belle photo à deux, transformée en portrait unique. Aperçu sous 2 jours, retouches illimitées."
     },
     "feteDesMeres": {
       "promo": "Fête des mères —",
       "promoFort": "commandez avant le {date}",
       "heroTitre1": "Le cadeau de fête des mères",
       "heroTitre2": "qu'elle gardera",
-      "heroSous": "Votre photo de famille transformée en portrait dessiné à la main. Aperçu sous 2 jours, retouches illimitées."
+      "heroSous": "Votre photo de famille transformée en portrait unique. Aperçu sous 2 jours, retouches illimitées."
     },
     "feteDesPeres": {
       "promo": "Fête des pères —",
       "promoFort": "commandez avant le {date}",
       "heroTitre1": "Un cadeau de fête des pères",
       "heroTitre2": "qui change de la cravate",
-      "heroSous": "Sa photo dessinée à la main dans l'univers qu'il préfère. Aperçu sous 2 jours, retouches illimitées."
+      "heroSous": "Sa photo dans l'univers qu'il préfère. Aperçu sous 2 jours, retouches illimitées."
     },
     "halloween": {
       "promo": "Halloween approche —",
       "promoFort": "commandez avant le {date}",
       "heroTitre1": "Votre portrait,",
       "heroTitre2": "version Halloween",
-      "heroSous": "Toute la famille dessinée à la main, façon dessin animé. Aperçu sous 2 jours, retouches illimitées."
+      "heroSous": "Toute la famille en version dessin animé. Aperçu sous 2 jours, retouches illimitées."
     },
     "blackFriday": {
       "promo": "C'est le Black Friday —",
       "promoFort": "le meilleur moment pour offrir",
       "heroTitre1": "Black Friday :",
       "heroTitre2": "offrez un original",
-      "heroSous": "Un portrait dessiné à la main, pas un objet de plus. Aperçu sous 2 jours, retouches illimitées."
+      "heroSous": "Un portrait à son image, pas un objet de plus. Aperçu sous 2 jours, retouches illimitées."
     },
     "noel": {
       "promo": "Noël —",
       "promoFort": "commandez avant le {date}",
       "heroTitre1": "Le cadeau de Noël",
       "heroTitre2": "qu'on n'oublie pas",
-      "heroSous": "Votre photo dessinée à la main par nos artistes, livrée à temps pour le 25. Aperçu sous 2 jours."
+      "heroSous": "Votre photo transformée en portrait unique, livrée à temps pour le 25. Aperçu sous 2 jours."
     }
   },
   "gift": {
@@ -595,15 +595,15 @@
     "bg8": "Hyperbolic"
   },
   "home": {
-    "heroRating": "Portrait personnalisé, dessiné à la main",
+    "heroRating": "Portrait personnalisé, d'après votre photo",
     "heroTitle1": "Transformez-vous en",
     "heroTitle2": "personnage cartoon",
-    "heroSubtitle": "Portrait personnalisé dessiné à la main par nos artistes. Simpson, Disney, Ghibli et plus encore !",
+    "heroSubtitle": "Portrait personnalisé créé d'après votre photo. Simpson, Disney, Ghibli et plus encore !",
     "createMyPortrait": "Créer mon portrait",
     "createFlagship": "Créer mon portrait {univers}",
     "howItWorksLink": "Comment ça marche ?",
     "satisfiedOrRefunded": "Satisfait ou remboursé",
-    "handDrawn": "Dessiné à la main",
+    "handDrawn": "D'après votre photo",
     "delivered48h": "Livré en 2 jours",
     "portraitsCreated": "Portraits créés",
     "averageRating": "Note moyenne",
@@ -616,22 +616,22 @@
     "step1Title": "Envoyez votre photo",
     "step1Desc": "Téléversez une photo de vous, votre famille ou vos animaux.",
     "step2Title": "Nous vous dessinons",
-    "step2Desc": "Nos artistes créent votre portrait cartoon unique.",
+    "step2Desc": "On crée votre portrait cartoon unique.",
     "step3Title": "Recevez votre œuvre",
     "step3Desc": "Recevez votre fichier numérique en 2 jours.",
     "startNow": "Commencer maintenant →",
     "galleryTitle": "Nos réalisations",
-    "gallerySubtitle": "Découvrez ce que nos artistes peuvent créer pour vous !",
+    "gallerySubtitle": "Découvrez ce qu'on peut créer d'après vos photos !",
     "viewPortfolio": "Voir tout le portfolio →",
     "whyUsTitle": "Pourquoi Cartoonova ?",
     "whyUs1Title": "Satisfaction garantie",
     "whyUs1Desc": "Révisions illimitées et gratuites jusqu'à votre entière satisfaction !",
-    "whyUs2Title": "Artistes pros",
-    "whyUs2Desc": "Nos talentueux dessinateurs créent des portraits uniques.",
+    "whyUs2Title": "Sur mesure",
+    "whyUs2Desc": "Chaque portrait est créé d'après vos photos, pour vous seul.",
     "whyUs3Title": "Livraison 2 jours",
     "whyUs3Desc": "Recevez votre portrait digital en 2 jours maximum.",
     "reviewsTitle": "Ce que disent nos clients",
-    "verifiedReviewsCount": "Artistes professionnels",
+    "verifiedReviewsCount": "Retouches illimitées",
     "verified": "Vérifié",
     "viewAllReviews": "Voir tous les avis →",
     "review1Name": "Sophie M.",
@@ -650,7 +650,7 @@
     "faqQ1": "Combien de temps faut-il pour réaliser la caricature ?",
     "faqA1": "Le dessin est réalisé en 2 jours. Si vous avez choisi une impression (poster, toile, cadre), comptez 3 jours ouvrés supplémentaires pour la fabrication et la livraison.",
     "faqQ2": "Les personnes doivent-elles être sur la même photo ?",
-    "faqA2": "Pas du tout ! Envoyez-nous des photos individuelles et nos artistes dessineront tout le monde ensemble.",
+    "faqA2": "Pas du tout ! Envoyez-nous des photos individuelles, on réunira tout le monde ensemble.",
     "faqQ3": "Que se passe-t-il si je ne suis pas satisfait(e) ?",
     "faqA3": "Nous offrons des révisions illimitées et gratuites jusqu'à votre entière satisfaction !",
     "faqQ4": "Mon animal peut-il aussi devenir un cartoon ?",
@@ -659,10 +659,10 @@
     "faqA5": "Oui ! Nous pouvons inclure des objets, véhicules, décors ou accessoires pour un petit supplément.",
     "ctaTitle": "Prêt à devenir un cartoon ?",
     "ctaSubtitle": "Envie d'un portrait qui vous ressemble ? À vous de jouer !",
-    "ctaReassurance": "Dessiné à la main · Livré en 2 jours · Satisfait ou remboursé",
+    "ctaReassurance": "D'après votre photo · Livré en 2 jours · Satisfait ou remboursé",
     "portraitAlt": "Portrait cartoon",
     "realizationAlt": "Réalisation",
-    "trustBar": "Dessiné à la main · Livré en 2 jours · Satisfait ou remboursé"
+    "trustBar": "D'après votre photo · Livré en 2 jours · Satisfait ou remboursé"
   },
   "socialProof": {
     "names": [
@@ -677,13 +677,13 @@
     ]
   },
   "tj": {
-    "promo": "Dessiné à la main, retouches illimitées —",
+    "promo": "Portrait unique, retouches illimitées —",
     "promoFort": "aperçu sous 2 jours",
     "navStyles": "Styles",
     "navEtapes": "Comment ça marche",
     "navFaq": "Questions",
     "navTousStyles": "Voir les 36 styles",
-    "heroOeil": "Portrait dessiné à la main",
+    "heroOeil": "Portrait personnalisé",
     "heroNote": "Aperçu sous 2 jours, sans engagement",
     "etapesTitre": "Trois étapes,",
     "etapesAccent": "c'est tout",
@@ -692,14 +692,14 @@
     "stylesTous": "Voir les 36 styles",
     "temoinsTitre": "Cartoonisés…",
     "temoinsAccent": "et ravis !",
-    "temoinsTexte": "Plus de 85 000 portraits dessinés à la main ont déjà fait sourire leurs destinataires. À ton tour ?",
+    "temoinsTexte": "Plus de 85 000 portraits ont déjà fait sourire leurs destinataires. À ton tour ?",
     "avisTitre": "Ils l'ont",
     "avisAccent": "affiché chez eux",
     "achatVerifie": "Achat vérifié",
     "atoutsSurtitre": "Pourquoi nous",
     "atoutsTitre": "Ce qui fait la",
     "atoutsAccent": "différence",
-    "atoutsSous": "Chaque portrait est dessiné à la main par un illustrateur. Zéro IA, zéro modèle.",
+    "atoutsSous": "Chaque portrait part de ta photo, et de rien d'autre.",
     "atout1T": "Aperçu rapide",
     "atout1D": "Ton premier aperçu arrive sous 2 jours. Dès que tu valides, le fichier haute définition part par e-mail.",
     "atout2T": "Retouches illimitées",
@@ -709,18 +709,18 @@
     "atout4T": "Paiement sécurisé",
     "atout4D": "Transactions chiffrées et commande fluide, du fichier numérique à l'impression encadrée.",
     "preuveNombre": "85 000+",
-    "preuveTexte": "portraits dessinés à la main",
+    "preuveTexte": "portraits livrés",
     "comparatifTitre": "Quand l'art rencontre",
     "comparatifAccent": "tes personnages préférés",
     "recitMarqueur": "Notre histoire",
     "recitTitre": "Pourquoi on",
     "recitAccent": "fait ça",
     "recitP1": "Tout a commencé avec une idée simple : et si on pouvait transformer n'importe qui en personnage de dessin animé ?",
-    "recitP2": "Aujourd'hui, une équipe d'illustrateurs redessine chaque commande, une par une. Pas de génération automatique, pas de filtre : un dessin, fait par quelqu'un.",
+    "recitP2": "Aujourd'hui, chaque commande est traitée une par une, à partir des photos que tu envoies. Rien n'est repris d'un portrait à l'autre : le tien part de ta photo, et de rien d'autre.",
     "faqTitre": "Vos",
     "faqAccent": "questions",
-    "dessineTitre": "Dessiné à la main par",
-    "dessineAccent": "de vrais artistes",
+    "dessineTitre": "Créé à partir de",
+    "dessineAccent": "ta photo",
     "catSloganManga": "Deviens ton héros d'anime",
     "catSloganCartoon": "Ta caricature fun et stylée",
     "catSloganComics": "Incarne ton super-héros préféré !",
@@ -742,14 +742,14 @@
     "similairesAccent": "aussi",
     "ctaTitre": "Prêt à te voir",
     "ctaAccent": "en dessin animé",
-    "ctaTexte": "Soutiens de vrais illustrateurs et offre un cadeau que personne d'autre ne peut offrir.",
+    "ctaTexte": "Offre un cadeau que personne d'autre ne peut offrir.",
     "ctaAtout1": "Prêt en 2 jours",
     "ctaAtout2": "Retouches illimitées",
     "ctaAtout3": "N'importe quelle photo",
-    "piedBaseline": "Des portraits dessinés à la main, à partir de vos photos.",
+    "piedBaseline": "Des portraits uniques, créés à partir de vos photos.",
     "piedStyles": "Styles",
     "piedAide": "Aide",
-    "piedMention": "Illustrations dessinées à la main",
+    "piedMention": "Illustrations créées d'après vos photos",
     "piedSuivi": "Suivi de commande",
     "filAccueil": "Accueil",
     "tuilePerso": "Personnalisation illimitée",
@@ -768,8 +768,8 @@
     "catalogueSous": "Chaque style a son propre trait, ses décors et son public. Choisis le tien.",
     "filtreTous": "Tous",
     "produitsCompte": "styles",
-    "comparatifEux": "Portrait généré",
-    "cmp1": "Dessiné à la main par un illustrateur",
+    "comparatifEux": "Un poster générique",
+    "cmp1": "Portrait unique, d'après ta photo",
     "cmp2": "Retouches illimitées et gratuites",
     "cmp3": "Aperçu validé avant impression",
     "cmp4": "Poster, toile ou cadre au choix",
@@ -796,8 +796,8 @@
   },
   "metaPages": {
     "aPropos": {
-      "title": "Qui sommes-nous — Cartoonova, portraits cartoon dessinés à la main",
-      "description": "Derrière Cartoonova, des illustrateurs qui dessinent chaque portrait à la main à partir de vos photos. Aperçu sous 48 h, retouches illimitées, livraison en 3 à 5 jours."
+      "title": "Qui sommes-nous — Cartoonova, portraits cartoon personnalisés",
+      "description": "Derrière Cartoonova, des portraits cartoon créés un par un à partir de vos photos. Aperçu sous 48 h, retouches illimitées, livraison en 3 à 5 jours."
     },
     "avis": {
       "title": "Avis clients — ce qu'ils disent de leur portrait Cartoonova",
@@ -809,7 +809,7 @@
     },
     "portfolio": {
       "title": "Portfolio — nos portraits cartoon réalisés sur mesure",
-      "description": "Des dizaines de portraits dessinés à la main : Simpson, Dragon Ball Z, Ghibli, Disney, One Piece. Voyez le rendu avant de choisir votre style."
+      "description": "Des dizaines de portraits personnalisés : Simpson, Dragon Ball Z, Ghibli, Disney, One Piece. Voyez le rendu avant de choisir votre style."
     },
     "cgv": {
       "title": "Conditions générales de vente — Cartoonova",
@@ -827,7 +827,7 @@
   "alt": {
     "realisationClient": "Portrait cartoon personnalisé réalisé pour un client",
     "exempleFaq": "Portrait cartoon encadré, accroché chez un client",
-    "posterDessine": "Poster cartoon dessiné à la main",
+    "posterDessine": "Portrait cartoon personnalisé",
     "photoEnvoyee": "Photo que vous venez d'envoyer"
   }
 }

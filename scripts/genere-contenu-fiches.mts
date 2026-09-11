@@ -185,7 +185,7 @@ Regles absolues :
 - Ton simple et concret, phrases courtes, pas de remplissage.
 
 Faits utilisables, et rien d'autre :
-- dessine a la main par un illustrateur, a partir des photos envoyees
+- cree a partir des photos envoyees, pour ce client seul (ne jamais decrire la methode de realisation : ni main, ni artiste, ni illustrateur, ni outil)
 - apercu sous 2 jours ouvres, retouches illimitees
 - a partir de 5 EUR par personnage
 - supports : fichier numerique, poster, toile, poster encadre
