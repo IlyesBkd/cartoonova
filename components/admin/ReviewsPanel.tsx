@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Avis, StatutAvis } from "@/lib/reviewsDb";
+import TraductionFr from "@/components/admin/TraductionFr";
 
 const STATUTS: Record<StatutAvis, { label: string; classe: string }> = {
   publie: { label: "Publié", classe: "bg-green-100 text-green-800 border-green-300" },
@@ -103,7 +104,10 @@ export default function ReviewsPanel({ password }: { password: string }) {
               </span>
             </div>
 
-            <p className="mb-3 text-sm text-gray-700 whitespace-pre-wrap">{a.texte}</p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">{a.texte}</p>
+            <div className="mb-3">
+              <TraductionFr texte={a.texte} motDePasse={password} />
+            </div>
 
             <div className="flex gap-2">
               {a.statut !== "publie" && (

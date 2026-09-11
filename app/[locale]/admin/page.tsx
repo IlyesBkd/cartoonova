@@ -12,6 +12,7 @@ import { lireConsigne } from "@/lib/consigneClient";
 import { CATALOGUE } from "@/lib/catalogue";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
+import TraductionFr from "@/components/admin/TraductionFr";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
@@ -1154,6 +1155,7 @@ export default function AdminPage() {
                                         {e.recu.body_text.length > 700 ? e.recu.body_text.slice(0, 700) + "…" : e.recu.body_text}
                                       </p>
                                     )}
+                                    <TraductionFr texte={e.recu.body_text} motDePasse={password} compact />
                                   </div>
                                 ) : (
                                   courrierEnvoye(e.envoye!)
@@ -1289,6 +1291,7 @@ export default function AdminPage() {
                             {consigne.question ? "❓ Consigne — LE CLIENT POSE UNE QUESTION" : "✏️ Consigne du client"}
                           </p>
                           <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{consigne.texte}</p>
+                          <TraductionFr texte={consigne.texte} motDePasse={password} />
                           {/* Le `mailto:` qui se trouvait ici partait du
                               logiciel de messagerie de la machine, sans rien
                               rattacher ni enregistrer. La réponse s'écrit
@@ -1531,6 +1534,7 @@ export default function AdminPage() {
                                           {r.note && (
                                             <p className="text-xs text-amber-900 whitespace-pre-wrap">{r.note}</p>
                                           )}
+                                          <TraductionFr texte={r.note} motDePasse={password} compact />
                                           {Array.isArray(r.photos) && r.photos.length > 0 && (
                                             <div className="grid grid-cols-4 gap-2">
                                               {r.photos.map((url: string, k: number) => (
@@ -1888,6 +1892,7 @@ export default function AdminPage() {
                               <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
                                 {m.body_text || "(pas de contenu texte)"}
                               </div>
+                              <TraductionFr texte={m.body_text} motDePasse={password} />
 
                               {/* Ce qui est déjà parti. Le relire avant
                                   d'écrire évite la faute qui use un client qui
