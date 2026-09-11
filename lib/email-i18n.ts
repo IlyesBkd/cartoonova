@@ -30,8 +30,31 @@ const countryToLang: Record<string, Lang>= {
  PT: "pt",
 };
 
+/**
+ * La langue d'un client, deduite de son pays.
+ *
+ * ── Pourquoi l'anglais quand on ne sait pas ──────────────────────────────
+ *
+ * Le repli etait le francais, par heritage : le site est ne francais. Mais un
+ * pays inconnu n'est pas la France — c'est justement le cas ou on n'en sait
+ * rien. Servir du francais a un Neerlandais qui a commande en neerlandais
+ * produit un e-mail illisible ; lui servir de l'anglais produit un e-mail
+ * qu'il comprend. Un Francais, lui, lit l'anglais de travers mais le lit.
+ *
+ * C'est aussi la regle deja appliquee juste en dessous : un pays CONNU mais
+ * absent de la table repond « en ». Les deux ignorances repondent desormais
+ * pareil.
+ *
+ * ── Qui est concerne ─────────────────────────────────────────────────────
+ *
+ * Peu de monde, et de moins en moins. `detected_country` se remplit depuis
+ * `x-vercel-ip-country` (voir `proxy.ts`) et ne manque plus sur aucune
+ * commande depuis mai 2026. Restent les commandes anterieures — que les
+ * relances et les demandes d'avis touchent encore — et les cas ou l'en-tete
+ * n'arrive pas : cookie refuse, proxy, robot.
+ */
 export function getLangFromCountry(country: string | null | undefined): Lang {
- if (!country) return "fr";
+ if (!country) return "en";
  return countryToLang[country.toUpperCase()] || "en";
 }
 
