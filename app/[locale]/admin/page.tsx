@@ -9,19 +9,41 @@ import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
 import type { DbOrder, SupportMessage } from "@/lib/db";
 import { lireConsigne } from "@/lib/consigneClient";
+import { CATALOGUE } from "@/lib/catalogue";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
-const STYLE_LABELS: Record<string, { label: string; emoji: string }> = {
-  simpson: { label: "Simpson", emoji: "🟡" },
-  dbz: { label: "Dragon Ball Z", emoji: "⚡" },
-  disney: { label: "Disney", emoji: "✨" },
-  ghibli: { label: "Ghibli", emoji: "🌸" },
-  onepiece: { label: "One Piece", emoji: "🏴‍☠️" },
-  rickandmorty: { label: "Rick & Morty", emoji: "🌀" },
+/* Les six univers historiques ont leur emoji. Les trente autres du catalogue
+   n'en ont pas et n'en demandent pas : leur nom suffit a reconnaitre la
+   commande. Ce bloc ne sert plus qu'a ca — le NOM, lui, vient du catalogue. */
+const STYLE_EMOJIS: Record<string, string> = {
+  simpson: "🟡",
+  dbz: "⚡",
+  disney: "✨",
+  ghibli: "🌸",
+  onepiece: "🏴‍☠️",
+  rickandmorty: "🌀",
 };
+
+const UNIVERS_PAR_SLUG = new Map(CATALOGUE.map((p) => [p.slug, p.univers]));
+
+/**
+ * Le style d'une commande, tel qu'il s'affiche.
+ *
+ * La commande enregistre le slug canonique de la fiche (`options.style`), et
+ * le catalogue en compte trente-six. Une liste ecrite a la main n'en couvrait
+ * que six : toute commande Naruto, Batman ou Pokemon s'affichait « — », comme
+ * si le style n'avait pas ete transmis. C'est le catalogue qui fait foi, y
+ * compris pour une fiche depubliee depuis — une commande passee garde le droit
+ * d'etre lue. Un slug vraiment inconnu s'affiche brut plutot que de
+ * disparaitre : mieux vaut un slug moche qu'un tiret muet.
+ */
+function libelleStyle(slug: unknown): { label: string; emoji: string } | null {
+  if (typeof slug !== "string" || !slug) return null;
+  return { label: UNIVERS_PAR_SLUG.get(slug) ?? slug, emoji: STYLE_EMOJIS[slug] ?? "🎨" };
+}
 
 const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
   new: { label: "Nouvelle", color: "bg-blue-100 text-blue-800 border-blue-300" },
@@ -68,6 +90,15 @@ export default function AdminPage() {
   const [classifyingBacklog, setClassifyingBacklog] = useState(false);
   const [backlogRemaining, setBacklogRemaining] = useState<number | null>(null);
 
+  /* Reponses aux clients. Le brouillon est garde PAR MESSAGE : un champ
+     unique perdait le texte en cours des qu'on depliait un autre message pour
+     y verifier quelque chose — ce qu'on fait justement en repondant. */
+  const [brouillons, setBrouillons] = useState<Record<number, string>>({});
+  const [assistees, setAssistees] = useState<Record<number, boolean>>({});
+  const [redactionEnCours, setRedactionEnCours] = useState<number | null>(null);
+  const [envoiEnCours, setEnvoiEnCours] = useState<number | null>(null);
+  const [erreurReponse, setErreurReponse] = useState<Record<number, string>>({});
+
   const headers = useCallback(
     () => ({ "Content-Type": "application/json", "x-admin-password": password }),
     [password]
@@ -113,6 +144,65 @@ export default function AdminPage() {
       setSyncError(e instanceof Error ? e.message : "Erreur réseau.");
     }
     setSyncingSupport(false);
+  };
+
+  /* Un brouillon ne s'enregistre nulle part : deux clics donnent deux
+     propositions, et celle qu'on jette ne laisse pas de trace. Seule la
+     reponse envoyee entre au fil. */
+  const handleRedigerReponse = async (m: SupportMessage) => {
+    setRedactionEnCours(m.id);
+    setErreurReponse((prev) => ({ ...prev, [m.id]: "" }));
+    try {
+      const r = await fetch("/api/support/draft", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ messageId: m.id }),
+      });
+      const data = await r.json().catch(() => null);
+      if (r.ok && data?.brouillon) {
+        setBrouillons((prev) => ({ ...prev, [m.id]: data.brouillon }));
+        setAssistees((prev) => ({ ...prev, [m.id]: true }));
+      } else {
+        setErreurReponse((prev) => ({ ...prev, [m.id]: data?.error || "La rédaction a échoué." }));
+      }
+    } catch (e) {
+      setErreurReponse((prev) => ({
+        ...prev,
+        [m.id]: e instanceof Error ? e.message : "Erreur réseau.",
+      }));
+    }
+    setRedactionEnCours(null);
+  };
+
+  const handleEnvoyerReponse = async (m: SupportMessage) => {
+    const corps = (brouillons[m.id] || "").trim();
+    if (!corps) return;
+    setEnvoiEnCours(m.id);
+    setErreurReponse((prev) => ({ ...prev, [m.id]: "" }));
+    try {
+      const r = await fetch("/api/support/reply", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ messageId: m.id, corps, assisteeIa: Boolean(assistees[m.id]) }),
+      });
+      const data = await r.json().catch(() => null);
+      if (r.ok) {
+        /* Le champ ne se vide qu'une fois l'envoi confirme. Sur une erreur le
+           texte reste entier : personne ne doit reecrire une reponse parce que
+           Resend a renvoye un 429. */
+        setBrouillons((prev) => ({ ...prev, [m.id]: "" }));
+        setAssistees((prev) => ({ ...prev, [m.id]: false }));
+        await fetchSupportMessages();
+      } else {
+        setErreurReponse((prev) => ({ ...prev, [m.id]: data?.error || "L'envoi a échoué." }));
+      }
+    } catch (e) {
+      setErreurReponse((prev) => ({
+        ...prev,
+        [m.id]: e instanceof Error ? e.message : "Erreur réseau.",
+      }));
+    }
+    setEnvoiEnCours(null);
   };
 
   /* Cout de revient. Saisi en euros : le chiffre d'affaires arrive en neuf
@@ -645,7 +735,7 @@ export default function AdminPage() {
                               {o.customer_email}
                             </span>
                           </td>
-                          <td className="px-4 py-3">{(() => { const opts = typeof o.options === 'string' ? JSON.parse(o.options) : o.options; const s = STYLE_LABELS[opts?.style]; return s ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-lg text-xs font-bold">{s.emoji} {s.label}</span> : <span className="text-gray-400">—</span>; })()}</td>
+                          <td className="px-4 py-3">{(() => { const opts = typeof o.options === 'string' ? JSON.parse(o.options) : o.options; const s = libelleStyle(opts?.style); return s ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-lg text-xs font-bold">{s.emoji} {s.label}</span> : <span className="text-gray-400">—</span>; })()}</td>
                           <td className="px-4 py-3 text-gray-500">{(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.printOption || "—"}</td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
@@ -788,7 +878,7 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    {(() => { const opts = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options; const s = STYLE_LABELS[opts?.style]; return s ? (
+                    {(() => { const opts = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options; const s = libelleStyle(opts?.style); return s ? (
                       <div className="bg-purple-50 rounded-lg p-3">
                         <p className="text-xs text-purple-600 font-semibold mb-1">🎨 Style</p>
                         <p className="font-bold text-gray-900">{s.emoji} {s.label}</p>
@@ -1165,12 +1255,26 @@ export default function AdminPage() {
                               </div>
                             ))}
                           </div>
-                          <a
-                            href={`mailto:${selectedOrder.customer_email}?subject=${encodeURIComponent(`Re: votre commande Cartoonova #${String(selectedOrder.id).slice(0, 8)}`)}`}
-                            className="mt-2 inline-block text-xs font-semibold text-gray-700 underline"
+                          {/* Repondre DANS l'admin, plus par `mailto:`.
+                              Le lien ouvrait le logiciel de messagerie de la
+                              machine : la reponse partait d'ailleurs, ne se
+                              rattachait a rien, et n'apparaissait dans aucun
+                              fil — c'est par ce chemin qu'un echange de mai
+                              n'est arrive dans la boite support que par un
+                              transfert, dont une moitie n'a jamais ete lue.
+                              Le bouton renvoie au message lui-meme, la ou la
+                              reponse se redige, part et s'enregistre. */}
+                          <button
+                            onClick={() => {
+                              const dernier = fil[fil.length - 1];
+                              setTab("support");
+                              setExpandedMessageId(dernier.id);
+                              if (!dernier.read_at) handleMarkSupportRead(dernier.id);
+                            }}
+                            className="mt-2 inline-block text-xs font-semibold text-gray-700 underline cursor-pointer"
                           >
                             Répondre à {selectedOrder.customer_email}
-                          </a>
+                          </button>
                         </div>
                       );
                     })()}
@@ -1428,6 +1532,15 @@ export default function AdminPage() {
                       const isExpanded = expandedMessageId === m.id;
                       const linkedOrder = m.order_id ? orders.find((o) => o.id === m.order_id) : null;
                       const badge = m.category ? CATEGORY_BADGE[m.category] : null;
+                      const reponses = m.replies ?? [];
+                      const brouillon = brouillons[m.id] || "";
+                      /* Les marqueurs que le modele laisse quand un fait lui
+                         manque. Tant qu'il en reste un, l'envoi est ferme :
+                         « [A VERIFIER : date d'envoi du colis] » dans la boite
+                         d'un client est pire que pas de reponse du tout, et
+                         c'est exactement ce qu'un clic distrait sur
+                         « Envoyer » produirait. */
+                      const aCompleter = /\[(A VERIFIER|DECISION)/i.test(brouillon);
                       return (
                         <div key={m.id} className={!m.read_at ? "bg-blue-50/40" : ""}>
                           <button
@@ -1453,6 +1566,11 @@ export default function AdminPage() {
                                     {badge.label}
                                   </span>
                                 )}
+                                {reponses.length > 0 && (
+                                  <span className="flex-shrink-0 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">
+                                    ↩ Répondu{reponses.length > 1 ? ` ×${reponses.length}` : ""}
+                                  </span>
+                                )}
                               </div>
                               <p className="text-xs text-gray-500 truncate">{m.subject || "(sans objet)"}</p>
                             </div>
@@ -1461,9 +1579,84 @@ export default function AdminPage() {
                             </span>
                           </button>
                           {isExpanded && (
-                            <div className="px-4 pb-4">
+                            <div className="px-4 pb-4 space-y-3">
                               <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
                                 {m.body_text || "(pas de contenu texte)"}
+                              </div>
+
+                              {/* Ce qui est deja parti. Le relire avant
+                                  d'ecrire evite la faute qui use un client qui
+                                  relance : lui resservir la reponse a laquelle
+                                  il est justement en train de repondre. */}
+                              {reponses.map((r) => (
+                                <div
+                                  key={r.id}
+                                  className="border-l-2 border-emerald-300 bg-emerald-50/60 rounded-r-xl px-3 py-2"
+                                >
+                                  <div className="flex items-baseline justify-between gap-2 mb-1">
+                                    <span className="text-[10px] font-bold text-emerald-800">
+                                      ↩ Envoyé à {r.to_email}
+                                      {r.assistee_ia && " · brouillon IA"}
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 shrink-0">
+                                      {new Date(r.sent_at).toLocaleString("fr-FR")}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.body_text}</p>
+                                </div>
+                              ))}
+
+                              <div className="border border-gray-200 rounded-xl p-3">
+                                <div className="flex items-center justify-between gap-3 mb-2">
+                                  <p className="text-xs font-semibold text-gray-500 truncate">
+                                    Répondre à {m.from_email}
+                                  </p>
+                                  <button
+                                    onClick={() => handleRedigerReponse(m)}
+                                    disabled={redactionEnCours === m.id}
+                                    className="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+                                  >
+                                    {redactionEnCours === m.id ? "✨ Rédaction..." : "✨ Brouillon IA"}
+                                  </button>
+                                </div>
+
+                                <textarea
+                                  value={brouillon}
+                                  onChange={(e) =>
+                                    setBrouillons((prev) => ({ ...prev, [m.id]: e.target.value }))
+                                  }
+                                  rows={8}
+                                  placeholder="Écrivez la réponse, ou partez d'un brouillon IA."
+                                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-yellow-400 resize-y"
+                                />
+
+                                {erreurReponse[m.id] && (
+                                  <p className="mt-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2">
+                                    {erreurReponse[m.id]}
+                                  </p>
+                                )}
+
+                                {aCompleter && (
+                                  <p className="mt-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg p-2">
+                                    Le brouillon laisse des marqueurs à compléter ou à trancher. Remplacez-les :
+                                    l&apos;envoi reste fermé tant qu&apos;il en reste un.
+                                  </p>
+                                )}
+
+                                <div className="flex items-center justify-between gap-3 mt-2">
+                                  <p className="text-[11px] text-gray-400 truncate">
+                                    {linkedOrder
+                                      ? `Commande ${linkedOrder.id.slice(0, 8)} jointe au contexte`
+                                      : "Aucune commande rattachée à ce message"}
+                                  </p>
+                                  <button
+                                    onClick={() => handleEnvoyerReponse(m)}
+                                    disabled={!brouillon.trim() || aCompleter || envoiEnCours === m.id}
+                                    className="flex-shrink-0 px-4 py-2 bg-yellow-400 text-black rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                  >
+                                    {envoiEnCours === m.id ? "⏳ Envoi..." : "Envoyer"}
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           )}
@@ -1494,7 +1687,9 @@ export default function AdminPage() {
           const ordersByStyle: Record<string, number> = {};
           paidOrders.forEach((o) => {
             const opts = typeof o.options === "string" ? JSON.parse(o.options) : o.options;
-            const style = opts?.style || "unknown";
+            /* Les commandes anterieures au champ `style` n'en portent pas ;
+               elles ont leur propre barre plutot que de fausser les autres. */
+            const style = opts?.style || "sans-style";
             ordersByStyle[style] = (ordersByStyle[style] || 0) + 1;
           });
           const styleEntries = Object.entries(ordersByStyle).sort((a, b) => b[1] - a[1]);
@@ -1571,10 +1766,10 @@ export default function AdminPage() {
                   <h3 className="font-bold text-gray-900 mb-4">🎨 Commandes par style</h3>
                   <div className="space-y-3">
                     {styleEntries.map(([style, count]) => {
-                      const s = STYLE_LABELS[style];
+                      const s = libelleStyle(style);
                       return (
                         <div key={style} className="flex items-center gap-3">
-                          <span className="text-sm font-semibold w-32 truncate">{s ? `${s.emoji} ${s.label}` : style}</span>
+                          <span className="text-sm font-semibold w-32 truncate">{style === "sans-style" ? "— Sans style" : `${s?.emoji} ${s?.label}`}</span>
                           <div className="flex-1 bg-gray-100 rounded-full h-6 overflow-hidden">
                             <div
                               className="h-full bg-yellow-400 rounded-full flex items-center justify-end pr-2"
