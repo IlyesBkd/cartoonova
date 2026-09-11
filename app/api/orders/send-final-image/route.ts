@@ -53,16 +53,25 @@ export async function POST(req: NextRequest) {
               ${t.ready(ref)}
             </p>
             <div style="text-align: center; margin: 20px 0;">
-              <img src="${finalImageUrl}" alt="Cartoonova illustration" style="max-width: 100%; border: 3px solid #000; border-radius: 12px; box-shadow: 6px 6px 0px rgba(0,0,0,1);" />
+              <img src="${finalImageUrl}" alt="Cartoonova" style="max-width: 100%; border: 3px solid #000; border-radius: 12px; box-shadow: 6px 6px 0px rgba(0,0,0,1);" />
             </div>
-            <div style="text-align: center; margin: 30px 0;">
+            <p style="font-size: 20px; font-weight: 900; text-align: center; margin: 24px 0 0 0; color: #000;">
+              ${t.question}
+            </p>
+            <div style="text-align: center; margin: 24px 0 30px 0;">
               <a href="${finalImageUrl}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
                 ${t.download}
               </a>
             </div>
-            <p style="font-size: 14px; text-align: center; color: #555; margin-top: 20px;">
-              ${t.feedback}
-            </p>
+            <!-- L'invitation a la retouche etait en gris, 14px, sous le bouton :
+                 la place qu'on donne aux mentions legales. Elle porte pourtant la
+                 promesse vendue sur toutes les fiches. Elle a desormais son
+                 encadre, dans le jaune de la marque. -->
+            <div style="background: #fef3c7; border: 3px solid #000; border-radius: 12px; padding: 18px 20px; margin-top: 10px;">
+              <p style="font-size: 15px; line-height: 1.55; text-align: center; color: #000; margin: 0;">
+                ${t.feedback}
+              </p>
+            </div>
           </div>
           <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
             <p>${t.thanks}</p>

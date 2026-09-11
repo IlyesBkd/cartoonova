@@ -216,114 +216,146 @@ export const confirmationEmail: Record<Lang, {
 };
 
 // ─── Final image email (delivery) ─────────────────────────────────────
+/* Le moment ou le client decouvre son portrait.
+ *
+ * Ce qu'il disait avant : « Votre commande #X a été finalisée par nos
+ * artistes », puis, en petit et en gris, « si vous avez besoin d'une
+ * modification, répondez à cet email ». Le ton d'un avis de traitement.
+ *
+ * Deux choses manquaient. La premiere : poser la question. Un client qui
+ * ouvre son portrait a un avis, et personne ne le lui demandait — alors que
+ * c'est de cet avis que naissent les retouches utiles, et les avis publics.
+ * La seconde : la promesse. Le site annonce des « retouches illimitées et
+ * gratuites » sur les 36 fiches, dans le hero, sous le bouton d'achat. Cet
+ * e-mail ne la reprenait pas — donc au seul moment ou elle sert vraiment, le
+ * client ne savait plus qu'il y avait droit.
+ *
+ * Le registre suit celui deja etabli langue par langue : vouvoiement en
+ * francais et en allemand, tutoiement partout ailleurs. Un e-mail chaleureux
+ * qui tutoie un client habitue au « vous » ne fait pas plus proche, il fait
+ * negligent.
+ */
 export const finalImageEmail: Record<Lang, {
  subject: string;
  title: string;
- greeting: (name: string | null) =>string;
- ready: (ref: string) =>string;
+ greeting: (name: string | null) => string;
+ ready: (ref: string) => string;
+ /** La question, posee a voix haute juste sous le portrait. */
+ question: string;
  download: string;
+ /** L'invitation a la retouche, et la promesse du site tenue par ecrit. */
  feedback: string;
  thanks: string;
  team: string;
-}>= {
+}> = {
  fr: {
- subject: "Votre illustration Cartoonova est prête!",
- title: "Votre illustration est prête!",
- greeting: (name) =>name? `Bonjour ${name},`: "Bonjour,",
- ready: (ref) =>`Votre commande <strong>#${ref}</strong> a été finalisée par nos artistes. Découvrez le résultat ci-dessous:`,
- download: "Télécharger mon illustration",
- feedback: "Si vous avez des retours ou besoin d'une modification, répondez simplement à cet email.",
- thanks: "Merci pour votre confiance! ",
- team: "L'équipe Cartoonova",
+  subject: "Votre portrait Cartoonova est arrivé!",
+  title: "Votre portrait est arrivé!",
+  greeting: (name) => (name ? `Bonjour ${name},` : "Bonjour,"),
+  ready: (ref) => `Nos artistes viennent de terminer votre portrait (commande <strong>#${ref}</strong>). Le voici — on a hâte de savoir ce que vous en pensez:`,
+  question: "Alors, qu'en pensez-vous?",
+  download: "Télécharger mon portrait",
+  feedback: "Un détail à ajuster? Une couleur, un sourire, un arrière-plan? N'hésitez surtout pas: répondez simplement à cet e-mail et nos artistes s'en occupent. Les retouches sont illimitées et gratuites — on ne s'arrête que quand le portrait vous plaît vraiment.",
+  thanks: "Merci de nous avoir confié vos photos! ",
+  team: "L'équipe Cartoonova",
  },
  en: {
- subject: "Your Cartoonova illustration is ready!",
- title: "Your illustration is ready!",
- greeting: (name) =>name? `Hello ${name},`: "Hello,",
- ready: (ref) =>`Your order <strong>#${ref}</strong> has been completed by our artists. Check out the result below:`,
- download: "Download my illustration",
- feedback: "If you have any feedback or need a revision, simply reply to this email.",
- thanks: "Thank you for your trust! ",
- team: "The Cartoonova Team",
+  subject: "Your Cartoonova portrait has arrived!",
+  title: "Your portrait has arrived!",
+  greeting: (name) => (name ? `Hi ${name},` : "Hi there,"),
+  ready: (ref) => `Our artists have just finished your portrait (order <strong>#${ref}</strong>). Here it is — we can't wait to hear what you think:`,
+  question: "So, what do you think?",
+  download: "Download my portrait",
+  feedback: "Anything you'd like tweaked? A colour, a smile, the background? Please don't hesitate: just reply to this email and our artists will take care of it. Revisions are unlimited and free — we don't stop until you genuinely love it.",
+  thanks: "Thank you for trusting us with your photos! ",
+  team: "The Cartoonova Team",
  },
  es: {
- subject: "¡Tu ilustración Cartoonova está lista!",
- title: "¡Tu ilustración está lista!",
- greeting: (name) =>name? `Hola ${name},`: "Hola,",
- ready: (ref) =>`Tu pedido <strong>#${ref}</strong> ha sido finalizado por nuestros artistas. Descubre el resultado a continuación:`,
- download: "Descargar mi ilustración",
- feedback: "Si tienes algún comentario o necesitas una modificación, simplemente responde a este email.",
- thanks: "¡Gracias por tu confianza! ",
- team: "El equipo Cartoonova",
+  subject: "¡Tu retrato Cartoonova ya está aquí!",
+  title: "¡Tu retrato ya está aquí!",
+  greeting: (name) => (name ? `Hola ${name},` : "¡Hola!"),
+  ready: (ref) => `Nuestros artistas acaban de terminar tu retrato (pedido <strong>#${ref}</strong>). Aquí lo tienes: nos encantará saber qué te parece.`,
+  question: "Y bien, ¿qué te parece?",
+  download: "Descargar mi retrato",
+  feedback: "¿Hay algún detalle que quieras cambiar? ¿Un color, una sonrisa, el fondo? No lo dudes ni un momento: responde a este email y nuestros artistas se encargan. Los retoques son ilimitados y gratuitos — no paramos hasta que te enamore.",
+  thanks: "¡Gracias por confiarnos tus fotos! ",
+  team: "El equipo Cartoonova",
  },
  de: {
- subject: "Ihre Cartoonova-Illustration ist fertig!",
- title: "Ihre Illustration ist fertig!",
- greeting: (name) =>name? `Hallo ${name},`: "Hallo,",
- ready: (ref) =>`Ihre Bestellung <strong>#${ref}</strong> wurde von unseren Künstlern fertiggestellt. Entdecken Sie das Ergebnis:`,
- download: "Meine Illustration herunterladen",
- feedback: "Wenn Sie Feedback haben oder eine Änderung benötigen, antworten Sie einfach auf diese E-Mail.",
- thanks: "Vielen Dank für Ihr Vertrauen! ",
- team: "Das Cartoonova-Team",
+  subject: "Ihr Cartoonova-Porträt ist da!",
+  title: "Ihr Porträt ist da!",
+  greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
+  ready: (ref) => `Unsere Künstler haben Ihr Porträt gerade fertiggestellt (Bestellung <strong>#${ref}</strong>). Hier ist es — wir sind gespannt, wie es Ihnen gefällt:`,
+  question: "Und, wie gefällt es Ihnen?",
+  download: "Mein Porträt herunterladen",
+  feedback: "Möchten Sie noch etwas ändern? Eine Farbe, ein Lächeln, den Hintergrund? Zögern Sie bitte nicht: Antworten Sie einfach auf diese E-Mail, und unsere Künstler kümmern sich darum. Änderungen sind unbegrenzt und kostenlos — wir hören erst auf, wenn Ihnen das Porträt wirklich gefällt.",
+  thanks: "Vielen Dank, dass Sie uns Ihre Fotos anvertraut haben! ",
+  team: "Das Cartoonova-Team",
  },
  it: {
- subject: "La tua illustrazione Cartoonova è pronta!",
- title: "La tua illustrazione è pronta!",
- greeting: (name) =>name? `Ciao ${name},`: "Ciao,",
- ready: (ref) =>`Il tuo ordine <strong>#${ref}</strong> è stato completato dai nostri artisti. Scopri il risultato qui sotto:`,
- download: "Scarica la mia illustrazione",
- feedback: "Se hai dei commenti o hai bisogno di una modifica, rispondi semplicemente a questa email.",
- thanks: "Grazie per la tua fiducia! ",
- team: "Il team Cartoonova",
+  subject: "Il tuo ritratto Cartoonova è arrivato!",
+  title: "Il tuo ritratto è arrivato!",
+  greeting: (name) => (name ? `Ciao ${name},` : "Ciao,"),
+  ready: (ref) => `I nostri artisti hanno appena finito il tuo ritratto (ordine <strong>#${ref}</strong>). Eccolo — non vediamo l'ora di sapere cosa ne pensi:`,
+  question: "Allora, che ne pensi?",
+  download: "Scarica il mio ritratto",
+  feedback: "C'è qualche dettaglio da sistemare? Un colore, un sorriso, lo sfondo? Non esitare proprio: rispondi a questa email e i nostri artisti ci pensano. Le modifiche sono illimitate e gratuite — non ci fermiamo finché il ritratto non ti piace davvero.",
+  thanks: "Grazie per averci affidato le tue foto! ",
+  team: "Il team Cartoonova",
  },
  nl: {
-  subject: "Je Cartoonova-portret is klaar!",
-  title: "Je portret is klaar!",
+  subject: "Je Cartoonova-portret is er!",
+  title: "Je portret is er!",
   greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
-  ready: (ref) => `Je bestelling <strong>#${ref}</strong> is afgerond door onze tekenaars. Hieronder zie je het resultaat:`,
+  ready: (ref) => `Onze tekenaars hebben je portret net afgerond (bestelling <strong>#${ref}</strong>). Hier is het — we zijn benieuwd wat je ervan vindt:`,
+  question: "En, wat vind je ervan?",
   download: "Mijn portret downloaden",
-  feedback: "Heb je opmerkingen of wil je iets aangepast hebben? Beantwoord gewoon deze mail.",
-  thanks: "Bedankt voor je vertrouwen! ",
+  feedback: "Wil je nog iets aangepast zien? Een kleur, een glimlach, de achtergrond? Aarzel vooral niet: beantwoord gewoon deze mail en onze tekenaars gaan ermee aan de slag. Aanpassingen zijn onbeperkt en gratis — we stoppen pas als het portret je echt bevalt.",
+  thanks: "Bedankt dat je ons je foto's hebt toevertrouwd! ",
   team: "Het Cartoonova-team",
  },
  pl: {
-  subject: "Twój portret Cartoonova jest gotowy!",
-  title: "Twój portret jest gotowy!",
+  subject: "Twój portret Cartoonova już czeka!",
+  title: "Twój portret już czeka!",
   greeting: (name) => (name ? `Cześć ${name},` : "Cześć,"),
-  ready: (ref) => `Twoje zamówienie <strong>#${ref}</strong> zostało ukończone przez naszych rysowników. Zobacz efekt poniżej:`,
+  ready: (ref) => `Nasi rysownicy właśnie skończyli Twój portret (zamówienie <strong>#${ref}</strong>). Oto on — nie możemy się doczekać, co o nim powiesz:`,
+  question: "I jak, podoba się?",
   download: "Pobierz mój portret",
-  feedback: "Masz uwagi albo chcesz coś poprawić? Wystarczy odpowiedzieć na tego maila.",
-  thanks: "Dziękujemy za zaufanie! ",
+  feedback: "Chcesz coś poprawić? Kolor, uśmiech, tło? Naprawdę nie krępuj się: wystarczy odpisać na tego maila, a nasi rysownicy się tym zajmą. Poprawki są nieograniczone i bezpłatne — nie przestajemy, dopóki portret naprawdę Ci się nie spodoba.",
+  thanks: "Dziękujemy za zaufanie i za Twoje zdjęcia! ",
   team: "Zespół Cartoonova",
  },
  sv: {
-  subject: "Ditt Cartoonova-porträtt är klart!",
-  title: "Ditt porträtt är klart!",
+  subject: "Ditt Cartoonova-porträtt är här!",
+  title: "Ditt porträtt är här!",
   greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
-  ready: (ref) => `Din beställning <strong>#${ref}</strong> är färdig hos våra tecknare. Se resultatet nedan:`,
+  ready: (ref) => `Våra tecknare har just blivit klara med ditt porträtt (order <strong>#${ref}</strong>). Här är det — vi är nyfikna på vad du tycker:`,
+  question: "Vad säger du om det?",
   download: "Ladda ner mitt porträtt",
-  feedback: "Har du synpunkter eller vill ha något ändrat? Svara bara på det här mejlet.",
-  thanks: "Tack för förtroendet! ",
+  feedback: "Är det något du vill ändra? En färg, ett leende, bakgrunden? Tveka absolut inte: svara bara på det här mejlet, så fixar våra tecknare det. Ändringar är obegränsade och kostnadsfria — vi slutar inte förrän du verkligen gillar porträttet.",
+  thanks: "Tack för att du anförtrodde oss dina foton! ",
   team: "Cartoonova-teamet",
  },
  da: {
-  subject: "Dit Cartoonova-portræt er klar!",
-  title: "Dit portræt er klar!",
+  subject: "Dit Cartoonova-portræt er her!",
+  title: "Dit portræt er her!",
   greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
-  ready: (ref) => `Din bestilling <strong>#${ref}</strong> er færdig hos vores tegnere. Se resultatet herunder:`,
+  ready: (ref) => `Vores tegnere er lige blevet færdige med dit portræt (ordre <strong>#${ref}</strong>). Her er det — vi er spændte på at høre, hvad du synes:`,
+  question: "Hvad synes du om det?",
   download: "Hent mit portræt",
-  feedback: "Har du bemærkninger eller vil du have noget rettet? Svar bare på denne mail.",
-  thanks: "Tak for tilliden! ",
+  feedback: "Er der noget, du gerne vil have rettet? En farve, et smil, baggrunden? Tøv endelig ikke: svar bare på denne mail, så klarer vores tegnere det. Rettelser er ubegrænsede og gratis — vi stopper først, når du er rigtig glad for portrættet.",
+  thanks: "Tak fordi du betroede os dine billeder! ",
   team: "Cartoonova-teamet",
  },
  pt: {
-  subject: "O teu retrato Cartoonova está pronto!",
-  title: "O teu retrato está pronto!",
+  subject: "O teu retrato Cartoonova chegou!",
+  title: "O teu retrato chegou!",
   greeting: (name) => (name ? `Olá ${name},` : "Olá,"),
-  ready: (ref) => `A tua encomenda <strong>#${ref}</strong> foi finalizada pelos nossos ilustradores. Vê o resultado aqui em baixo:`,
+  ready: (ref) => `Os nossos ilustradores acabaram de terminar o teu retrato (encomenda <strong>#${ref}</strong>). Aqui está — estamos ansiosos por saber o que achas:`,
+  question: "Então, o que achas?",
   download: "Transferir o meu retrato",
-  feedback: "Tens algum comentário ou queres alguma alteração? Basta responderes a este email.",
-  thanks: "Obrigado pela confiança! ",
+  feedback: "Há algum detalhe que queiras ajustar? Uma cor, um sorriso, o fundo? Não hesites mesmo: basta responderes a este email e os nossos ilustradores tratam disso. Os retoques são ilimitados e gratuitos — só paramos quando o retrato te agradar mesmo.",
+  thanks: "Obrigado por nos confiares as tuas fotos! ",
   team: "A equipa Cartoonova",
  }
 };
