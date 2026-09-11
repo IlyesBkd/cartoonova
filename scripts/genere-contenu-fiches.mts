@@ -90,6 +90,9 @@ const LONGUEUR_MIN = Number(process.env.CONTENU_LONGUEUR_MIN || 900);
 /** Au-dela, deux fiches se ressemblent trop — c'est le defaut qu'on corrige. */
 const SIMILARITE_MAX = Number(process.env.CONTENU_SIMILARITE_MAX || 0.45);
 
+/** Echecs d'API consecutifs avant d'abandonner le passage. */
+const ECHECS_MAX = 5;
+
 const CORPUS = path.join("data", "seo", "corpus-requetes.csv");
 
 /* ═══ brief : les vraies requetes de l'univers ══════════════════════════ */
@@ -194,7 +197,18 @@ Reponds en JSON strict, sans texte autour :
 {"intro":"2 phrases","sections":[{"titre":"...","corps":"2 paragraphes separes par une ligne vide"}],"faq":[{"question":"...","reponse":"..."}]}
 Exactement 3 sections et 5 questions.`;
 
-async function rediger(univers: string, langue: string, requetes: string[]): Promise<Redige | null> {
+/**
+ * Panne qui touche toutes les fiches : credit epuise, cle refusee, ou API qui
+ * echoue sans relache. Insister ne sert a rien, chaque fiche echouerait de la
+ * meme facon. Avant ce garde-fou, un credit epuise produisait 236 appels par
+ * nuit et un compte rendu « toutes refusees » qui accusait les gardes.
+ */
+class ApiIndisponible extends Error {}
+
+/** Echec d'API (a reessayer plus tard) ou refus (le texte ne convient pas). */
+type Issue = { redige: Redige } | { echec: string } | { refus: string };
+
+async function rediger(univers: string, langue: string, requetes: string[]): Promise<Issue> {
   let r: Response;
   try {
     r = await fetch(POINT, {
@@ -215,30 +229,38 @@ async function rediger(univers: string, langue: string, requetes: string[]): Pro
       }),
     });
   } catch (e) {
-    console.log(`échec réseau (${(e as Error).message})`);
-    return null;
+    return { echec: `réseau (${(e as Error).message})` };
   }
 
   if (!r.ok) {
-    console.log(`échec ${r.status} — ${(await r.text()).slice(0, 140)}`);
-    return null;
+    const corps = await r.text();
+    let code = "";
+    try {
+      code = JSON.parse(corps)?.error?.code ?? "";
+    } catch {
+      /* Corps hors JSON : le statut suffit. */
+    }
+    if (r.status === 401 || r.status === 403) {
+      throw new ApiIndisponible(`clé API refusée (HTTP ${r.status})`);
+    }
+    if (code === "insufficient_quota" || /no credits remaining/i.test(corps)) {
+      throw new ApiIndisponible(
+        "crédit OpenAI épuisé — recharger sur https://platform.openai.com/settings/organization/billing"
+      );
+    }
+    return { echec: `HTTP ${r.status} — ${corps.replace(/\s+/g, " ").slice(0, 140)}` };
   }
 
   const brut = (await r.json())?.choices?.[0]?.message?.content;
-  if (!brut) {
-    console.log("échec — réponse vide");
-    return null;
-  }
+  if (!brut) return { echec: "réponse vide" };
   try {
     const j = JSON.parse(brut);
     if (!Array.isArray(j.sections) || !Array.isArray(j.faq) || typeof j.intro !== "string") {
-      console.log("refusé — structure inattendue");
-      return null;
+      return { refus: "structure inattendue" };
     }
-    return j as Redige;
+    return { redige: j as Redige };
   } catch {
-    console.log("refusé — réponse hors JSON");
-    return null;
+    return { refus: "réponse hors JSON" };
   }
 }
 
@@ -291,8 +313,11 @@ async function main() {
 
   let ecrites = 0;
   let refusees = 0;
+  let echecs = 0;
+  let echecsDAffilee = 0;
+  let panne: string | null = null;
 
-  for (const langue of LANGUES) {
+  passage: for (const langue of LANGUES) {
     if (ecrites >= PAR_PASSAGE) break;
 
     /* Une seule lecture par langue : elle donne a la fois les fiches deja
@@ -329,11 +354,32 @@ async function main() {
       }
 
       process.stdout.write(`  → ${langue}/${produit.slug} (${univers})… `);
-      const redige = await rediger(univers, langue, requetes);
-      if (!redige) {
-        refusees++;
+      let issue: Issue;
+      try {
+        issue = await rediger(univers, langue, requetes);
+      } catch (e) {
+        if (!(e instanceof ApiIndisponible)) throw e;
+        panne = e.message;
+        console.log(`arrêt — ${panne}`);
+        break passage;
+      }
+      if ("echec" in issue) {
+        echecs++;
+        console.log(`échec ${issue.echec}`);
+        if (++echecsDAffilee >= ECHECS_MAX) {
+          panne = `${ECHECS_MAX} échecs d'API d'affilée (dernier : ${issue.echec})`;
+          console.log(`arrêt — ${panne}`);
+          break passage;
+        }
         continue;
       }
+      echecsDAffilee = 0;
+      if ("refus" in issue) {
+        refusees++;
+        console.log(`refusé — ${issue.refus}`);
+        continue;
+      }
+      const redige = issue.redige;
 
       const texte = texteDe(redige);
 
@@ -373,14 +419,23 @@ async function main() {
   const total = couverture.reduce((n, c) => n + c.redigees, 0);
   const objectif = CATALOGUE_EN_LIGNE.length * LANGUES.length;
 
-  console.log(`\n[contenu] ${ecrites} écrite(s), ${refusees} refusée(s)`);
+  console.log(`\n[contenu] ${ecrites} écrite(s), ${refusees} refusée(s), ${echecs} échec(s) d'API`);
   console.log("[contenu] couverture après :", JSON.stringify(couverture));
 
   const detail = couverture
     .map((c) => `${c.locale} ${c.redigees}/${CATALOGUE_EN_LIGNE.length}`)
     .join(" · ");
 
-  if (ecrites === 0 && refusees === 0) {
+  if (panne) {
+    /* La panne passe avant tout : c'est elle qu'il faut corriger, et elle n'a
+       rien a voir avec la qualite des textes. */
+    await versDiscord(
+      "⛔ Contenu des fiches — API indisponible",
+      `${panne}.\nPassage arrêté ${ecrites ? `après ${ecrites} fiche(s) écrite(s)` : "sans rien écrire"} ; ` +
+        `il reprendra seul au prochain lancement. Couverture : ${detail}`,
+      0xd94f4f
+    );
+  } else if (ecrites === 0 && refusees === 0 && echecs === 0) {
     /* Plus rien a ecrire. Un mot une seule fois, quand le catalogue est
        couvert : pas un rappel quotidien pour un travail qui tourne a vide. */
     if (total >= objectif) {
@@ -391,17 +446,17 @@ async function main() {
       );
     }
   } else if (ecrites === 0) {
-    /* Tout a ete refuse : c'est le signal qui compte. Soit l'API repond mal,
-       soit le gabarit produit des textes trop proches les uns des autres. */
+    /* Rien d'ecrit sans panne franche : soit le gabarit produit des textes
+       trop proches les uns des autres, soit l'API echoue par intermittence. */
     await versDiscord(
       "⚠️ Contenu des fiches — aucune fiche écrite",
-      `${refusees} tentative(s), toutes refusées. Couverture inchangée : ${detail}`,
+      `${refusees} refusée(s) par les gardes, ${echecs} échec(s) d'API. Couverture inchangée : ${detail}`,
       0xd94f4f
     );
   } else {
     await versDiscord(
       "Contenu des fiches",
-      `**${ecrites}** fiche(s) écrite(s), ${refusees} refusée(s). ` +
+      `**${ecrites}** fiche(s) écrite(s), ${refusees} refusée(s), ${echecs} échec(s) d'API. ` +
         `Couverture : ${total}/${objectif} — ${detail}`,
       0xe9ba3b
     );
