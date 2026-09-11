@@ -7,13 +7,57 @@ import { upload } from "@vercel/blob/client";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
-import type { DbOrder, SupportMessage } from "@/lib/db";
+import type { DbOrder, SupportMessage, SupportReply } from "@/lib/db";
 import { lireConsigne } from "@/lib/consigneClient";
 import { CATALOGUE } from "@/lib/catalogue";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
+
+/**
+ * A quoi se rattache un courrier qu'on envoie.
+ *
+ * Deux cas, et ils ne se ramenent pas l'un a l'autre. Repondre a un e-mail
+ * recu, c'est se raccrocher a un message existant : son adresse, son objet,
+ * son identifiant de fil. Ecrire a un client depuis sa commande, c'est ouvrir
+ * quelque chose — il n'y a ni objet ni fil, et l'adresse est celle du
+ * paiement.
+ *
+ * Les confondre coute cher dans les deux sens : repondre a l'adresse de
+ * paiement rate le client qui ecrit depuis une autre boite, ce qui arrive des
+ * qu'un cadeau change de mains ; et poser un `In-Reply-To` sur un fil qui
+ * n'existe pas desoriente les logiciels de messagerie au lieu de les aider.
+ */
+type CibleCourrier =
+  | { type: "message"; message: SupportMessage }
+  | { type: "commande"; commande: DbOrder };
+
+/* La cle sous laquelle vit le brouillon. Prefixee parce qu'un identifiant de
+   message est un entier et celui d'une commande un UUID : sans prefixe, rien
+   ne garantirait qu'ils ne se croisent jamais. */
+const cleCible = (c: CibleCourrier) =>
+  c.type === "message" ? `msg-${c.message.id}` : `cmd-${c.commande.id}`;
+
+const destinataireCible = (c: CibleCourrier) =>
+  c.type === "message" ? c.message.from_email : c.commande.customer_email;
+
+const rattachement = (c: CibleCourrier) =>
+  c.type === "message" ? { messageId: c.message.id } : { orderId: c.commande.id };
+
+/* Une date ISO vers ce qu'attend `<input type="datetime-local">` : l'heure
+   LOCALE, sans fuseau. Tronquer un `toISOString` afficherait de l'UTC — 9 h
+   dans le champ pour un envoi qui arrivera a 10 h heure de Paris, 11 h l'ete.
+   Le decalage est donc retire avant la troncature. */
+const pourChampDate = (iso: string) => {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+
+const objetParDefaut = (c: CibleCourrier) =>
+  c.type === "commande" ? `Votre commande Cartoonova #${String(c.commande.id).slice(0, 8)}` : "";
+
 
 /* Les six univers historiques ont leur emoji. Les trente autres du catalogue
    n'en ont pas et n'en demandent pas : leur nom suffit a reconnaitre la
@@ -73,6 +117,11 @@ export default function AdminPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [sendingImage, setSendingImage] = useState(false);
   const [imageSent, setImageSent] = useState(false);
+  /* Envoi differe. Le champ de date n'est pas controle : il est remonte par sa
+     `key` des que la commande ou la date changent, ce qui evite un etat de plus
+     a resynchroniser a chaque selection dans la liste. */
+  const dateEnvoiRef = useRef<HTMLInputElement>(null);
+  const [programmationEnCours, setProgrammationEnCours] = useState(false);
 
   // Poster confirmation
   const [sendingConfirmation, setSendingConfirmation] = useState(false);
@@ -93,11 +142,16 @@ export default function AdminPage() {
   /* Reponses aux clients. Le brouillon est garde PAR MESSAGE : un champ
      unique perdait le texte en cours des qu'on depliait un autre message pour
      y verifier quelque chose — ce qu'on fait justement en repondant. */
-  const [brouillons, setBrouillons] = useState<Record<number, string>>({});
-  const [assistees, setAssistees] = useState<Record<number, boolean>>({});
-  const [redactionEnCours, setRedactionEnCours] = useState<number | null>(null);
-  const [envoiEnCours, setEnvoiEnCours] = useState<number | null>(null);
-  const [erreurReponse, setErreurReponse] = useState<Record<number, string>>({});
+  const [brouillons, setBrouillons] = useState<Record<string, string>>({});
+  const [objets, setObjets] = useState<Record<string, string>>({});
+  const [assistees, setAssistees] = useState<Record<string, boolean>>({});
+  const [redactionEnCours, setRedactionEnCours] = useState<string | null>(null);
+  const [envoiEnCours, setEnvoiEnCours] = useState<string | null>(null);
+  const [erreurReponse, setErreurReponse] = useState<Record<string, string>>({});
+  /* Ce qui est parti du support. Les reponses accrochees a un message recu
+     voyagent deja avec lui ; cette liste sert la fiche commande, ou un
+     courrier qu'on a ouvert soi-meme n'a aucun message auquel s'accrocher. */
+  const [sortants, setSortants] = useState<SupportReply[]>([]);
 
   const headers = useCallback(
     () => ({ "Content-Type": "application/json", "x-admin-password": password }),
@@ -129,6 +183,13 @@ export default function AdminPage() {
     setLoadingSupport(false);
   }, [password]);
 
+  const fetchSupportOutbox = useCallback(async () => {
+    try {
+      const r = await fetch("/api/support/outbox", { headers: { "x-admin-password": password } });
+      if (r.ok) setSortants(await r.json());
+    } catch {}
+  }, [password]);
+
   const handleSyncSupport = async () => {
     setSyncingSupport(true);
     setSyncError(null);
@@ -147,62 +208,187 @@ export default function AdminPage() {
   };
 
   /* Un brouillon ne s'enregistre nulle part : deux clics donnent deux
-     propositions, et celle qu'on jette ne laisse pas de trace. Seule la
-     reponse envoyee entre au fil. */
-  const handleRedigerReponse = async (m: SupportMessage) => {
-    setRedactionEnCours(m.id);
-    setErreurReponse((prev) => ({ ...prev, [m.id]: "" }));
+     propositions, et celle qu'on jette ne laisse pas de trace. Seul le
+     courrier envoye entre au fil. */
+  const handleRedigerReponse = async (cible: CibleCourrier) => {
+    const cle = cleCible(cible);
+    setRedactionEnCours(cle);
+    setErreurReponse((prev) => ({ ...prev, [cle]: "" }));
     try {
       const r = await fetch("/api/support/draft", {
         method: "POST",
         headers: headers(),
-        body: JSON.stringify({ messageId: m.id }),
+        body: JSON.stringify(rattachement(cible)),
       });
       const data = await r.json().catch(() => null);
       if (r.ok && data?.brouillon) {
-        setBrouillons((prev) => ({ ...prev, [m.id]: data.brouillon }));
-        setAssistees((prev) => ({ ...prev, [m.id]: true }));
+        setBrouillons((prev) => ({ ...prev, [cle]: data.brouillon }));
+        setAssistees((prev) => ({ ...prev, [cle]: true }));
       } else {
-        setErreurReponse((prev) => ({ ...prev, [m.id]: data?.error || "La rédaction a échoué." }));
+        setErreurReponse((prev) => ({ ...prev, [cle]: data?.error || "La rédaction a échoué." }));
       }
     } catch (e) {
       setErreurReponse((prev) => ({
         ...prev,
-        [m.id]: e instanceof Error ? e.message : "Erreur réseau.",
+        [cle]: e instanceof Error ? e.message : "Erreur réseau.",
       }));
     }
     setRedactionEnCours(null);
   };
 
-  const handleEnvoyerReponse = async (m: SupportMessage) => {
-    const corps = (brouillons[m.id] || "").trim();
+  const handleEnvoyerReponse = async (cible: CibleCourrier) => {
+    const cle = cleCible(cible);
+    const corps = (brouillons[cle] || "").trim();
     if (!corps) return;
-    setEnvoiEnCours(m.id);
-    setErreurReponse((prev) => ({ ...prev, [m.id]: "" }));
+    setEnvoiEnCours(cle);
+    setErreurReponse((prev) => ({ ...prev, [cle]: "" }));
     try {
       const r = await fetch("/api/support/reply", {
         method: "POST",
         headers: headers(),
-        body: JSON.stringify({ messageId: m.id, corps, assisteeIa: Boolean(assistees[m.id]) }),
+        body: JSON.stringify({
+          ...rattachement(cible),
+          corps,
+          objet: objets[cle] ?? objetParDefaut(cible),
+          assisteeIa: Boolean(assistees[cle]),
+        }),
       });
       const data = await r.json().catch(() => null);
       if (r.ok) {
         /* Le champ ne se vide qu'une fois l'envoi confirme. Sur une erreur le
            texte reste entier : personne ne doit reecrire une reponse parce que
            Resend a renvoye un 429. */
-        setBrouillons((prev) => ({ ...prev, [m.id]: "" }));
-        setAssistees((prev) => ({ ...prev, [m.id]: false }));
-        await fetchSupportMessages();
+        setBrouillons((prev) => ({ ...prev, [cle]: "" }));
+        setAssistees((prev) => ({ ...prev, [cle]: false }));
+        await Promise.all([fetchSupportMessages(), fetchSupportOutbox()]);
       } else {
-        setErreurReponse((prev) => ({ ...prev, [m.id]: data?.error || "L'envoi a échoué." }));
+        setErreurReponse((prev) => ({ ...prev, [cle]: data?.error || "L'envoi a échoué." }));
       }
     } catch (e) {
       setErreurReponse((prev) => ({
         ...prev,
-        [m.id]: e instanceof Error ? e.message : "Erreur réseau.",
+        [cle]: e instanceof Error ? e.message : "Erreur réseau.",
       }));
     }
     setEnvoiEnCours(null);
+  };
+
+  /* Les deux morceaux de l'echange sortant — ce qui est parti, et de quoi
+     ecrire la suite — sont des fonctions et non des composants.
+
+     Un composant declare dans le corps d'`AdminPage` serait recree a chaque
+     rendu : React y verrait un type different, demonterait l'ancien et
+     remonterait le nouveau, et le champ de saisie perdrait le curseur a
+     chaque frappe. Une fonction qui rend du JSX est simplement remplacee par
+     son contenu, sans cette identite instable. */
+
+  /** Un courrier parti, tel qu'il se relit. */
+  const courrierEnvoye = (r: SupportReply) => (
+    <div key={`env-${r.id}`} className="border-l-2 border-emerald-300 bg-emerald-50/60 rounded-r-xl px-3 py-2">
+      <div className="flex items-baseline justify-between gap-2 mb-1">
+        <span className="text-[10px] font-bold text-emerald-800 truncate">
+          ↩ Envoyé à {r.to_email}
+          {r.assistee_ia && " · brouillon IA"}
+        </span>
+        <span className="text-[10px] text-gray-400 shrink-0">
+          {new Date(r.sent_at).toLocaleString("fr-FR")}
+        </span>
+      </div>
+      <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.body_text}</p>
+    </div>
+  );
+
+  /** Ce qu'on a deja repondu a ce message, du plus ancien au plus recent. */
+  const reponsesEnvoyees = (m: SupportMessage) => {
+    const reponses = m.replies ?? [];
+    if (!reponses.length) return null;
+    return <div className="space-y-2">{reponses.map(courrierEnvoye)}</div>;
+  };
+
+  /**
+   * La zone de redaction, la meme dans l'onglet Support et dans la fiche
+   * commande.
+   *
+   * `contexte` dit ce que le modele a sous les yeux. Dans la fiche il est
+   * inutile — on est deja dans la commande ; dans l'onglet Support il repond a
+   * la question qu'on se pose avant de cliquer : « est-ce qu'il sait de quelle
+   * commande on parle ? »
+   */
+  const zoneRedaction = (cible: CibleCourrier, contexte: string | null) => {
+    const cle = cleCible(cible);
+    const brouillon = brouillons[cle] || "";
+    /* Les marqueurs que le modele laisse quand un fait lui manque. Tant qu'il
+       en reste un, l'envoi est ferme : « [A VERIFIER : date d'envoi du
+       colis] » dans la boite d'un client est pire que pas de reponse du tout,
+       et c'est exactement ce qu'un clic distrait sur « Envoyer » produirait. */
+    const aCompleter = /\[(A VERIFIER|DECISION)/i.test(brouillon);
+    /* L'objet ne se saisit que lorsqu'on OUVRE le fil. En reponse il se deduit
+       du message recu — le proposer a la saisie inviterait a le reecrire, et un
+       objet reecrit rompt le regroupement chez le client. */
+    const objet = cible.type === "commande" ? (objets[cle] ?? objetParDefaut(cible)) : null;
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl p-3">
+        <div className="flex items-center justify-between gap-2 flex-wrap mb-2">
+          <p className="text-xs font-semibold text-gray-500 truncate">
+            {cible.type === "message" ? "Répondre à" : "Écrire à"} {destinataireCible(cible)}
+          </p>
+          <button
+            onClick={() => handleRedigerReponse(cible)}
+            disabled={redactionEnCours === cle}
+            className="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {redactionEnCours === cle ? "✨ Rédaction..." : "✨ Brouillon IA"}
+          </button>
+        </div>
+
+        {objet !== null && (
+          <input
+            value={objet}
+            onChange={(e) => setObjets((prev) => ({ ...prev, [cle]: e.target.value }))}
+            placeholder="Objet de l'e-mail"
+            className="w-full mb-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-yellow-400"
+          />
+        )}
+
+        <textarea
+          value={brouillon}
+          onChange={(e) => setBrouillons((prev) => ({ ...prev, [cle]: e.target.value }))}
+          rows={7}
+          placeholder="Écrivez le message, ou partez d'un brouillon IA."
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-yellow-400 resize-y"
+        />
+
+        {erreurReponse[cle] && (
+          <p className="mt-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2">
+            {erreurReponse[cle]}
+          </p>
+        )}
+
+        {aCompleter && (
+          <p className="mt-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg p-2">
+            Le brouillon laisse des marqueurs à compléter ou à trancher. Remplacez-les : l&apos;envoi
+            reste fermé tant qu&apos;il en reste un.
+          </p>
+        )}
+
+        <div className="flex items-center justify-between gap-2 flex-wrap mt-2">
+          <p className="text-[11px] text-gray-400 truncate">{contexte}</p>
+          <button
+            onClick={() => handleEnvoyerReponse(cible)}
+            disabled={
+              !brouillon.trim() ||
+              aCompleter ||
+              (objet !== null && !objet.trim()) ||
+              envoiEnCours === cle
+            }
+            className="flex-shrink-0 px-4 py-2 bg-yellow-400 text-black rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {envoiEnCours === cle ? "⏳ Envoi..." : "Envoyer"}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   /* Cout de revient. Saisi en euros : le chiffre d'affaires arrive en neuf
@@ -374,8 +560,9 @@ export default function AdminPage() {
       fetchOrders();
       fetchPrices();
       fetchSupportMessages();
+      fetchSupportOutbox();
     }
-  }, [authed, fetchOrders, fetchPrices, fetchSupportMessages]);
+  }, [authed, fetchOrders, fetchPrices, fetchSupportMessages, fetchSupportOutbox]);
 
   // Update order status
   const updateStatus = async (id: string, status: OrderStatus) => {
@@ -418,7 +605,10 @@ export default function AdminPage() {
         handleUploadUrl: "/api/upload",
       });
       // Save to DB
-      await fetch("/api/orders/send-final-image", {
+      /* Le depot pose aussi le rendez-vous d'envoi : c'est la reponse qui dit
+         pour quand, et si elle l'a pose — un tirage physique pas encore valide
+         par le client, lui, n'est pas programme tout seul. */
+      const r = await fetch("/api/orders/send-final-image", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({
@@ -428,14 +618,91 @@ export default function AdminPage() {
           saveOnly: true,
         }),
       });
+      const data = await r.json().catch(() => ({}));
+
       // Update local state with new URL
-      const updated = { ...selectedOrder, final_image_url: blob.url };
+      const updated = {
+        ...selectedOrder,
+        final_image_url: blob.url,
+        final_image_scheduled_at:
+          data.scheduledAt ?? selectedOrder.final_image_scheduled_at ?? null,
+      };
       setSelectedOrder(updated);
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
     } catch (err) {
       alert(`Erreur upload: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
     }
     setUploadingImage(false);
+  };
+
+  /* ─── Envoi differe de l'illustration ──────────────────────────────
+
+     Livrer un portrait deux heures apres la commande ne se lit pas comme un
+     service rapide : l'e-mail annonce que « nos artistes viennent de terminer
+     votre portrait », et personne ne croit qu'une equipe d'artistes a travaille
+     pendant que le client refermait son onglet. Le depot programme donc l'envoi
+     a un ou deux jours ; ces deux boutons servent a le deplacer ou a le retirer.
+
+     L'image, elle, reste modifiable jusqu'au bout : le cron relit l'URL au
+     moment d'envoyer, donc « Remplacer » suffit a corriger un detail sans rien
+     reprogrammer. */
+  const majProgrammation = (scheduledAt: string | null) => {
+    if (!selectedOrder) return;
+    const updated = { ...selectedOrder, final_image_scheduled_at: scheduledAt };
+    setSelectedOrder(updated);
+    setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+  };
+
+  /* `quand` absent = laisser le serveur choisir (1 a 2 jours). Sinon la valeur
+     brute du champ date, convertie ici : « 2026-09-13T09:00 » sans fuseau serait
+     relu comme une heure UTC par le serveur, alors que l'admin l'a saisie a
+     Paris — deux heures d'ecart en ete, et personne pour s'en apercevoir. */
+  const handleProgrammerEnvoi = async (quand?: string) => {
+    if (!selectedOrder || programmationEnCours) return;
+    let scheduledAt: string | undefined;
+    if (quand) {
+      const d = new Date(quand);
+      if (Number.isNaN(d.getTime())) {
+        alert("Date invalide.");
+        return;
+      }
+      scheduledAt = d.toISOString();
+    }
+
+    setProgrammationEnCours(true);
+    try {
+      const r = await fetch("/api/orders/send-final-image", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ orderId: selectedOrder.id, action: "schedule", scheduledAt }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.ok) majProgrammation(data.scheduledAt ?? null);
+      else alert(`Erreur: ${data?.error || "Erreur inconnue"}`);
+    } catch (err) {
+      alert(`Erreur réseau: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
+    }
+    setProgrammationEnCours(false);
+  };
+
+  const handleAnnulerProgrammation = async () => {
+    if (!selectedOrder || programmationEnCours) return;
+    setProgrammationEnCours(true);
+    try {
+      const r = await fetch("/api/orders/send-final-image", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ orderId: selectedOrder.id, action: "cancel" }),
+      });
+      if (r.ok) majProgrammation(null);
+      else {
+        const data = await r.json().catch(() => null);
+        alert(`Erreur: ${data?.error || "Erreur inconnue"}`);
+      }
+    } catch (err) {
+      alert(`Erreur réseau: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
+    }
+    setProgrammationEnCours(false);
   };
 
   // Send final image email via Resend
@@ -478,7 +745,13 @@ export default function AdminPage() {
       });
       if (r.ok) {
         setImageSent(true);
-        const updated = { ...selectedOrder, final_image_sent_at: new Date().toISOString() };
+        /* Le rendez-vous tombe avec l'envoi : le serveur l'a efface, sans quoi
+           le cron renverrait le meme portrait a son passage suivant. */
+        const updated = {
+          ...selectedOrder,
+          final_image_sent_at: new Date().toISOString(),
+          final_image_scheduled_at: null,
+        };
         setSelectedOrder(updated);
         setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
         setTimeout(() => setImageSent(false), 4000);
@@ -802,66 +1075,94 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    {/* Les réponses du client, rattachées à CETTE commande.
-                        Le lien existait déjà en base — la synchro IMAP lit
-                        `In-Reply-To` et retombe sur l'adresse du client — mais
-                        il ne vivait que dans l'onglet Support, où une demande
-                        de retouche se perd entre deux sollicitations
-                        commerciales. Elle se lit maintenant là où on la
-                        traite. */}
+                    {/* La conversation avec le client, dans les deux sens,
+                        et de quoi écrire la suite.
+
+                        Le lien `mailto:` qui fermait ce bloc ouvrait le
+                        logiciel de messagerie de la machine : le message
+                        partait d'une autre adresse, ne se rattachait à rien et
+                        n'apparaissait dans aucun fil. C'est par ce chemin
+                        qu'un échange de mai n'est arrivé dans la boîte support
+                        que par un transfert, dont une moitié n'a jamais été
+                        marquée lue.
+
+                        Le bloc s'affiche même quand le client n'a jamais
+                        écrit. C'était le dernier trou : une question posée
+                        dans la case « instructions » à la commande n'arrive
+                        par aucun e-mail, donc n'avait rien à quoi répondre —
+                        et restait sans réponse pour cette seule raison. */}
                     {(() => {
-                      const reponses = supportMessages
+                      const fil = supportMessages
                         .filter((m) => m.order_id === selectedOrder.id && m.category !== "spam")
-                        .sort((a, b) => +new Date(b.received_at) - +new Date(a.received_at));
-                      if (!reponses.length) return null;
-                      const nonLus = reponses.filter((m) => !m.read_at).length;
+                        .sort((a, b) => +new Date(a.received_at) - +new Date(b.received_at));
+                      const envoyes = sortants.filter((r) => r.order_id === selectedOrder.id);
+                      /* Reçus et envoyés dans un seul ordre, celui du temps :
+                         c'est ainsi que la conversation s'est déroulée, et la
+                         seule façon de voir qu'une relance a suivi une réponse
+                         plutôt que de l'avoir précédée. */
+                      const echanges: { le: string; recu?: SupportMessage; envoye?: SupportReply }[] = [
+                        ...fil.map((m) => ({ le: m.received_at, recu: m })),
+                        ...envoyes.map((r) => ({ le: r.sent_at, envoye: r })),
+                      ].sort((a, b) => +new Date(a.le) - +new Date(b.le));
+                      const nonLus = fil.filter((m) => !m.read_at).length;
+                      /* On répond au dernier message reçu quand il y en a un :
+                         c'est celui auquel le client attend une réponse, et
+                         celui dont l'identifiant rattachera son prochain
+                         courrier au bon fil. Sinon c'est nous qui ouvrons. */
+                      const dernier = fil.length ? fil[fil.length - 1] : null;
+                      const cible: CibleCourrier = dernier
+                        ? { type: "message", message: dernier }
+                        : { type: "commande", commande: selectedOrder };
                       return (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                          <p className="text-xs text-amber-700 font-semibold mb-2">
-                            💬 Réponses du client ({reponses.length}
-                            {nonLus > 0 ? ` · ${nonLus} non lue${nonLus > 1 ? "s" : ""}` : ""})
-                          </p>
-                          <div className="space-y-2">
-                            {reponses.slice(0, 5).map((m) => (
-                              <div
-                                key={m.id}
-                                className={`rounded-md p-2 text-sm ${
-                                  m.read_at ? "bg-white/60" : "bg-white border border-amber-300"
-                                }`}
+                        <div className={`rounded-lg p-3 border ${nonLus ? "bg-amber-50 border-amber-300" : "bg-gray-50 border-gray-200"}`}>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <p className={`text-xs font-semibold ${nonLus ? "text-amber-700" : "text-gray-500"}`}>
+                              {echanges.length > 0
+                                ? `💬 Conversation client (${echanges.length})`
+                                : "✉️ Écrire au client"}
+                              {nonLus > 0 && ` — ${nonLus} non lu${nonLus > 1 ? "s" : ""}`}
+                            </p>
+                            {nonLus > 0 && (
+                              <button
+                                onClick={() => fil.filter((m) => !m.read_at).forEach((m) => handleMarkSupportRead(m.id))}
+                                className="text-[10px] font-bold text-amber-700 underline cursor-pointer shrink-0"
                               >
-                                <div className="flex items-baseline justify-between gap-2">
-                                  <span className="font-semibold text-gray-800 truncate">
-                                    {m.subject || "(sans objet)"}
-                                  </span>
-                                  <span className="text-[11px] text-gray-500 shrink-0">
-                                    {new Date(m.received_at).toLocaleString("fr-FR", {
-                                      day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
-                                    })}
-                                  </span>
-                                </div>
-                                {m.body_text && (
-                                  <p className="text-gray-700 mt-1 whitespace-pre-line">
-                                    {m.body_text.slice(0, 400)}
-                                    {m.body_text.length > 400 ? "…" : ""}
-                                  </p>
-                                )}
-                                {!m.read_at && (
-                                  <button
-                                    onClick={() => handleMarkSupportRead(m.id)}
-                                    className="mt-2 text-xs font-semibold text-amber-700 hover:text-amber-900 cursor-pointer"
-                                  >
-                                    Marquer comme lue
-                                  </button>
-                                )}
-                              </div>
-                            ))}
+                                Tout marquer lu
+                              </button>
+                            )}
                           </div>
-                          <a
-                            href={`mailto:${selectedOrder.customer_email}`}
-                            className="inline-block mt-2 text-xs font-semibold text-amber-700 hover:text-amber-900"
-                          >
-                            Répondre par e-mail →
-                          </a>
+
+                          {echanges.length > 0 && (
+                            <div className="space-y-2 max-h-80 overflow-y-auto mb-3">
+                              {echanges.map((e) =>
+                                e.recu ? (
+                                  <div
+                                    key={`recu-${e.recu.id}`}
+                                    className={`rounded-lg p-2 border ${e.recu.read_at ? "bg-white border-gray-200" : "bg-white border-amber-300"}`}
+                                  >
+                                    <div className="flex items-baseline justify-between gap-2 mb-1">
+                                      <span className="text-[10px] font-bold text-gray-700 truncate">{e.recu.from_email}</span>
+                                      <span className="text-[10px] text-gray-400 shrink-0">
+                                        {new Date(e.recu.received_at).toLocaleString("fr-FR")}
+                                      </span>
+                                    </div>
+                                    {e.recu.subject && (
+                                      <p className="text-[11px] font-semibold text-gray-800 mb-1">{e.recu.subject}</p>
+                                    )}
+                                    {e.recu.body_text && (
+                                      <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                        {e.recu.body_text.length > 700 ? e.recu.body_text.slice(0, 700) + "…" : e.recu.body_text}
+                                      </p>
+                                    )}
+                                  </div>
+                                ) : (
+                                  courrierEnvoye(e.envoye!)
+                                )
+                              )}
+                            </div>
+                          )}
+
+                          {zoneRedaction(cible, null)}
                         </div>
                       );
                     })()}
@@ -988,13 +1289,15 @@ export default function AdminPage() {
                             {consigne.question ? "❓ Consigne — LE CLIENT POSE UNE QUESTION" : "✏️ Consigne du client"}
                           </p>
                           <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{consigne.texte}</p>
+                          {/* Le `mailto:` qui se trouvait ici partait du
+                              logiciel de messagerie de la machine, sans rien
+                              rattacher ni enregistrer. La réponse s'écrit
+                              maintenant dans « Écrire au client », plus haut,
+                              et le brouillon IA y lit déjà cette consigne. */}
                           {consigne.question && (
-                            <a
-                              href={`mailto:${selectedOrder.customer_email}?subject=${encodeURIComponent(`Votre commande Cartoonova #${String(selectedOrder.id).slice(0, 8)}`)}`}
-                              className="mt-2 inline-block text-xs font-semibold text-amber-800 underline"
-                            >
-                              Répondre à {selectedOrder.customer_email}
-                            </a>
+                            <p className="mt-2 text-xs text-amber-800">
+                              Répondez-lui depuis « Écrire au client », plus haut.
+                            </p>
                           )}
                         </div>
                       );
@@ -1036,9 +1339,95 @@ export default function AdminPage() {
                               disabled={sendingImage}
                               className="flex-[2] px-3 py-2 text-xs font-bold rounded-lg border border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 transition-all cursor-pointer disabled:opacity-50"
                             >
-                              {sendingImage ? "Envoi en cours..." : selectedOrder.final_image_sent_at ? "Renvoyer par email" : "Envoyer au client"}
+                              {sendingImage
+                                ? "Envoi en cours..."
+                                : selectedOrder.final_image_sent_at
+                                ? "Renvoyer par email"
+                                : selectedOrder.final_image_scheduled_at
+                                ? "Envoyer maintenant"
+                                : "Envoyer au client"}
                             </button>
                           </div>
+
+                          {/* Envoi differe.
+                              Un portrait livre dans l'heure se lit comme un
+                              portrait genere dans l'heure — l'e-mail annonce
+                              pourtant que « nos artistes viennent de terminer
+                              votre portrait ». D'ou le rendez-vous, pose au
+                              depot de l'image et modifiable jusqu'au bout. */}
+                          {!selectedOrder.final_image_sent_at && (
+                            <div className="rounded-lg border border-emerald-300 bg-white px-2.5 py-2 space-y-1.5">
+                              {selectedOrder.final_image_scheduled_at ? (
+                                <>
+                                  <p className="text-[11px] font-bold text-emerald-800">
+                                    ⏳ Envoi programmé le{" "}
+                                    {new Date(selectedOrder.final_image_scheduled_at).toLocaleString("fr-FR", {
+                                      dateStyle: "full",
+                                      timeStyle: "short",
+                                    })}
+                                  </p>
+                                  <p className="text-[10px] text-gray-500 leading-snug">
+                                    Vous pouvez encore remplacer l&apos;image : c&apos;est la
+                                    dernière déposée qui partira.
+                                  </p>
+                                  <div className="flex gap-1.5 items-center">
+                                    <input
+                                      ref={dateEnvoiRef}
+                                      key={`${selectedOrder.id}-${selectedOrder.final_image_scheduled_at}`}
+                                      type="datetime-local"
+                                      defaultValue={pourChampDate(selectedOrder.final_image_scheduled_at)}
+                                      className="flex-1 min-w-0 px-1.5 py-1 text-[11px] rounded-md border border-gray-300"
+                                    />
+                                    <button
+                                      onClick={() => handleProgrammerEnvoi(dateEnvoiRef.current?.value)}
+                                      disabled={programmationEnCours}
+                                      className="px-2 py-1 text-[11px] font-bold rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer disabled:opacity-50"
+                                    >
+                                      Décaler
+                                    </button>
+                                    <button
+                                      onClick={handleAnnulerProgrammation}
+                                      disabled={programmationEnCours}
+                                      className="px-2 py-1 text-[11px] font-bold rounded-md border border-red-200 bg-white text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50"
+                                    >
+                                      Annuler
+                                    </button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  {/* Dire POURQUOI rien n'est programme. Le
+                                      depot programme tout seul, sauf sur un
+                                      tirage que le client n'a pas valide — et
+                                      un « aucun envoi programmé » sans raison
+                                      se lit comme une panne. */}
+                                  {(() => {
+                                    const opts = typeof selectedOrder.options === "string"
+                                      ? JSON.parse(selectedOrder.options)
+                                      : selectedOrder.options;
+                                    const attendValidation =
+                                      estPhysique(opts) &&
+                                      selectedOrder.poster_confirmation_status !== "confirmed";
+                                    return (
+                                      <p className="text-[11px] font-semibold text-gray-600 leading-snug">
+                                        {attendValidation
+                                          ? "Aucun envoi programmé : tirage physique en attente de validation du client."
+                                          : "Aucun envoi programmé."}
+                                      </p>
+                                    );
+                                  })()}
+                                  <button
+                                    onClick={() => handleProgrammerEnvoi()}
+                                    disabled={programmationEnCours}
+                                    className="w-full px-3 py-1.5 text-[11px] font-bold rounded-md border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 cursor-pointer disabled:opacity-50"
+                                  >
+                                    {programmationEnCours ? "..." : "📅 Programmer dans 1 à 2 jours"}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
+
                           {selectedOrder.final_image_sent_at && (
                             <p className="text-[10px] text-emerald-600 font-semibold text-center">
                               Envoyé le {new Date(selectedOrder.final_image_sent_at).toLocaleString("fr-FR")}
@@ -1202,82 +1591,6 @@ export default function AdminPage() {
                       />
                     </div>
 
-                    {/* Réponses du client par e-mail.
-                        La synchronisation IMAP rattache déjà chaque message à
-                        sa commande — par l'en-tête In-Reply-To, sinon par
-                        l'adresse du client. Cette liaison n'était visible nulle
-                        part : il fallait ouvrir l'onglet Support et retrouver
-                        le message à la main, sans savoir qu'il existait.
-                        Les messages sont déjà chargés à l'authentification, il
-                        n'y a donc rien à aller chercher ici. */}
-                    {(() => {
-                      const fil = supportMessages
-                        .filter((m) => m.order_id === selectedOrder.id && m.category !== "spam")
-                        .sort((a, b) => +new Date(a.received_at) - +new Date(b.received_at));
-                      if (!fil.length) return null;
-                      const nonLus = fil.filter((m) => !m.read_at).length;
-                      return (
-                        <div className={`rounded-lg p-3 border ${nonLus ? "bg-amber-50 border-amber-300" : "bg-gray-50 border-gray-200"}`}>
-                          <div className="flex items-center justify-between mb-2">
-                            <p className={`text-xs font-semibold ${nonLus ? "text-amber-700" : "text-gray-500"}`}>
-                              💬 Réponses du client ({fil.length})
-                              {nonLus > 0 && ` — ${nonLus} non lu${nonLus > 1 ? "s" : ""}`}
-                            </p>
-                            {nonLus > 0 && (
-                              <button
-                                onClick={() => fil.filter((m) => !m.read_at).forEach((m) => handleMarkSupportRead(m.id))}
-                                className="text-[10px] font-bold text-amber-700 underline cursor-pointer"
-                              >
-                                Tout marquer lu
-                              </button>
-                            )}
-                          </div>
-                          <div className="space-y-2 max-h-72 overflow-y-auto">
-                            {fil.map((m) => (
-                              <div
-                                key={m.id}
-                                className={`rounded-lg p-2 border ${m.read_at ? "bg-white border-gray-200" : "bg-white border-amber-300"}`}
-                              >
-                                <div className="flex items-baseline justify-between gap-2 mb-1">
-                                  <span className="text-[10px] font-bold text-gray-700 truncate">{m.from_email}</span>
-                                  <span className="text-[10px] text-gray-400 shrink-0">
-                                    {new Date(m.received_at).toLocaleString("fr-FR")}
-                                  </span>
-                                </div>
-                                {m.subject && (
-                                  <p className="text-[11px] font-semibold text-gray-800 mb-1">{m.subject}</p>
-                                )}
-                                {m.body_text && (
-                                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
-                                    {m.body_text.length > 700 ? m.body_text.slice(0, 700) + "…" : m.body_text}
-                                  </p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                          {/* Repondre DANS l'admin, plus par `mailto:`.
-                              Le lien ouvrait le logiciel de messagerie de la
-                              machine : la reponse partait d'ailleurs, ne se
-                              rattachait a rien, et n'apparaissait dans aucun
-                              fil — c'est par ce chemin qu'un echange de mai
-                              n'est arrive dans la boite support que par un
-                              transfert, dont une moitie n'a jamais ete lue.
-                              Le bouton renvoie au message lui-meme, la ou la
-                              reponse se redige, part et s'enregistre. */}
-                          <button
-                            onClick={() => {
-                              const dernier = fil[fil.length - 1];
-                              setTab("support");
-                              setExpandedMessageId(dernier.id);
-                              if (!dernier.read_at) handleMarkSupportRead(dernier.id);
-                            }}
-                            className="mt-2 inline-block text-xs font-semibold text-gray-700 underline cursor-pointer"
-                          >
-                            Répondre à {selectedOrder.customer_email}
-                          </button>
-                        </div>
-                      );
-                    })()}
 
                     {/* Expédition — commandes physiques uniquement.
                         Un fichier numérique n'a pas de colis, et proposer un
@@ -1533,14 +1846,6 @@ export default function AdminPage() {
                       const linkedOrder = m.order_id ? orders.find((o) => o.id === m.order_id) : null;
                       const badge = m.category ? CATEGORY_BADGE[m.category] : null;
                       const reponses = m.replies ?? [];
-                      const brouillon = brouillons[m.id] || "";
-                      /* Les marqueurs que le modele laisse quand un fait lui
-                         manque. Tant qu'il en reste un, l'envoi est ferme :
-                         « [A VERIFIER : date d'envoi du colis] » dans la boite
-                         d'un client est pire que pas de reponse du tout, et
-                         c'est exactement ce qu'un clic distrait sur
-                         « Envoyer » produirait. */
-                      const aCompleter = /\[(A VERIFIER|DECISION)/i.test(brouillon);
                       return (
                         <div key={m.id} className={!m.read_at ? "bg-blue-50/40" : ""}>
                           <button
@@ -1584,80 +1889,18 @@ export default function AdminPage() {
                                 {m.body_text || "(pas de contenu texte)"}
                               </div>
 
-                              {/* Ce qui est deja parti. Le relire avant
-                                  d'ecrire evite la faute qui use un client qui
-                                  relance : lui resservir la reponse a laquelle
-                                  il est justement en train de repondre. */}
-                              {reponses.map((r) => (
-                                <div
-                                  key={r.id}
-                                  className="border-l-2 border-emerald-300 bg-emerald-50/60 rounded-r-xl px-3 py-2"
-                                >
-                                  <div className="flex items-baseline justify-between gap-2 mb-1">
-                                    <span className="text-[10px] font-bold text-emerald-800">
-                                      ↩ Envoyé à {r.to_email}
-                                      {r.assistee_ia && " · brouillon IA"}
-                                    </span>
-                                    <span className="text-[10px] text-gray-400 shrink-0">
-                                      {new Date(r.sent_at).toLocaleString("fr-FR")}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.body_text}</p>
-                                </div>
-                              ))}
+                              {/* Ce qui est déjà parti. Le relire avant
+                                  d'écrire évite la faute qui use un client qui
+                                  relance : lui resservir la réponse à laquelle
+                                  il est justement en train de répondre. */}
+                              {reponsesEnvoyees(m)}
 
-                              <div className="border border-gray-200 rounded-xl p-3">
-                                <div className="flex items-center justify-between gap-3 mb-2">
-                                  <p className="text-xs font-semibold text-gray-500 truncate">
-                                    Répondre à {m.from_email}
-                                  </p>
-                                  <button
-                                    onClick={() => handleRedigerReponse(m)}
-                                    disabled={redactionEnCours === m.id}
-                                    className="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
-                                  >
-                                    {redactionEnCours === m.id ? "✨ Rédaction..." : "✨ Brouillon IA"}
-                                  </button>
-                                </div>
-
-                                <textarea
-                                  value={brouillon}
-                                  onChange={(e) =>
-                                    setBrouillons((prev) => ({ ...prev, [m.id]: e.target.value }))
-                                  }
-                                  rows={8}
-                                  placeholder="Écrivez la réponse, ou partez d'un brouillon IA."
-                                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-yellow-400 resize-y"
-                                />
-
-                                {erreurReponse[m.id] && (
-                                  <p className="mt-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2">
-                                    {erreurReponse[m.id]}
-                                  </p>
-                                )}
-
-                                {aCompleter && (
-                                  <p className="mt-2 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg p-2">
-                                    Le brouillon laisse des marqueurs à compléter ou à trancher. Remplacez-les :
-                                    l&apos;envoi reste fermé tant qu&apos;il en reste un.
-                                  </p>
-                                )}
-
-                                <div className="flex items-center justify-between gap-3 mt-2">
-                                  <p className="text-[11px] text-gray-400 truncate">
-                                    {linkedOrder
-                                      ? `Commande ${linkedOrder.id.slice(0, 8)} jointe au contexte`
-                                      : "Aucune commande rattachée à ce message"}
-                                  </p>
-                                  <button
-                                    onClick={() => handleEnvoyerReponse(m)}
-                                    disabled={!brouillon.trim() || aCompleter || envoiEnCours === m.id}
-                                    className="flex-shrink-0 px-4 py-2 bg-yellow-400 text-black rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                                  >
-                                    {envoiEnCours === m.id ? "⏳ Envoi..." : "Envoyer"}
-                                  </button>
-                                </div>
-                              </div>
+                              {zoneRedaction(
+                                { type: "message", message: m },
+                                linkedOrder
+                                  ? `Commande ${linkedOrder.id.slice(0, 8)} jointe au contexte`
+                                  : "Aucune commande rattachée à ce message"
+                              )}
                             </div>
                           )}
                         </div>

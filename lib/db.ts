@@ -48,6 +48,9 @@ export interface DbOrder {
   detected_country: string | null;
   final_image_url: string | null;
   final_image_sent_at: string | null;
+  /** Date a laquelle l'e-mail d'illustration finale doit partir.
+      Null = rien de programme (jamais programme, annule, ou deja parti). */
+  final_image_scheduled_at: string | null;
   poster_confirmation_token: string | null;
   poster_confirmation_sent_at: string | null;
   poster_confirmation_status: "confirmed" | "changes_requested" | null;
@@ -87,6 +90,7 @@ export async function getOrders(): Promise<DbOrder[]> {
      le tableau de bord d'une base pas encore migree afficherait un bloc
      Expedition vide et sans explication. */
   await ensureExpeditionSchema();
+  await ensureEnvoiProgrammeSchema();
   const rows = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows as unknown as DbOrder[];
 }
@@ -294,9 +298,115 @@ export async function updateOrderFinalImage(orderId: string, finalImageUrl: stri
 }
 
 export async function markFinalImageSent(orderId: string): Promise<void> {
+  await ensureEnvoiProgrammeSchema();
+  /* Le rendez-vous est efface en meme temps : il est tenu. Le laisser en place
+     ferait ressortir la commande au passage suivant du cron, qui renverrait le
+     meme portrait au meme client. */
   await sql`
-    UPDATE orders SET final_image_sent_at = NOW() WHERE id = ${orderId}::uuid
+    UPDATE orders
+    SET final_image_sent_at = NOW(), final_image_scheduled_at = NULL
+    WHERE id = ${orderId}::uuid
   `;
+}
+
+// ─── Envoi differe de l'illustration finale ──────────────────────────
+/* Voir lib/envoiProgramme.ts pour le calcul de la date, et le cron
+   `lifecycle-emails` pour l'envoi lui-meme. */
+
+let envoiProgrammeSchemaReady: Promise<void> | null = null;
+
+async function ensureEnvoiProgrammeSchema(): Promise<void> {
+  if (envoiProgrammeSchemaReady) return envoiProgrammeSchemaReady;
+  envoiProgrammeSchemaReady = (async () => {
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS final_image_scheduled_at TIMESTAMPTZ`;
+    /* Le cron balaie la table entiere a chaque passage pour trouver les quelques
+       commandes echues. L'index partiel ne porte que sur celles en attente. */
+    await sql`
+      CREATE INDEX IF NOT EXISTS orders_final_image_scheduled_idx
+      ON orders (final_image_scheduled_at)
+      WHERE final_image_scheduled_at IS NOT NULL
+    `;
+  })().catch((e) => {
+    envoiProgrammeSchemaReady = null;
+    throw e;
+  });
+  return envoiProgrammeSchemaReady;
+}
+
+/** Pose ou deplace le rendez-vous d'envoi. Ecrase une programmation existante. */
+export async function programmerEnvoiImageFinale(orderId: string, quand: Date): Promise<void> {
+  await ensureEnvoiProgrammeSchema();
+  await sql`
+    UPDATE orders
+    SET final_image_scheduled_at = ${quand.toISOString()}
+    WHERE id = ${orderId}::uuid
+  `;
+}
+
+/** Retire le rendez-vous sans rien envoyer. */
+export async function annulerEnvoiImageFinale(orderId: string): Promise<void> {
+  await ensureEnvoiProgrammeSchema();
+  await sql`
+    UPDATE orders SET final_image_scheduled_at = NULL WHERE id = ${orderId}::uuid
+  `;
+}
+
+/**
+ * Programme l'envoi seulement si rien n'est deja prevu ni deja parti.
+ *
+ * Le depot d'image passe par ici, et « Remplacer » emprunte exactement le meme
+ * chemin que le premier depot : sans cette condition, corriger un detail apres
+ * coup repousserait l'envoi d'un ou deux jours de plus a chaque correction, et
+ * remplacer l'image d'une commande deja livree en programmerait un second envoi.
+ *
+ * Renvoie la date retenue, ou null si rien n'a ete pose.
+ */
+export async function programmerEnvoiImageFinaleSiLibre(
+  orderId: string,
+  quand: Date
+): Promise<Date | null> {
+  await ensureEnvoiProgrammeSchema();
+  const rows = await sql`
+    UPDATE orders
+    SET final_image_scheduled_at = ${quand.toISOString()}
+    WHERE id = ${orderId}::uuid
+      AND final_image_scheduled_at IS NULL
+      AND final_image_sent_at IS NULL
+    RETURNING final_image_scheduled_at
+  `;
+  return rows.length ? quand : null;
+}
+
+/** Commande dont l'illustration finale doit partir maintenant. */
+export interface CommandeAEnvoyer {
+  id: string;
+  customer_email: string;
+  customer_name: string | null;
+  detected_country: string | null;
+  final_image_url: string;
+  options: OrderOptions;
+}
+
+/**
+ * Commandes echues : la date est passee et l'image est toujours la.
+ *
+ * `final_image_url IS NOT NULL` n'est pas de la prudence de facade — l'admin
+ * peut remplacer l'image entre la programmation et l'envoi, et une commande
+ * sans image produirait un e-mail avec une balise `img` vide.
+ */
+export async function getOrdersDueForFinalImage(): Promise<CommandeAEnvoyer[]> {
+  await ensureEnvoiProgrammeSchema();
+  const rows = await sql`
+    SELECT id, customer_email, customer_name, detected_country, final_image_url, options
+    FROM orders
+    WHERE final_image_scheduled_at IS NOT NULL
+      AND final_image_scheduled_at <= NOW()
+      AND final_image_sent_at IS NULL
+      AND final_image_url IS NOT NULL
+      AND customer_email IS NOT NULL
+    ORDER BY final_image_scheduled_at ASC
+  `;
+  return rows as unknown as CommandeAEnvoyer[];
 }
 
 // ─── Poster confirmation ─────────────────────────────────────────────
@@ -392,6 +502,61 @@ export interface SupportMessage {
   read_at: string | null;
   created_at: string;
   category: SupportMessageCategory | null;
+  /** Ce qui est PARTI en reponse a ce message, du plus ancien au plus recent. */
+  replies: SupportReply[];
+}
+
+/**
+ * Une reponse envoyee depuis l'admin.
+ *
+ * ── Pourquoi une table et pas un `replied_at` sur le message ─────────────
+ *
+ * Une colonne de date dirait qu'on a repondu, pas CE QU'ON A REPONDU. Or
+ * c'est la seule chose qui compte quand le client relance trois jours plus
+ * tard : sans le texte parti, on relit sa question et on redige une deuxieme
+ * fois, parfois autrement. Le fil est la matiere du support, pas son
+ * horodatage.
+ *
+ * Et une reponse n'est pas unique. Un echange de retouches en compte trois ou
+ * quatre sur le meme message d'origine — exactement la raison qui a fait
+ * naitre la table `retouches` a cote de `poster_confirmation_note`.
+ */
+export interface SupportReply {
+  id: number;
+  /**
+   * Le message auquel on repond — null quand c'est nous qui ouvrons le fil.
+   *
+   * Une question posee dans la case « instructions » a la commande n'est
+   * arrivee par aucun e-mail : il n'y a rien a quoi se rattacher, et pourtant
+   * il faut y repondre. C'etait le dernier endroit du tableau de bord ou un
+   * `mailto:` restait la seule issue.
+   */
+  support_message_id: number | null;
+  /**
+   * La commande concernee. Recopiee du message parent quand il y en a un.
+   *
+   * Sans cette colonne, un courrier ouvert depuis une fiche commande
+   * n'appartiendrait a rien : ni a un fil, ni a une commande. Il faudrait le
+   * chercher par l'adresse du client, ce qui est exactement le repli fragile
+   * que la synchro IMAP n'utilise qu'en dernier recours.
+   */
+  order_id: string | null;
+  to_email: string;
+  subject: string;
+  body_text: string;
+  /**
+   * Vrai quand un brouillon IA a servi de base — meme corrige a la main
+   * avant l'envoi.
+   *
+   * Ce n'est pas une statistique pour le plaisir. Le jour ou un client
+   * conteste une promesse qu'on lui aurait faite par e-mail, savoir si la
+   * phrase vient d'un modele ou d'une personne change la lecture de
+   * l'echange.
+   */
+  assistee_ia: boolean;
+  /** Identifiant Resend de l'envoi. Null si le fournisseur n'en a pas rendu. */
+  provider_id: string | null;
+  sent_at: string;
 }
 
 let supportInboxSchemaReady: Promise<void> | null = null;
@@ -414,6 +579,34 @@ async function ensureSupportInboxSchema(): Promise<void> {
       )
     `;
     await sql`ALTER TABLE support_messages ADD COLUMN IF NOT EXISTS category TEXT`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS support_replies (
+        id                 SERIAL PRIMARY KEY,
+        support_message_id INTEGER REFERENCES support_messages(id) ON DELETE CASCADE,
+        order_id           UUID REFERENCES orders(id),
+        to_email           TEXT NOT NULL,
+        subject            TEXT NOT NULL,
+        body_text          TEXT NOT NULL,
+        assistee_ia        BOOLEAN NOT NULL DEFAULT FALSE,
+        provider_id        TEXT,
+        sent_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    /* Les deux assouplissements qui suivent portent sur une table peut-etre
+       deja creee par la version precedente : `CREATE TABLE IF NOT EXISTS` ne
+       la modifie pas, ces deux lignes si. */
+    await sql`ALTER TABLE support_replies ALTER COLUMN support_message_id DROP NOT NULL`;
+    await sql`ALTER TABLE support_replies ADD COLUMN IF NOT EXISTS order_id UUID REFERENCES orders(id)`;
+    /* La lecture se fait par message dans l'onglet Support, par commande dans
+       la fiche : les deux chemins ont leur index. */
+    await sql`
+      CREATE INDEX IF NOT EXISTS support_replies_message
+      ON support_replies (support_message_id, sent_at)
+    `;
+    await sql`
+      CREATE INDEX IF NOT EXISTS support_replies_commande
+      ON support_replies (order_id, sent_at)
+    `;
     await sql`
       CREATE TABLE IF NOT EXISTS imap_sync_state (
         id TEXT PRIMARY KEY DEFAULT 'singleton',
@@ -482,10 +675,87 @@ export async function insertSupportMessage(msg: {
   return { isNew: rows.length > 0 };
 }
 
+/* Les reponses voyagent AVEC les messages, dans la meme requete.
+
+   L'alternative — une seconde route que le tableau de bord appellerait en
+   plus — reproduirait le defaut que le fil de la fiche commande vient de
+   corriger : une information deja en base, mais invisible faute d'etre
+   chargee. Ici le cout est nul, le sous-select ne ramenant que les reponses
+   des deux cents messages affiches. */
 export async function getSupportMessages(): Promise<SupportMessage[]> {
   await ensureSupportInboxSchema();
-  const rows = await sql`SELECT * FROM support_messages ORDER BY received_at DESC LIMIT 200`;
+  const rows = await sql`
+    SELECT
+      m.*,
+      COALESCE(
+        (
+          SELECT json_agg(r ORDER BY r.sent_at)
+          FROM support_replies r
+          WHERE r.support_message_id = m.id
+        ),
+        '[]'::json
+      ) AS replies
+    FROM support_messages m
+    ORDER BY m.received_at DESC
+    LIMIT 200
+  `;
   return rows as unknown as SupportMessage[];
+}
+
+/** Un message et son fil, pour les routes qui repondent. */
+export async function getSupportMessageById(id: number): Promise<SupportMessage | null> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`
+    SELECT
+      m.*,
+      COALESCE(
+        (
+          SELECT json_agg(r ORDER BY r.sent_at)
+          FROM support_replies r
+          WHERE r.support_message_id = m.id
+        ),
+        '[]'::json
+      ) AS replies
+    FROM support_messages m
+    WHERE m.id = ${id}
+  `;
+  return (rows[0] as unknown as SupportMessage) || null;
+}
+
+export async function insertSupportReply(reply: {
+  supportMessageId: number | null;
+  orderId: string | null;
+  toEmail: string;
+  subject: string;
+  bodyText: string;
+  assisteeIa: boolean;
+  providerId: string | null;
+}): Promise<SupportReply> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`
+    INSERT INTO support_replies (support_message_id, order_id, to_email, subject, body_text, assistee_ia, provider_id)
+    VALUES (
+      ${reply.supportMessageId}, ${reply.orderId ? reply.orderId : null}::uuid, ${reply.toEmail},
+      ${reply.subject}, ${reply.bodyText}, ${reply.assisteeIa}, ${reply.providerId}
+    )
+    RETURNING *
+  `;
+  return rows[0] as unknown as SupportReply;
+}
+
+/**
+ * Tout ce qui est parti du support, recemment.
+ *
+ * La fiche commande ne peut pas se contenter des reponses portees par les
+ * messages recus : un courrier qu'on a ouvert soi-meme n'est accroche a aucun
+ * message, et resterait invisible la ou on vient justement verifier si on a
+ * ecrit au client. C'est la meme lecon que le fil de la fiche commande — une
+ * donnee deja en base ne sert a rien tant qu'elle n'est pas chargee.
+ */
+export async function getSupportOutbox(): Promise<SupportReply[]> {
+  await ensureSupportInboxSchema();
+  const rows = await sql`SELECT * FROM support_replies ORDER BY sent_at DESC LIMIT 200`;
+  return rows as unknown as SupportReply[];
 }
 
 export async function markSupportMessageRead(id: number): Promise<void> {
