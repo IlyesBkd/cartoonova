@@ -15,8 +15,10 @@ import {
   getOrderById,
   getOrdersAwaitingPhotos,
   marquerAlertePhotos,
+  getOrdersDueForFinalImage,
   type LifecycleOrder,
 } from "@/lib/db";
+import { envoyerImageFinale } from "@/lib/emailImageFinale";
 import { sendWelcomeStep, WELCOME_DELAYS_DAYS } from "@/lib/welcomeSequence";
 import {
   getLangFromCountry,
@@ -413,6 +415,51 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
   return { sent, alertes };
 }
 
+/**
+ * Livraison des portraits dont le rendez-vous est echu.
+ *
+ * L'image est deposee par l'admin, l'e-mail part un ou deux jours plus tard :
+ * un portrait recu deux heures apres la commande ne se lit pas comme un
+ * portrait rapide, il se lit comme un portrait automatique. Le calcul de la
+ * date est dans lib/envoiProgramme.ts — il vise ce passage-ci, d'ou l'arrivee
+ * des portraits en milieu de matinee plutot qu'a l'heure ou l'admin a depose
+ * son fichier.
+ *
+ */
+async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed: number }> {
+  /* Cette tache passe en premier — c'est la seule que le client attend
+     vraiment. Elle ne doit donc surtout pas emporter les quatre autres avec
+     elle : une lecture qui echoue est comptee, pas propagee. */
+  const commandes = (await getOrdersDueForFinalImage().catch((error: unknown) => {
+    console.error(
+      "[CRON lifecycle-emails] lecture des envois programmés impossible",
+      error instanceof Error ? error.message : error
+    );
+    return [];
+  })).slice(0, MAX_PER_RUN);
+  let sent = 0;
+  let failed = 0;
+
+  for (const commande of commandes) {
+    try {
+      await envoyerImageFinale(commande);
+      sent++;
+    } catch (error: unknown) {
+      /* Le rendez-vous reste pose : `markFinalImageSent` n'est atteint qu'apres
+         un envoi reussi, donc la commande repassera demain. Un portrait livre
+         avec un jour de retard vaut mieux qu'un portrait jamais livre. */
+      failed++;
+      console.error(
+        "[CRON lifecycle-emails] image finale non envoyée",
+        commande.id,
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  return { sent, failed };
+}
+
 export async function GET(req: NextRequest) {
   // Sans CRON_SECRET configure, la comparaison ci-dessous laisserait passer un
   // header "Bearer undefined" : on refuse explicitement plutot que d'ouvrir la
@@ -429,12 +476,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const imagesFinales = await envoyerImagesFinalesProgrammees();
     const welcome = await sendWelcomeSteps();
     const reviewRequests = await sendReviewRequests();
     const reorders = await sendReorderEmails();
     const abandoned = await sendAbandonedCartEmails();
     const photos = await relancerPhotosManquantes();
-    const result = { welcome, reviewRequests, reorders, abandoned, photos };
+    const result = { imagesFinales, welcome, reviewRequests, reorders, abandoned, photos };
     console.log("[CRON lifecycle-emails]", JSON.stringify(result));
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
