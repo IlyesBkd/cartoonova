@@ -750,9 +750,12 @@ p { text-wrap: pretty; }
    defilerait plus depuis l'image — et nous reserve l'horizontale. */
 .galerie__cadre { touch-action: pan-y; }
 .tuiles { position: sticky; top: 92px; }
+/* Sans fond : les visuels au mur detoure (scripts/retire-fond-blanc.mjs) sont
+   transparents, et --cendre, plus sombre que la toile, dessinait un carre
+   beige autour du cadre au lieu de le laisser reposer sur la page. */
 .galerie__vue {
   width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover;
-  border-radius: var(--rayon-lg); background: var(--cendre); min-height: 0;
+  border-radius: var(--rayon-lg); min-height: 0;
 }
 /* pastille presse posée sur la galerie — l'idée de Pépouze, le seul des trois
    à mettre une autorité tierce directement sur le visuel produit */

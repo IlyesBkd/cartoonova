@@ -24,4 +24,4 @@
  * images du catalogue tombent en « Invalid src prop ». En production la
  * question ne se pose pas : le build relit les deux fichiers ensemble.
  */
-export const VERSION_VISUELS = "3";
+export const VERSION_VISUELS = "5";

@@ -1973,6 +1973,9 @@
 .agrandissement__vue {
   max-width: 100%; max-height: 90vh; width: auto; height: auto;
   border-radius: var(--rayon); box-shadow: var(--ombre-forte);
+  /* Visuel transparent : sans la toile de la page, le cadre flotterait sur le
+     voile violet, et l'ombre dessinerait un carre vide autour. */
+  background: var(--fond);
 }
 .agrandissement__fermer {
   position: absolute; top: clamp(10px, 3vw, 22px); right: clamp(10px, 3vw, 22px);

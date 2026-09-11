@@ -45,7 +45,7 @@ export async function generateMetadata({
 
   const titre = titreProduit(p, locale);
   const description = descriptionProduit(p, locale);
-  const image = visuelsProduit(p.slug).galerie[0];
+  const image = visuelsProduit(p.slug).partage[0];
   const slugs = slugsProduit(p);
 
   return {

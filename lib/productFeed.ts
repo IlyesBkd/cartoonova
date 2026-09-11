@@ -106,7 +106,7 @@ export interface FeedProduct {
  */
 export function buildFeedProducts(): FeedProduct[] {
   return CATALOGUE_EN_LIGNE.flatMap((p) => {
-    const galerie = visuelsProduit(p.slug).galerie;
+    const galerie = visuelsProduit(p.slug).partage;
     const image = galerie[0];
     if (!image) return [];
     return [

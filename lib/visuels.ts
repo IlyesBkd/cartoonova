@@ -43,6 +43,13 @@ const LEGENDES_PAR_RANG: (LegendeVisuel | null)[] = ["transformation", "impressi
 
 export interface VisuelsProduit {
   galerie: string[];
+  /**
+   * Aligne sur `galerie`, pour ce qui sort du site : og:image, flux marchand.
+   * Les visuels dont le fond a ete rendu transparent (scripts/retire-fond-blanc.mjs)
+   * y retrouvent leur original opaque, range dans `galerie/opaque/` : Facebook
+   * affiche la transparence en noir, et Merchant Center attend un fond plein.
+   */
+  partage: string[];
   /** Aligne sur `galerie`. `null` quand le visuel n'a pas de titre. */
   legendes: (LegendeVisuel | null)[];
   decors: Decor[];
@@ -78,7 +85,7 @@ const decorsDbz: Decor[] = Array.from({ length: 8 }, (_, i) => ({
   cle: `bg${i + 1}`,
 }));
 
-type VisuelsLivres = Omit<VisuelsProduit, "legendes">;
+type VisuelsLivres = Omit<VisuelsProduit, "legendes" | "partage">;
 
 const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
   simpson: {
@@ -264,7 +271,18 @@ export function visuelsProduit(slug: string): VisuelsProduit {
       ? decorsDeposes.map((src, i) => decorDepuisFichier(src, i + 1))
       : livres?.decors ?? [];
 
-  return { galerie, legendes, decors, supports: livres?.supports ?? SUPPORTS_DEFAUT };
+  const opaques = deposee ? fichiersDe(`catalogue/${slug}/galerie/opaque`) : [];
+  const partage = galerie.map(
+    (src) => opaques.find((o) => nomSansExtension(o) === nomSansExtension(src)) ?? src
+  );
+
+  return { galerie, partage, legendes, decors, supports: livres?.supports ?? SUPPORTS_DEFAUT };
+}
+
+/** `/catalogue/x/galerie/01.webp?v=3` -> `01` */
+function nomSansExtension(chemin: string): string {
+  const fichier = chemin.split("?")[0].split("/").pop() ?? "";
+  return fichier.replace(/\.[^.]+$/, "");
 }
 
 /** Visuel de vignette pour les grilles (accueil, catalogue, similaires). */
