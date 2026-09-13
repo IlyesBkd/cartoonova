@@ -1,16 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/sync-support-inbox",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/cron/lifecycle-emails",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron/seo",
-      "schedule": "0 6 * * *"
-    }
-  ]
-}
+{}
