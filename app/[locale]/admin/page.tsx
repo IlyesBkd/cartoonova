@@ -601,7 +601,16 @@ export default function AdminPage() {
     if (!selectedOrder) return;
     setUploadingImage(true);
     try {
-      const blob = await upload(`final/${selectedOrder.id}-${file.name}`, file, {
+      const extensionsParType: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/heic": "heic",
+        "image/heif": "heif",
+      };
+      const extension = extensionsParType[file.type] ?? "jpg";
+      const nomPublic = `final/cartoonova-${crypto.randomUUID()}.${extension}`;
+      const blob = await upload(nomPublic, file, {
         access: "public",
         handleUploadUrl: "/api/upload",
       });
