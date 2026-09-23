@@ -12,6 +12,7 @@ async function sendDiscordNotification(order: {
   photos?: string[] | null;
   rang?: number;
   support?: string;
+  modified?: boolean;
 }) {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -51,8 +52,12 @@ async function sendDiscordNotification(order: {
         embeds: [
           {
             title: isConfirmed
-              ? "✅ Client a confirmé son portrait !"
-              : "✏️ Client demande une modification",
+              ? order.modified
+                ? "🔄 Client a modifié sa réponse : portrait confirmé"
+                : "✅ Client a confirmé son portrait !"
+              : order.modified
+                ? "🔄 Client a modifié sa réponse : modification demandée"
+                : "✏️ Client demande une modification",
             color: isConfirmed ? 5763719 : 15844367,
             fields,
             footer: { text: "Cartoonova • Validation avant impression" },
@@ -68,15 +73,22 @@ async function sendDiscordNotification(order: {
 
 export async function POST(req: NextRequest) {
   try {
-    const { token, action, note, photos }: {
+    const { token, action, note, photos, previousRespondedAt }: {
       token: string;
       action: "confirm" | "changes";
       note?: string;
       photos?: unknown;
+      previousRespondedAt?: string | null;
     } = await req.json();
 
     if (!token || (action !== "confirm" && action !== "changes")) {
       return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    }
+    if (
+      previousRespondedAt != null &&
+      (typeof previousRespondedAt !== "string" || Number.isNaN(Date.parse(previousRespondedAt)))
+    ) {
+      return NextResponse.json({ error: "Date de réponse invalide." }, { status: 400 });
     }
 
     const status = action === "confirm" ? "confirmed" : "changes_requested";
@@ -88,16 +100,38 @@ export async function POST(req: NextRequest) {
     if (photosInvalides(jointes)) {
       return NextResponse.json({ error: jointes.error }, { status: 400 });
     }
-    const order = await recordPosterConfirmationResponse(
+    const result = await recordPosterConfirmationResponse(
       token,
       status,
       action === "changes" ? note : null,
-      jointes
+      jointes,
+      previousRespondedAt
     );
 
-    if (!order) {
+    if (!result.order) {
       return NextResponse.json({ error: "Lien invalide ou expiré." }, { status: 404 });
     }
+
+    if (!result.changed) {
+      if (result.conflict) {
+        return NextResponse.json(
+          {
+            error: "response_conflict",
+            status: result.order.poster_confirmation_status,
+            respondedAt: result.order.poster_confirmation_responded_at,
+          },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({
+        ok: true,
+        changed: false,
+        status: result.order.poster_confirmation_status,
+        respondedAt: result.order.poster_confirmation_responded_at,
+      });
+    }
+
+    const order = result.order;
 
     /* L'historique, en plus des colonnes. Une retouche est une conversation :
        « We are almost there. One other edit. » suppose une demande precedente,
@@ -118,9 +152,15 @@ export async function POST(req: NextRequest) {
       support: libelleSupportCourt(
         typeof order.options === "string" ? JSON.parse(order.options) : order.options
       ),
+      modified: Boolean(previousRespondedAt),
     });
 
-    return NextResponse.json({ ok: true, status });
+    return NextResponse.json({
+      ok: true,
+      changed: true,
+      status,
+      respondedAt: order.poster_confirmation_responded_at,
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[POST /api/orders/confirm-poster] Error:", message);

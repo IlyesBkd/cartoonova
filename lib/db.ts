@@ -455,7 +455,8 @@ export async function setPosterConfirmationToken(orderId: string, token: string)
         poster_confirmation_sent_at = NOW(),
         poster_confirmation_status = NULL,
         poster_confirmation_responded_at = NULL,
-        poster_confirmation_note = NULL
+        poster_confirmation_note = NULL,
+        poster_confirmation_photos = NULL
     WHERE id = ${orderId}::uuid
   `;
 }
@@ -472,19 +473,44 @@ export async function recordPosterConfirmationResponse(
   token: string,
   status: "confirmed" | "changes_requested",
   note?: string | null,
-  photos?: string[] | null
-): Promise<DbOrder | null> {
+  photos?: string[] | null,
+  previousRespondedAt?: string | null
+): Promise<{ order: DbOrder | null; changed: boolean; conflict: boolean }> {
   await ensurePosterConfirmationSchema();
+  const normalizedNote = note?.trim() || null;
+  const normalizedPhotos = photos?.length ? JSON.stringify(photos) : null;
   const rows = await sql`
     UPDATE orders
     SET poster_confirmation_status = ${status},
         poster_confirmation_responded_at = NOW(),
-        poster_confirmation_note = ${note || null},
-        poster_confirmation_photos = ${photos?.length ? JSON.stringify(photos) : null}::jsonb
+        poster_confirmation_note = ${normalizedNote},
+        poster_confirmation_photos = ${normalizedPhotos}::jsonb
     WHERE poster_confirmation_token = ${token}
+      AND (
+        (${previousRespondedAt ?? null}::timestamptz IS NULL AND poster_confirmation_responded_at IS NULL)
+        OR poster_confirmation_responded_at = ${previousRespondedAt ?? null}::timestamptz
+      )
+      AND (
+        poster_confirmation_status IS DISTINCT FROM ${status}
+        OR poster_confirmation_note IS DISTINCT FROM ${normalizedNote}
+        OR poster_confirmation_photos IS DISTINCT FROM ${normalizedPhotos}::jsonb
+      )
     RETURNING *
   `;
-  return (rows[0] as unknown as DbOrder) || null;
+  const updated = (rows[0] as unknown as DbOrder) || null;
+  if (updated) return { order: updated, changed: true, conflict: false };
+
+  const current = await getOrderByConfirmationToken(token);
+  if (!current) return { order: null, changed: false, conflict: false };
+
+  const currentPhotos = current.poster_confirmation_photos ?? null;
+  const samePhotos = JSON.stringify(currentPhotos) === JSON.stringify(photos?.length ? photos : null);
+  const sameResponse =
+    current.poster_confirmation_status === status &&
+    (current.poster_confirmation_note || null) === normalizedNote &&
+    samePhotos;
+
+  return { order: current, changed: false, conflict: !sameResponse };
 }
 
 // ─── Support inbox (IMAP sync) ────────────────────────────────────────

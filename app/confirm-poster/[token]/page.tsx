@@ -54,6 +54,14 @@ export default async function ConfirmPosterPage({
             lang={lang}
             initialStatus={order.poster_confirmation_status}
             respondedAt={order.poster_confirmation_responded_at}
+            initialNote={order.poster_confirmation_note}
+            initialPhotos={
+              order.poster_confirmation_status !== "changes_requested"
+                ? []
+                : typeof order.poster_confirmation_photos === "string"
+                ? JSON.parse(order.poster_confirmation_photos)
+                : order.poster_confirmation_photos ?? []
+            }
           />
         </div>
       </div>

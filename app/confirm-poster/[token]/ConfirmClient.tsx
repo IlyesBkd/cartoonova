@@ -14,25 +14,31 @@ export default function ConfirmClient({
   lang,
   initialStatus,
   respondedAt,
+  initialNote,
+  initialPhotos,
 }: {
   token: string;
   lang: Lang;
   initialStatus: Status;
   respondedAt: string | null;
+  initialNote: string | null;
+  initialPhotos: string[];
 }) {
   const t = posterConfirmationPage[lang];
   const [status, setStatus] = useState<Status>(initialStatus);
+  const [responseDate, setResponseDate] = useState<string | null>(respondedAt);
+  const [editing, setEditing] = useState(false);
   const [sending, setSending] = useState<"confirm" | "changes" | null>(null);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showChangesForm, setShowChangesForm] = useState(false);
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState(initialNote ?? "");
 
   /* Une demande de retouche sur un portrait est presque toujours visuelle : un
      tatouage oublie, une coupe de cheveux, une photo de reference. Sans ce
      champ, le client devait sortir de la page et repondre par e-mail — c'est
      exactement ce qui est arrive en mai, et la reponse a fini dans une boite
      que personne ne relevait. */
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>(initialPhotos);
   const [envoiPhotos, setEnvoiPhotos] = useState(false);
   const champFichier = useRef<HTMLInputElement>(null);
 
@@ -50,7 +56,7 @@ export default function ConfirmClient({
       }
       setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));
     } catch {
-      setError(true);
+      setError(t.invalidBody);
     } finally {
       setEnvoiPhotos(false);
     }
@@ -58,30 +64,41 @@ export default function ConfirmClient({
 
   const respond = async (action: "confirm" | "changes", noteText?: string) => {
     setSending(action);
-    setError(false);
+    setError(null);
     try {
       const r = await fetch("/api/orders/confirm-poster", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, action, note: noteText, photos }),
+        body: JSON.stringify({
+          token,
+          action,
+          note: noteText,
+          photos,
+          previousRespondedAt: responseDate,
+        }),
       });
+      const data = await r.json().catch(() => null);
       if (r.ok) {
         /* Le taux de demandes de retouche est la mesure de qualite du travail
            des illustrateurs, et la seule qui existe avant l'avis client. */
-        mesure(MESURES.posterConfirme, { action, avec_note: Boolean(noteText) });
-        setStatus(action === "confirm" ? "confirmed" : "changes_requested");
+        if (data?.changed) {
+          mesure(MESURES.posterConfirme, { action, avec_note: Boolean(noteText) });
+        }
+        setStatus(data?.status ?? (action === "confirm" ? "confirmed" : "changes_requested"));
+        setResponseDate(data?.respondedAt ?? responseDate);
+        setEditing(false);
         setShowChangesForm(false);
       } else {
-        setError(true);
+        setError(r.status === 409 ? t.responseConflict : (data?.error ?? t.invalidBody));
       }
     } catch {
-      setError(true);
+      setError(t.invalidBody);
     }
     setSending(null);
   };
 
-  const formattedDate = respondedAt
-    ? new Date(respondedAt).toLocaleString(lang)
+  const formattedDate = responseDate
+    ? new Date(responseDate).toLocaleString(lang)
     : null;
 
   return (
@@ -107,7 +124,20 @@ export default function ConfirmClient({
         </p>
       )}
 
-      {showChangesForm ? (
+      {status && !editing && (
+        <button
+          type="button"
+          onClick={() => {
+            setEditing(true);
+            setError(null);
+          }}
+          className="w-full text-sm font-bold text-black underline underline-offset-4 cursor-pointer"
+        >
+          {t.editResponse}
+        </button>
+      )}
+
+      {(!status || editing) && (showChangesForm ? (
         <div className="space-y-3">
           <div>
             <label className="text-sm font-bold text-black block mb-1">{t.changesPrompt}</label>
@@ -190,12 +220,25 @@ export default function ConfirmClient({
           >
             {t.changesButton}
           </button>
+          {editing && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditing(false);
+                setError(null);
+              }}
+              disabled={sending !== null}
+              className="w-full text-xs font-semibold text-gray-500 hover:text-gray-700 cursor-pointer"
+            >
+              {t.cancelEdit}
+            </button>
+          )}
         </div>
-      )}
+      ))}
 
       {error && (
         <p className="text-xs text-center text-red-600 font-semibold">
-          {t.invalidBody}
+          {error}
         </p>
       )}
     </div>

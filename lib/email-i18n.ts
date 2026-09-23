@@ -547,6 +547,9 @@ export const posterConfirmationPage: Record<Lang, {
  attachPhotos: string;
  removePhoto: string;
  sending: string;
+ editResponse: string;
+ cancelEdit: string;
+ responseConflict: string;
 }>= {
  fr: {
  pageTitle: "Confirmez votre portrait — Cartoonova",
@@ -568,6 +571,9 @@ export const posterConfirmationPage: Record<Lang, {
  attachPhotos: "Joindre des photos",
  removePhoto: "Retirer cette photo",
  sending: "Envoi en cours...",
+ editResponse: "Modifier ma réponse",
+ cancelEdit: "Annuler la modification",
+ responseConflict: "Votre réponse a changé entre-temps. Rechargez la page avant de réessayer.",
  },
  en: {
  pageTitle: "Confirm your portrait — Cartoonova",
@@ -589,6 +595,9 @@ export const posterConfirmationPage: Record<Lang, {
  attachPhotos: "Attach photos",
  removePhoto: "Remove this photo",
  sending: "Sending...",
+ editResponse: "Change my response",
+ cancelEdit: "Cancel",
+ responseConflict: "Your response changed in the meantime. Reload the page before trying again.",
  },
  es: {
  pageTitle: "Confirma tu retrato — Cartoonova",
@@ -610,6 +619,9 @@ export const posterConfirmationPage: Record<Lang, {
  attachPhotos: "Adjuntar fotos",
  removePhoto: "Quitar esta foto",
  sending: "Enviando...",
+ editResponse: "Cambiar mi respuesta",
+ cancelEdit: "Cancelar",
+ responseConflict: "Tu respuesta cambió mientras tanto. Recarga la página antes de volver a intentarlo.",
  },
  de: {
  pageTitle: "Porträt bestätigen — Cartoonova",
@@ -631,6 +643,9 @@ export const posterConfirmationPage: Record<Lang, {
  attachPhotos: "Fotos anhängen",
  removePhoto: "Dieses Foto entfernen",
  sending: "Wird gesendet...",
+ editResponse: "Antwort ändern",
+ cancelEdit: "Abbrechen",
+ responseConflict: "Ihre Antwort wurde zwischenzeitlich geändert. Laden Sie die Seite neu und versuchen Sie es erneut.",
  },
  it: {
  pageTitle: "Conferma il tuo ritratto — Cartoonova",
@@ -652,6 +667,9 @@ export const posterConfirmationPage: Record<Lang, {
  attachPhotos: "Allega foto",
  removePhoto: "Rimuovi questa foto",
  sending: "Invio in corso...",
+ editResponse: "Modifica la mia risposta",
+ cancelEdit: "Annulla",
+ responseConflict: "La tua risposta è stata modificata nel frattempo. Ricarica la pagina prima di riprovare.",
  },
  nl: {
   pageTitle: "Bevestig je portret — Cartoonova",
@@ -673,6 +691,9 @@ export const posterConfirmationPage: Record<Lang, {
   attachPhotos: "Foto's toevoegen",
   removePhoto: "Deze foto verwijderen",
   sending: "Versturen...",
+  editResponse: "Mijn antwoord wijzigen",
+  cancelEdit: "Annuleren",
+  responseConflict: "Je antwoord is intussen gewijzigd. Laad de pagina opnieuw voordat je het nogmaals probeert.",
  },
  pl: {
   pageTitle: "Potwierdź portret — Cartoonova",
@@ -694,6 +715,9 @@ export const posterConfirmationPage: Record<Lang, {
   attachPhotos: "Dołącz zdjęcia",
   removePhoto: "Usuń to zdjęcie",
   sending: "Wysyłanie...",
+  editResponse: "Zmień moją odpowiedź",
+  cancelEdit: "Anuluj",
+  responseConflict: "Twoja odpowiedź została w międzyczasie zmieniona. Odśwież stronę przed ponowną próbą.",
  },
  sv: {
   pageTitle: "Godkänn ditt porträtt — Cartoonova",
@@ -715,6 +739,9 @@ export const posterConfirmationPage: Record<Lang, {
   attachPhotos: "Bifoga foton",
   removePhoto: "Ta bort detta foto",
   sending: "Skickar...",
+  editResponse: "Ändra mitt svar",
+  cancelEdit: "Avbryt",
+  responseConflict: "Ditt svar ändrades under tiden. Ladda om sidan innan du försöker igen.",
  },
  da: {
   pageTitle: "Godkend dit portræt — Cartoonova",
@@ -736,6 +763,9 @@ export const posterConfirmationPage: Record<Lang, {
   attachPhotos: "Vedhæft billeder",
   removePhoto: "Fjern dette billede",
   sending: "Sender...",
+  editResponse: "Ændr mit svar",
+  cancelEdit: "Annuller",
+  responseConflict: "Dit svar blev ændret i mellemtiden. Genindlæs siden, før du prøver igen.",
  },
  pt: {
   pageTitle: "Confirma o teu retrato — Cartoonova",
@@ -757,6 +787,9 @@ export const posterConfirmationPage: Record<Lang, {
   attachPhotos: "Anexar fotos",
   removePhoto: "Remover esta foto",
   sending: "A enviar...",
+  editResponse: "Alterar a minha resposta",
+  cancelEdit: "Cancelar",
+  responseConflict: "A tua resposta foi entretanto alterada. Recarrega a página antes de tentares novamente.",
  }
 };
 
