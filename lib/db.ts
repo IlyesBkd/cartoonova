@@ -60,7 +60,7 @@ function openDatabaseTunnel(hosts: string[], ports: number[]): Promise<Duplex> {
         forwardedSocket = socket;
         ssh.removeListener("error", fail);
         ssh.on("error", (sshError) => {
-          if (!socket.destroyed) socket.destroy(sshError);
+          if (!socket.destroyed) socket.destroy();
         });
         socket.once("close", () => ssh.end());
         resolve(socket);
