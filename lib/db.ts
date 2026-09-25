@@ -80,7 +80,7 @@ function openDatabaseTunnel(hosts: string[], ports: number[]): Promise<Duplex> {
       privateKey,
       hostHash: "sha256",
       algorithms: { serverHostKey: ["ssh-ed25519"] },
-      hostVerifier: (fingerprint) => {
+      hostVerifier: (fingerprint: string | Buffer) => {
         if (typeof fingerprint !== "string" || !/^[a-f0-9]{64}$/i.test(fingerprint)) return false;
         return timingSafeEqual(Buffer.from(fingerprint, "hex"), Buffer.from(expectedFingerprint, "hex"));
       },
