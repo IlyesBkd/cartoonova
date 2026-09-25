@@ -114,7 +114,7 @@ export async function deposerAvis(depot: DepotAvis): Promise<{ id: number; statu
     RETURNING id, statut
   `;
 
-  const row = (rows as { id: number; statut: StatutAvis }[])[0];
+  const row = (rows as unknown as { id: number; statut: StatutAvis }[])[0];
   return row ? { id: row.id, statut: row.statut } : null;
 }
 
@@ -159,7 +159,7 @@ export async function statistiquesAvis(): Promise<StatistiquesAvis> {
     SELECT COUNT(*)::int AS nombre, COALESCE(AVG(note), 0)::float AS moyenne
     FROM reviews WHERE statut = 'publie'
   `;
-  const row = (rows as { nombre: number; moyenne: number }[])[0];
+  const row = (rows as unknown as { nombre: number; moyenne: number }[])[0];
   return {
     nombre: Number(row?.nombre ?? 0),
     moyenne: Math.round(Number(row?.moyenne ?? 0) * 10) / 10,

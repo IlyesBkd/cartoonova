@@ -42,7 +42,7 @@
  * qu'on accepte de depenser chaque jour.
  */
 
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -101,11 +101,17 @@ const CLE_OPENAI = process.env.OPENAI_API_KEY || process.env.AI_API_KEY || "";
 const CLE_PERPLEXITY = process.env.PERPLEXITY_API_KEY || "";
 const CLE_SERPAPI = process.env.SERPAPI_API_KEY || "";
 
-/* Connexion ouverte a la demande. `neon()` leve des l'import si l'URL est
-   absente, ce qui faisait echouer le script sur une trace de pile avant meme
-   d'avoir pu dire quelle variable manquait. */
+/* Connexion PostgreSQL ouverte a la demande : les executions sans base
+   configuree peuvent encore afficher le message de configuration ci-dessous. */
 let _sql = null;
-const sql = (...args) => (_sql ??= neon(process.env.DATABASE_URL))(...args);
+const sql = (...args) => (_sql ??= postgres(process.env.DATABASE_URL, {
+  max: 1,
+  idle_timeout: 20,
+  connect_timeout: 15,
+  prepare: false,
+  // The GitHub runner carries PostgreSQL inside its pinned SSH tunnel.
+  ssl: false,
+}))(...args);
 
 /* ═══ choix des questions ═══════════════════════════════════════════════
    Elles ne sont pas inventees : elles sortent du corpus deja qualifie du
@@ -522,5 +528,9 @@ if (!surfacesActives().length) {
   process.exit(1);
 }
 
-await preparerTable();
-await main();
+try {
+  await preparerTable();
+  await main();
+} finally {
+  if (_sql) await _sql.end({ timeout: 5 });
+}

@@ -31,7 +31,7 @@ async function assurerSchema(): Promise<void> {
 export async function lireEtat<T>(cle: string): Promise<T | null> {
   await assurerSchema();
   const rows = await sql`SELECT valeur FROM seo_state WHERE cle = ${cle} LIMIT 1`;
-  const row = (rows as { valeur: T }[])[0];
+  const row = (rows as unknown as { valeur: T }[])[0];
   return row ? row.valeur : null;
 }
 

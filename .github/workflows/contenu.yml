@@ -3,13 +3,15 @@ name: Moteur de contenu
 # Le moteur ne tournait qu'en pm2 (`ecosystem.config.cjs`), ce qui suppose une
 # machine allumee en permanence. Ses commandes sont aussi utilisables en un
 # coup : les enchainer ici les fait tourner sans serveur a entretenir, sur la
-# meme base Neon que le site — un article publie apparait donc sur le blog, le
+# meme base PostgreSQL du VPS que le site — un article publie apparait donc sur le blog, le
 # sitemap et le flux RSS sans redeploiement.
 #
 # Secrets a definir dans Settings > Secrets and variables > Actions :
-#   DATABASE_URL      la meme chaine Neon que Vercel
+#   VPS_DATABASE_URL  l'URL PostgreSQL cible, pour ne pas interrompre l'ancien workflow pendant la migration
 #   AI_API_KEY        cle du fournisseur de generation
 #   SERPAPI_API_KEY   cle de decouverte de sujets
+#   VPS_SSH_PRIVATE_KEY  cle privee du tunnel restreint vers le VPS
+# Variables du tunnel VPS : voir `docs/migration-postgresql-vps.md`.
 #
 # Variables (Settings > Variables), facultatives :
 #   AI_MODEL, AI_TRANSLATION_MODEL, AI_ENDPOINT
@@ -43,7 +45,7 @@ jobs:
       PUBLISHER_ROOT: .
       PROJECT_CONFIG: config/project.json
       SITE_URL: https://www.cartoonova.com
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: ${{ secrets.VPS_DATABASE_URL }}
       AI_ADAPTER: openai-compatible
       AI_ENDPOINT: ${{ vars.AI_ENDPOINT || 'https://api.openai.com/v1/chat/completions' }}
       AI_API_KEY: ${{ secrets.AI_API_KEY }}
@@ -104,6 +106,16 @@ jobs:
             echo "pret=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Ouvrir le tunnel PostgreSQL du VPS
+        if: env.DATABASE_URL != ''
+        uses: ./.github/actions/vps-db-tunnel
+        with:
+          host: ${{ vars.VPS_SSH_HOST }}
+          port: ${{ vars.VPS_SSH_PORT || '22' }}
+          user: ${{ vars.VPS_SSH_USER }}
+          private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          host-public-key: ${{ vars.VPS_SSH_HOST_PUBLIC_KEY }}
+
       # La cause du tout premier echec : un secret DATABASE_URL transmis avec un
       # saut de ligne, donc invalide. Rien ne le signalait avant que le moteur
       # ne s'en serve, et le message parlait d'adaptateur plutot que de secret.
@@ -113,10 +125,14 @@ jobs:
         if: env.DATABASE_URL != ''
         run: |
           node --input-type=module -e '
-            import { neon } from "@neondatabase/serverless";
-            const sql = neon(process.env.DATABASE_URL);
-            const r = await sql`select 1 as ok`;
-            console.log("base joignable, ok =", r[0].ok);
+            import postgres from "postgres";
+            const sql = postgres(process.env.DATABASE_URL, { max: 1, prepare: false, ssl: false });
+            try {
+              const r = await sql`select 1 as ok`;
+              console.log("base joignable, ok =", r[0].ok);
+            } finally {
+              await sql.end({ timeout: 5 });
+            }
           '
 
       - name: Preparer le schema

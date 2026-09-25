@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.0.2",
     "@stripe/react-stripe-js": "^5.6.1",
     "@stripe/stripe-js": "^8.11.0",
     "@vercel/blob": "^2.3.1",
@@ -17,11 +16,13 @@
     "mailparser": "^3.9.14",
     "next": "16.2.1",
     "next-intl": "^4.8.3",
+    "postgres": "^3.4.9",
     "posthog-js": "^1.363.1",
     "posthog-node": "^5.50.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^6.9.4",
+    "ssh2": "^1.17.0",
     "stripe": "^20.4.1"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ssh2": "^1.15.6",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",

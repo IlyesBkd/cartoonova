@@ -1,12 +1,124 @@
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
+import { timingSafeEqual } from "node:crypto";
+import type { Duplex } from "node:stream";
+import { Client as SshClient } from "ssh2";
 import type { Prices, PriceSet, PricesByCurrency } from "./types";
 import { DEFAULT_PRICES, DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
 import { convertPrice, currencies, exchangeRates } from "./currency";
 import type { OrigineVisite } from "./origineVisite";
 
-// ─── SQL Connection ──────────────────────────────────────────────────
-export const sql = neon(process.env.DATABASE_URL!);
+// ─── Connexion PostgreSQL sur le VPS ─────────────────────────────────
+/* Le quota Neon a bloque l'admin (HTTP 402). En production, le PostgreSQL du
+   VPS reste lie a localhost et chaque instance Vercel ouvre un tunnel SSH
+   epingle vers lui. Les jobs GitHub ouvrent le meme tunnel avant de lancer
+   leurs scripts. Une connexion PostgreSQL par instance limite la charge du
+   VPS. Le mot de passe PostgreSQL protege aussi le tunnel SSH. Une URL locale
+   sans tunnel convient aux runners GitHub et au developpement via `ssh -L`;
+   les URL distantes directes conservent TLS pour les environnements locaux. */
+type ClientSql = ReturnType<typeof postgres>;
+let clientSql: ClientSql | undefined;
+
+function openDatabaseTunnel(hosts: string[], ports: number[]): Promise<Duplex> {
+  const [databaseHost] = hosts;
+  const [databasePort] = ports;
+  const sshHost = process.env.DATABASE_SSH_HOST;
+  const sshUser = process.env.DATABASE_SSH_USER;
+  const privateKey = process.env.DATABASE_SSH_PRIVATE_KEY;
+  const expectedFingerprint = process.env.DATABASE_SSH_HOST_KEY_SHA256?.toLowerCase();
+
+  if (!databaseHost || !databasePort || !sshHost || !sshUser || !privateKey) {
+    throw new Error("Configuration du tunnel SSH PostgreSQL manquante.");
+  }
+  if (!expectedFingerprint || !/^[a-f0-9]{64}$/.test(expectedFingerprint)) {
+    throw new Error("DATABASE_SSH_HOST_KEY_SHA256 doit contenir l'empreinte SHA-256 hexadecimale de la cle SSH du VPS.");
+  }
+
+  return new Promise((resolve, reject) => {
+    const ssh = new SshClient();
+    let settled = false;
+    let forwardedSocket: Duplex | undefined;
+    const fail = (error: Error) => {
+      if (settled) return;
+      settled = true;
+      ssh.end();
+      reject(error);
+    };
+
+    ssh.once("error", fail);
+    ssh.once("close", () => {
+      if (!settled) {
+        fail(new Error("La connexion SSH a ferme avant l'ouverture du tunnel PostgreSQL."));
+      } else if (forwardedSocket && !forwardedSocket.destroyed) {
+        forwardedSocket.destroy(new Error("La connexion SSH PostgreSQL a ete fermee."));
+      }
+    });
+    ssh.once("ready", () => {
+      ssh.forwardOut("127.0.0.1", 0, databaseHost, databasePort, (error, socket) => {
+        if (error) return fail(error);
+        settled = true;
+        forwardedSocket = socket;
+        ssh.removeListener("error", fail);
+        ssh.on("error", (sshError) => {
+          if (!socket.destroyed) socket.destroy();
+        });
+        socket.once("close", () => ssh.end());
+        resolve(socket);
+      });
+    });
+
+    const sshPort = Number(process.env.DATABASE_SSH_PORT || 22);
+    if (!Number.isInteger(sshPort) || sshPort < 1 || sshPort > 65_535) {
+      fail(new Error("DATABASE_SSH_PORT doit etre un port valide."));
+      return;
+    }
+
+    ssh.connect({
+      host: sshHost,
+      port: sshPort,
+      username: sshUser,
+      privateKey,
+      hostHash: "sha256",
+      algorithms: { serverHostKey: ["ssh-ed25519"] },
+      hostVerifier: (fingerprint: string | Buffer) => {
+        if (typeof fingerprint !== "string" || !/^[a-f0-9]{64}$/i.test(fingerprint)) return false;
+        return timingSafeEqual(Buffer.from(fingerprint, "hex"), Buffer.from(expectedFingerprint, "hex"));
+      },
+      readyTimeout: 10_000,
+      keepaliveInterval: 15_000,
+      keepaliveCountMax: 2,
+    });
+  });
+}
+
+function getClientSql(): ClientSql {
+  if (clientSql) return clientSql;
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) throw new Error("DATABASE_URL manquante.");
+  const databaseHost = new URL(databaseUrl).hostname;
+  const usesSshTunnel = Boolean(process.env.DATABASE_SSH_HOST);
+  const databaseIsLocal = ["127.0.0.1", "localhost", "::1"].includes(databaseHost);
+  const options = {
+    max: 1,
+    idle_timeout: 20,
+    connect_timeout: 15,
+    prepare: false,
+    ssl: usesSshTunnel || databaseIsLocal ? false : "verify-full",
+    ...(usesSshTunnel
+      ? { socket: (connection: { host: string[]; port: number[] }) => openDatabaseTunnel(connection.host, connection.port) }
+      : {}),
+  } as NonNullable<Parameters<typeof postgres>[1]> & {
+    socket?: (connection: { host: string[]; port: number[] }) => Promise<Duplex>;
+  };
+  clientSql = postgres(databaseUrl, options);
+  return clientSql;
+}
+
+/* L'interface actuelle n'utilise que les requetes taguees. Garder le client
+   paresseux evite qu'un build Next sans secrets d'execution tente de se
+   connecter a la base. */
+export const sql = ((strings: TemplateStringsArray, ...values: unknown[]) =>
+  Reflect.apply(getClientSql(), undefined, [strings, ...values])) as ClientSql;
 
 // ─── Orders ──────────────────────────────────────────────────────────
 /** Options cadeau saisies au paiement. Absentes quand ce n'est pas un cadeau. */

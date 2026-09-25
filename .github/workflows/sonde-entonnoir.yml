@@ -15,11 +15,13 @@ name: Sonde d'entonnoir
 # aux taches planifiees est ici sans consequence.
 #
 # Secrets a definir dans Settings > Secrets and variables > Actions :
-#   DATABASE_URL          la meme chaine Neon que Vercel
+#   VPS_DATABASE_URL      l'URL PostgreSQL cible, pour ne pas interrompre l'ancien workflow pendant la migration
+#   VPS_SSH_PRIVATE_KEY   cle privee du tunnel restreint vers le VPS
 #   GSC_SITE_URL          la propriete Search Console
 #   GSC_CLIENT_EMAIL      compte de service
 #   GSC_PRIVATE_KEY_B64   sa cle privee, encodee en base64
 #   DISCORD_WEBHOOK_URL   point hebdomadaire, alerte si une marche s'effondre
+# Variables du tunnel VPS : voir `docs/migration-postgresql-vps.md`.
 
 on:
   schedule:
@@ -49,9 +51,18 @@ jobs:
       - name: Installer les dependances
         run: npm install --no-audit --no-fund
 
+      - name: Ouvrir le tunnel PostgreSQL du VPS
+        uses: ./.github/actions/vps-db-tunnel
+        with:
+          host: ${{ vars.VPS_SSH_HOST }}
+          port: ${{ vars.VPS_SSH_PORT || '22' }}
+          user: ${{ vars.VPS_SSH_USER }}
+          private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          host-public-key: ${{ vars.VPS_SSH_HOST_PUBLIC_KEY }}
+
       - name: Relever l'entonnoir
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.VPS_DATABASE_URL }}
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
           GSC_CLIENT_EMAIL: ${{ secrets.GSC_CLIENT_EMAIL }}
           GSC_PRIVATE_KEY_B64: ${{ secrets.GSC_PRIVATE_KEY_B64 }}

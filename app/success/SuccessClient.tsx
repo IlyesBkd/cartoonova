@@ -98,7 +98,7 @@ export default function SuccessClient({
     conversionSent.current = true;
   }, [order.customer_email, order.total_price, order.currency, order.payment_intent_id]);
 
-  // Décoder options JSONB (le driver Neon le parse automatiquement en objet)
+  // Décoder options JSONB (PostgreSQL renvoie JSONB comme un objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
 
   return (

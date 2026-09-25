@@ -129,7 +129,7 @@ export async function traduireEnFrancais(textes: string[]): Promise<Traduction[]
 
   const lignes = (await sql`
     SELECT empreinte, langue, texte_fr FROM traductions WHERE empreinte = ANY(${cles})
-  `) as { empreinte: string; langue: string; texte_fr: string | null }[];
+  `) as unknown as { empreinte: string; langue: string; texte_fr: string | null }[];
   const enCache = new Map(lignes.map((l) => [l.empreinte, { langue: l.langue, fr: l.texte_fr }]));
 
   const resultats: Traduction[] = new Array(nets.length);
