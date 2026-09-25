@@ -76,7 +76,7 @@ function baliseIdentite(locale: string) {
 /**
  * Prix de depart, mis en cache.
  *
- * La page d'accueil interrogeait Neon a chaque rendu pour un nombre qui change
+ * La page d'accueil interrogeait la base a chaque rendu pour un nombre qui change
  * une fois par trimestre. Le rendu est dynamique — la devise se lit dans les
  * en-tetes — donc ce n'etait pas un aller-retour occasionnel mais un par
  * visiteur, sur le chemin critique du premier octet.

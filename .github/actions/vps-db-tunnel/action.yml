@@ -1,0 +1,58 @@
+name: Open PostgreSQL tunnel to the VPS
+description: Open a pinned SSH tunnel from a GitHub runner to the private VPS PostgreSQL listener.
+inputs:
+  host:
+    description: Public hostname or IP address of the VPS.
+    required: true
+  port:
+    description: SSH port on the VPS.
+    required: false
+    default: "22"
+  user:
+    description: Restricted SSH tunnel account.
+    required: true
+  private-key:
+    description: Private key for the restricted SSH tunnel account.
+    required: true
+  host-public-key:
+    description: Pinned OpenSSH host public key, without its hostname or comment.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Open the tunnel
+      shell: bash
+      env:
+        VPS_SSH_HOST: ${{ inputs.host }}
+        VPS_SSH_PORT: ${{ inputs.port }}
+        VPS_SSH_USER: ${{ inputs.user }}
+        VPS_SSH_PRIVATE_KEY: ${{ inputs.private-key }}
+        VPS_SSH_HOST_PUBLIC_KEY: ${{ inputs.host-public-key }}
+      run: |
+        set -euo pipefail
+        install -d -m 700 "$HOME/.ssh"
+        printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/cartoonova-vps-tunnel"
+        chmod 600 "$HOME/.ssh/cartoonova-vps-tunnel"
+        printf 'cartoonova-vps %s\n' "$VPS_SSH_HOST_PUBLIC_KEY" > "$HOME/.ssh/known_hosts"
+        chmod 600 "$HOME/.ssh/known_hosts"
+        ssh -f -N \
+          -i "$HOME/.ssh/cartoonova-vps-tunnel" \
+          -p "$VPS_SSH_PORT" \
+          -o IdentitiesOnly=yes \
+          -o BatchMode=yes \
+          -o StrictHostKeyChecking=yes \
+          -o HostKeyAlias=cartoonova-vps \
+          -o HostKeyAlgorithms=ssh-ed25519 \
+          -o ExitOnForwardFailure=yes \
+          -o ServerAliveInterval=30 \
+          -o ServerAliveCountMax=3 \
+          -L 127.0.0.1:5432:127.0.0.1:5432 \
+          "$VPS_SSH_USER@$VPS_SSH_HOST"
+        for attempt in {1..20}; do
+          if timeout 1 bash -c '</dev/tcp/127.0.0.1/5432' 2>/dev/null; then
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "SSH tunnel did not expose local PostgreSQL port 5432." >&2
+        exit 1

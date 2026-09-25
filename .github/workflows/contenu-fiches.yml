@@ -22,12 +22,14 @@ name: Contenu des fiches produit
 # ── Pourquoi ici plutot que sur Vercel ───────────────────────────────────
 #
 # Six redactions longues en serie depassent le budget d'une fonction Vercel.
-# Actions n'a pas cette contrainte, ecrit dans la meme base Neon, et le moteur
+# Actions n'a pas cette contrainte, ecrit dans la meme base PostgreSQL du VPS, et le moteur
 # de contenu y tourne deja.
 #
 # Secrets (Settings > Secrets and variables > Actions) :
-#   DATABASE_URL   la meme chaine Neon que Vercel
+#   VPS_DATABASE_URL  l'URL PostgreSQL cible, pour ne pas interrompre l'ancien workflow pendant la migration
 #   AI_API_KEY     deja presente pour le moteur de contenu
+#   VPS_SSH_PRIVATE_KEY  cle privee du tunnel restreint vers le VPS
+# Variables du tunnel VPS : voir `docs/migration-postgresql-vps.md`.
 #
 # Variables facultatives (Settings > Variables) :
 #   AI_ENDPOINT    point compatible OpenAI  (defaut api.openai.com)
@@ -74,7 +76,7 @@ jobs:
           cache: npm
 
       # Le script importe `lib/catalogue.ts` et `lib/contenuFiche.ts` : il lui
-      # faut les dependances du projet, pas seulement le pilote Neon.
+      # faut les dependances du projet, pas seulement le pilote PostgreSQL.
       #
       # `npm install` et non `npm ci` : le verrou n'est pas parfaitement
       # synchronise — `next-intl` embarque un `@swc/core` qui reclame
@@ -87,9 +89,18 @@ jobs:
       - name: Installer les dependances
         run: npm install --no-audit --no-fund
 
+      - name: Ouvrir le tunnel PostgreSQL du VPS
+        uses: ./.github/actions/vps-db-tunnel
+        with:
+          host: ${{ vars.VPS_SSH_HOST }}
+          port: ${{ vars.VPS_SSH_PORT || '22' }}
+          user: ${{ vars.VPS_SSH_USER }}
+          private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          host-public-key: ${{ vars.VPS_SSH_HOST_PUBLIC_KEY }}
+
       - name: Rediger le lot
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.VPS_DATABASE_URL }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_ENDPOINT: ${{ vars.AI_ENDPOINT }}
           AI_MODEL: ${{ vars.AI_MODEL }}

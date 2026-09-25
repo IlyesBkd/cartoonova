@@ -1,4 +1,4 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import postgres from "postgres";
 import type { ContentRecord, ProjectConfig } from "../core/types.js";
 import type { CmsAdapter } from "./contracts.js";
 
@@ -51,20 +51,27 @@ function rowToRecord(row: ArticleRow): ContentRecord {
 }
 
 /**
- * Stores articles in the same Neon/Postgres database already used by the main site,
+ * Stores articles in the same PostgreSQL database already used by the main site,
  * so the deployed (serverless) frontend can read published content directly with SQL
  * instead of relying on a shared local filesystem. Revision checks are enforced with a
  * single atomic `UPDATE ... WHERE id = ? AND revision = ?`, and fingerprint idempotency
  * with `INSERT ... ON CONFLICT ... DO NOTHING` — both race-free under concurrent workers,
  * unlike the bundled FileCmsAdapter which needs an explicit lock for the same guarantee.
  */
-export class NeonCmsAdapter implements CmsAdapter {
-  private readonly sql: NeonQueryFunction<false, false>;
+export class PostgresCmsAdapter implements CmsAdapter {
+  private readonly sql: ReturnType<typeof postgres>;
 
   constructor(config: ProjectConfig) {
     const connectionString = String(config.adapters.cms.options.connectionString ?? process.env.DATABASE_URL ?? "");
-    if (!connectionString) throw new Error("Neon CMS adapter requires adapters.cms.options.connectionString or DATABASE_URL");
-    this.sql = neon(connectionString);
+    if (!connectionString) throw new Error("PostgreSQL CMS adapter requires adapters.cms.options.connectionString or DATABASE_URL");
+    this.sql = postgres(connectionString, {
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 15,
+      prepare: false,
+      // The GitHub runner carries PostgreSQL inside its pinned SSH tunnel.
+      ssl: false,
+    });
   }
 
   async initialize(): Promise<void> {

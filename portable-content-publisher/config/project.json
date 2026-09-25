@@ -89,7 +89,7 @@
     "requireAttribution": false
   },
   "adapters": {
-    "cms": { "type": "neon", "options": {} },
+    "cms": { "type": "postgres", "options": {} },
     "ai": {
       "type": "${AI_ADAPTER:-mock}",
       "options": {

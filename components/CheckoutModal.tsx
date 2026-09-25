@@ -92,7 +92,7 @@ function PaymentForm({
     return id;
   };
 
-  // Insert order as PENDING in Neon
+  // Insert order as PENDING in PostgreSQL
   const insertPendingOrder = async () => {
     const paymentIntentId = getPaymentIntentId();
     if (!paymentIntentId) {

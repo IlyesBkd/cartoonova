@@ -6,13 +6,15 @@ name: Sonde de citation
 # Pourquoi ici plutot que sur Vercel : les fonctions y sont limitees a
 # quelques dizaines de secondes, et une vingtaine de questions posees en serie
 # a plusieurs assistants depasse largement ce budget. GitHub Actions n'a pas
-# cette contrainte, ecrit dans la meme base Neon, et le moteur de contenu y
+# cette contrainte, ecrit dans la meme base PostgreSQL du VPS, et le moteur de contenu y
 # tourne deja — aucune machine de plus a entretenir.
 #
 # Secrets a definir dans Settings > Secrets and variables > Actions :
-#   DATABASE_URL          la meme chaine Neon que Vercel
+#   VPS_DATABASE_URL      l'URL PostgreSQL cible, pour ne pas interrompre l'ancien workflow pendant la migration
+#   VPS_SSH_PRIVATE_KEY   cle privee du tunnel restreint vers le VPS
 #   OPENAI_API_KEY        surface OpenAI  (a defaut, AI_API_KEY est utilisee)
 #   DISCORD_WEBHOOK_URL   alerte quand une citation est perdue
+# Variables du tunnel VPS : voir `docs/migration-postgresql-vps.md`.
 #
 # Facultatifs :
 #   PERPLEXITY_API_KEY    ajoute Perplexity, la surface la plus fidele
@@ -63,14 +65,22 @@ jobs:
         with:
           node-version: "22"
 
-      # Seul `@neondatabase/serverless` est necessaire : le script n'utilise
-      # sinon que `fetch` et la bibliotheque standard.
+      # Le script se connecte au port local ouvert par le tunnel SSH ci-dessous.
       - name: Installer la dependance base de donnees
-        run: npm install --no-save --no-audit --no-fund @neondatabase/serverless
+        run: npm install --no-save --no-audit --no-fund postgres
+
+      - name: Ouvrir le tunnel PostgreSQL du VPS
+        uses: ./.github/actions/vps-db-tunnel
+        with:
+          host: ${{ vars.VPS_SSH_HOST }}
+          port: ${{ vars.VPS_SSH_PORT || '22' }}
+          user: ${{ vars.VPS_SSH_USER }}
+          private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          host-public-key: ${{ vars.VPS_SSH_HOST_PUBLIC_KEY }}
 
       - name: Relever les citations
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.VPS_DATABASE_URL }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}

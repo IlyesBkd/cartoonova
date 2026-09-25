@@ -9,11 +9,11 @@ import {
   LocalMediaAdapter,
 } from "./file-adapters.js";
 import { HttpAnalyticsAdapter, HttpCmsAdapter, HttpDistributionAdapter, HttpMediaAdapter, HttpSearchAdapter } from "./http-adapters.js";
-import { NeonCmsAdapter } from "./neon.js";
+import { PostgresCmsAdapter } from "./postgres.js";
 import { SerpApiSearchAdapter } from "./serpapi.js";
 
 export function createAdapters(config: ProjectConfig): AdapterBundle {
-  const cms = config.adapters.cms.type === "file" ? new FileCmsAdapter(config) : config.adapters.cms.type === "http-json" ? new HttpCmsAdapter(config) : config.adapters.cms.type === "neon" ? new NeonCmsAdapter(config) : null;
+  const cms = config.adapters.cms.type === "file" ? new FileCmsAdapter(config) : config.adapters.cms.type === "http-json" ? new HttpCmsAdapter(config) : config.adapters.cms.type === "postgres" ? new PostgresCmsAdapter(config) : null;
   const search = config.adapters.search.type === "fixture" ? new FixtureSearchAdapter(config) : config.adapters.search.type === "http-json" ? new HttpSearchAdapter(config) : config.adapters.search.type === "serpapi" ? new SerpApiSearchAdapter(config) : null;
   const analytics = config.adapters.analytics.type === "file" ? new FileAnalyticsAdapter(config) : config.adapters.analytics.type === "http-json" ? new HttpAnalyticsAdapter(config) : null;
   const media = config.adapters.media.type === "local-catalog" ? new LocalMediaAdapter(config) : config.adapters.media.type === "http-json" ? new HttpMediaAdapter(config) : null;

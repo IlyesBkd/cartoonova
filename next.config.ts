@@ -7,6 +7,10 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig: NextConfig = {
   reactCompiler: true,
 
+  // ssh2 utilise les API reseau natives de Node et doit rester charge par le
+  // runtime serveur Vercel, hors du bundle des Server Components.
+  serverExternalPackages: ["ssh2"],
+
   /* PostHog sert ses evenements depuis notre propre domaine.
      `eu.i.posthog.com` figure dans EasyPrivacy, la liste appliquee par defaut
      par uBlock Origin et par Brave : appele en direct, il est bloque chez une
