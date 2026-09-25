@@ -118,7 +118,7 @@ function getClientSql(): ClientSql {
    paresseux evite qu'un build Next sans secrets d'execution tente de se
    connecter a la base. */
 export const sql = ((strings: TemplateStringsArray, ...values: unknown[]) =>
-  getClientSql()(strings, ...values)) as ClientSql;
+  Reflect.apply(getClientSql(), undefined, [strings, ...values])) as ClientSql;
 
 // ─── Orders ──────────────────────────────────────────────────────────
 /** Options cadeau saisies au paiement. Absentes quand ce n'est pas un cadeau. */
