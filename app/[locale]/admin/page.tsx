@@ -532,7 +532,11 @@ export default function AdminPage() {
 
   // Login
   const handleLogin = async () => {
-    if (loginPending || !password) return;
+    if (loginPending) return;
+    if (!password) {
+      setLoginError("Saisissez le mot de passe administrateur.");
+      return;
+    }
     setLoginPending(true);
     setLoginError("");
     try {
@@ -882,7 +886,7 @@ export default function AdminPage() {
             {loginError && <p role="alert" className="text-sm text-red-700 mb-4">{loginError}</p>}
             <button
               type="submit"
-              disabled={loginPending || !password}
+              disabled={loginPending}
               className="w-full bg-gray-900 text-white font-semibold text-sm py-3 rounded-xl hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait"
             >
               {loginPending ? "Connexion en cours…" : "Connexion"}
