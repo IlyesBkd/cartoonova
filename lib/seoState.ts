@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
  * Petit magasin cle/valeur pour l'etat des taches SEO recurrentes.
@@ -12,6 +12,7 @@ import { sql } from "./db";
 let schemaPret: Promise<void> | null = null;
 
 async function assurerSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
     await sql`

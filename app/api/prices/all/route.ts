@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllPrices, updateAllPrices } from "@/lib/db";
+import { getAllPrices, updateAllPrices, withFreshDatabaseClient } from "@/lib/db";
 import { currencies, type Currency } from "@/lib/currency";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { revalidatePath } from "next/cache";
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
   const unauthorized = checkAuth(req);
   if (unauthorized) return unauthorized;
   try {
-    return NextResponse.json(await getAllPrices());
+    return NextResponse.json(await withFreshDatabaseClient((db) => getAllPrices(db)));
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[GET /api/prices/all] Error:", message);

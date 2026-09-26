@@ -3,10 +3,15 @@ import { timingSafeEqual } from "node:crypto";
 import type { Duplex } from "node:stream";
 import { Client as SshClient } from "ssh2";
 import type { Prices, PriceSet, PricesByCurrency } from "./types";
-import { DEFAULT_PRICES, DEFAULT_PRICES_BY_CURRENCY } from "./types";
+import { DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
 import { convertPrice, currencies, exchangeRates } from "./currency";
 import type { OrigineVisite } from "./origineVisite";
+
+/* Le schema du VPS est provisionne avant le deploiement. Ne pas executer de
+   DDL au demarrage des fonctions serverless : chaque instance le repetait et
+   pouvait attendre un verrou PostgreSQL. Le bootstrap reste actif en local. */
+export const runtimeSchemaBootstrapEnabled = process.env.VERCEL !== "1";
 
 // ─── Connexion PostgreSQL sur le VPS ─────────────────────────────────
 /* Le quota Neon a bloque l'admin (HTTP 402). En production, le PostgreSQL du
@@ -38,9 +43,17 @@ function openDatabaseTunnel(hosts: string[], ports: number[]): Promise<Duplex> {
     const ssh = new SshClient();
     let settled = false;
     let forwardedSocket: Duplex | undefined;
+    let forwardOutTimer: ReturnType<typeof setTimeout> | undefined;
+    const clearForwardOutTimer = () => {
+      if (forwardOutTimer) {
+        clearTimeout(forwardOutTimer);
+        forwardOutTimer = undefined;
+      }
+    };
     const fail = (error: Error) => {
       if (settled) return;
       settled = true;
+      clearForwardOutTimer();
       ssh.end();
       reject(error);
     };
@@ -54,12 +67,33 @@ function openDatabaseTunnel(hosts: string[], ports: number[]): Promise<Duplex> {
       }
     });
     ssh.once("ready", () => {
+      forwardOutTimer = setTimeout(() => {
+        fail(new Error("Delai depasse pour l'ouverture du canal SSH PostgreSQL."));
+      }, 8_000);
       ssh.forwardOut("127.0.0.1", 0, databaseHost, databasePort, (error, socket) => {
-        if (error) return fail(error);
+        clearForwardOutTimer();
+        if (settled) {
+          socket?.destroy();
+          return;
+        }
+        if (error) return fail(new Error("Impossible d'ouvrir le canal SSH PostgreSQL."));
         settled = true;
         forwardedSocket = socket;
+        // Un canal SSH peut rester ouvert alors que plus aucun octet de
+        // PostgreSQL n'arrive. Sans garde, la requête attend les 300 s de
+        // Vercel et le bouton de connexion semble inerte.
+        let inactivityTimer: ReturnType<typeof setTimeout>;
+        const refreshInactivityTimer = () => {
+          clearTimeout(inactivityTimer);
+          inactivityTimer = setTimeout(() => {
+            (socket as Duplex).destroy(new Error("Le tunnel PostgreSQL ne répond plus."));
+          }, 15_000);
+        };
+        socket.on("data", refreshInactivityTimer);
+        socket.once("close", () => clearTimeout(inactivityTimer));
+        refreshInactivityTimer();
         ssh.removeListener("error", fail);
-        ssh.on("error", (sshError) => {
+        ssh.on("error", () => {
           if (!socket.destroyed) socket.destroy();
         });
         socket.once("close", () => ssh.end());
@@ -91,8 +125,7 @@ function openDatabaseTunnel(hosts: string[], ports: number[]): Promise<Duplex> {
   });
 }
 
-function getClientSql(): ClientSql {
-  if (clientSql) return clientSql;
+function createDatabaseClient(): ClientSql {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) throw new Error("DATABASE_URL manquante.");
   const databaseHost = new URL(databaseUrl).hostname;
@@ -100,7 +133,12 @@ function getClientSql(): ClientSql {
   const databaseIsLocal = ["127.0.0.1", "localhost", "::1"].includes(databaseHost);
   const options = {
     max: 1,
-    idle_timeout: 20,
+    max_pipeline: 1,
+    // Les fonctions Vercel peuvent être suspendues avec leur tunnel SSH encore
+    // ouvert. Fermer vite une connexion inactive évite de réutiliser un canal
+    // devenu muet lors de l'invocation suivante.
+    idle_timeout: process.env.VERCEL === "1" ? 1 : 20,
+    max_lifetime: process.env.VERCEL === "1" ? 30 : 1800,
     connect_timeout: 15,
     prepare: false,
     ssl: usesSshTunnel || databaseIsLocal ? false : "verify-full",
@@ -110,8 +148,21 @@ function getClientSql(): ClientSql {
   } as NonNullable<Parameters<typeof postgres>[1]> & {
     socket?: (connection: { host: string[]; port: number[] }) => Promise<Duplex>;
   };
-  clientSql = postgres(databaseUrl, options);
-  return clientSql;
+  return postgres(databaseUrl, options);
+}
+
+function getClientSql(): ClientSql {
+  return clientSql ??= createDatabaseClient();
+}
+
+/** Une connexion par lecture admin, fermée avant que Vercel suspende la fonction. */
+export async function withFreshDatabaseClient<T>(run: (client: ClientSql) => Promise<T>): Promise<T> {
+  const client = createDatabaseClient();
+  try {
+    return await run(client);
+  } finally {
+    await client.end({ timeout: 1 });
+  }
 }
 
 /* L'interface actuelle n'utilise que les requetes taguees. Garder le client
@@ -197,13 +248,13 @@ export interface DbOrder {
   origine: OrigineVisite | null;
 }
 
-export async function getOrders(): Promise<DbOrder[]> {
+export async function getOrders(querySql: ClientSql = sql): Promise<DbOrder[]> {
   /* `SELECT *` ne ramene que les colonnes qui existent. Sans cette garantie,
      le tableau de bord d'une base pas encore migree afficherait un bloc
      Expedition vide et sans explication. */
   await ensureExpeditionSchema();
   await ensureEnvoiProgrammeSchema();
-  const rows = await sql`SELECT * FROM orders ORDER BY created_at DESC`;
+  const rows = await querySql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows as unknown as DbOrder[];
 }
 
@@ -341,6 +392,7 @@ export async function enregistrerCoutCommande(
 let expeditionSchemaReady: Promise<void> | null = null;
 
 async function ensureExpeditionSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (expeditionSchemaReady) return expeditionSchemaReady;
   expeditionSchemaReady = (async () => {
     /* Le numero de commande chez l'imprimeur. Il ne part JAMAIS au client :
@@ -428,6 +480,7 @@ export async function markFinalImageSent(orderId: string): Promise<void> {
 let envoiProgrammeSchemaReady: Promise<void> | null = null;
 
 async function ensureEnvoiProgrammeSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (envoiProgrammeSchemaReady) return envoiProgrammeSchemaReady;
   envoiProgrammeSchemaReady = (async () => {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS final_image_scheduled_at TIMESTAMPTZ`;
@@ -526,6 +579,7 @@ export async function getOrdersDueForFinalImage(): Promise<CommandeAEnvoyer[]> {
 let posterConfirmationSchemaReady: Promise<void> | null = null;
 
 async function ensurePosterConfirmationSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (posterConfirmationSchemaReady) return posterConfirmationSchemaReady;
   posterConfirmationSchemaReady = (async () => {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_token TEXT`;
@@ -700,6 +754,7 @@ export interface SupportReply {
 let supportInboxSchemaReady: Promise<void> | null = null;
 
 async function ensureSupportInboxSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (supportInboxSchemaReady) return supportInboxSchemaReady;
   supportInboxSchemaReady = (async () => {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS last_outbound_message_id TEXT`;
@@ -820,9 +875,9 @@ export async function insertSupportMessage(msg: {
    corriger : une information deja en base, mais invisible faute d'etre
    chargee. Ici le cout est nul, le sous-select ne ramenant que les reponses
    des deux cents messages affiches. */
-export async function getSupportMessages(): Promise<SupportMessage[]> {
+export async function getSupportMessages(querySql: ClientSql = sql): Promise<SupportMessage[]> {
   await ensureSupportInboxSchema();
-  const rows = await sql`
+  const rows = await querySql`
     SELECT
       m.*,
       COALESCE(
@@ -890,9 +945,9 @@ export async function insertSupportReply(reply: {
  * ecrit au client. C'est la meme lecon que le fil de la fiche commande — une
  * donnee deja en base ne sert a rien tant qu'elle n'est pas chargee.
  */
-export async function getSupportOutbox(): Promise<SupportReply[]> {
+export async function getSupportOutbox(querySql: ClientSql = sql): Promise<SupportReply[]> {
   await ensureSupportInboxSchema();
-  const rows = await sql`SELECT * FROM support_replies ORDER BY sent_at DESC LIMIT 200`;
+  const rows = await querySql`SELECT * FROM support_replies ORDER BY sent_at DESC LIMIT 200`;
   return rows as unknown as SupportReply[];
 }
 
@@ -925,6 +980,7 @@ export async function setSupportMessageCategory(id: number, category: SupportMes
 let pricesSchemaReady: Promise<void> | null = null;
 
 async function ensurePricesSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (pricesSchemaReady) return pricesSchemaReady;
   pricesSchemaReady = (async () => {
     await sql`ALTER TABLE prices ADD COLUMN IF NOT EXISTS data JSONB`;
@@ -984,9 +1040,9 @@ export async function getPricesForCurrency(currency: Currency): Promise<PriceSet
   ) as unknown as PriceSet;
 }
 
-export async function getAllPrices(): Promise<PricesByCurrency> {
+export async function getAllPrices(querySql: ClientSql = sql): Promise<PricesByCurrency> {
   await ensurePricesSchema();
-  const rows = await sql`SELECT data FROM prices WHERE id = 'singleton'`;
+  const rows = await querySql`SELECT data FROM prices WHERE id = 'singleton'`;
   if (!rows.length || !rows[0].data) return DEFAULT_PRICES_BY_CURRENCY;
   return rows[0].data as PricesByCurrency;
 }
@@ -1012,6 +1068,7 @@ export interface NewsletterSubscriber {
 let newsletterSchemaReady: Promise<void> | null = null;
 
 async function ensureNewsletterSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (newsletterSchemaReady) return newsletterSchemaReady;
   newsletterSchemaReady = (async () => {
     await sql`
@@ -1121,6 +1178,7 @@ export interface LifecycleOrder {
 let lifecycleSchemaReady: Promise<void> | null = null;
 
 async function ensureLifecycleSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (lifecycleSchemaReady) return lifecycleSchemaReady;
   lifecycleSchemaReady = (async () => {
     await ensureNewsletterSchema();

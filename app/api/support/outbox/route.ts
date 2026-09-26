@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupportOutbox } from "@/lib/db";
+import { getSupportOutbox, withFreshDatabaseClient } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   if (refus) return refus;
 
   try {
-    const sortants = await getSupportOutbox();
+    const sortants = await withFreshDatabaseClient((db) => getSupportOutbox(db));
     return NextResponse.json(sortants);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";

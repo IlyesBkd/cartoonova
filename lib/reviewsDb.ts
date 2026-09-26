@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
  * Avis clients.
@@ -32,6 +32,7 @@ export interface Avis {
 let schemaPret: Promise<void> | null = null;
 
 async function assurerSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
     await sql`

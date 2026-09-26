@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 import type { Currency } from "./currency";
 
 export type PromoKind = "percent" | "amount";
@@ -37,6 +37,7 @@ const MIN_PAYABLE = 1;
 let promoSchemaReady: Promise<void> | null = null;
 
 async function ensurePromoSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (promoSchemaReady) return promoSchemaReady;
   promoSchemaReady = (async () => {
     await sql`

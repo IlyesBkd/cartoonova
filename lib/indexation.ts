@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
  * Ce que Google dit de chaque page, et ce qu'on en fait.
@@ -34,6 +34,7 @@ export interface ReleveIndexation {
 let schemaPret: Promise<void> | null = null;
 
 export async function assurerSchemaIndexation(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
     await sql`

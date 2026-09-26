@@ -100,11 +100,14 @@ const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
+  const [loginPending, setLoginPending] = useState(false);
+  const [loginError, setLoginError] = useState("");
   const [tab, setTab] = useState<"orders" | "prices" | "promos" | "analytics" | "support" | "avis">("orders");
 
   // Orders
   const [orders, setOrders] = useState<DbOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [ordersError, setOrdersError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<DbOrder | null>(null);
 
   // Prices
@@ -161,11 +164,22 @@ export default function AdminPage() {
 
   const fetchOrders = useCallback(async () => {
     setLoadingOrders(true);
+    setOrdersError("");
     try {
-      const r = await fetch("/api/orders", { headers: { "x-admin-password": password } });
-      if (r.ok) setOrders(await r.json());
-    } catch {}
-    setLoadingOrders(false);
+      const r = await fetch("/api/orders", {
+        headers: { "x-admin-password": password },
+        cache: "no-store",
+        signal: AbortSignal.timeout(20_000),
+      });
+      if (!r.ok) throw new Error(`Le serveur a répondu ${r.status}.`);
+      setOrders(await r.json());
+    } catch (error) {
+      setOrdersError(error instanceof DOMException && error.name === "TimeoutError"
+        ? "Le chargement des commandes prend trop de temps. Réessayez."
+        : error instanceof Error ? `Impossible de charger les commandes : ${error.message}` : "Impossible de charger les commandes.");
+    } finally {
+      setLoadingOrders(false);
+    }
   }, [password]);
 
   const fetchPrices = useCallback(async () => {
@@ -518,19 +532,25 @@ export default function AdminPage() {
 
   // Login
   const handleLogin = async () => {
+    if (loginPending || !password) return;
+    setLoginPending(true);
+    setLoginError("");
     try {
-      const r = await fetch("/api/orders", { headers: { "x-admin-password": password } });
+      const r = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "x-admin-password": password },
+        cache: "no-store",
+      });
       if (r.ok) {
         setAuthed(true);
-        setOrders(await r.json());
-        fetchPrices();
       } else {
         const data = await r.json().catch(() => null);
-        const msg = data?.error || `Erreur ${r.status}`;
-        alert(r.status === 401 ? "Mot de passe incorrect." : `Erreur serveur : ${msg}`);
+        setLoginError(r.status === 401 ? "Mot de passe incorrect." : data?.error || `Erreur serveur (${r.status}).`);
       }
     } catch (e) {
-      alert(`Erreur réseau : ${e instanceof Error ? e.message : "Connexion impossible"}`);
+      setLoginError(`Erreur réseau : ${e instanceof Error ? e.message : "Connexion impossible"}`);
+    } finally {
+      setLoginPending(false);
     }
   };
 
@@ -849,20 +869,25 @@ export default function AdminPage() {
             <h1 className="text-xl font-bold text-gray-900">Admin Cartoonova</h1>
             <p className="text-sm text-gray-500 mt-1">Entrez le mot de passe administrateur</p>
           </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            placeholder="Mot de passe"
-            className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
-          />
-          <button
-            onClick={handleLogin}
-            className="w-full bg-gray-900 text-white font-semibold text-sm py-3 rounded-xl hover:bg-gray-800 transition-colors cursor-pointer"
-          >
-            Connexion
-          </button>
+          <form onSubmit={(e) => { e.preventDefault(); void handleLogin(); }}>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setLoginError(""); }}
+              autoComplete="current-password"
+              aria-label="Mot de passe administrateur"
+              placeholder="Mot de passe"
+              className="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl mb-4 outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+            />
+            {loginError && <p role="alert" className="text-sm text-red-700 mb-4">{loginError}</p>}
+            <button
+              type="submit"
+              disabled={loginPending || !password}
+              className="w-full bg-gray-900 text-white font-semibold text-sm py-3 rounded-xl hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+            >
+              {loginPending ? "Connexion en cours…" : "Connexion"}
+            </button>
+          </form>
         </div>
       </div>
     );
@@ -947,6 +972,8 @@ export default function AdminPage() {
               </button>
             </div>
 
+            {ordersError && <p role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{ordersError}</p>}
+
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
               {(["new", "in_progress", "completed", "shipped"] as const).map((s) => (
@@ -975,7 +1002,7 @@ export default function AdminPage() {
                   <tbody>
                     {orders.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="px-4 py-12 text-center text-gray-400">Aucune commande pour le moment.</td>
+                        <td colSpan={7} className="px-4 py-12 text-center text-gray-400">{loadingOrders ? "Chargement des commandes…" : ordersError ? "Réessayez avec le bouton Actualiser." : "Aucune commande pour le moment."}</td>
                       </tr>
                     ) : (
                       orders.map((o) => (

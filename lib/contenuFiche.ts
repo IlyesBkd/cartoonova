@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
  * Contenu long propre a chaque fiche produit.
@@ -59,6 +59,7 @@ export interface ContenuFiche {
 let schemaPret: Promise<void> | null = null;
 
 async function assurerSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
     await sql`

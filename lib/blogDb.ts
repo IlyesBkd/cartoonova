@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 export interface BlogImage {
   url: string;
@@ -31,6 +31,7 @@ export interface BlogArticle {
 let blogSchemaReady: Promise<void> | null = null;
 
 async function ensureBlogSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (blogSchemaReady) return blogSchemaReady;
   blogSchemaReady = (async () => {
     await sql`

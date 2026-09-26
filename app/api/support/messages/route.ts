@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupportMessages, markSupportMessageRead } from "@/lib/db";
+import { getSupportMessages, markSupportMessageRead, withFreshDatabaseClient } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   if (refus) return refus;
 
   try {
-    const messages = await getSupportMessages();
+    const messages = await withFreshDatabaseClient((db) => getSupportMessages(db));
     return NextResponse.json(messages);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validerOrigine } from "@/lib/origineVisite";
 import Stripe from "stripe";
-import { sql } from "@/lib/db";
+import { runtimeSchemaBootstrapEnabled, sql } from "@/lib/db";
 import { consumePromoCode } from "@/lib/promoCodes";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { mesureServeur } from "@/lib/analyticsServeur";
@@ -15,6 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 let orderPromoSchemaReady: Promise<void> | null = null;
 
 async function ensureOrderPromoSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (orderPromoSchemaReady) return orderPromoSchemaReady;
   orderPromoSchemaReady = (async () => {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS promo_code TEXT`;

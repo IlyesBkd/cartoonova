@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
  * La traduction en francais de ce qu'ecrivent les clients, pour l'admin.
@@ -57,6 +57,7 @@ Reponds UNIQUEMENT par un objet JSON de la forme {"langue": "<code ISO 639-1 de 
 let schemaPret: Promise<void> | null = null;
 
 async function assurerSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
     await sql`

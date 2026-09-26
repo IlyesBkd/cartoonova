@@ -1,4 +1,4 @@
-import { sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
  * L'historique des retouches demandees sur une commande.
@@ -36,6 +36,7 @@ export interface Retouche {
 let schemaPret: Promise<void> | null = null;
 
 async function assurerSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
     await sql`
@@ -118,10 +119,10 @@ export async function nombreRetouches(orderId: string): Promise<number> {
 }
 
 /** Historique de plusieurs commandes d'un coup, pour le tableau de bord. */
-export async function retouchesParCommande(): Promise<Map<string, Retouche[]>> {
+export async function retouchesParCommande(querySql: typeof sql = sql): Promise<Map<string, Retouche[]>> {
   try {
     await assurerSchema();
-    const rows = (await sql`
+    const rows = (await querySql`
       SELECT id, order_id, note, photos, demandee_le
       FROM retouches ORDER BY demandee_le DESC, id DESC LIMIT 500
     `) as unknown as Record<string, unknown>[];

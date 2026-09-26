@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrders, updateOrderStatus, enregistrerCoutCommande } from "@/lib/db";
+import { getOrders, updateOrderStatus, enregistrerCoutCommande, withFreshDatabaseClient } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { retouchesParCommande } from "@/lib/retouches";
 
@@ -10,15 +10,17 @@ export async function GET(req: NextRequest) {
   if (refus) return refus;
 
   try {
-    const orders = await getOrders();
+    return await withFreshDatabaseClient(async (db) => {
+      const orders = await getOrders(db);
 
-    /* L'historique des retouches, joint a chaque commande. Une seule requete
-       pour toutes plutot qu'une par fiche : le tableau de bord les affiche au
-       clic, et un aller-retour par ouverture serait du gaspillage. */
-    const parCommande = await retouchesParCommande();
-    return NextResponse.json(
-      orders.map((o) => ({ ...o, retouches: parCommande.get(o.id) ?? [] }))
-    );
+      /* L'historique des retouches, joint a chaque commande. Une seule requete
+         pour toutes plutot qu'une par fiche : le tableau de bord les affiche au
+         clic, et un aller-retour par ouverture serait du gaspillage. */
+      const parCommande = await retouchesParCommande(db);
+      return NextResponse.json(
+        orders.map((o) => ({ ...o, retouches: parCommande.get(o.id) ?? [] }))
+      );
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[GET /api/orders] Error:", message);
