@@ -132,7 +132,10 @@ function createDatabaseClient(): ClientSql {
   const usesSshTunnel = Boolean(process.env.DATABASE_SSH_HOST);
   const databaseIsLocal = ["127.0.0.1", "localhost", "::1"].includes(databaseHost);
   const options = {
-    max: 1,
+    // La génération de centaines de pages lance plusieurs lectures en
+    // parallèle. Le build dispose de son propre processus ; ce pool élargi
+    // évite que les pages attendent en file derrière une seule connexion SSH.
+    max: process.env.CARTOONOVA_BUILD === "1" ? 3 : 1,
     max_pipeline: 1,
     // Les fonctions Vercel peuvent être suspendues avec leur tunnel SSH encore
     // ouvert. Fermer vite une connexion inactive évite de réutiliser un canal
