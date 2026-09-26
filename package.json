@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "CARTOONOVA_BUILD=1 next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:upload-security": "tsx --test tests/upload-policy.test.ts tests/photo-upload.test.ts tests/upload-route.test.ts"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^5.6.1",

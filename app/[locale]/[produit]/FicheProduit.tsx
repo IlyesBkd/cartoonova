@@ -28,6 +28,7 @@ import type { Decor, LegendeVisuel } from "@/lib/visuels";
 /* Plafond partage avec la validation serveur : deux constantes qui divergent
    donneraient un formulaire qui accepte ce que le serveur refuse. */
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
+import { creerCheminPhoto } from "@/lib/photoUpload";
 import { tailleImpression } from "@/lib/supportCommande";
 
 /* Prix barré : -40 % affiché comme remise, donc le prix barré vaut le prix
@@ -220,9 +221,13 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     try {
       const urls: string[] = [];
       for (const fichier of aEnvoyer) {
-        const blob = await upload(`orders/${Date.now()}-${fichier.name}`, fichier, {
+        const photo = creerCheminPhoto("orders", fichier.type, fichier.name);
+        if (!photo) throw new Error("Type de photo non pris en charge");
+        const blob = await upload(photo.pathname, fichier, {
           access: "public",
           handleUploadUrl: "/api/upload",
+          contentType: photo.contentType,
+          clientPayload: JSON.stringify({ scope: "checkout" }),
         });
         urls.push(blob.url);
       }
@@ -718,7 +723,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 ref={champFichier}
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                 hidden
                 onChange={(e) => envoyer(e.target.files)}
               />

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { estPhysique, decrireSupport } from "@/lib/supportCommande";
 import { toEUR } from "@/lib/currency";
 import { upload } from "@vercel/blob/client";
+import { creerCheminPhoto } from "@/lib/photoUpload";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
@@ -625,18 +626,14 @@ export default function AdminPage() {
     if (!selectedOrder) return;
     setUploadingImage(true);
     try {
-      const extensionsParType: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "image/heic": "heic",
-        "image/heif": "heif",
-      };
-      const extension = extensionsParType[file.type] ?? "jpg";
-      const nomPublic = `final/cartoonova-${crypto.randomUUID()}.${extension}`;
-      const blob = await upload(nomPublic, file, {
+      const photo = creerCheminPhoto("final", file.type, file.name);
+      if (!photo) throw new Error("Type de photo non pris en charge");
+      const blob = await upload(photo.pathname, file, {
         access: "public",
         handleUploadUrl: "/api/upload",
+        contentType: photo.contentType,
+        clientPayload: JSON.stringify({ scope: "admin" }),
+        headers: headers(),
       });
       // Save to DB
       /* Le depot pose aussi le rendez-vous d'envoi : c'est la reponse qui dit
@@ -1625,7 +1622,7 @@ export default function AdminPage() {
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/jpeg,image/png,image/webp"
+                        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
+import { creerCheminPhoto } from "@/lib/photoUpload";
 import { posterConfirmationPage, type Lang } from "@/lib/email-i18n";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -48,9 +49,13 @@ export default function ConfirmClient({
     try {
       const urls: string[] = [];
       for (const fichier of Array.from(fichiers).slice(0, MAX_PHOTOS)) {
-        const blob = await upload(`retouches/${Date.now()}-${fichier.name}`, fichier, {
+        const photo = creerCheminPhoto("retouches", fichier.type, fichier.name);
+        if (!photo) throw new Error("Type de photo non pris en charge");
+        const blob = await upload(photo.pathname, fichier, {
           access: "public",
           handleUploadUrl: "/api/upload",
+          contentType: photo.contentType,
+          clientPayload: JSON.stringify({ scope: "retouch", token }),
         });
         urls.push(blob.url);
       }
@@ -154,7 +159,7 @@ export default function ConfirmClient({
             <input
               ref={champFichier}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
               multiple
               hidden
               onChange={(e) => ajouterPhotos(e.target.files)}
