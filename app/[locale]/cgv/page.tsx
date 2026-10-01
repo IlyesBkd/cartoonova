@@ -12,7 +12,7 @@ export default function CGV() {
     <div className="section">
       <div className="enveloppe prose">
       <h1>Conditions Générales de Vente</h1>
-      <p>Dernière mise à jour : 21 mars 2024</p>
+      <p>Dernière mise à jour : 1er octobre 2026</p>
 
       <div>
 
@@ -59,8 +59,9 @@ export default function CGV() {
         <section>
           <h2>Article 6 — Délais de réalisation et livraison</h2>
           <p>Les délais de réalisation d&apos;une caricature sont généralement de <strong>2 jours ouvrés</strong> à compter de la réception du paiement et des photos. Ce délai peut varier en fonction de la complexité de la commande et de la charge de travail des artistes.</p>
-          <p><strong>Produits numériques :</strong> Le fichier est envoyé par email au Client dès validation de la caricature.</p>
-          <p><strong>Produits imprimés :</strong> L&apos;impression et l&apos;expédition prennent un délai supplémentaire de 3 jours ouvrés selon la destination. Les frais et délais de livraison sont indiqués lors de la commande.</p>
+          <p><strong>Produits numériques :</strong> Le fichier haute définition est envoyé par email au Client dès que la caricature est terminée. Le Client peut ensuite demander des retouches (article 7).</p>
+          <p><strong>Produits imprimés :</strong> Un aperçu est soumis au Client, qui le valide avant l&apos;impression. L&apos;impression et l&apos;expédition prennent ensuite un délai de 3 à 7 jours ouvrés selon la destination. Les frais et délais de livraison sont indiqués lors de la commande.</p>
+          <p><strong>Option express :</strong> lorsque le Client l&apos;a choisie, la caricature est livrée sous 24 heures, y compris le week-end, à compter de la réception du paiement et des photos. Pour un produit imprimé, ce délai porte sur le dessin ; l&apos;impression et l&apos;expédition suivent les délais ci-dessus.</p>
           <p>Cartoonova ne saurait être tenue responsable des retards de livraison imputables au transporteur ou à un cas de force majeure.</p>
         </section>
 
@@ -71,6 +72,10 @@ export default function CGV() {
             <a href="mailto:support@cartoonova.com">support@cartoonova.com</a>.
           </p>
           <p>Les révisions portent sur des ajustements raisonnables (ressemblance, couleurs, détails). Elles ne couvrent pas un changement complet du style ou de la composition initialement validée.</p>
+          <p><strong>Garantie de satisfaction.</strong> Si, après les révisions, la caricature ne convient toujours pas au Client, Cartoonova lui rembourse l&apos;intégralité du prix payé, sur simple demande à{" "}
+            <a href="mailto:support@cartoonova.com">support@cartoonova.com</a>.
+            Pour un produit imprimé, la demande doit être faite <strong>avant la validation de l&apos;aperçu</strong> : une fois l&apos;aperçu validé, l&apos;impression est lancée et le produit relève alors de l&apos;article 9.
+          </p>
         </section>
 
         <section>
@@ -82,10 +87,20 @@ export default function CGV() {
 
         <section>
           <h2>Article 9 — Remboursement</h2>
-          <p>En cas de produit défectueux ou non conforme, Cartoonova procédera, au choix du Client, à un remplacement ou un remboursement intégral dans un délai de 14 jours suivant la demande validée.</p>
+          <p>Un remboursement est accordé dans deux cas : au titre de la garantie de satisfaction de l&apos;article 7, ou lorsqu&apos;un produit imprimé est reçu défectueux ou non conforme. Dans ce second cas, Cartoonova procède, au choix du Client, à un remplacement ou à un remboursement intégral.</p>
+          <p>Le remboursement est effectué sur le moyen de paiement utilisé lors de la commande, dans un délai de 14 jours suivant la demande validée.</p>
           <p>Les demandes de remboursement doivent être adressées à{" "}
             <a href="mailto:support@cartoonova.com">support@cartoonova.com</a>
             {" "}accompagnées du numéro de commande et d&apos;une description du problème.</p>
+        </section>
+
+        <section>
+          <h2>Article 9 bis — Bons cadeaux</h2>
+          <p>Cartoonova propose des bons cadeaux d&apos;un montant fixe, payés en ligne et remis par email sous la forme d&apos;un code et d&apos;une version imprimable.</p>
+          <p>Le bon est valable <strong>12 mois</strong> à compter de son achat, dans la devise de l&apos;achat. Il peut être utilisé en une ou plusieurs commandes, jusqu&apos;à épuisement de son solde. Chaque commande comporte un minimum de 1 (dans la devise de la commande) restant à la charge du Client ; le solde non utilisé reste disponible.</p>
+          <p>Le bon n&apos;est ni remboursable ni échangeable contre des espèces. Le droit de rétractation de 14 jours s&apos;applique à l&apos;achat du bon tant qu&apos;il n&apos;a pas été utilisé : le remboursement peut alors être demandé à{" "}
+            <a href="mailto:support@cartoonova.com">support@cartoonova.com</a>.
+          </p>
         </section>
 
         <section>

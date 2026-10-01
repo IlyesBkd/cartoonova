@@ -26,6 +26,8 @@ export default function robots(): MetadataRoute.Robots {
           // elles n'ont rien a faire dans l'index et portent un jeton en URL.
           '/success',
           '/suivi/',
+          '/bonus/',
+          '/bon/',
           '/confirm-poster/',
         ],
       },

@@ -153,6 +153,7 @@ export default async function Page({
     categorieNom: NOMS_CATEGORIE[p.categorie][locale],
     categorieCle: p.categorie,
     personnages: p.personnages,
+    champsPersonnalises: p.champsPersonnalises ?? null,
     galerie: visuels.galerie,
     legendes: visuels.legendes,
     decors: visuels.decors,

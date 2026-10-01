@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { marquerPayee } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
-import { getLangFromCountry, confirmationEmail, depotPhotosPage } from "@/lib/email-i18n";
+import { getLangFromCountry, confirmationEmail, depotPhotosPage, optionsCommande } from "@/lib/email-i18n";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 import { mesureServeur, personneServeur } from "@/lib/analyticsServeur";
@@ -11,6 +11,8 @@ import { alerteDiscord, COULEUR_SOLEIL, COULEUR_ATTENTION } from "@/lib/discord"
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
 import { lienEmail } from "./utmEmail";
+import { debiterBonCadeau } from "./promoCodes";
+import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 
 /**
@@ -38,6 +40,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
     const lang = getLangFromCountry(order.detected_country);
     const t = confirmationEmail[lang];
     const td = depotPhotosPage[lang];
+    const oc = optionsCommande[lang];
     const ref = order.id.slice(0, 8);
 
     await resend.emails.send({
@@ -61,12 +64,15 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
                 <li>${t.people}: ${opts.people}</li>
                 ${opts.animals > 0 ? `<li>${t.animals}: ${opts.animals}</li>` : ""}
                 <li>${t.option}: ${opts.printOption}</li>
+                ${opts.banner ? `<li>${oc.banner}</li>` : ""}
+                ${opts.extraDecor ? `<li>${oc.extraDecor}</li>` : ""}
+                ${opts.express ? `<li>⚡ ${oc.express}</li>` : ""}
                 <li>${t.total}: ${order.total_price} ${order.currency}</li>
               </ul>
             </div>
             <div style="text-align: center; margin: 30px 0;">
               <p style="font-size: 18px; font-weight: bold; color: #000;">${t.artistsWorking}</p>
-              <p style="font-size: 16px; color: #000;">${t.deliveryTime}</p>
+              <p style="font-size: 16px; color: #000;">${opts.express ? oc.deliveryExpress : t.deliveryTime}</p>
             </div>
             ${
               attendDesPhotos(order.photo_urls)
@@ -122,10 +128,14 @@ async function notifierEquipe(order: DbOrder): Promise<void> {
     /* La question passe dans le titre, pas dans un champ : c'est la seule
        partie du message qu'on lit sans deplier, et une question sans reponse
        est ce qui coute le plus cher a ce stade. */
-    titre: consigne.question
-      ? "🎉 NOUVELLE COMMANDE — ❓ LE CLIENT POSE UNE QUESTION"
-      : "🎉 NOUVELLE COMMANDE REÇUE !",
-    couleur: consigne.question ? COULEUR_ATTENTION : COULEUR_SOLEIL,
+    /* L'express passe en tete du titre : 24 h, week-end compris, c'est la
+       commande a traiter avant toutes les autres. */
+    titre:
+      (opts.express ? "⚡ EXPRESS 24H — " : "") +
+      (consigne.question
+        ? "🎉 NOUVELLE COMMANDE — ❓ LE CLIENT POSE UNE QUESTION"
+        : "🎉 NOUVELLE COMMANDE REÇUE !"),
+    couleur: consigne.question || opts.express ? COULEUR_ATTENTION : COULEUR_SOLEIL,
     champs: [
       { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
       { name: "📧 Email", value: order.customer_email, inline: true },
@@ -137,6 +147,21 @@ async function notifierEquipe(order: DbOrder): Promise<void> {
       },
       { name: "🖼️ Option", value: opts.printOption, inline: true },
       { name: "💰 Total", value: `${order.total_price} ${order.currency}`, inline: true },
+      ...(opts.banner || opts.extraDecor || opts.express
+        ? [
+            {
+              name: "➕ Options payées",
+              value: [
+                opts.express ? "⚡ Express 24 h (week-end compris)" : null,
+                opts.banner ? "🎀 Banderole / texte (voir la consigne)" : null,
+                opts.extraDecor ? `🏞️ Décor supplémentaire : ${opts.extraDecorKey ?? "?"}` : null,
+              ]
+                .filter(Boolean)
+                .join("\n"),
+              inline: false,
+            },
+          ]
+        : []),
       /* La consigne en pleine largeur, juste apres la configuration : c'est
          le brief de l'illustrateur. */
       ...(consigne.texte
@@ -225,12 +250,30 @@ export async function finaliserCommande(
 
   console.log(`[finaliser] commande ${order.id} finalisée par ${source}`);
 
+  /* Bon cadeau : le solde se debite ICI, une fois le paiement acquis — pas a
+     la creation de la commande, ou un paiement abandonne l'aurait consomme.
+     Sans effet sur un code promo classique. */
+  if (order.promo_code && order.discount_amount) {
+    await debiterBonCadeau(order.promo_code, Number(order.discount_amount)).catch((erreur) =>
+      console.error("[finaliser] débit du bon cadeau impossible:", order.promo_code, erreur)
+    );
+  }
+
   await Promise.all([
     envoyerConfirmation(order),
     notifierEquipe(order),
     /* Attendu explicitement : sur Vercel l'execution est coupee des que la
        reponse part, et un envoi non attendu est simplement perdu. */
     mesurerAchat(order, source),
+    /* Parrainage : si le code utilise est un code AMI-, le parrain recoit
+       son bon maintenant que l'ami a paye. `recompenserParrain` ne leve
+       jamais ; le `catch` est une seconde ceinture, parce qu'un bonus ne doit
+       sous aucun pretexte empecher la confirmation de partir. */
+    order.promo_code
+      ? recompenserParrain(order).catch((erreur) =>
+          console.error("[finaliser] parrainage impossible:", order.id, erreur)
+        )
+      : Promise.resolve(),
   ]);
 
   return true;

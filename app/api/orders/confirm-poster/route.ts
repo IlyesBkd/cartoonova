@@ -1,8 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { libelleSupportCourt } from "@/lib/supportCommande";
 import { enregistrerRetouche, nombreRetouches } from "@/lib/retouches";
-import { recordPosterConfirmationResponse } from "@/lib/db";
+import { recordPosterConfirmationResponse, setOrderLastOutboundMessageId, type DbOrder } from "@/lib/db";
+import { getLangFromCountry } from "@/lib/email-i18n";
+import { accuseRetoucheEmail } from "@/lib/i18n/serveur";
+import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
+
+const resend = new Resend(process.env.RESEND_API_KEY!);
+
+function echapper(texte: string): string {
+  return texte
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Accuse de reception d'une demande de retouche.
+ *
+ * Un client s'est plaint de n'avoir « aucune reponse » : sa demande etait
+ * enregistree et l'equipe alertee, mais lui ne recevait rien. Cet e-mail lui
+ * dit que c'est arrive et quand il aura des nouvelles.
+ *
+ * Ne leve jamais : la demande est deja enregistree, et un echec de Resend ne
+ * doit pas faire croire au client qu'elle est perdue (il la renverrait).
+ */
+async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promise<void> {
+  try {
+    if (!order.customer_email) return;
+    const t = accuseRetoucheEmail[getLangFromCountry(order.detected_country)];
+    const ref = order.id.slice(0, 8);
+    const nom = order.customer_name ? echapper(order.customer_name) : null;
+    /* La demande recopiee : le client voit ce qui a ete compris, et peut
+       repondre a cet e-mail pour la completer sans tout reecrire. */
+    const blocNote = note?.trim()
+      ? `
+          <div style="background: #fef3c7; border: 3px solid #000; border-radius: 12px; padding: 16px 20px; margin: 0 0 20px 0;">
+            <p style="font-size: 14px; font-weight: 900; margin: 0 0 8px 0; color: #000;">${t.yourRequest}</p>
+            <p style="font-size: 15px; line-height: 1.5; margin: 0; color: #000; white-space: pre-wrap;">${echapper(note.trim().slice(0, 2000))}</p>
+          </div>`
+      : "";
+
+    const result = await resend.emails.send({
+      from: EXPEDITEUR,
+      to: [order.customer_email],
+      replyTo: SUPPORT_EMAIL,
+      subject: t.subject(ref),
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
+          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
+            <h1 style="font-size: 28px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
+              ${t.title}
+            </h1>
+            <p style="font-size: 16px; margin: 0 0 16px 0; color: #000;">${t.greeting(nom)}</p>
+            <p style="font-size: 16px; line-height: 1.55; margin: 0 0 12px 0; color: #000;">${t.body}</p>
+            <p style="font-size: 16px; line-height: 1.55; margin: 0 0 20px 0; color: #000; font-weight: bold;">${t.delay}</p>
+            ${blocNote}
+            <p style="font-size: 14px; line-height: 1.55; margin: 0; color: #555;">${t.reply}</p>
+          </div>
+          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
+            <p>${t.thanks}</p>
+            <p>${t.team}</p>
+          </div>
+        </div>
+      `,
+    });
+
+    if (result.error) {
+      console.error("[CONFIRM-POSTER] Accusé de retouche refusé par Resend:", result.error.message);
+      return;
+    }
+    /* Meme raison que pour l'image finale : la reponse du client a cet e-mail
+       doit se rattacher a sa commande dans la boite support. */
+    if (result.data?.id) {
+      await setOrderLastOutboundMessageId(order.id, result.data.id);
+    }
+  } catch (error) {
+    console.error("[CONFIRM-POSTER] Accusé de retouche impossible:", error);
+  }
+}
 
 async function sendDiscordNotification(order: {
   id: string;
@@ -140,6 +219,7 @@ export async function POST(req: NextRequest) {
     if (action === "changes") {
       await enregistrerRetouche(order.id, note ?? null, jointes);
       rang = await nombreRetouches(order.id);
+      await envoyerAccuseRetouche(order, order.poster_confirmation_note);
     }
 
     await sendDiscordNotification({

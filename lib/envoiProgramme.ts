@@ -83,8 +83,13 @@ export function dateEnvoiProgramme(
   const commande = commandeLe ? new Date(commandeLe) : depose;
   const origine = Number.isNaN(commande.getTime()) ? depose : commande;
 
-  const limite = new Date(origine.getTime() + PROMESSE_HEURES * HEURE);
-  const attendu = new Date(depose.getTime() + ATTENTE_MINIMALE_HEURES * HEURE);
+  /* L'express promet 24 h et ne doit rien attendre. En pratique, son image
+     part des le depot (voir `send-final-image`) ; ce calcul ne sert que si
+     l'admin programme l'envoi a la main. */
+  const promesse = options?.express ? 24 : PROMESSE_HEURES;
+  const attente = options?.express ? 0 : ATTENTE_MINIMALE_HEURES;
+  const limite = new Date(origine.getTime() + promesse * HEURE);
+  const attendu = new Date(depose.getTime() + attente * HEURE);
 
   /* Plus de place pour l'attente : on part du depot, donc au prochain passage. */
   const premier = prochainPassage(attendu < limite ? attendu : depose);

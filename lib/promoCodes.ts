@@ -16,6 +16,15 @@ export interface PromoCode {
   ends_at: string | null;
   active: boolean;
   created_at: string;
+  /** Bon cadeau : ce qu'il reste a utiliser. null pour un code promo classique. */
+  solde: number | null;
+  /** Bon cadeau : le paiement qui l'a achete. */
+  achat_payment_intent?: string | null;
+  acheteur_email?: string | null;
+  /** Code de parrainage : l'adresse du client qui le partage (en minuscules). */
+  parrain_email?: string | null;
+  /** Code de parrainage : la langue du parrain, pour l'e-mail de recompense. */
+  parrain_lang?: string | null;
 }
 
 export type PromoRejection =
@@ -36,7 +45,8 @@ const MIN_PAYABLE = 1;
 
 let promoSchemaReady: Promise<void> | null = null;
 
-async function ensurePromoSchema(): Promise<void> {
+/** Exportee pour lib/parrainage.ts, qui ecrit dans la meme table. */
+export async function ensurePromoSchema(): Promise<void> {
   if (!runtimeSchemaBootstrapEnabled) return;
   if (promoSchemaReady) return promoSchemaReady;
   promoSchemaReady = (async () => {
@@ -54,6 +64,17 @@ async function ensurePromoSchema(): Promise<void> {
         active BOOLEAN NOT NULL DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
+    `;
+    // Bons cadeaux : voir migrations/2026-10-bons-cadeaux.sql (meme DDL).
+    await sql`ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS solde NUMERIC`;
+    await sql`ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS achat_payment_intent TEXT UNIQUE`;
+    await sql`ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS acheteur_email TEXT`;
+    // Parrainage : voir migrations/2026-10-relances.sql (meme DDL).
+    await sql`ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS parrain_email TEXT`;
+    await sql`ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS parrain_lang TEXT`;
+    await sql`
+      CREATE UNIQUE INDEX IF NOT EXISTS promo_codes_parrain_email_idx
+      ON promo_codes (lower(parrain_email)) WHERE parrain_email IS NOT NULL
     `;
   })().catch((e) => {
     promoSchemaReady = null;
@@ -76,6 +97,7 @@ export async function getPromoCode(code: string): Promise<PromoCode | null> {
     value: Number(row.value),
     min_subtotal: Number(row.min_subtotal),
     used_count: Number(row.used_count),
+    solde: row.solde === null || row.solde === undefined ? null : Number(row.solde),
   };
 }
 
@@ -87,6 +109,7 @@ export async function listPromoCodes(): Promise<PromoCode[]> {
     value: Number(row.value),
     min_subtotal: Number(row.min_subtotal),
     used_count: Number(row.used_count),
+    solde: row.solde === null || row.solde === undefined ? null : Number(row.solde),
   }));
 }
 
@@ -94,6 +117,11 @@ export async function listPromoCodes(): Promise<PromoCode[]> {
  * Calcule la remise applicable. Ne modifie rien : l'increment du compteur
  * d'utilisation se fait a l'enregistrement de la commande, pas ici, sinon une
  * simple saisie de code consommerait une utilisation.
+ *
+ * Codes de parrainage (AMI-…) : valides ici comme n'importe quel code a 20 %.
+ * Le parrain qui saisit son propre code n'est PAS refuse a ce stade — l'adresse
+ * de l'acheteur n'est pas connue au moment de la saisie. La garde est a la
+ * recompense (lib/parrainage.ts) : pas de bon quand l'acheteur est le parrain.
  */
 export async function validatePromoCode(
   rawCode: string,
@@ -121,7 +149,17 @@ export async function validatePromoCode(
     return { ok: false, reason: "currency_mismatch" };
   }
 
-  const raw = promo.kind === "percent" ? (subtotal * promo.value) / 100 : promo.value;
+  /* Bon cadeau : la remise vaut ce qu'il reste sur le bon, pas sa valeur
+     d'origine. Un bon vide est epuise. */
+  if (promo.solde !== null && promo.solde <= 0) {
+    return { ok: false, reason: "exhausted" };
+  }
+  const raw =
+    promo.kind === "percent"
+      ? (subtotal * promo.value) / 100
+      : promo.solde !== null
+        ? promo.solde
+        : promo.value;
   const capped = Math.min(raw, Math.max(subtotal - MIN_PAYABLE, 0));
   const discount = Math.round(capped * 100) / 100;
 
@@ -138,6 +176,24 @@ export async function consumePromoCode(code: string): Promise<void> {
     SET used_count = used_count + 1
     WHERE code = ${normalizeCode(code)}
       AND (max_uses IS NULL OR used_count < max_uses)
+  `;
+}
+
+/**
+ * Debite un bon cadeau apres paiement. Atomique et borne : deux commandes
+ * simultanees ne peuvent pas faire passer le solde sous zero. Sans effet sur
+ * un code promo classique (`solde` null).
+ *
+ * Appele depuis `finaliserCommande`, qui ne s'execute qu'une fois par
+ * commande : le debit ne peut donc pas etre compte deux fois.
+ */
+export async function debiterBonCadeau(code: string, montant: number): Promise<void> {
+  if (!(montant > 0)) return;
+  await ensurePromoSchema();
+  await sql`
+    UPDATE promo_codes
+    SET solde = GREATEST(solde - ${montant}, 0)
+    WHERE code = ${normalizeCode(code)} AND solde IS NOT NULL
   `;
 }
 

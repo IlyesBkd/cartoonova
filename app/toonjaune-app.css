@@ -1065,6 +1065,14 @@
   width: 56px; padding: 0; justify-content: center;
 }
 .clavardage__lanceur--ouvert .clavardage__lanceur-texte { display: none; }
+/* Sur téléphone, la pastille à libellé faisait 440px de large et recouvrait le
+   bouton « Commander » — celui de la fiche comme celui de la barre collante,
+   qui ne réservait que 74px « pour une pastille ronde » jamais écrite. Elle
+   devient ronde : 20px de marge + 52px tiennent dans la réserve. */
+@media (max-width: 620px) {
+  .clavardage__lanceur { width: 52px; height: 52px; padding: 0; justify-content: center; }
+  .clavardage__lanceur-texte { display: none; }
+}
 
 /* --- lien « Aide » de la barre d'en-tête ---
    L'équivalent de leur `.live-chat-top` : même pictogramme, même libellé à
@@ -1714,11 +1722,42 @@
   font-size: 13px; font-weight: 600; letter-spacing: .04em;
   text-transform: uppercase; color: var(--encre-doux);
 }
-.panneau__prix .panneau__prixBarre {
-  font-family: var(--titre); font-size: 20px; font-weight: 600;
-  text-decoration: line-through; color: var(--encre-doux);
-  text-transform: none; letter-spacing: normal;
+/* Annonce du prix de lancement (voir lib/lancement.ts). Elle remplace le prix
+   barre, qui affichait une reduction fictive. */
+.lancement {
+  display: inline-block; margin: 8px 0 0; padding: 5px 12px;
+  border-radius: 999px; background: var(--soleil-pale); color: var(--encre);
+  font-size: 13.5px; font-weight: 700; line-height: 1.35;
 }
+.lancement--hero { margin-top: 12px; }
+/* ---------- options payantes du configurateur ---------- */
+.options-payantes { display: grid; gap: 10px; }
+.option-payante {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1.5px solid var(--encre-voile); border-radius: 14px;
+  background: var(--papier); cursor: pointer;
+}
+.option-payante:has(input:checked) { border-color: var(--soleil-fonce); background: var(--soleil-pale); }
+.option-payante input { width: 20px; height: 20px; accent-color: var(--encre); }
+.option-payante__texte { display: grid; gap: 2px; }
+.option-payante__texte b { font-size: 15px; color: var(--encre); }
+.option-payante__texte small { font-size: 13px; color: var(--encre-doux); font-weight: 500; }
+.option-payante__prix { font-weight: 800; color: var(--encre); white-space: nowrap; }
+.option-payante__champ { margin-top: -2px; }
+
+/* Case « ajoute le poster » de la caisse. */
+.ajout-poster {
+  display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+  margin: 14px 0 4px; padding: 12px 14px; border-radius: 14px;
+  border: 1.5px dashed var(--soleil-fonce); background: var(--soleil-pale); cursor: pointer;
+}
+.ajout-poster input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--encre); }
+.ajout-poster span { display: grid; gap: 2px; }
+.ajout-poster b { font-size: 15px; color: var(--encre); }
+.ajout-poster small { font-size: 13px; color: var(--encre-doux); font-weight: 500; }
+
+/* « Offerts avec ton portrait… », sous la garantie de la fiche. */
+.offerts { margin: 8px 0 0; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--encre-doux); }
 
 /* ---------- vignettes de galerie : boutons ----------
    Étaient six <img onClick>, hors du parcours clavier. Le bouton ne doit
@@ -1861,6 +1900,124 @@
   padding: clamp(24px, 4vw, 40px); display: grid; gap: 30px;
 }
 .suivi__carte--vide { gap: 12px; text-align: center; }
+
+/* ---------- cadeaux offerts (/bonus/[token]) ----------
+   Même coque que le suivi ; les blocs s'empilent au lieu d'être centrés. */
+.bonus { flex-direction: column; align-items: center; gap: 20px; }
+.bonus__entete { gap: 8px; }
+.bonus__entete h1 { font-size: clamp(26px, 3.6vw, 34px); margin: 0; }
+.bonus__entete p, .bonus__bloc > p { margin: 0; color: var(--encre-doux); }
+.bonus__bloc { gap: 14px; justify-items: start; }
+.bonus__bloc h2 { font-size: 21px; margin: 0; }
+.bonus__fond { width: min(100%, 220px); aspect-ratio: 9 / 16; border-radius: 18px; box-shadow: var(--ombre); }
+.bonus__avatar { width: 180px; height: 180px; border-radius: 50%; background: var(--creme); }
+.bonus__zoom { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; }
+.bonus__champs { display: grid; gap: 12px; width: 100%; }
+.bonus__aide { font-size: 13px; }
+
+/* ---------- bon cadeau : code, version imprimable (A5) ---------- */
+.bon-code {
+  display: grid; gap: 4px; justify-items: center; margin: 6px auto;
+  padding: 14px 22px; border: 2.5px dashed var(--encre); border-radius: 14px; background: var(--soleil-pale);
+}
+.bon-code small { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--encre-doux); font-weight: 700; }
+.bon-code b { font-family: var(--titre); font-size: 26px; letter-spacing: .06em; color: var(--encre); }
+.bon-imprimable {
+  width: min(100%, 560px); aspect-ratio: 148 / 210; background: #fff;
+  border-radius: var(--rayon-lg); box-shadow: var(--ombre);
+  padding: clamp(24px, 6vw, 48px); display: grid; align-content: center; justify-items: center;
+  gap: 12px; text-align: center;
+}
+.bon-imprimable h1 { font-size: clamp(26px, 5vw, 38px); margin: 0; }
+.bon-imprimable__marque { margin: 0; font-family: var(--titre); font-weight: 800; color: var(--soleil-fonce); letter-spacing: .04em; }
+.bon-imprimable__pour { margin: 0; font-size: 20px; font-weight: 700; }
+.bon-imprimable__valeur { margin: 0; font-family: var(--titre); font-weight: 800; font-size: clamp(40px, 9vw, 64px); color: var(--encre); }
+.bon-imprimable__message { margin: 0; font-style: italic; color: var(--encre-doux); max-width: 40ch; }
+.bon-imprimable__mode { margin: 0; font-size: 14.5px; color: var(--encre-doux); max-width: 46ch; }
+.bon-imprimable__validite { margin: 0; font-size: 12.5px; color: var(--encre-doux); }
+/* Page Noël : les trois dates limites. */
+.noel__dates {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 28px;
+}
+@media (max-width: 860px) { .noel__dates { grid-template-columns: minmax(0, 1fr); } }
+.noel__date {
+  background: var(--papier); border-radius: var(--rayon-lg); box-shadow: var(--ombre);
+  padding: 22px; display: grid; gap: 10px; align-content: start;
+  border-top: 6px solid var(--soleil);
+}
+.noel__date--numerique { border-top-color: var(--encre); }
+.noel__date--bon { border-top-color: #C8202F; }
+.noel__date h2 { font-size: 21px; margin: 0; }
+.noel__date p { margin: 0; color: var(--encre-doux); }
+.noel__date .bouton { justify-self: start; }
+
+/* Page d'achat du bon cadeau. */
+.bon-achat { display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; justify-items: center; }
+.bon-achat > * { max-width: 100%; }
+.bon-achat__etapes {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  width: min(100%, 760px); margin: 0; padding: 0; list-style: none; counter-reset: etape;
+}
+.bon-achat__etapes li {
+  counter-increment: etape; background: var(--papier); border-radius: 14px; padding: 14px;
+  font-size: 14.5px; font-weight: 600; color: var(--encre); box-shadow: var(--ombre);
+}
+.bon-achat__etapes li::before {
+  content: counter(etape); display: grid; place-items: center; width: 28px; height: 28px;
+  margin-bottom: 8px; border-radius: 50%; background: var(--encre); color: var(--soleil);
+  font-family: var(--titre); font-weight: 800;
+}
+@media (max-width: 620px) { .bon-achat__etapes { grid-template-columns: 1fr; } }
+.bon-achat__carte {
+  width: min(100%, 520px); background: var(--papier); border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre); padding: clamp(20px, 4vw, 34px); display: grid; gap: 16px;
+}
+/* Les vignettes du configurateur portent une largeur minimale : sans
+   `minmax(0, 1fr)` et `min-width: 0`, trois montants elargissaient la page. */
+.bon-achat__montants { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.bon-achat__montants .vignette { min-width: 0; width: 100%; }
+.bon-achat__paiement { display: grid; gap: 16px; }
+.bon-achat__recap { margin: 0; display: flex; justify-content: space-between; gap: 12px; font-weight: 700; }
+.bon-achat__conditions { margin: 0; font-size: 12.5px; color: var(--encre-doux); }
+.lien-retour { background: none; border: 0; padding: 0; text-decoration: underline; color: var(--encre-doux); cursor: pointer; font: inherit; font-weight: 600; }
+
+/* Impression limitee aux pages qui portent un bon (`:has`) : la feuille est
+   globale, et une regle nue masquerait tout le site a l'impression. */
+.bon-imprimable { page: bon; }
+@page bon { size: A5; margin: 0; }
+@media print {
+  body:has(.bon-imprimable) * { visibility: hidden; }
+  body:has(.bon-imprimable) .bon-imprimable,
+  body:has(.bon-imprimable) .bon-imprimable * { visibility: visible; }
+  body:has(.bon-imprimable) .bon-imprimable {
+    position: fixed; inset: 0; width: 148mm; height: 210mm; box-shadow: none; border-radius: 0;
+  }
+}
+
+/* Carte A6 (105 × 148 mm). À l'écran, un aperçu ; à l'impression, la seule
+   chose imprimée, à taille réelle. */
+.carte-a6 {
+  width: min(100%, 315px); aspect-ratio: 105 / 148;
+  background: #fff; border: 1px solid var(--encre-voile); border-radius: 6px;
+  display: grid; grid-template-rows: 1fr auto; padding: 18px; gap: 12px;
+  box-shadow: var(--ombre);
+}
+.carte-a6__portrait { width: 100%; height: 100%; object-fit: contain; min-height: 0; }
+.carte-a6__voeu {
+  margin: 0; text-align: center; font-family: var(--titre); font-weight: 800;
+  font-size: 22px; line-height: 1.15; color: var(--encre);
+}
+.carte-a6 { page: carte; }
+@page carte { size: A6; margin: 0; }
+@media print {
+  body:has(.carte-a6) * { visibility: hidden; }
+  body:has(.carte-a6) .carte-a6,
+  body:has(.carte-a6) .carte-a6 * { visibility: visible; }
+  body:has(.carte-a6) .carte-a6 {
+    position: fixed; inset: 0; width: 105mm; height: 148mm;
+    border: 0; border-radius: 0; box-shadow: none; padding: 8mm;
+  }
+}
 .suivi__carte--vide hr { width: 100%; border: 0; border-top: 1px solid var(--encre-voile); margin: 8px 0; }
 .suivi__carte--vide h1 { font-size: 21px; }
 .suivi__carte--vide p { color: var(--encre-doux); font-size: 15px; margin: 0; }

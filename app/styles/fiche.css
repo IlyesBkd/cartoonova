@@ -1,0 +1,84 @@
+/* =========================================================================
+   Fiche produit — ajouts d'octobre 2026 (page raccourcie, date de reception,
+   envoi de photo pense pour le telephone, questions au pied du bouton).
+   S'appuie sur les jetons et classes de toonjaune.css / toonjaune-app.css,
+   qu'il ne redefinit pas.
+   ========================================================================= */
+
+/* ---------- galerie : montage avant/apres montre en entier ----------
+   .galerie__vue recadre au carre (object-fit: cover). Les montages des six
+   univers d'origine ne sont pas carres, et la photo d'origine y est posee en
+   medaillon sur un bord : le recadrage la coupait. */
+.galerie__vue--entier { object-fit: contain; }
+
+/* ---------- date de reception ---------- */
+.date-apercu {
+  display: flex; align-items: flex-start; gap: 9px;
+  margin: 10px 0 0; font-size: 14.5px; font-weight: 600; line-height: 1.4;
+  color: var(--encre);
+}
+.date-apercu svg { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--encre-doux); }
+
+/* ---------- « qui est sur le portrait ? » : deux rangees, une etape ---------- */
+.qui-ligne__titre {
+  margin: 0 0 8px; font-size: 13.5px; font-weight: 600; color: var(--encre-doux);
+}
+.qui-ligne__titre ~ .qui-ligne__titre { margin-top: 14px; }
+/* Les animaux s'alignent sur la grille des personnes : sans cela, cinq
+   pastilles a parts egales seraient plus larges que les huit du dessus. */
+.pastilles--animaux { grid-auto-flow: row; grid-template-columns: repeat(8, minmax(0, 1fr)); }
+@media (max-width: 520px) {
+  /* auto-fill garde les colonnes vides : memes largeurs que la rangee du
+     dessus, qui en remplit autant avec ses huit pastilles. */
+  .pastilles--animaux { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); }
+}
+
+/* ---------- envoi de photos ---------- */
+.depot-zone {
+  border: 2px dashed transparent; border-radius: 16px; padding: 4px;
+  text-align: center; transition: border-color .16s ease, background-color .16s ease;
+}
+.depot-zone.survol { border-color: var(--soleil); background: var(--creme); }
+.depot-bouton { width: 100%; font-size: 17px; }
+.depot-bouton:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.depot-zone__glisser { margin: 10px 0 2px; font-size: 13px; color: var(--encre-doux); }
+/* Sur un ecran tactile, la phrase decrirait un geste impossible. */
+@media (hover: none) {
+  .depot-zone__glisser { display: none; }
+}
+
+/* ---------- precision pour l'illustrateur, repliee ---------- */
+.lien-precision {
+  justify-self: start; margin: 16px 0 0; padding: 6px 0;
+  background: none; border: 0; cursor: pointer;
+  font-family: var(--texte); font-size: 14.5px; font-weight: 600;
+  color: var(--encre); text-decoration: underline; text-underline-offset: 3px;
+}
+.lien-precision:hover { color: var(--encre-doux); }
+.lien-precision:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; border-radius: 4px; }
+.note-artiste { padding: 18px 0 4px; }
+.note-artiste__titre {
+  display: block; margin-bottom: 10px; font-weight: 600; font-size: 15.5px;
+}
+.note-artiste__titre em { font-style: normal; color: var(--encre-doux); font-weight: 500; }
+
+/* ---------- questions au pied du bouton d'achat ---------- */
+.questions-achat {
+  margin-top: 16px; border-top: 1px solid var(--encre-voile);
+}
+.questions-achat details { border-bottom: 1px solid var(--encre-voile); }
+.questions-achat summary {
+  list-style: none; cursor: pointer; padding: 13px 28px 13px 0; position: relative;
+  font-size: 14.5px; font-weight: 700; color: var(--encre);
+}
+.questions-achat summary::-webkit-details-marker { display: none; }
+.questions-achat summary::after {
+  content: "+"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  font-family: var(--titre); font-size: 18px; color: var(--encre-doux);
+}
+.questions-achat details[open] summary::after { content: "–"; }
+.questions-achat summary:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; }
+.questions-achat p {
+  margin: 0 0 14px; font-size: 14px; line-height: 1.5; color: var(--encre-doux);
+}
+.questions-achat a { color: var(--encre); font-weight: 600; }

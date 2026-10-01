@@ -3,7 +3,7 @@ import { timingSafeEqual } from "node:crypto";
 import type { Duplex } from "node:stream";
 import { Client as SshClient } from "ssh2";
 import type { Prices, PriceSet, PricesByCurrency } from "./types";
-import { DEFAULT_PRICES_BY_CURRENCY } from "./types";
+import { DEFAULT_PRICE_SET, DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
 import { convertPrice, currencies, exchangeRates } from "./currency";
 import type { OrigineVisite } from "./origineVisite";
@@ -197,6 +197,13 @@ export interface OrderOptions {
   city?: string;
   country?: string;
   addressLine2?: string;
+  /** Options payantes, lues sur le PaymentIntent a la creation (1er octobre 2026). */
+  banner?: boolean;
+  extraDecor?: boolean;
+  /** Cle du second decor (meme vocabulaire que `background`). */
+  extraDecorKey?: string | null;
+  /** Dessin promis sous 24 h, week-end compris. */
+  express?: boolean;
 }
 
 export interface DbOrder {
@@ -211,6 +218,10 @@ export interface DbOrder {
   photo_urls: string[];
   status: string;
   created_at: string;
+  /** Date de paiement, posee par `marquerPayee`. Null = jamais payee. C'est
+      elle, et non `status`, qui dit si une commande est payee : l'admin
+      remplace 'PAID' par son propre statut de suivi. */
+  paid_at: string | null;
   detected_country: string | null;
   final_image_url: string | null;
   final_image_sent_at: string | null;
@@ -257,6 +268,7 @@ export async function getOrders(querySql: ClientSql = sql): Promise<DbOrder[]> {
      Expedition vide et sans explication. */
   await ensureExpeditionSchema();
   await ensureEnvoiProgrammeSchema();
+  await ensurePaidAtSchema();
   const rows = await querySql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows as unknown as DbOrder[];
 }
@@ -295,20 +307,51 @@ export async function updateOrderStatus(orderId: string, status: string): Promis
  * Discord, un chiffre d'affaires double.
  *
  * Ici la lecture et l'ecriture sont la meme requete. La condition
- * `status <> 'PAID'` est evaluee par PostgreSQL au moment de l'ecriture, sous
+ * `paid_at IS NULL` est evaluee par PostgreSQL au moment de l'ecriture, sous
  * le verrou de ligne : le second appelant ne trouve plus rien a mettre a jour
  * et repart avec `false`. Un seul declenche les effets de bord.
+ *
+ * La garde portait sur `status <> 'PAID'`, mais l'admin remplace ce statut
+ * (new, in_progress...) : un webhook rejoue apres son passage aurait refinalise
+ * la commande. `paid_at`, lui, n'est jamais efface. Le statut ne passe a 'PAID'
+ * que s'il etait encore PENDING, pour ne pas ecraser un suivi deja saisi.
  *
  * Renvoie `true` au gagnant, `false` a tous les autres.
  */
 export async function marquerPayee(orderId: string): Promise<boolean> {
+  await ensurePaidAtSchema();
   const rows = await sql`
     UPDATE orders
-    SET status = 'PAID'
-    WHERE id = ${orderId}::uuid AND status <> 'PAID'
+    SET paid_at = NOW(),
+        status = CASE WHEN status = 'PENDING' THEN 'PAID' ELSE status END
+    WHERE id = ${orderId}::uuid AND paid_at IS NULL
     RETURNING id
   `;
   return rows.length > 0;
+}
+
+/* Pendant local de migrations/2026-10-paid-at.sql. Exportee : d'autres modules
+   (relances) filtrent sur `paid_at IS NOT NULL` et doivent pouvoir s'assurer
+   que la colonne existe sur une base de developpement. */
+let paidAtSchemaReady: Promise<void> | null = null;
+
+export async function ensurePaidAtSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
+  if (paidAtSchemaReady) return paidAtSchemaReady;
+  paidAtSchemaReady = (async () => {
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ`;
+    /* Meme rattrapage que la migration : sans lui, une base locale existante
+       verrait toutes ses commandes payees comme impayees. */
+    await sql`
+      UPDATE orders SET paid_at = created_at
+      WHERE paid_at IS NULL AND status <> 'PENDING' AND payment_intent_id IS NOT NULL
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS orders_paid_at_idx ON orders (paid_at) WHERE paid_at IS NOT NULL`;
+  })().catch((e) => {
+    paidAtSchemaReady = null;
+    throw e;
+  });
+  return paidAtSchemaReady;
 }
 
 /**
@@ -348,9 +391,12 @@ export async function getOrdersAwaitingPhotos(
   minHours: number,
   maxJours = 30
 ): Promise<DbOrder[]> {
+  await ensurePaidAtSchema();
+  /* `paid_at` et non `status = 'PAID'` : une commande deja reprise par l'admin
+     (statut new / in_progress) restait sinon invisible a la relance. */
   const rows = await sql`
     SELECT * FROM orders
-    WHERE status = 'PAID'
+    WHERE paid_at IS NOT NULL
       AND (photo_urls IS NULL OR jsonb_array_length(photo_urls) = 0)
       AND created_at < NOW() - (${minHours} || ' hours')::interval
       AND created_at > NOW() - (${maxJours} || ' days')::interval
@@ -1000,6 +1046,10 @@ async function ensurePricesSchema(): Promise<void> {
       canvas: Number(r.canvas),
       poster: Number(r.poster),
       posterSimple: Number(r.poster_simple),
+      // Les anciennes colonnes ne connaissaient pas les options payantes.
+      banner: DEFAULT_PRICE_SET.banner,
+      extraDecor: DEFAULT_PRICE_SET.extraDecor,
+      express: DEFAULT_PRICE_SET.express,
     };
     const scale = (rate: number): PriceSet =>
       Object.fromEntries(
@@ -1034,7 +1084,7 @@ export async function getPricesForCurrency(currency: Currency): Promise<PriceSet
     const eur = DEFAULT_PRICES_BY_CURRENCY.EUR;
     return currency === "EUR" ? eur : DEFAULT_PRICES_BY_CURRENCY[currency];
   }
-  const data = rows[0].data as PricesByCurrency;
+  const data = completerGrille(rows[0].data as Partial<Record<Currency, Partial<PriceSet>>>);
   const set = data[currency];
   if (set) return set;
   const eur = data.EUR;
@@ -1043,11 +1093,25 @@ export async function getPricesForCurrency(currency: Currency): Promise<PriceSet
   ) as unknown as PriceSet;
 }
 
+/* La grille en base ne connait que les champs qui existaient quand elle a ete
+   enregistree. Sans ce complement, un champ ajoute plus tard (banderole, decor
+   supplementaire, express) valait `undefined` : le total devenait `NaN` et la
+   creation du paiement echouait. Les valeurs par defaut comblent les trous ;
+   ce qui est en base garde toujours la main. */
+function completerGrille(data: Partial<Record<Currency, Partial<PriceSet>>>): PricesByCurrency {
+  const complete = {} as PricesByCurrency;
+  for (const [devise, defaut] of Object.entries(DEFAULT_PRICES_BY_CURRENCY) as [Currency, PriceSet][]) {
+    const enBase = data[devise];
+    if (enBase) complete[devise] = { ...defaut, ...enBase };
+  }
+  return complete;
+}
+
 export async function getAllPrices(querySql: ClientSql = sql): Promise<PricesByCurrency> {
   await ensurePricesSchema();
   const rows = await querySql`SELECT data FROM prices WHERE id = 'singleton'`;
   if (!rows.length || !rows[0].data) return DEFAULT_PRICES_BY_CURRENCY;
-  return rows[0].data as PricesByCurrency;
+  return { ...DEFAULT_PRICES_BY_CURRENCY, ...completerGrille(rows[0].data) };
 }
 
 export async function updateAllPrices(data: PricesByCurrency): Promise<void> {
@@ -1259,6 +1323,7 @@ export async function getOrdersDueForAbandonedEmail(
   maxDays: number
 ): Promise<AbandonedOrder[]> {
   await ensureLifecycleSchema();
+  await ensurePaidAtSchema();
   const rows = await sql`
     SELECT o.id, o.payment_intent_id, o.customer_email, o.customer_name,
            o.detected_country, o.total_price, o.currency, o.options, o.created_at
@@ -1269,11 +1334,12 @@ export async function getOrdersDueForAbandonedEmail(
       AND o.abandoned_email_sent_at IS NULL
       AND o.customer_email IS NOT NULL
       -- Un client qui a fini par payer, meme sur une autre tentative, ne doit
-      -- pas recevoir « vous avez oublie quelque chose ».
+      -- pas recevoir « vous avez oublie quelque chose ». paid_at plutot que
+      -- status = 'PAID' : l'admin remplace ce statut des qu'il prend la main.
       AND NOT EXISTS (
         SELECT 1 FROM orders p
         WHERE lower(p.customer_email) = lower(o.customer_email)
-          AND p.status = 'PAID'
+          AND p.paid_at IS NOT NULL
           AND p.created_at >= o.created_at - INTERVAL '1 day'
       )
       AND NOT EXISTS (

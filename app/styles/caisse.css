@@ -1,0 +1,37 @@
+/* ---------- caisse : ajouts de septembre-octobre 2026 ----------
+   Fichier a part pour ne pas toucher toonjaune-app.css pendant que d'autres
+   chantiers le modifient. Ne fait qu'ajouter : les blocs, champs et boutons
+   restent ceux de toonjaune-app.css. */
+
+/* Paiement express de l'etape 1. Tant que Stripe n'a pas dit quels boutons
+   il affiche, le bloc reste dans le flux (l'iframe a besoin d'une largeur
+   pour choisir sa disposition) mais invisible et sans hauteur : sans
+   portefeuille, il ne doit laisser ni titre orphelin ni trou. */
+.caisse-express { display: flex; flex-direction: column; gap: 14px; }
+.caisse-express--attente {
+  visibility: hidden; height: 0; overflow: hidden;
+  margin: 0; padding: 0; pointer-events: none;
+}
+
+/* Lien « J'ai un code promo » : discret, aligne a gauche comme un champ. */
+.caisse-lien-promo {
+  align-self: flex-start;
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+  font-family: var(--texte); font-weight: 700; font-size: 14px;
+  color: var(--encre-doux);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.caisse-lien-promo:hover { color: var(--encre); }
+.caisse-lien-promo:focus-visible { outline: 2px solid var(--soleil); outline-offset: 2px; border-radius: 4px; }
+
+/* Mention RGPD sous le champ e-mail. */
+.caisse-mention { margin: 6px 0 0; font-size: 12.5px; font-weight: 500; color: var(--encre-doux); }
+
+/* Page de succes : le depot des photos passe avant tout le reste quand la
+   commande n'en a pas — sans photo, l'illustrateur ne peut pas commencer. */
+.succes-depot {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 14px; text-align: center;
+}
+.succes-depot .bouton { width: 100%; font-size: 17px; min-height: 56px; }
+.succes-depot p { margin: 0; font-size: 13px; font-weight: 600; color: var(--encre-doux); }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getOrderByPaymentId } from "@/lib/db";
 import { finaliserCommande } from "@/lib/finaliserCommande";
+import { finaliserBonCadeau } from "@/lib/bonCadeau";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
@@ -96,6 +97,14 @@ export async function POST(req: NextRequest) {
 /* ═══ paiement reussi ═════════════════════════════════════════════════ */
 
 async function surPaiementReussi(pi: Stripe.PaymentIntent): Promise<NextResponse> {
+  /* Un bon cadeau n'a pas de commande : sans ce branchement, il partait dans
+     l'alerte « PAIEMENT SANS COMMANDE » et Stripe le reessayait trois jours.
+     `finaliserBonCadeau` est idempotente (la page de succes l'appelle aussi). */
+  if (pi.metadata?.type === "bon_cadeau") {
+    const bon = await finaliserBonCadeau(pi);
+    return NextResponse.json({ bon: bon.code });
+  }
+
   const order = await getOrderByPaymentId(pi.id);
 
   if (!order) {

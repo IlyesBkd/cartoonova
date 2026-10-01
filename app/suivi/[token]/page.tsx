@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getOrderById } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
-import { getLangFromCountry, orderTrackingPage, type EtapeSuivi } from "@/lib/email-i18n";
+import { bonusLiens, getLangFromCountry, orderTrackingPage, type EtapeSuivi } from "@/lib/email-i18n";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 
@@ -120,6 +120,17 @@ export default async function SuiviPage({
             {/* Stockage blob distant : hors du domaine confie a l'optimiseur. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={order.final_image_url} alt={t.finalTitle} className="suivi__portrait" />
+          </section>
+        )}
+
+        {/* ─── Les cadeaux offerts, une fois le portrait envoye ─── */}
+        {order.final_image_url && order.final_image_sent_at && (
+          <section className="suivi__bloc">
+            <h2>{bonusLiens[lang].suiviTitre}</h2>
+            <p>{bonusLiens[lang].suiviTexte}</p>
+            <a href={`/bonus/${encodeURIComponent(token)}`} className="bouton bouton--primaire">
+              {bonusLiens[lang].suiviBouton}
+            </a>
           </section>
         )}
 

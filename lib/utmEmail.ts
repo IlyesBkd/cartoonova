@@ -38,7 +38,10 @@ export type CampagneEmail =
   | "rachat"
   | "panier_abandonne"
   | "bienvenue"
-  | "poster";
+  | "poster"
+  | "relance_caisse"
+  | "upsell_poster"
+  | "parrainage";
 
 /**
  * Ajoute les parametres de campagne a une URL du site.

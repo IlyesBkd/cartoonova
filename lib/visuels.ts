@@ -85,11 +85,27 @@ const decorsDbz: Decor[] = Array.from({ length: 8 }, (_, i) => ({
   cle: `bg${i + 1}`,
 }));
 
-type VisuelsLivres = Omit<VisuelsProduit, "legendes" | "partage">;
+type VisuelsLivres = Omit<VisuelsProduit, "legendes" | "partage"> & {
+  /**
+   * Le premier visuel montre la photo d'origine A COTE du dessin. C'est le
+   * visuel qui repond a la seule question du visiteur — « est-ce que ce sera
+   * moi ? » — et les fiches importees l'ont deja en tete. Les six univers
+   * d'origine n'en avaient pas, ou l'avaient sans titre : il etait alors
+   * compte parmi les « photos de clients » sous les avis.
+   *
+   * Uniquement des montages avant/apres qui existent deja dans public/ : on
+   * n'en fabrique pas. Un univers sans montage reel garde `false`.
+   */
+  avantApres: boolean;
+};
 
 const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
   simpson: {
+    /* `framed.jpg` sert aussi de vignette au support « encadre » : c'est le
+       seul montage Simpson du site qui montre la photo d'origine. */
+    avantApres: true,
     galerie: [
+      "/framed.jpg",
       "/simpson_photos_produit/0009_1.jpg",
       "/simpson_photos_produit/0015_1.jpg",
       "/simpson_photos_produit/0017_1.jpg",
@@ -107,6 +123,8 @@ const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
     supports: SUPPORTS_DEFAUT,
   },
   dbz: {
+    // Premier visuel : montage photo d'origine + dessin, deja en tete.
+    avantApres: true,
     galerie: [
       "/DBZ/Photo_produits/1.png",
       "/DBZ/Photo_produits/il_1140xN.7733273072_b9q7.png",
@@ -126,6 +144,8 @@ const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
     },
   },
   disney: {
+    // Premier visuel : montage photo d'origine + dessin, deja en tete.
+    avantApres: true,
     galerie: [
       "/Disney/Photo_produits/1.png",
       "/Disney/Photo_produits/il_1140xN.6576111634_dwx3.png",
@@ -144,6 +164,8 @@ const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
     },
   },
   ghibli: {
+    // Premier visuel : montage photo d'origine + dessin, deja en tete.
+    avantApres: true,
     galerie: [
       "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
       "/Ghibli/Photo_produits/il_794xN.7001686038_phv9.png",
@@ -163,7 +185,12 @@ const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
     },
   },
   onepiece: {
+    /* Le seul affiche « Wanted » du site avec la photo d'origine en medaillon
+       est la vignette du support encadre ; les huit visuels de galerie n'en
+       ont aucune. */
+    avantApres: true,
     galerie: [
+      "/onepiece/portrait_encadré.png",
       "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
       "/onepiece/wanted_produit/il_1140xN.7075208403_h6ii.png",
       "/onepiece/wanted_produit/il_1140xN.7075208427_9pky.png",
@@ -182,6 +209,8 @@ const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
     },
   },
   rickandmorty: {
+    // Premier visuel : montage photo d'origine + dessin, deja en tete.
+    avantApres: true,
     galerie: [
       "/rickandmorty/Photo_produits/1.png",
       "/rickandmorty/Photo_produits/il_1140xN.6929430540_28j8.png",
@@ -263,8 +292,15 @@ export function visuelsProduit(slug: string): VisuelsProduit {
   const galerie = deposee ? galerieDeposee : livres?.galerie ?? [];
 
   // Seuls les visuels deposes viennent des montages a titre incruste : les
-  // photos produit de Cartoonova n'ont jamais eu de texte a detourer.
-  const legendes = galerie.map((_, i) => (deposee ? LEGENDES_PAR_RANG[i] ?? null : null));
+  // photos produit de Cartoonova n'ont jamais eu de texte a detourer. Leur
+  // montage avant/apres, quand il existe, prend le titre « transformation ».
+  const legendes = galerie.map((_, i) =>
+    deposee
+      ? LEGENDES_PAR_RANG[i] ?? null
+      : i === 0 && livres?.avantApres
+        ? ("transformation" as const)
+        : null
+  );
 
   const decors: Decor[] =
     decorsDeposes.length > 0

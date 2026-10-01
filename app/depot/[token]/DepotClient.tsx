@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { depotPhotosPage, type Lang } from "@/lib/email-i18n";
+import { depotBouton } from "@/lib/i18n/fiche";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -18,6 +19,7 @@ import { MESURES } from "@/lib/evenementsMesure";
  */
 export default function DepotClient({ token, lang }: { token: string; lang: Lang }) {
   const t = depotPhotosPage[lang];
+  const tb = depotBouton[lang];
   const champFichier = useRef<HTMLInputElement>(null);
 
   const [photos, setPhotos] = useState<string[]>([]);
@@ -35,13 +37,15 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
     mesure(MESURES.depotOuvert, { langue: lang });
   }, [lang]);
 
-  const envoyer = async (fichiers: FileList | null) => {
-    if (!fichiers?.length) return;
+  /* Un tableau plutot que la FileList : celle-ci est vivante, et la remise a
+     zero du champ (voir plus bas) la viderait pendant l'envoi. */
+  const envoyer = async (fichiers: File[]) => {
+    if (!fichiers.length) return;
     setEnvoiEnCours(true);
     setErreur("");
     try {
       const urls: string[] = [];
-      for (const fichier of Array.from(fichiers).slice(0, MAX_PHOTOS)) {
+      for (const fichier of fichiers.slice(0, MAX_PHOTOS)) {
         const blob = await upload(`orders/${Date.now()}-${fichier.name}`, fichier, {
           access: "public",
           handleUploadUrl: "/api/upload",
@@ -93,10 +97,16 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
 
   return (
     <div className="space-y-3">
-      {/* Bouton et non <div onClick> : le depot doit rester atteignable au
-          clavier, et le glisser-deposer fonctionne a l'identique. */}
-      <button
-        type="button"
+      {/* Le lien de depot s'ouvre depuis l'e-mail, donc le plus souvent sur
+          un telephone : « glissez vos photos ici » n'y designe rien. Un vrai
+          bouton dit l'action et ouvre la phototheque ; le glisser-deposer
+          reste possible sur toute la zone, et n'est annonce qu'aux ecrans a
+          souris : sur un ecran tactile, la phrase decrirait un geste
+          impossible. */}
+      <div
+        className={`rounded-xl border-2 border-dashed p-3 text-center transition-colors ${
+          survol ? "border-yellow-500 bg-yellow-50" : "border-transparent"
+        }`}
         onDragOver={(e) => {
           e.preventDefault();
           setSurvol(true);
@@ -105,16 +115,25 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
         onDrop={(e) => {
           e.preventDefault();
           setSurvol(false);
-          envoyer(e.dataTransfer.files);
+          envoyer(Array.from(e.dataTransfer.files));
         }}
-        onClick={() => champFichier.current?.click()}
-        disabled={envoiEnCours}
-        className={`w-full rounded-xl border-2 border-dashed p-6 text-sm font-bold transition-colors cursor-pointer disabled:opacity-60 ${
-          survol ? "border-yellow-500 bg-yellow-50" : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-        }`}
       >
-        {envoiEnCours ? t.sending : t.dropzone}
-      </button>
+        <button
+          type="button"
+          onClick={() => champFichier.current?.click()}
+          disabled={envoiEnCours || photos.length >= MAX_PHOTOS}
+          className="bouton bouton--primaire w-full disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {envoiEnCours ? (
+            t.sending
+          ) : (
+            <>
+              <span aria-hidden="true">📷</span> {photos.length > 0 ? tb.boutonAutre : tb.bouton}
+            </>
+          )}
+        </button>
+        <p className="mt-3 text-xs text-black/50 [@media(hover:none)]:hidden">{tb.glisser}</p>
+      </div>
 
       {/* Hors du bouton : un champ imbrique dans un bouton est du HTML
           invalide, et son clic remonterait au parent. */}
@@ -125,7 +144,8 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
         accept="image/*"
         hidden
         onChange={(e) => {
-          envoyer(e.target.files);
+          envoyer(Array.from(e.target.files ?? []));
+          // Sans cela, reprendre la meme photo apres une erreur ne declenche rien.
           e.target.value = "";
         }}
       />

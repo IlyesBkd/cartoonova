@@ -129,6 +129,15 @@ export interface Produit {
    * gabarit produit le cas general, ce champ tranche les exceptions.
    */
   slugLocalise?: Partial<Record<Locale, string>>;
+  /**
+   * Champs propres au produit, en plus du configurateur commun.
+   *
+   * « carte-pokemon » : nom sur la carte, PV et deux attaques. La vignette du
+   * catalogue promettait « choisis ton nom, tes attaques », et la fiche — page
+   * d'entree n°1, beaucoup de trafic venu de ChatGPT — n'offrait que la note
+   * libre. Le type reste ouvert pour l'affiche Wanted de One Piece.
+   */
+  champsPersonnalises?: "carte-pokemon";
 }
 
 /* ─── gabarits de titre et de description ──────────────────────────────── */
@@ -361,6 +370,7 @@ export const CATALOGUE: Produit[] = [
     enLigne: true,
     personnages: true,
     decorsAttendus: 5,
+    champsPersonnalises: "carte-pokemon",
     titre: {
       fr: "Carte Pokémon Personnalisée",
       en: "Custom Pokémon Card",

@@ -34,10 +34,11 @@ import { getLangFromCountry, type Lang } from "./email-i18n";
    litige qu'elle etait censee eviter. */
 const FAITS = `Faits Cartoonova (ils font foi, n'en invente aucun autre) :
 - Le dessin est realise en 2 jours ouvres a compter du paiement ET de la reception des photos.
-- Fichier numerique : envoye par e-mail des validation, sans delai de transport.
-- Produit imprime (poster, poster encadre, toile) : 3 jours ouvres supplementaires de fabrication et de livraison. Taille unique 30x40 cm (12x16 in pour les Etats-Unis et le Canada).
+- Fichier numerique : envoye par e-mail des que le dessin est termine, sans etape de validation prealable ni delai de transport. Le client demande ensuite des retouches s'il le souhaite.
+- Produit imprime (poster, poster encadre, toile) : le client valide un apercu avant l'impression, puis 3 a 7 jours ouvres de fabrication et de livraison. Taille unique 30x40 cm (12x16 in pour les Etats-Unis et le Canada).
+- Option express (si le client l'a choisie) : dessin livre sous 24 h, week-end compris. Pour un imprime, l'impression et la livraison suivent ensuite.
 - Retouches gratuites et illimitees jusqu'a satisfaction. Elles portent sur des ajustements raisonnables (ressemblance, couleurs, details), pas sur un changement complet de style ou d'une composition deja validee.
-- Satisfait ou rembourse. Produit imprime endommage ou non conforme : signalement sous 14 jours apres reception, echange ou remboursement integral sous 14 jours.
+- Garantie de satisfaction : si, apres les retouches, le portrait ne convient toujours pas, remboursement integral sur demande. Pour un imprime, la demande se fait avant de valider l'apercu ; ensuite seul un produit endommage ou non conforme est rembourse ou echange (signalement sous 14 jours apres reception).
 - Les oeuvres etant personnalisees, le droit de retractation ne s'applique pas une fois le travail commence (article L221-28 du Code de la consommation).
 - Les photos du client sont supprimees 90 jours apres la livraison.
 - Le support repond sous 24 h ouvrees, a support@cartoonova.com.`;

@@ -12,16 +12,16 @@ import dynamic from "next/dynamic";
    celui qui decide du LCP. */
 const CheckoutModal = dynamic(() => import("@/components/CheckoutModal"), { ssr: false });
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
+import BandeauLancement from "@/components/BandeauLancement";
 import Etoiles from "@/components/tj/Etoiles";
 import BadgeVerifie from "@/components/tj/BadgeVerifie";
 import BulleQueue from "@/components/tj/BulleQueue";
-import Comparatif from "@/components/tj/Comparatif";
 import IconesCta from "@/components/tj/IconesCta";
-import IconesAtouts from "@/components/tj/IconesAtouts";
+import DateApercu from "@/components/DateApercu";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useProductTracking } from "@/hooks/useProductTracking";
-import type { PrintKey } from "@/lib/pricing";
+import { computeOrderSubtotal, type PrintKey } from "@/lib/pricing";
 import type { Prices } from "@/lib/types";
 import type { Decor, LegendeVisuel } from "@/lib/visuels";
 
@@ -30,13 +30,10 @@ import type { Decor, LegendeVisuel } from "@/lib/visuels";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { tailleImpression } from "@/lib/supportCommande";
 
-/* Prix barré : -40 % affiché comme remise, donc le prix barré vaut le prix
-   actuel divise par 0.6. Recalcule automatiquement des que le prix change
-   (options, devise) puisqu'il derive toujours du total courant. */
-const PART_PRIX_REMISE = 0.6;
-function prixBarreDe(montantActuel: number): number {
-  return montantActuel / PART_PRIX_REMISE;
-}
+/* Le prix barre « -40 % » a disparu le 1er octobre 2026 : il affichait un prix
+   de reference jamais pratique (le total divise par 0,6), ce que le droit de
+   la consommation interdit. A la place, l'annonce honnete du prix de
+   lancement — voir `lib/lancement.ts`. */
 
 /* Format compact pour la vignette de support ("Poster • 30x40cm").
    Cette fonction decoupait auparavant la chaine traduite pour y retrouver la
@@ -62,6 +59,8 @@ export interface DonneesFiche {
   categorieNom: string;
   categorieCle: string;
   personnages: boolean;
+  /** Champs propres au produit (voir `Produit.champsPersonnalises`). */
+  champsPersonnalises?: "carte-pokemon" | null;
   galerie: string[];
   legendes: (LegendeVisuel | null)[];
   decors: Decor[];
@@ -88,6 +87,7 @@ export interface DonneesFiche {
 export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const t = useTranslations("tj");
   const tp = useTranslations("product");
+  const tf = useTranslations("fiche");
   const tProduit = useTranslations("product");
   const tDecor = useTranslations("product");
   const tDbz = useTranslations("dbz");
@@ -120,6 +120,18 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const [erreurEnvoi, setErreurEnvoi] = useState("");
   const [survol, setSurvol] = useState(false);
   const [note, setNote] = useState("");
+  /* La note se replie derriere un lien : elle est facultative, et un champ
+     de texte vide au milieu du tunnel se lit comme une etape de plus a
+     remplir — sur une page que le mobile mesurait a 17 ecrans de haut. */
+  const [noteOuverte, setNoteOuverte] = useState(false);
+  const [carte, setCarte] = useState({ nom: "", pv: "", attaque1: "", attaque2: "" });
+  /* Options payantes (1er octobre 2026). Le second decor est un INDEX dans
+     `donnees.decors`, distinct du decor principal. */
+  const [banderole, setBanderole] = useState(false);
+  const [texteBanderole, setTexteBanderole] = useState("");
+  const [decorSup, setDecorSup] = useState(false);
+  const [indexDecorSup, setIndexDecorSup] = useState(1);
+  const [express, setExpress] = useState(false);
   const [prix, setPrix] = useState<Prices | null>(null);
   const [caisseOuverte, setCaisseOuverte] = useState(false);
 
@@ -196,16 +208,28 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
   const supportChoisi = supports.find((s) => s.cle === support);
 
-  const total = prix
-    ? prix.base +
-      (cadrage === "fullbody" ? prix.fullbodyExtra : 0) +
-      (personnes - 1) * prix.extraPerson +
-      animaux * prix.extraAnimal +
-      (supportChoisi?.supplement ?? 0)
-    : 0;
+  /* Le second decor n'a de sens que s'il en existe au moins deux. */
+  const decorSupPossible = donnees.decors.length > 1;
+  const decorSupChoisi = decorSup && decorSupPossible;
+  const indexSup = indexDecorSup === decor ? (decor + 1) % Math.max(donnees.decors.length, 1) : indexDecorSup;
 
-  const envoyer = async (fichiers: FileList | null) => {
-    if (!fichiers?.length) return;
+  /* La formule de prix n'existe qu'une fois, dans `lib/pricing.ts`, partagee
+     avec le serveur : le prix affiche est celui qui sera facture. */
+  const configPrix = {
+    format: cadrage,
+    people: personnes,
+    animals: animaux,
+    printKey: support,
+    banner: banderole,
+    extraDecor: decorSupChoisi,
+    express,
+  } as const;
+  const total = prix ? computeOrderSubtotal(prix, configPrix) : 0;
+
+  /* Un tableau plutot que la FileList : celle-ci est vivante, et la remise a
+     zero du champ apres chaque choix la viderait pendant l'envoi. */
+  const envoyer = async (fichiers: File[]) => {
+    if (!fichiers.length) return;
     setEnvoiEnCours(true);
     setErreurEnvoi("");
 
@@ -213,7 +237,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
        du client et de photos qui pesent souvent plusieurs megaoctets. On la
        mesure des le debut et on chronometre, faute de quoi un echec ne se
        distingue pas d'un visiteur qui a renonce. */
-    const aEnvoyer = Array.from(fichiers).slice(0, MAX_PHOTOS);
+    const aEnvoyer = fichiers.slice(0, MAX_PHOTOS);
     const debut = Date.now();
     trackPhotoUploadStarted(aEnvoyer.length);
 
@@ -242,9 +266,35 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     animaux > 0 ? `${animaux} ${animaux > 1 ? tp("animalsPlural") : tp("animalsSingular")}` : null,
     aDesDecors ? libelleDecor(donnees.decors[decor]) : null,
     supportChoisi?.libelle,
+    banderole ? tp("optBanner") : null,
+    decorSupChoisi ? tp("optExtraDecorRecap", { decor: libelleDecor(donnees.decors[indexSup]) }) : null,
+    express ? tp("optExpressRecap") : null,
   ]
     .filter(Boolean)
     .join(" · ");
+
+  /* Texte de la carte Pokemon, pour l'illustrateur. Libelles fixes en francais :
+     c'est lui qui le lit, quelle que soit la langue du client. Il voyage dans
+     la partie « note » de la description (apres « | »), ce qui le fait
+     apparaitre tel quel partout ou `lireConsigne` affiche deja la note :
+     admin, Discord, e-mails, assistant. Rien a changer cote serveur. */
+  const avecCarte = donnees.champsPersonnalises === "carte-pokemon";
+  const attaques = [carte.attaque1, carte.attaque2].map((a) => a.trim()).filter(Boolean);
+  const texteCarte =
+    avecCarte && (carte.nom.trim() || carte.pv.trim() || attaques.length)
+      ? `Carte : ${[
+          carte.nom.trim() && `nom « ${carte.nom.trim()} »`,
+          carte.pv.trim() && `${carte.pv.trim()} PV`,
+          attaques.length > 0 && `attaques ${attaques.map((a) => `« ${a} »`).join(", ")}`,
+        ]
+          .filter(Boolean)
+          .join(" · ")}`
+      : "";
+  /* Le texte de la banderole suit le meme chemin que la carte : dans la note,
+     avec un libelle fixe en francais pour l'illustrateur. */
+  const texteBanderoleNote =
+    banderole && texteBanderole.trim() ? `Banderole : « ${texteBanderole.trim()} »` : "";
+  const noteComplete = [texteCarte, texteBanderoleNote, note.trim()].filter(Boolean).join(" — ");
 
   /* Une commande sans photo est impossible a honorer : l'illustrateur n'a rien
      a dessiner. On bloquait nulle part — ni ici, ni cote serveur — et le
@@ -419,8 +469,11 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   onClick={ouvrirAgrandissement}
                   aria-label={t("agrandir")}
                 >
+                  {/* Le montage avant/apres est montre en entier : recadre au
+                      carre, il perdait la photo d'origine, posee en medaillon
+                      sur un bord — c'est-a-dire precisement ce qu'il prouve. */}
                   <Image
-                    className="galerie__vue"
+                    className={`galerie__vue${legende === "transformation" ? " galerie__vue--entier" : ""}`}
                     src={visuelPrincipal}
                     alt={donnees.titre}
                     width={1000}
@@ -529,9 +582,10 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 options en direct. */}
             <div className="panneau__prix">
               <strong>{prix ? formatPrix(total) : "—"}</strong>
-              {prix && <span className="panneau__prixBarre">{formatPrix(prixBarreDe(total))}</span>}
               <span>{tp("totalLabel")}</span>
             </div>
+            <BandeauLancement />
+            <DateApercu physique={support !== "digital"} express={express} />
 
             <p className="panneau__accroche">{donnees.description}</p>
 
@@ -540,12 +594,19 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <GiftDeadlineNote variante="ligne" />
             </div>
 
+            {/* Personnes et animaux : une seule etape, deux rangees. C'est une
+                seule question — qui sera sur le dessin — et deux etapes
+                numerotees pour y repondre allongeaient le tunnel d'un titre,
+                d'une marge et d'un filet. */}
             <Etape
               numero
-              titre={t("etapePersonnages")}
-              precision={`: ${personnes} ${personnes > 1 ? tp("peoplePlural") : tp("peopleSingular")}`}
+              titre={tf("etapeQui")}
+              precision={`: ${personnes} ${personnes > 1 ? tp("peoplePlural") : tp("peopleSingular")}${
+                animaux > 0 ? ` · ${animaux} ${animaux > 1 ? tp("animalsPlural") : tp("animalsSingular")}` : ""
+              }`}
             >
-              <div className="pastilles" role="group" aria-label={t("etapePersonnages")}>
+              <p className="qui-ligne__titre" id="qui-personnes">{tf("lignePersonnes")}</p>
+              <div className="pastilles" role="group" aria-labelledby="qui-personnes">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                   <button
                     key={n}
@@ -561,14 +622,9 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   </button>
                 ))}
               </div>
-            </Etape>
 
-            <Etape
-              numero
-              titre={tp("animalsLabel")}
-              precision={`: ${animaux} ${animaux > 1 ? tp("animalsPlural") : tp("animalsSingular")}`}
-            >
-              <div className="pastilles" role="group" aria-label={tp("animalsLabel")}>
+              <p className="qui-ligne__titre" id="qui-animaux">{tp("animalsLabel")}</p>
+              <div className="pastilles pastilles--animaux" role="group" aria-labelledby="qui-animaux">
                 {[0, 1, 2, 3, 4].map((n) => (
                   <button
                     key={n}
@@ -638,6 +694,60 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               </Etape>
             )}
 
+            {avecCarte && (
+              <Etape numero titre={tp("carteEtape")} precision={tp("optional")}>
+                <p className="depot__note" style={{ marginTop: 0 }}>{tp("carteAide")}</p>
+                <div className="champ-groupe">
+                  <label className="champ-etiquette" htmlFor="carte-nom">{tp("carteNom")}</label>
+                  <input
+                    id="carte-nom"
+                    className="champ-ligne"
+                    maxLength={40}
+                    value={carte.nom}
+                    onChange={(e) => setCarte((c) => ({ ...c, nom: e.target.value }))}
+                    placeholder={tp("carteNomExemple")}
+                  />
+                </div>
+                <div className="champ-duo">
+                  <div className="champ-groupe">
+                    <label className="champ-etiquette" htmlFor="carte-attaque1">{tp("carteAttaque1")}</label>
+                    <input
+                      id="carte-attaque1"
+                      className="champ-ligne"
+                      maxLength={30}
+                      value={carte.attaque1}
+                      onChange={(e) => setCarte((c) => ({ ...c, attaque1: e.target.value }))}
+                      placeholder={tp("carteAttaque1Exemple")}
+                    />
+                  </div>
+                  <div className="champ-groupe">
+                    <label className="champ-etiquette" htmlFor="carte-attaque2">{tp("carteAttaque2")}</label>
+                    <input
+                      id="carte-attaque2"
+                      className="champ-ligne"
+                      maxLength={30}
+                      value={carte.attaque2}
+                      onChange={(e) => setCarte((c) => ({ ...c, attaque2: e.target.value }))}
+                      placeholder={tp("carteAttaque2Exemple")}
+                    />
+                  </div>
+                </div>
+                <div className="champ-groupe">
+                  <label className="champ-etiquette" htmlFor="carte-pv">{tp("cartePv")}</label>
+                  <input
+                    id="carte-pv"
+                    className="champ-ligne"
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={carte.pv}
+                    onChange={(e) => setCarte((c) => ({ ...c, pv: e.target.value.replace(/\D/g, "") }))}
+                    placeholder="350"
+                    style={{ maxWidth: 140 }}
+                  />
+                </div>
+              </Etape>
+            )}
+
             <Etape
               numero
               titre={tp("printSupportStep")}
@@ -683,15 +793,83 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               </div>
             </Etape>
 
+            {/* ---------- OPTIONS PAYANTES ----------
+                Trois cases, chacune avec son prix. Le texte de la banderole et
+                le choix du second decor ne s'ouvrent que si l'option est cochee. */}
+            {prix && (
+              <Etape numero titre={tp("optStep")} precision={tp("optional")}>
+                <div className="options-payantes">
+                  <label className="option-payante">
+                    <input type="checkbox" checked={banderole} onChange={(e) => setBanderole(e.target.checked)} />
+                    <span className="option-payante__texte">
+                      <b>{tp("optBanner")}</b>
+                      <small>{tp("optBannerSub")}</small>
+                    </span>
+                    <span className="option-payante__prix">+{formatPrix(prix.banner)}</span>
+                  </label>
+                  {banderole && (
+                    <input
+                      className="champ-ligne option-payante__champ"
+                      maxLength={40}
+                      value={texteBanderole}
+                      onChange={(e) => setTexteBanderole(e.target.value)}
+                      placeholder={tp("optBannerPlaceholder")}
+                      aria-label={tp("optBanner")}
+                    />
+                  )}
+
+                  {decorSupPossible && (
+                    <>
+                      <label className="option-payante">
+                        <input type="checkbox" checked={decorSup} onChange={(e) => setDecorSup(e.target.checked)} />
+                        <span className="option-payante__texte">
+                          <b>{tp("optExtraDecor")}</b>
+                          <small>{tp("optExtraDecorSub")}</small>
+                        </span>
+                        <span className="option-payante__prix">+{formatPrix(prix.extraDecor)}</span>
+                      </label>
+                      {decorSup && (
+                        <select
+                          className="champ-ligne option-payante__champ"
+                          value={indexSup}
+                          onChange={(e) => setIndexDecorSup(Number(e.target.value))}
+                          aria-label={tp("optExtraDecor")}
+                        >
+                          {donnees.decors.map((d, i) =>
+                            i === decor ? null : (
+                              <option key={d.src} value={i}>
+                                {libelleDecor(d)}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      )}
+                    </>
+                  )}
+
+                  <label className="option-payante">
+                    <input type="checkbox" checked={express} onChange={(e) => setExpress(e.target.checked)} />
+                    <span className="option-payante__texte">
+                      <b>{tp("optExpress")}</b>
+                      <small>{support === "digital" ? tp("optExpressSub") : tp("optExpressSubPrint")}</small>
+                    </span>
+                    <span className="option-payante__prix">+{formatPrix(prix.express)}</span>
+                  </label>
+                </div>
+              </Etape>
+            )}
+
             {/* L'etape n'est plus `requis` : on peut payer sans avoir envoye
                 de photo, et les deposer ensuite. Voir `ouvrirCaisse`. */}
             <Etape numero titre={tp("uploadStep")} precision={tp("uploadPlusTard")} ref={etapePhotos}>
-              {/* Etait un <div onClick> : l'envoi de photo, alors etape
-                  obligatoire pour commander, etait donc impossible au clavier.
-                  En <button>, le glisser-deposer fonctionne a l'identique. */}
-              <button
-                type="button"
-                className={`depot${survol ? " survol" : ""}`}
+              {/* Un vrai bouton d'action plutot que « glisse tes photos ici ou
+                  bien parcourir » : sur telephone — la majorite des visites —
+                  il n'y a rien a glisser, et le seul geste possible etait un
+                  lien souligne en fin de phrase. Le glisser-deposer reste
+                  actif sur toute la zone, et n'est annonce qu'aux ecrans a
+                  souris (.depot-zone__glisser, app/styles/fiche.css). */}
+              <div
+                className={`depot-zone${survol ? " survol" : ""}`}
                 onDragOver={(e) => {
                   e.preventDefault();
                   setSurvol(true);
@@ -700,18 +878,26 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 onDrop={(e) => {
                   e.preventDefault();
                   setSurvol(false);
-                  envoyer(e.dataTransfer.files);
+                  envoyer(Array.from(e.dataTransfer.files));
                 }}
-                onClick={() => champFichier.current?.click()}
               >
-                {envoiEnCours ? (
-                  tp("uploading")
-                ) : (
-                  <>
-                    {tp("dragHere")} {tp("orWord")} <b>{t("depotParcourir")}</b>
-                  </>
-                )}
-              </button>
+                <button
+                  type="button"
+                  className="bouton bouton--primaire depot-bouton"
+                  onClick={() => champFichier.current?.click()}
+                  disabled={envoiEnCours || photos.length >= MAX_PHOTOS}
+                >
+                  {envoiEnCours ? (
+                    tp("uploading")
+                  ) : (
+                    <>
+                      <span aria-hidden="true">📷</span>{" "}
+                      {photos.length > 0 ? tf("photoBoutonAutre") : tf("photoBouton")}
+                    </>
+                  )}
+                </button>
+                <p className="depot-zone__glisser">{tf("photoGlisser")}</p>
+              </div>
               {/* Hors du bouton : un champ de saisie imbrique dans un bouton
                   est du HTML invalide, et son clic remontait au parent. */}
               <input
@@ -720,7 +906,13 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 multiple
                 accept="image/*"
                 hidden
-                onChange={(e) => envoyer(e.target.files)}
+                onChange={(e) => {
+                  envoyer(Array.from(e.target.files ?? []));
+                  /* Sans remise a zero, choisir de nouveau la meme photo —
+                     apres l'avoir retiree, ou apres un echec d'envoi — ne
+                     declenchait aucun evenement : il ne se passait rien. */
+                  e.target.value = "";
+                }}
               />
               {erreurEnvoi && (
                 <div className="depot__erreur" role="alert">
@@ -751,32 +943,45 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                       </button>
                     </div>
                   ))}
-                  {photos.length < MAX_PHOTOS && (
-                    <button
-                      type="button"
-                      className="depot-ajout"
-                      onClick={() => champFichier.current?.click()}
-                    >
-                      +
-                    </button>
-                  )}
+                  {/* La tuile « + » a disparu : le bouton principal devient
+                      « Ajouter une autre photo », deux boutons pour le meme
+                      geste se concurrencaient. */}
                 </div>
               )}
             </Etape>
 
-            {/* Le titre d'etape devient un vrai <label> : le champ n'avait
+            {/* Repliee derriere un lien (voir `noteOuverte`). Une fois
+                ouverte, le titre reste un vrai <label> : le champ n'avait
                 qu'un placeholder, qui disparait a la saisie et n'est pas un
-                nom accessible. */}
-            <Etape numero titre={tp("noteForArtist")} precision={tp("optional")} pour="note-artiste">
-              <textarea
-                id="note-artiste"
-                className="champ"
-                value={note}
-                maxLength={400}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder={tp("notePlaceholder")}
-              />
-            </Etape>
+                nom accessible. Ouverte d'office si une note existe deja. */}
+            {noteOuverte || note ? (
+              <div className="note-artiste">
+                <label className="note-artiste__titre" htmlFor="note-artiste">
+                  {tp("noteForArtist")} <em>{tp("optional")}</em>
+                </label>
+                <textarea
+                  id="note-artiste"
+                  className="champ"
+                  value={note}
+                  maxLength={400}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder={tp("notePlaceholder")}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="lien-precision"
+                aria-expanded={false}
+                onClick={() => {
+                  setNoteOuverte(true);
+                  // Le champ n'existe qu'au rendu suivant : on attend qu'il soit la.
+                  requestAnimationFrame(() => document.getElementById("note-artiste")?.focus());
+                }}
+              >
+                {tf("ajouterPrecision")}
+              </button>
+            )}
 
             <div className="recap">
               <span>{cadrage === "fullbody" ? tp("fullbody") : tp("portrait")}</span>
@@ -794,8 +999,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
             <div className="total">
               <span className="total__prix">{prix ? formatPrix(total) : "—"}</span>
-              {prix && <span className="total__barre">{formatPrix(prixBarreDe(total))}</span>}
-              {prix && <span className="total__gain">{tp("economie")} {formatPrix(prixBarreDe(total) - total)}</span>}
             </div>
 
             <button
@@ -808,9 +1011,40 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               {tp("addToCart")}
             </button>
 
+            {/* La garantie dit ce qui se passe vraiment : seul l'imprime passe
+                par une validation avant tirage. Le numerique part directement,
+                et se reprend par retouches. */}
             <div className="garantie">
               <IconesTuile nom="bouclier" />
-              {t("garantieTexte")}
+              {support === "digital" ? t("garantieNumerique") : t("garantieImprime")}
+            </div>
+            {/* Les cadeaux offerts : generes a partir du portrait final, sur la
+                page /bonus liee depuis l'e-mail de livraison. */}
+            <p className="offerts">🎁 {t("offerts")}</p>
+
+            {/* Les trois questions qui arretent un acheteur au moment de
+                payer, posees la ou il hesite — sous le bouton — plutot qu'en
+                FAQ a 5000 px plus bas. Repliees : elles ne rallongent la page
+                que pour qui les ouvre. Les reponses suivent les CGV (articles
+                6, 7 et 9) : retouches illimitees, remboursement si toujours
+                pas convaincu — avant validation de l'apercu pour un imprime —
+                et delai compte a partir de la reception des photos. */}
+            <div className="questions-achat">
+              <details>
+                <summary>{tf("qRessembleQ")}</summary>
+                <p>{tf("qRessembleR")}</p>
+              </details>
+              <details>
+                <summary>{tf("qPhotosQ")}</summary>
+                <p>
+                  {tf("qPhotosR", { max: MAX_PHOTOS })}{" "}
+                  <Link href={lien("/quelle-photo")}>{tf("qPhotosLien")}</Link>
+                </p>
+              </details>
+              <details>
+                <summary>{tf("qPlusTardQ")}</summary>
+                <p>{tf("qPlusTardR")}</p>
+              </details>
             </div>
 
             <div className="contact">
@@ -873,43 +1107,10 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
         </section>
         )}
 
-        {/* ---------- COMPARATIF ---------- */}
-        <section className="section" style={{ background: "var(--cendre)" }}>
-          <div className="enveloppe">
-            <div className="chapeau">
-              <h2>
-                {t("comparatifTitre")} <span className="accent">{t("comparatifAccent")}</span>
-              </h2>
-            </div>
-            <Comparatif />
-          </div>
-        </section>
-
-        {/* ---------- ATOUTS ---------- */}
-        <section className="section atouts-sec">
-          <div className="enveloppe">
-            <div className="chapeau">
-              <span className="surtitre">{t("atoutsSurtitre")}</span>
-              <h2>
-                {t("atoutsTitre")}{" "}
-                <span className="accent" style={{ color: "var(--encre)" }}>
-                  {t("atoutsAccent")}
-                </span>
-              </h2>
-              <p>{t("atoutsSous")}</p>
-            </div>
-            <div className="atouts-grille">
-              {[1, 2, 3, 4].map((n) => (
-                <article className="atout-carte" key={n}>
-                  <div className="atout-carte__num">{`0${n}`}</div>
-                  <IconesAtouts index={n} />
-                  <h3>{t(`atout${n}T` as "atout1T")}</h3>
-                  <p>{t(`atout${n}D` as "atout1D")}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* Les sections « Comparatif » et « Atouts » vivaient ici. Retirees
+            de la fiche le 1er octobre 2026 : elles repetaient l'accueil, qui
+            les garde, et ajoutaient plusieurs ecrans entre le bouton
+            d'achat et la FAQ sur une page mesuree a 17 ecrans sur mobile. */}
 
         {/* ---------- FAQ ---------- */}
         {/* ---------- CONTENU PROPRE A L'UNIVERS ----------
@@ -1087,12 +1288,20 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             background: aDesDecors ? donnees.decors[decor].cle : "default",
             printOption: supportChoisi?.libelle ?? "digital",
             printKey: support,
+            banner: banderole,
+            extraDecor: decorSupChoisi,
+            extraDecorKey: decorSupChoisi ? donnees.decors[indexSup].cle : null,
+            express,
             total,
-            description: descriptionCommande + (note ? ` | ${note}` : ""),
+            description: descriptionCommande + (noteComplete ? ` | ${noteComplete}` : ""),
             photoUrls: photos,
             style: donnees.slug,
           }}
           onClose={() => setCaisseOuverte(false)}
+          /* Case « ajoute le poster » de la caisse : elle change le support ici,
+             et tout le reste suit (total, champs d'adresse, paiement). */
+          supplementPoster={prix.posterSimple}
+          onChangerSupport={setSupport}
         />
       )}
     </>

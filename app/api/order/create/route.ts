@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       background,
       printOption,
       printKey,
+      extraDecorKey,
       description,
       photoUrls,
       style,
@@ -87,6 +88,9 @@ export async function POST(req: NextRequest) {
     const currency = paymentIntent.currency.toUpperCase();
     const promoCode = paymentIntent.metadata?.promo_code || null;
     const discount = Number(paymentIntent.metadata?.discount || 0) || 0;
+    /* Options payantes : lues sur le PaymentIntent, ou `/api/checkout` les a
+       posees apres les avoir facturees — pas reprises du navigateur. */
+    const optionsPayees = new Set((paymentIntent.metadata?.options || "").split(",").filter(Boolean));
 
     const customerName = [firstName, lastName].filter(Boolean).join(" ") || null;
 
@@ -121,6 +125,11 @@ export async function POST(req: NextRequest) {
       /* Cle stable du support. `printOption` est traduit — « Digitale » en
          italien — donc il ne peut pas servir a decider si on imprime. */
       printKey: typeof printKey === "string" ? printKey : null,
+      banner: optionsPayees.has("banner"),
+      extraDecor: optionsPayees.has("extraDecor"),
+      extraDecorKey:
+        optionsPayees.has("extraDecor") && typeof extraDecorKey === "string" ? extraDecorKey.slice(0, 80) : null,
+      express: optionsPayees.has("express"),
       gift: estCadeau ? cadeau : null,
       style: style || null,
       description,
@@ -185,6 +194,7 @@ export async function POST(req: NextRequest) {
         people,
         animals,
         print_option: printOption,
+        options: [...optionsPayees].join(",") || null,
         is_gift: estCadeau,
         promo_code: promoCode || null,
         detected_country: detectedCountry || null,

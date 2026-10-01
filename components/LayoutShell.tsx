@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { capturerOrigine } from "@/lib/origineVisite";
 import Navbar from "@/components/Navbar";
 import FooterCartoon from "@/components/FooterCartoon";
-import { SLUGS_PRODUIT_TOUTES_LANGUES } from "@/lib/catalogue";
 import type { EvenementAffiche } from "@/lib/evenements";
 
 /* Ces deux-la etaient importes en statique, donc presents dans le bundle
@@ -41,25 +40,19 @@ export default function LayoutShell({
 
   if (nu) return <>{children}</>;
 
-  /* Toutes langues confondues : depuis la localisation des slugs, une fiche
-     anglaise s'appelle /en/custom-naruto-portrait et ne figure pas dans la
-     liste francaise. */
-  const surFicheProduit = pathname
-    .split("/")
-    .filter(Boolean)
-    .some((segment) => SLUGS_PRODUIT_TOUTES_LANGUES.includes(segment));
+  /* La relance de sortie ne vit plus que sur les articles de blog. Un lecteur
+     d'article repartait sans qu'on lui ait rien propose, et le blog devient la
+     porte d'entree de la longue traine.
 
-  /* Le blog aussi. Il ne captait rien : un lecteur d'article repartait sans
-     qu'on lui ait rien propose, alors que le pied de page seul ne retient
-     personne. Or le blog devient la porte d'entree — les sujets tires du
-     corpus visent la longue traine, la seule que ce site puisse gagner
-     aujourd'hui. Un lecteur qui repart est plus cher ici qu'ailleurs.
+     Elle a quitte les fiches produit le 30 septembre 2026 : 67 affichages en
+     90 jours, zero inscription. Sur mobile elle se declenche des qu'on remonte
+     de 120px — ce qu'on fait sans cesse entre la galerie et les options — et
+     pendant l'audit elle s'est ouverte a l'instant du clic sur « Commander ».
+     Elle ne rapportait rien et coupait l'achat.
 
      La liste des articles est exclue a dessein : on y est encore en train de
      choisir, l'interruption y serait gratuite. */
   const surArticle = /\/blog\/[^/]+/.test(pathname);
-
-  const captureUtile = surFicheProduit || surArticle;
 
   return (
     <>
@@ -67,9 +60,7 @@ export default function LayoutShell({
       <main>{children}</main>
       <FooterCartoon />
       <ChatWidget />
-      {captureUtile && (
-        <ExitIntentDialog source={surArticle ? "exit_intent_blog" : "exit_intent_fiche"} />
-      )}
+      {surArticle && <ExitIntentDialog source="exit_intent_blog" />}
     </>
   );
 }

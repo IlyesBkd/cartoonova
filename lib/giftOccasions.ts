@@ -52,7 +52,7 @@ const fr: OccasionTable = {
       {
         question: "Combien de temps avant l'anniversaire faut-il commander ?",
         answer:
-          "Pour une version numérique, comptez 2 jours. Pour un poster ou une toile, comptez environ 5 jours ouvrés entre la commande et la réception : 2 jours de dessin, puis 3 jours ouvrés d'impression et de livraison.",
+          "Pour une version numérique, comptez 2 jours. Pour un poster ou une toile, comptez jusqu'à 10 jours ouvrés entre la commande et la réception : 2 jours de dessin, 1 jour pour valider l'aperçu, puis 3 à 7 jours ouvrés d'impression et de livraison.",
       },
       {
         question: "Peut-on mettre plusieurs personnes sur le portrait d'anniversaire ?",
@@ -76,7 +76,7 @@ const fr: OccasionTable = {
       {
         question: "Jusqu'à quand peut-on commander pour recevoir avant Noël ?",
         answer:
-          "La date limite est affichée directement sur le site pendant la période de Noël. En pratique, il faut compter environ 5 jours ouvrés pour une impression livrée, et 2 jours pour la version numérique.",
+          "La date limite est affichée directement sur le site pendant la période de Noël. En pratique, il faut compter jusqu'à 10 jours ouvrés pour une impression livrée, et 2 jours pour la version numérique.",
       },
       {
         question: "Peut-on offrir un portrait sans l'avoir reçu à temps ?",
@@ -177,7 +177,7 @@ const fr: OccasionTable = {
       {
         question: "Quel délai prévoir pour un pot de départ ?",
         answer:
-          "Environ 5 jours ouvrés pour une impression livrée. Si la date est proche, la version numérique reste imprimable localement.",
+          "Jusqu'à 10 jours ouvrés pour une impression livrée. Si la date est proche, la version numérique reste imprimable localement.",
       },
     ],
   },
@@ -199,7 +199,7 @@ const en: OccasionTable = {
       {
         question: "How far in advance should I order for a birthday?",
         answer:
-          "For a digital version, allow 2 days. For a poster or canvas, allow about 5 business days between order and delivery: 2 days of drawing, then 3 business days of printing and shipping.",
+          "For a digital version, allow 2 days. For a poster or canvas, allow up to 10 business days between order and delivery: 2 days of drawing, 1 day to approve the preview, then 3 to 7 business days of printing and shipping.",
       },
       {
         question: "Can several people appear on a birthday portrait?",
@@ -223,7 +223,7 @@ const en: OccasionTable = {
       {
         question: "What's the cut-off for ordering in time for Christmas?",
         answer:
-          "The order-by date is shown on the site during the Christmas period. In practice, allow about 5 business days for a delivered print, and 2 days for the digital version.",
+          "The order-by date is shown on the site during the Christmas period. In practice, allow up to 10 business days for a delivered print, and 2 days for the digital version.",
       },
       {
         question: "Can I give the portrait if the print hasn't arrived yet?",
@@ -324,7 +324,7 @@ const en: OccasionTable = {
       {
         question: "How long should we allow for a leaving party?",
         answer:
-          "About 5 business days for a delivered print. If the date is close, the digital version can still be printed locally.",
+          "Up to 10 business days for a delivered print. If the date is close, the digital version can still be printed locally.",
       },
     ],
   },
@@ -346,7 +346,7 @@ const es: OccasionTable = {
       {
         question: "¿Con cuánta antelación hay que pedirlo?",
         answer:
-          "Para la versión digital, calcula 2 días. Para un póster o un lienzo, calcula unos 5 días hábiles entre el pedido y la recepción: 2 días de dibujo y 3 días hábiles de impresión y envío.",
+          "Para la versión digital, calcula 2 días. Para un póster o un lienzo, calcula hasta 10 días hábiles entre el pedido y la recepción: 2 días de dibujo, 1 día para validar la vista previa y 3 a 7 días hábiles de impresión y envío.",
       },
       {
         question: "¿Pueden aparecer varias personas en el retrato?",
@@ -370,7 +370,7 @@ const es: OccasionTable = {
       {
         question: "¿Hasta cuándo se puede pedir para recibirlo antes de Navidad?",
         answer:
-          "La fecha límite aparece en la web durante la campaña de Navidad. En la práctica, calcula unos 5 días hábiles para una impresión entregada y 2 días para la versión digital.",
+          "La fecha límite aparece en la web durante la campaña de Navidad. En la práctica, calcula hasta 10 días hábiles para una impresión entregada y 2 días para la versión digital.",
       },
       {
         question: "¿Se puede regalar aunque la impresión no haya llegado?",
@@ -471,7 +471,7 @@ const es: OccasionTable = {
       {
         question: "¿Qué plazo hay que prever para una despedida?",
         answer:
-          "Unos 5 días hábiles para una impresión entregada. Si la fecha está cerca, la versión digital se puede imprimir en local.",
+          "Hasta 10 días hábiles para una impresión entregada. Si la fecha está cerca, la versión digital se puede imprimir en local.",
       },
     ],
   },
@@ -493,7 +493,7 @@ const de: OccasionTable = {
       {
         question: "Wie lange vorher sollte man bestellen?",
         answer:
-          "Für die digitale Fassung rechnen Sie mit 2 Tagen. Für Poster oder Leinwand rechnen Sie mit rund 5 Werktagen zwischen Bestellung und Erhalt: 2 Tage Zeichnung, dann 3 Werktage Druck und Versand.",
+          "Für die digitale Fassung rechnen Sie mit 2 Tagen. Für Poster oder Leinwand rechnen Sie mit bis zu 10 Werktagen zwischen Bestellung und Erhalt: 2 Tage Zeichnung, 1 Tag Freigabe der Vorschau, dann 3 bis 7 Werktage Druck und Versand.",
       },
       {
         question: "Können mehrere Personen auf dem Portrait sein?",
@@ -517,7 +517,7 @@ const de: OccasionTable = {
       {
         question: "Bis wann muss man für Weihnachten bestellen?",
         answer:
-          "Das Bestelldatum wird während der Weihnachtszeit direkt auf der Seite angezeigt. Praktisch sind es rund 5 Werktage für einen gelieferten Druck und 2 Tage für die digitale Fassung.",
+          "Das Bestelldatum wird während der Weihnachtszeit direkt auf der Seite angezeigt. Praktisch sind es bis zu 10 Werktage für einen gelieferten Druck und 2 Tage für die digitale Fassung.",
       },
       {
         question: "Kann man schenken, bevor der Druck da ist?",
@@ -618,7 +618,7 @@ const de: OccasionTable = {
       {
         question: "Wie viel Zeit sollte man für eine Abschiedsfeier einplanen?",
         answer:
-          "Rund 5 Werktage für einen gelieferten Druck. Ist der Termin nah, lässt sich die digitale Fassung vor Ort ausdrucken.",
+          "Bis zu 10 Werktage für einen gelieferten Druck. Ist der Termin nah, lässt sich die digitale Fassung vor Ort ausdrucken.",
       },
     ],
   },
@@ -640,7 +640,7 @@ const it: OccasionTable = {
       {
         question: "Con quanto anticipo bisogna ordinare?",
         answer:
-          "Per la versione digitale, calcola 2 giorni. Per un poster o una tela, calcola circa 5 giorni lavorativi tra ordine e consegna: 2 giorni di disegno e 3 giorni lavorativi di stampa e spedizione.",
+          "Per la versione digitale, calcola 2 giorni. Per un poster o una tela, calcola fino a 10 giorni lavorativi tra ordine e consegna: 2 giorni di disegno, 1 giorno per approvare l'anteprima e 3-7 giorni lavorativi di stampa e spedizione.",
       },
       {
         question: "Possono comparire più persone nel ritratto?",
@@ -664,7 +664,7 @@ const it: OccasionTable = {
       {
         question: "Entro quando ordinare per riceverlo prima di Natale?",
         answer:
-          "La data limite è indicata sul sito durante il periodo natalizio. In pratica, calcola circa 5 giorni lavorativi per una stampa consegnata e 2 giorni per la versione digitale.",
+          "La data limite è indicata sul sito durante il periodo natalizio. In pratica, calcola fino a 10 giorni lavorativi per una stampa consegnata e 2 giorni per la versione digitale.",
       },
       {
         question: "Si può regalare prima che arrivi la stampa?",
@@ -765,7 +765,7 @@ const it: OccasionTable = {
       {
         question: "Che tempi prevedere per una festa di saluto?",
         answer:
-          "Circa 5 giorni lavorativi per una stampa consegnata. Se la data è vicina, la versione digitale resta stampabile in loco.",
+          "Fino a 10 giorni lavorativi per una stampa consegnata. Se la data è vicina, la versione digitale resta stampabile in loco.",
       },
     ],
   },
@@ -791,7 +791,7 @@ const nl: OccasionTable = {
       {
         question: "Hoe lang van tevoren moet ik bestellen voor een verjaardag?",
         answer:
-          "Voor de digitale versie: reken op 2 dagen. Voor een poster of canvas ongeveer 5 werkdagen tussen bestelling en ontvangst — 2 dagen tekenen, daarna 3 werkdagen drukken en verzenden.",
+          "Voor de digitale versie: reken op 2 dagen. Voor een poster of canvas tot 10 werkdagen tussen bestelling en ontvangst — 2 dagen tekenen, 1 dag goedkeuren, daarna 3 tot 7 werkdagen drukken en verzenden.",
       },
       {
         question: "Kunnen er meerdere personen op het portret staan?",
@@ -815,7 +815,7 @@ const nl: OccasionTable = {
       {
         question: "Tot wanneer kan ik bestellen om het voor Kerst te ontvangen?",
         answer:
-          "De uiterste besteldatum staat tijdens de kerstperiode op de site. Reken in de praktijk op ongeveer 5 werkdagen voor een geleverde print, en 2 dagen voor de digitale versie.",
+          "De uiterste besteldatum staat tijdens de kerstperiode op de site. Reken in de praktijk op tot 10 werkdagen voor een geleverde print, en 2 dagen voor de digitale versie.",
       },
       {
         question: "Kan ik iets geven dat nog niet binnen is?",
@@ -844,7 +844,7 @@ const nl: OccasionTable = {
       {
         question: "Wanneer moet ik uiterlijk bestellen voor 14 februari?",
         answer:
-          "Voor een print ongeveer 5 werkdagen van tevoren. Voor de digitale versie volstaan 2 dagen.",
+          "Voor een print tot 10 werkdagen van tevoren. Voor de digitale versie volstaan 2 dagen.",
       },
     ],
   },
@@ -942,7 +942,7 @@ const pl: OccasionTable = {
       {
         question: "Z jakim wyprzedzeniem zamówić portret na urodziny?",
         answer:
-          "Wersja cyfrowa: 2 dni. Plakat lub obraz na płótnie: około 5 dni roboczych od zamówienia do odbioru — 2 dni rysowania, potem 3 dni robocze na druk i wysyłkę.",
+          "Wersja cyfrowa: 2 dni. Plakat lub obraz na płótnie: do 10 dni roboczych od zamówienia do odbioru — 2 dni rysowania, 1 dzień na akceptację podglądu, potem 3–7 dni roboczych na druk i wysyłkę.",
       },
       {
         question: "Czy na portrecie może być kilka osób?",
@@ -966,7 +966,7 @@ const pl: OccasionTable = {
       {
         question: "Do kiedy zamówić, żeby zdążyć przed Świętami?",
         answer:
-          "Ostateczny termin pojawia się na stronie w okresie świątecznym. W praktyce: około 5 dni roboczych na wydruk z dostawą, 2 dni na wersję cyfrową.",
+          "Ostateczny termin pojawia się na stronie w okresie świątecznym. W praktyce: do 10 dni roboczych na wydruk z dostawą, 2 dni na wersję cyfrową.",
       },
       {
         question: "Czy mogę podarować portret, którego jeszcze nie mam?",
@@ -994,7 +994,7 @@ const pl: OccasionTable = {
       },
       {
         question: "Do kiedy zamówić na 14 lutego?",
-        answer: "Na wydruk: około 5 dni roboczych wcześniej. Na wersję cyfrową wystarczą 2 dni.",
+        answer: "Na wydruk: do 10 dni roboczych wcześniej. Na wersję cyfrową wystarczą 2 dni.",
       },
     ],
   },
@@ -1092,7 +1092,7 @@ const sv: OccasionTable = {
       {
         question: "Hur långt i förväg behöver jag beställa till en födelsedag?",
         answer:
-          "Digital version: räkna med 2 dagar. Affisch eller canvas: ungefär 5 arbetsdagar från beställning till leverans — 2 dagar för teckningen, sedan 3 arbetsdagar för tryck och frakt.",
+          "Digital version: räkna med 2 dagar. Affisch eller canvas: upp till 10 arbetsdagar från beställning till leverans — 2 dagar för teckningen, 1 dag för godkännande, sedan 3 till 7 arbetsdagar för tryck och frakt.",
       },
       {
         question: "Kan flera personer vara med på porträttet?",
@@ -1116,7 +1116,7 @@ const sv: OccasionTable = {
       {
         question: "Hur sent kan jag beställa och ändå få det till jul?",
         answer:
-          "Sista beställningsdag visas på sidan under julperioden. I praktiken: ungefär 5 arbetsdagar för ett tryck med leverans, 2 dagar för den digitala versionen.",
+          "Sista beställningsdag visas på sidan under julperioden. I praktiken: upp till 10 arbetsdagar för ett tryck med leverans, 2 dagar för den digitala versionen.",
       },
       {
         question: "Kan jag ge bort ett porträtt som inte hunnit fram?",
@@ -1144,7 +1144,7 @@ const sv: OccasionTable = {
       },
       {
         question: "När senast behöver jag beställa till den 14 februari?",
-        answer: "Till ett tryck: ungefär 5 arbetsdagar innan. Till den digitala versionen räcker 2 dagar.",
+        answer: "Till ett tryck: upp till 10 arbetsdagar innan. Till den digitala versionen räcker 2 dagar.",
       },
     ],
   },
@@ -1241,7 +1241,7 @@ const da: OccasionTable = {
       {
         question: "Hvor lang tid før skal jeg bestille til en fødselsdag?",
         answer:
-          "Digital version: regn med 2 dage. Plakat eller lærred: cirka 5 hverdage fra bestilling til levering — 2 dage til tegningen og derefter 3 hverdage til tryk og forsendelse.",
+          "Digital version: regn med 2 dage. Plakat eller lærred: op til 10 hverdage fra bestilling til levering — 2 dage til tegningen, 1 dag til godkendelse og derefter 3 til 7 hverdage til tryk og forsendelse.",
       },
       {
         question: "Kan der være flere personer på portrættet?",
@@ -1265,7 +1265,7 @@ const da: OccasionTable = {
       {
         question: "Hvor sent kan jeg bestille og stadig nå det til jul?",
         answer:
-          "Sidste bestillingsdag står på siden i juleperioden. I praksis: cirka 5 hverdage til et tryk med levering, 2 dage til den digitale version.",
+          "Sidste bestillingsdag står på siden i juleperioden. I praksis: op til 10 hverdage til et tryk med levering, 2 dage til den digitale version.",
       },
       {
         question: "Kan jeg give et portræt, der ikke er nået frem?",
@@ -1293,7 +1293,7 @@ const da: OccasionTable = {
       },
       {
         question: "Hvornår skal jeg senest bestille til 14. februar?",
-        answer: "Til et tryk: cirka 5 hverdage før. Til den digitale version er 2 dage nok.",
+        answer: "Til et tryk: op til 10 hverdage før. Til den digitale version er 2 dage nok.",
       },
     ],
   },
@@ -1392,7 +1392,7 @@ const pt: OccasionTable = {
       {
         question: "Com quanta antecedência devo encomendar para um aniversário?",
         answer:
-          "Versão digital: conta com 2 dias. Poster ou tela: cerca de 5 dias úteis entre a encomenda e a entrega — 2 dias de desenho e depois 3 dias úteis de impressão e envio.",
+          "Versão digital: conta com 2 dias. Poster ou tela: até 10 dias úteis entre a encomenda e a entrega — 2 dias de desenho, 1 dia para aprovar a pré-visualização e depois 3 a 7 dias úteis de impressão e envio.",
       },
       {
         question: "Podem estar várias pessoas no retrato?",
@@ -1416,7 +1416,7 @@ const pt: OccasionTable = {
       {
         question: "Até quando posso encomendar para receber antes do Natal?",
         answer:
-          "A data-limite aparece no site durante a época natalícia. Na prática: cerca de 5 dias úteis para uma impressão entregue, e 2 dias para a versão digital.",
+          "A data-limite aparece no site durante a época natalícia. Na prática: até 10 dias úteis para uma impressão entregue, e 2 dias para a versão digital.",
       },
       {
         question: "Posso oferecer um retrato que ainda não chegou?",
@@ -1444,7 +1444,7 @@ const pt: OccasionTable = {
       },
       {
         question: "Até quando devo encomendar para 14 de fevereiro?",
-        answer: "Para uma impressão: cerca de 5 dias úteis antes. Para a versão digital bastam 2 dias.",
+        answer: "Para uma impressão: até 10 dias úteis antes. Para a versão digital bastam 2 dias.",
       },
     ],
   },

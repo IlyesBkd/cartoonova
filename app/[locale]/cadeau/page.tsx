@@ -1,12 +1,22 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
-import { SITE_URL } from "@/lib/site";
 import { locales, type Locale } from "@/i18n/config";
 import { OCCASIONS, OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
+import { getPricesForCurrency } from "@/lib/db";
+import { DEFAULT_PRICE_SET } from "@/lib/types";
+import { vignetteProduit } from "@/lib/visuels";
 import { alternatesPour } from "@/lib/seo";
+
+/* Index des idees cadeaux. C'etait une liste de 36 liens texte : correcte
+   pour Google, illisible pour un visiteur, qui doit choisir sur un visuel.
+   Les memes liens deviennent des cartes avec la vignette du style et le prix
+   de depart. En tete, les deux entrees qui convertissent le mieux en saison :
+   la page Noel et le bon cadeau (pour qui ne connait pas le style prefere de
+   la personne a qui il offre). */
 
 export const revalidate = 86400;
 
@@ -38,38 +48,98 @@ export default async function GiftIndexPage({
   const { locale: localeRaw } = await params;
   if (!(locales as readonly string[]).includes(localeRaw)) notFound();
   const locale = localeRaw as Locale;
-  const t = await getTranslations({ locale, namespace: "giftPage" });
+  const t = await getTranslations({ locale, namespace: "cadeauPage" });
+
+  /* Prix de base en euros, comme sur /collections : la page est mise en cache
+     pour tous les visiteurs, elle ne peut donc pas suivre la devise de chacun. */
+  let prixDepart = DEFAULT_PRICE_SET.base;
+  try {
+    prixDepart = (await getPricesForCurrency("EUR")).base;
+  } catch {
+    // Repli sur la grille par defaut si la base est injoignable.
+  }
+  const prix = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EUR",
+    maximumFractionDigits: Number.isInteger(prixDepart) ? 0 : 2,
+  }).format(prixDepart);
 
   return (
     <main className="page-tj">
-      <div className="enveloppe">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black mb-10">{t("section")}</h1>
+      <section className="section">
+        <div className="enveloppe">
+          <div className="chapeau">
+            <span className="surtitre">{t("surtitre")}</span>
+            <h1>
+              {t("titre")} <span className="accent">{t("accent")}</span>
+            </h1>
+            <p>{t("sous")}</p>
+          </div>
 
-        <div className="flex flex-col gap-10">
-          {OCCASION_KEYS.map((key) => {
-            const occasion = OCCASIONS[locale][key];
-            return (
-              <section key={key}>
-                <h2 style={{ fontFamily: "var(--titre)", fontSize: 21, borderBottom: "1px solid var(--encre-voile)", paddingBottom: 8, marginBottom: 16 }}>
-                  {occasion.label}
-                </h2>
-                <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {GIFT_PRODUCTS.map((product) => (
-                    <li key={product.slug}>
-                      <Link
-                        href={`/${locale}/cadeau/${buildGiftSlug(locale, product.slug, key)}`}
-                        className="bloc" style={{ display: "block", textDecoration: "none", padding: "13px 18px" }}
-                      >
-                        {occasion.headline(product.translations[locale].title)}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
+          <div className="cadeau-vedettes">
+            <Link href={`/${locale}/noel`} className="cadeau-vedette cadeau-vedette--noel">
+              <span className="cadeau-vedette__picto" aria-hidden="true">🎄</span>
+              <h2>{t("noelTitre")}</h2>
+              <p>{t("noelTexte")}</p>
+              <span className="bouton bouton--primaire">{t("noelBouton")}</span>
+            </Link>
+            <Link href={`/${locale}/bon-cadeau`} className="cadeau-vedette cadeau-vedette--bon">
+              <span className="cadeau-vedette__picto" aria-hidden="true">🎁</span>
+              <h2>{t("bonTitre")}</h2>
+              <p>{t("bonTexte")}</p>
+              <span className="bouton bouton--primaire">{t("bonBouton")}</span>
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {OCCASION_KEYS.map((key, i) => {
+        const occasion = OCCASIONS[locale][key];
+        return (
+          <section
+            key={key}
+            id={key}
+            className="section cadeau-occasion"
+            style={i % 2 === 0 ? { background: "var(--cendre)" } : undefined}
+          >
+            <div className="enveloppe">
+              <h2 className="cadeau-occasion__titre">{t("pourOccasion", { occasion: occasion.label })}</h2>
+              <div className="pages-grille">
+                {GIFT_PRODUCTS.map((product) => {
+                  const titre = product.translations[locale].title;
+                  const visuel = vignetteProduit(product.slug);
+                  return (
+                    <Link
+                      key={product.slug}
+                      className="carte"
+                      href={`/${locale}/cadeau/${buildGiftSlug(locale, product.slug, key)}`}
+                    >
+                      {visuel ? (
+                        <Image
+                          className="carte__image"
+                          src={visuel}
+                          alt={titre}
+                          width={800}
+                          height={800}
+                          sizes="(max-width: 860px) 46vw, 30vw"
+                        />
+                      ) : (
+                        <div className="carte__image substitut">
+                          <span>{titre}</span>
+                        </div>
+                      )}
+                      <div className="carte__corps">
+                        <h3>{occasion.headline(titre)}</h3>
+                        <span className="carte__prix">{t("aPartirDe", { prix })}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        );
+      })}
     </main>
   );
 }

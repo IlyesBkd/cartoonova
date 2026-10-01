@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { identifier } from "@/lib/analytics";
 import Icone from "@/components/tj/Icone";
 import { GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
+import { successPage, type Lang } from "@/lib/email-i18n";
+import { depotSucces } from "@/lib/i18n/caisse";
 
 declare global {
   interface Window {
@@ -25,11 +27,17 @@ interface SuccessOrder {
 
 export default function SuccessClient({
   order,
+  lang,
   trackingUrl,
+  depotUrl,
 }: {
   order: SuccessOrder;
+  /** Langue de la page, choisie cote serveur (voir page.tsx). */
+  lang: Lang;
   /** Lien signe vers la page de suivi, calcule cote serveur. */
   trackingUrl?: string;
+  /** Lien signe vers le depot des photos, seulement si la commande n'en a pas. */
+  depotUrl?: string;
 }) {
   const conversionSent = useRef(false);
 
@@ -100,6 +108,7 @@ export default function SuccessClient({
 
   // Décoder options JSONB (PostgreSQL renvoie JSONB comme un objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
+  const t = successPage[lang];
 
   return (
     <div className="h-screen bg-gradient-to-br from-yellow-400 to-yellow-300 flex items-center justify-center p-4 overflow-hidden">
@@ -113,52 +122,65 @@ export default function SuccessClient({
               <Icone nom="fete" taille={48} style={{ color: "var(--soleil-fonce)" }} />
             </div>
             <h1 className="text-xl sm:text-2xl lg:text-4xl font-black text-black uppercase mb-1 sm:mb-2 leading-tight">
-              BOOM !<br />
-              <span className="text-yellow-400 bg-black px-1 sm:px-2">C&apos;est dans la boîte !</span>
+              {t.title}<br />
+              <span className="text-yellow-400 bg-black px-1 sm:px-2">{t.titleAccent}</span>
             </h1>
             <p className="text-xs sm:text-sm lg:text-lg font-bold text-black/80">
-              Votre commande est confirmée et on s&apos;y met déjà.
+              {t.confirmed}
             </p>
           </div>
+
+          {/* Depot des photos, avant tout le reste. Une commande payee sans
+              photo est bloquee : l'illustrateur n'a rien a dessiner, et le
+              lien n'arrivait jusqu'ici que par e-mail, des heures plus tard.
+              Le client est encore la, sur cette page — c'est le moment. */}
+          {depotUrl && (
+            <div className="succes-depot">
+              <a href={depotUrl} className="bouton bouton--primaire">
+                <Icone nom="image" taille={19} /> {depotSucces[lang].envoyer}
+              </a>
+              <p>{depotSucces[lang].pourquoi}</p>
+            </div>
+          )}
 
           {/* Carte récapitulative */}
           <div className="bg-creme rounded-[8px] sm:rounded-[12px] p-2 sm:p-4 mb-2 sm:mb-4">
             <h2 className="text-sm sm:text-lg lg:text-xl font-black text-black uppercase mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
-              <Icone nom="presse-papiers" taille={18} /> Récapitulatif
+              <Icone nom="presse-papiers" taille={18} /> {t.summary}
             </h2>
             
             <div className="grid grid-cols-2 sm:grid-cols-2 gap-1 sm:gap-2">
               <div className="bg-white rounded p-1 sm:p-2 sm:rounded-lg">
-                <p className="text-[10px] sm:text-xs font-black text-black/60 uppercase mb-1">Numéro</p>
+                <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.number}</p>
                 <p className="text-xs sm:text-sm font-black text-black">#{String(order.id).slice(0, 8)}</p>
               </div>
               
               <div className="bg-white rounded p-1 sm:p-2 sm:rounded-lg">
-                <p className="text-[10px] sm:text-xs font-black text-black/60 uppercase mb-1">Email</p>
-                <p className="text-[10px] sm:text-xs font-bold text-black break-all">{order.customer_email}</p>
+                <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.email}</p>
+                <p className="text-xs sm:text-xs font-bold text-black break-all">{order.customer_email}</p>
               </div>
               
               <div className="bg-white rounded p-1 sm:p-2 sm:rounded-lg">
-                <p className="text-[10px] sm:text-xs font-black text-black/60 uppercase mb-1">Format</p>
+                <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.format}</p>
                 <p className="text-xs sm:text-sm font-black text-black">
-                  {opts?.format === "portrait" ? "Portrait" : "Full Body"}
+                  {opts?.format === "fullbody" ? t.fullbody : t.portrait}
                 </p>
               </div>
               
               <div className="bg-white rounded p-1 sm:p-2 sm:rounded-lg">
-                <p className="text-[10px] sm:text-xs font-black text-black/60 uppercase mb-1">Personnes</p>
+                <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.people}</p>
                 <p className="text-xs sm:text-sm font-black text-black">
-                  {opts?.people} {opts?.animals > 0 && `+ ${opts.animals} animaux`}
+                  {opts?.people} {opts?.animals > 0 && t.animals(opts.animals)}
                 </p>
               </div>
               
               <div className="bg-white rounded p-1 sm:p-2 sm:rounded-lg col-span-2 sm:col-span-2">
-                <p className="text-[10px] sm:text-xs font-black text-black/60 uppercase mb-1">Option</p>
+                <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.option}</p>
                 <p className="text-xs sm:text-sm font-black text-black">{opts?.printOption}</p>
               </div>
               
               <div className="bg-soleil rounded p-1 sm:p-2 sm:rounded-lg col-span-2 sm:col-span-2">
-                <p className="text-[10px] sm:text-xs font-black text-black/60 uppercase mb-1">Total</p>
+                <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.total}</p>
                 <p className="text-sm sm:text-lg lg:text-xl font-black text-black">
                   {order.total_price} {order.currency}
                 </p>
@@ -174,11 +196,10 @@ export default function SuccessClient({
               </div>
               <div>
                 <h3 className="text-xs sm:text-sm lg:text-base font-black text-black uppercase mb-1">
-                  On se met au travail !
+                  {t.workTitle}
                 </h3>
-                <p className="text-[10px] sm:text-xs font-bold text-black/80 leading-tight">
-                  Le dessin est réalisé en 2 jours. Si vous avez commandé une impression (poster, toile),
-                  comptez 3 jours ouvrés supplémentaires pour la fabrication et l&apos;envoi.
+                <p className="text-xs sm:text-xs font-bold text-black/80 leading-tight">
+                  {t.workBody}
                 </p>
               </div>
             </div>
@@ -190,22 +211,22 @@ export default function SuccessClient({
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 justify-center">
             {trackingUrl && (
               <a href={trackingUrl} className="bouton bouton--primaire">
-                <Icone nom="presse-papiers" taille={17} /> Suivre ma commande
+                <Icone nom="presse-papiers" taille={17} /> {t.track}
               </a>
             )}
 
             <Link
-              href="/collections"
+              href={`/${lang}/portfolio`}
               className="bouton bouton--fantome"
             >
-              <Icone nom="image" taille={17} /> Portfolio
+              <Icone nom="image" taille={17} /> {t.portfolio}
             </Link>
 
             <Link
-              href="/"
+              href={`/${lang}`}
               className="bouton bouton--fantome"
             >
-              <Icone nom="maison" taille={17} /> Accueil
+              <Icone nom="maison" taille={17} /> {t.home}
             </Link>
           </div>
         </div>

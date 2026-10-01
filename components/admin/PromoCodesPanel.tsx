@@ -185,6 +185,12 @@ export default function PromoCodesPanel({ password }: { password: string }) {
                   <td className="px-4 py-3 tabular-nums">
                     {c.kind === "percent" ? `−${c.value} %` : `−${c.value} ${c.currency ?? ""}`}
                     {c.min_subtotal > 0 && <span className="text-gray-400"> · dès {c.min_subtotal}</span>}
+                    {/* Bon cadeau : ce qu'il reste a utiliser sur le bon. */}
+                    {c.solde !== null && c.solde !== undefined && (
+                      <span className="ml-1 inline-block px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-xs font-bold">
+                        🎁 solde {Number(c.solde)} {c.currency ?? ""}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3 tabular-nums">
                     {c.used_count}{c.max_uses !== null ? ` / ${c.max_uses}` : ""}

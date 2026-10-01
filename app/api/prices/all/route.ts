@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 const PRICE_FIELDS: (keyof PriceSet)[] = [
   "base", "fullbodyExtra", "extraPerson", "extraAnimal",
   "digital", "canvas", "poster", "posterSimple",
+  "banner", "extraDecor", "express",
 ];
 
 function checkAuth(req: Request): NextResponse | null {

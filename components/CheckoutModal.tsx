@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { lireOrigine } from "@/lib/origineVisite";
-import { loadStripe } from "@stripe/stripe-js";
+import {
+  loadStripe,
+  type StripeElementsOptions,
+  type StripeExpressCheckoutElementConfirmEvent,
+} from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useTranslations } from "next-intl";
@@ -28,6 +32,12 @@ interface OrderConfig {
   printOption: string;
   /** Cle stable du support choisi — sert au calcul du prix cote serveur. */
   printKey: PrintKey;
+  /** Options payantes : refacturees cote serveur, comme le reste. */
+  banner: boolean;
+  extraDecor: boolean;
+  /** Cle du second decor, pour l'illustrateur (null sans l'option). */
+  extraDecorKey: string | null;
+  express: boolean;
   total: number;
   description: string;
   photoUrls: string[];
@@ -39,13 +49,321 @@ function messageErreur(err: unknown): string {
   return err instanceof Error && err.message ? err.message : "Une erreur technique est survenue.";
 }
 
+/** Langue de la page en cours. La page de succes vit hors de [locale] :
+    sans ce parametre, elle ne savait pas dans quelle langue repondre. */
+const langueCourante = () => document.documentElement.lang || "fr";
+
 /** Ce que le serveur a besoin de connaitre pour recalculer le prix lui-meme. */
 const pricingPayload = (orderConfig: OrderConfig) => ({
   format: orderConfig.format,
   people: orderConfig.people,
   animals: orderConfig.animals,
   printKey: orderConfig.printKey,
+  banner: orderConfig.banner,
+  extraDecor: orderConfig.extraDecor,
+  express: orderConfig.express,
 });
+
+/** Options cadeau saisies a l'etape 1. */
+interface OptionsCadeau {
+  message: string | null;
+  recipientEmail: string | null;
+  deliverAfter: string | null;
+}
+
+/** Coordonnees envoyees avec la commande en attente. */
+interface FormDataCaisse {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  addressLine2?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  gift?: OptionsCadeau | null;
+}
+
+/** Identifiant du PaymentIntent tire de son secret (pi_xxx_secret_yyy). */
+function idPaymentIntent(clientSecret: string): string {
+  const match = clientSecret.match(/^(pi_[^_]+)/);
+  return match ? match[1] : "";
+}
+
+/* Enregistre la commande en PENDING avant la confirmation Stripe.
+   Sortie de PaymentForm : le paiement express de l'etape 1 doit l'appeler
+   lui aussi, avec les coordonnees que le portefeuille lui donne au lieu de
+   celles du formulaire. Une seule copie de ce corps de requete, sinon les
+   deux chemins finissent par envoyer des commandes differentes. */
+async function insererCommandeEnAttente(
+  clientSecret: string,
+  formData: FormDataCaisse,
+  orderConfig: OrderConfig
+): Promise<void> {
+  const paymentIntentId = idPaymentIntent(clientSecret);
+  if (!paymentIntentId) {
+    console.error("[CHECKOUT] ❌ paymentIntentId est VIDE! clientSecret:", clientSecret);
+    throw new Error("PaymentIntent ID manquant.");
+  }
+  console.log("[CHECKOUT] 📝 INSERT PENDING | PI:", paymentIntentId, "| email:", formData.email);
+
+  const detectedCountry = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1] || null;
+
+  const res = await fetch("/api/order/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      paymentIntentId,
+      origine: lireOrigine(),
+      email: formData.email,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      address: formData.address,
+      addressLine2: formData.addressLine2,
+      city: formData.city,
+      postalCode: formData.postalCode,
+      country: formData.country,
+      phone: formData.phone,
+      format: orderConfig.format,
+      people: orderConfig.people,
+      animals: orderConfig.animals,
+      background: orderConfig.background,
+      printOption: orderConfig.printOption,
+      /* La cle du support, en plus de son libelle traduit : c'est elle qui
+         permettra de savoir si la commande part a l'impression, sans
+         dependre de la langue du client. */
+      printKey: orderConfig.printKey,
+      extraDecorKey: orderConfig.extraDecorKey,
+      // Montant et devise ne sont pas transmis : le serveur les lit sur le
+      // PaymentIntent Stripe, seule source fiable de ce qui a ete paye.
+      description: orderConfig.description,
+      photoUrls: orderConfig.photoUrls,
+      style: orderConfig.style,
+      detectedCountry,
+      gift: formData.gift ?? null,
+    }),
+  });
+
+  console.log("[CHECKOUT] /api/order/create response status:", res.status);
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    console.error("[CHECKOUT] ❌ Erreur création commande:", err);
+    throw new Error("Erreur lors de l'enregistrement de la commande.");
+  }
+
+  const data = await res.json();
+  console.log("[CHECKOUT] ✅ Commande PENDING créée, orderId:", data.orderId);
+}
+
+/* Habillage de l'iframe Stripe. Il portait encore le theme neo-brutaliste du
+   site precedent : bordures noires de 2px, ombre portee dure « 4px 4px 0
+   noir », jaune #facc15 (celui de Tailwind, pas le notre) et une police
+   Poppins que le site ne charge plus depuis le passage a ToonJaune — le cadre
+   de paiement s'affichait donc dans une autre typographie, une autre couleur
+   et un autre style que la modale qui l'entoure. Recale sur les jetons :
+   #E9BA3B, encre #2A2552, rayon 14. Sorti du rendu : les deux <Elements>
+   (express de l'etape 1, formulaire de l'etape 2) doivent avoir le meme. */
+const apparenceStripe: StripeElementsOptions["appearance"] = {
+  theme: "flat",
+  variables: {
+    colorBackground: "#FFFFFF",
+    colorPrimary: "#E9BA3B",
+    colorText: "#2A2552",
+    colorTextSecondary: "#5A5578",
+    colorDanger: "#C8202F",
+    borderRadius: "14px",
+    spacingUnit: "4px",
+    /* Rebond est servi depuis /public : une iframe d'un autre domaine ne
+       peut pas la charger sans en-tetes CORS. Pile systeme plutot qu'une
+       police fantome. */
+    fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
+    fontWeightNormal: "500",
+  },
+  rules: {
+    ".Input": {
+      border: "1.5px solid rgba(42, 37, 82, .18)",
+      boxShadow: "none",
+      padding: "12px 14px",
+    },
+    ".Input:focus": {
+      border: "1.5px solid transparent",
+      outline: "2px solid #E9BA3B",
+      boxShadow: "none",
+    },
+    ".Label": {
+      fontWeight: "700",
+      fontSize: "12.5px",
+      textTransform: "uppercase",
+      letterSpacing: ".05em",
+      color: "#5A5578",
+    },
+    ".AccordionItem": {
+      border: "1.5px solid rgba(42, 37, 82, .18)",
+      borderRadius: "14px",
+      marginBottom: "10px",
+      boxShadow: "none",
+    },
+    ".AccordionItem--selected": {
+      backgroundColor: "#FFF9ED",
+      border: "2px solid #E9BA3B",
+    },
+    ".Tab": {
+      border: "1.5px solid rgba(42, 37, 82, .18)",
+      borderRadius: "14px",
+      boxShadow: "none",
+    },
+    ".Tab--selected": {
+      backgroundColor: "#FFF9ED",
+      border: "2px solid #E9BA3B",
+      color: "#2A2552",
+    },
+  },
+};
+
+/* ─── Paiement express a l'etape 1 ─────────────────────────────────────
+   Apple Pay / Google Pay n'apparaissaient qu'a l'etape 2, APRES la saisie de
+   l'e-mail — et pour un poster, des treize champs d'adresse. Or le premier
+   segment du site est l'iPhone sous Safari : le portefeuille connait deja
+   l'e-mail, le nom, l'adresse et le telephone. On le propose donc en tete de
+   l'etape 1 et on lit ces coordonnees dans l'evenement de confirmation. */
+function ExpressEtape1({
+  clientSecret,
+  orderConfig,
+  estPhysique,
+  emailSaisi,
+  cadeau,
+  nomPays,
+}: {
+  clientSecret: string;
+  orderConfig: OrderConfig;
+  estPhysique: boolean;
+  /** E-mail deja tape, en secours si le portefeuille n'en donne pas. */
+  emailSaisi: string;
+  cadeau: OptionsCadeau | null;
+  /** Libelle traduit d'un code pays, comme le formulaire l'envoie. */
+  nomPays: (code: string) => string;
+}) {
+  const t = useTranslations("checkout");
+  const stripe = useStripe();
+  const elements = useElements();
+  const [disponible, setDisponible] = useState(false);
+  const [error, setError] = useState("");
+
+  const confirmer = async (event: StripeExpressCheckoutElementConfirmEvent) => {
+    if (!stripe || !elements) {
+      event.paymentFailed({ reason: "fail" });
+      return;
+    }
+    setError("");
+    mesure(MESURES.paiementLance, {
+      method: "express_etape1",
+      wallet: event.expressPaymentType,
+      value: orderConfig.total,
+      style: orderConfig.style,
+    });
+
+    const email = (event.billingDetails?.email || emailSaisi).trim();
+    if (!email) {
+      // Ne devrait pas arriver avec `emailRequired` : sans e-mail, la commande
+      // ne pourrait ni etre confirmee ni livree.
+      event.paymentFailed({ reason: "fail" });
+      setError(t("errorValidEmail"));
+      return;
+    }
+
+    /* Le nom et l'adresse viennent de la livraison pour un poster ; sinon de
+       la facturation, qui suffit a nommer le client d'un fichier numerique. */
+    const livraison = event.shippingAddress;
+    const nomComplet = (livraison?.name || event.billingDetails?.name || "").trim();
+    const [prenom, ...resteNom] = nomComplet.split(/\s+/);
+    const adresse = estPhysique ? livraison?.address : undefined;
+
+    const formData: FormDataCaisse = {
+      email,
+      firstName: prenom || undefined,
+      lastName: resteNom.join(" ") || undefined,
+      address: adresse?.line1,
+      addressLine2: adresse?.line2 ?? undefined,
+      city: adresse?.city,
+      postalCode: adresse?.postal_code,
+      country: adresse?.country ? nomPays(adresse.country) : undefined,
+      phone: event.billingDetails?.phone || undefined,
+      gift: cadeau,
+    };
+
+    // Meme identifiant que la mesure serveur : recolle la session a l'achat.
+    identifier(email, { locale: langueCourante(), derniere_commande_style: orderConfig.style });
+
+    try {
+      // Avant la confirmation : la redirection fait perdre le contexte JS.
+      await insererCommandeEnAttente(clientSecret, formData, orderConfig);
+
+      const { error: stripeError } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: { return_url: `${window.location.origin}/success?lang=${langueCourante()}` },
+      });
+
+      // Arriver ici veut dire que la redirection n'a pas eu lieu.
+      if (stripeError) {
+        mesure(MESURES.paiementEchoue, {
+          method: "express_etape1",
+          error: stripeError.message,
+          style: orderConfig.style,
+        });
+        setError(stripeError.message || t("errorTechnical"));
+      } else {
+        window.location.href = `/success?payment_intent=${idPaymentIntent(clientSecret)}&lang=${langueCourante()}`;
+      }
+    } catch (err) {
+      // Ferme la feuille du portefeuille : sinon elle tourne jusqu'au delai.
+      event.paymentFailed({ reason: "fail" });
+      setError(messageErreur(err));
+    }
+  };
+
+  return (
+    /* Masque tant que Stripe n'a pas dit quels boutons il peut afficher :
+       sans portefeuille (Firefox, Android sans Google Pay), un titre
+       « Achat express » au-dessus d'un vide ferait croire a une panne. */
+    <div className={disponible ? "caisse-express" : "caisse-express caisse-express--attente"}>
+      <div className="bloc">
+        <div className="bloc__tete">
+          <Icone nom="eclair" taille={17} />
+          {t("expressCheckout")}
+        </div>
+        <ExpressCheckoutElement
+          options={{
+            emailRequired: true,
+            // Le transporteur a besoin d'un telephone, comme dans le formulaire.
+            phoneNumberRequired: estPhysique,
+            shippingAddressRequired: estPhysique,
+            allowedShippingCountries: estPhysique ? COUNTRIES.map((c) => c.code) : undefined,
+            /* Apple Pay refuse d'ouvrir une feuille avec adresse de livraison
+               sans au moins un tarif. La livraison est comprise dans le prix :
+               un tarif unique a zero, qui ne change pas le montant. */
+            shippingRates: estPhysique
+              ? [{ id: "livraison-incluse", amount: 0, displayName: t("expressShippingIncluded") }]
+              : undefined,
+          }}
+          onReady={({ availablePaymentMethods }) => setDisponible(Boolean(availablePaymentMethods))}
+          // Aucun calcul de port selon l'adresse : on accepte tout pays propose.
+          onShippingAddressChange={({ resolve }) => resolve()}
+          onConfirm={confirmer}
+        />
+        {error && (
+          <p className="alerte alerte--erreur" role="alert">
+            <Icone nom="alerte" taille={15} />
+            {error}
+          </p>
+        )}
+      </div>
+      <div className="separateur-ou">{t("expressOrFillIn")}</div>
+    </div>
+  );
+}
 
 /* ─── Payment Form ────────────────────────────────────────────────── */
 function PaymentForm({
@@ -59,22 +377,7 @@ function PaymentForm({
   clientSecret: string;
   /** Montant du a payer, deja formate dans la devise du visiteur. */
   montant: string;
-  formData: {
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    address?: string;
-    addressLine2?: string;
-    city?: string;
-    postalCode?: string;
-    country?: string;
-    phone?: string;
-    gift?: {
-      message: string | null;
-      recipientEmail: string | null;
-      deliverAfter: string | null;
-    } | null;
-  };
+  formData: FormDataCaisse;
   orderConfig: OrderConfig;
 }) {
   const t = useTranslations("checkout");
@@ -83,71 +386,10 @@ function PaymentForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Extract PaymentIntent ID from clientSecret (format: pi_xxx_secret_yyy)
-  const getPaymentIntentId = () => {
-    console.log("[CHECKOUT] clientSecret raw:", clientSecret);
-    const match = clientSecret.match(/^(pi_[^_]+)/);
-    const id = match ? match[1] : "";
-    console.log("[CHECKOUT] Extracted PI ID:", id);
-    return id;
-  };
+  const getPaymentIntentId = () => idPaymentIntent(clientSecret);
 
   // Insert order as PENDING in PostgreSQL
-  const insertPendingOrder = async () => {
-    const paymentIntentId = getPaymentIntentId();
-    if (!paymentIntentId) {
-      console.error("[CHECKOUT] ❌ paymentIntentId est VIDE! clientSecret:", clientSecret);
-      throw new Error("PaymentIntent ID manquant.");
-    }
-    console.log("[CHECKOUT] 📝 INSERT PENDING | PI:", paymentIntentId, "| email:", formData.email);
-
-    const detectedCountry = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1] || null;
-
-    const res = await fetch("/api/order/create", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        paymentIntentId,
-        origine: lireOrigine(),
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        address: formData.address,
-        addressLine2: formData.addressLine2,
-        city: formData.city,
-        postalCode: formData.postalCode,
-        country: formData.country,
-        phone: formData.phone,
-        format: orderConfig.format,
-        people: orderConfig.people,
-        animals: orderConfig.animals,
-        background: orderConfig.background,
-        printOption: orderConfig.printOption,
-        /* La cle du support, en plus de son libelle traduit : c'est elle qui
-           permettra de savoir si la commande part a l'impression, sans
-           dependre de la langue du client. */
-        printKey: orderConfig.printKey,
-        // Montant et devise ne sont pas transmis : le serveur les lit sur le
-        // PaymentIntent Stripe, seule source fiable de ce qui a ete paye.
-        description: orderConfig.description,
-        photoUrls: orderConfig.photoUrls,
-        style: orderConfig.style,
-        detectedCountry,
-        gift: formData.gift ?? null,
-      }),
-    });
-
-    console.log("[CHECKOUT] /api/order/create response status:", res.status);
-
-    if (!res.ok) {
-      const err = await res.json();
-      console.error("[CHECKOUT] ❌ Erreur création commande:", err);
-      throw new Error("Erreur lors de l'enregistrement de la commande.");
-    }
-
-    const data = await res.json();
-    console.log("[CHECKOUT] ✅ Commande PENDING créée, orderId:", data.orderId);
-  };
+  const insertPendingOrder = () => insererCommandeEnAttente(clientSecret, formData, orderConfig);
 
   // ─── Card payment flow ─────────────────────────────────────────────
   const handleCardPayment = async () => {
@@ -178,7 +420,7 @@ function PaymentForm({
       await insertPendingOrder();
 
       // 3. Confirm payment
-      const successUrl = `${window.location.origin}/success`;
+      const successUrl = `${window.location.origin}/success?lang=${langueCourante()}`;
       console.log("[CARD] 3. Appel stripe.confirmPayment() | return_url:", successUrl);
 
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
@@ -199,7 +441,7 @@ function PaymentForm({
         setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
         // Payment succeeded inline — manually redirect
-        const redirectUrl = `/success?payment_intent=${paymentIntent.id}`;
+        const redirectUrl = `/success?payment_intent=${paymentIntent.id}&lang=${langueCourante()}`;
         console.log("[CARD] ✅ Paiement inline OK, redirect manuel vers:", redirectUrl);
         window.location.href = redirectUrl;
       } else {
@@ -232,7 +474,7 @@ function PaymentForm({
       await insertPendingOrder();
 
       // 3. Confirm — no redirect option = defaults to "always"
-      const successUrl = `${window.location.origin}/success`;
+      const successUrl = `${window.location.origin}/success?lang=${langueCourante()}`;
       console.log("[EXPRESS] 2. Appel stripe.confirmPayment() | return_url:", successUrl);
 
       const { error: stripeError } = await stripe.confirmPayment({
@@ -250,7 +492,7 @@ function PaymentForm({
         // Fallback: shouldn't happen but just in case
         const piId = getPaymentIntentId();
         console.log("[EXPRESS] ⚠️ Pas d'erreur mais pas de redirect. Fallback redirect. PI:", piId);
-        window.location.href = `/success?payment_intent=${piId}`;
+        window.location.href = `/success?payment_intent=${piId}&lang=${langueCourante()}`;
       }
     } catch (err) {
       console.error("[EXPRESS] 💥 Erreur Express:", err);
@@ -312,6 +554,18 @@ function PaymentForm({
           </div>
           <PaymentElement
             options={{
+              /* Le formulaire de carte s'ouvre d'emblee. En accordeon replie,
+                 il fallait d'abord toucher « Carte bancaire » : un geste de
+                 plus, sur un ecran ou rien ne disait qu'il fallait le faire.
+                 La carte passe en tete pour que ce soit elle qui soit ouverte,
+                 les autres moyens suivent dans l'ordre choisi par Stripe. */
+              layout: {
+                type: "accordion",
+                defaultCollapsed: false,
+                radios: false,
+                spacedAccordionItems: true,
+              },
+              paymentMethodOrder: ["card"],
               fields: {
                 billingDetails: {
                   email: "auto" as const,
@@ -351,14 +605,28 @@ export default function CheckoutModal({
   open,
   onClose,
   orderConfig,
+  supplementPoster,
+  onChangerSupport,
 }: {
   open: boolean;
   onClose: () => void;
   orderConfig: OrderConfig;
+  /** Prix du poster simple dans la devise courante, pour la case de la caisse. */
+  supplementPoster?: number;
+  /** Change le support sur la fiche ; la caisse suit par `orderConfig`. */
+  onChangerSupport?: (support: PrintKey) => void;
 }) {
   const t = useTranslations("checkout");
+  /* La case « ajoute le poster » ne s'affiche qu'a qui a choisi le numerique.
+     Une fois cochee, la commande devient un poster : on retient qu'elle l'est
+     devenue ICI, pour laisser la case visible et decochable. */
+  const [posterAjoute, setPosterAjoute] = useState(false);
   const [step, setStep] = useState<"info" | "payment" | "success">("info");
   const [clientSecret, setClientSecret] = useState("");
+  /* Montant pour lequel `clientSecret` vaut, en etat et non plus seulement en
+     reference : le paiement express de l'etape 1 en depend pour s'afficher,
+     et une reference lue au rendu ne redessine rien quand elle change. */
+  const [signatureSecret, setSignatureSecret] = useState("");
   const [loadingIntent, setLoadingIntent] = useState(false);
   const [processing, setProcessing] = useState(false);
 
@@ -396,6 +664,12 @@ export default function CheckoutModal({
   const [promoChecking, setPromoChecking] = useState(false);
   const [promoError, setPromoError] = useState("");
   const [applied, setApplied] = useState<{ code: string; discount: number; total: number } | null>(null);
+  /* Le champ promo est replie derriere un lien. La boutique n'a aucun code
+     public : un champ visible envoyait les gens en chercher un ailleurs, et
+     certains ne revenaient pas. Il reste ouvert des qu'il a quelque chose a
+     montrer (code accepte ou refus). */
+  const [promoOuvert, setPromoOuvert] = useState(false);
+  const promoVisible = promoOuvert || Boolean(applied) || Boolean(promoError);
 
   // Prefill country/phone prefix from the IP-detected country cookie
   useEffect(() => {
@@ -414,6 +688,9 @@ export default function CheckoutModal({
   const isDigital = orderConfig.printKey === "digital";
   const { currency, formatRaw: formatPrice } = useCurrency();
 
+  const configCourante = useRef(orderConfig);
+  configCourante.current = orderConfig;
+
   /** Signature du montant pour lequel `clientSecret` a ete cree, "" si aucun. */
   const signaturePreparee = useRef("");
   /** Numero de la derniere requete lancee : une reponse plus ancienne est ignoree. */
@@ -424,11 +701,13 @@ export default function CheckoutModal({
     if (!open) {
       setStep("info");
       setClientSecret("");
+      setSignatureSecret("");
       // Le secret prepare meurt avec la modale : rouverte, la commande peut
       // avoir change de support ou de devise.
       signaturePreparee.current = "";
       numeroRequete.current++;
       setFormError("");
+      setPromoOuvert(false);
       setPromoInput("");
       setPromoError("");
       setApplied(null);
@@ -436,17 +715,23 @@ export default function CheckoutModal({
       setMessageCadeau("");
       setEmailDestinataire("");
       setDateRemise("");
+      setPosterAjoute(false);
       return;
     }
+    /* Lu dans une reference : `orderConfig` est un objet neuf a chaque rendu
+       de la fiche — qui se re-rend a chaque defilement, pour sa barre
+       collante. En dependance, il faisait partir cet evenement en rafale :
+       236 « caisse ouverte » pour une seule personne le 13 juillet 2026. */
+    const config = configCourante.current;
     mesure(MESURES.caisseOuverte, {
-      style: orderConfig.style,
-      value: orderConfig.total,
-      format: orderConfig.format,
-      print_option: orderConfig.printOption,
-      people: orderConfig.people,
-      animals: orderConfig.animals,
+      style: config.style,
+      value: config.total,
+      format: config.format,
+      print_option: config.printOption,
+      people: config.people,
+      animals: config.animals,
     });
-  }, [open, orderConfig]);
+  }, [open]);
 
   /* Une boite de dialogue doit se fermer a Echap, et la page derriere ne doit
      pas defiler quand on fait defiler la modale. Ni l'un ni l'autre n'etait
@@ -547,6 +832,7 @@ export default function CheckoutModal({
           currency,
           promoCode: data.promoCode ?? null,
         });
+        setSignatureSecret(signaturePreparee.current);
         setClientSecret(data.clientSecret);
         // Le serveur fait foi sur le montant : si le code a expire entre la
         // verification et le paiement, l'affichage suit le montant reel.
@@ -688,6 +974,22 @@ export default function CheckoutModal({
       has_promo: Boolean(applied),
     });
 
+    /* Panier retenu pour une relance unique par e-mail (mention RGPD sous le
+       champ e-mail). Sans attente ni message : une relance perdue ne doit
+       jamais retarder ni bloquer le paiement. */
+    fetch("/api/checkout/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        locale: langueCourante(),
+        style: orderConfig.style,
+        printKey: orderConfig.printKey,
+        total: amountDue,
+        currency,
+      }),
+    }).catch(() => {});
+
     setStep("payment");
 
     // Prepare pendant la saisie et toujours valable pour ce montant : on
@@ -708,6 +1010,20 @@ export default function CheckoutModal({
   };
 
   if (!open) return null;
+
+  const cadeau: OptionsCadeau | null = estCadeau
+    ? {
+        message: messageCadeau.trim() || null,
+        recipientEmail: emailDestinataire.trim() || null,
+        deliverAfter: dateRemise || null,
+      }
+    : null;
+
+  /* Le paiement express de l'etape 1 n'apparait qu'avec un secret prepare
+     pour le montant AFFICHE : un poster ajoute ou un code promo applique
+     rendent le secret courant faux, et le portefeuille debiterait l'ancien
+     montant. Il disparait le temps que le nouveau secret arrive. */
+  const secretAJour = Boolean(clientSecret) && signatureSecret === signatureMontant;
 
   const titreEtape =
     step === "success" ? t("orderConfirmed") : step === "payment" ? t("securePayment") : t("yourInfo");
@@ -787,6 +1103,53 @@ export default function CheckoutModal({
                 </div>
               </div>
 
+              {/* Case « ajoute le poster » : pour qui a choisi le numerique.
+                  Cochee, elle change le support sur la fiche ; le total, les
+                  champs d'adresse et le paiement suivent d'eux-memes. */}
+              {onChangerSupport && supplementPoster !== undefined && (isDigital || posterAjoute) && (
+                <label className="ajout-poster">
+                  <input
+                    type="checkbox"
+                    checked={posterAjoute}
+                    onChange={(e) => {
+                      const ajoute = e.target.checked;
+                      setPosterAjoute(ajoute);
+                      onChangerSupport(ajoute ? "posterSimple" : "digital");
+                      mesure(MESURES.posterAjouteCaisse, {
+                        ajoute,
+                        style: orderConfig.style,
+                        value: supplementPoster,
+                      });
+                    }}
+                  />
+                  <span>
+                    <b>{t("addPoster", { prix: formatPrice(supplementPoster) })}</b>
+                    <small>{t("addPosterSub")}</small>
+                  </span>
+                </label>
+              )}
+
+              {/* Apres le recapitulatif et la case poster (qui changent le
+                  montant), avant tout champ a remplir. La cle remonte un
+                  <Elements> neuf a chaque nouveau secret : Stripe n'accepte
+                  pas qu'on change le clientSecret d'une instance montee. */}
+              {secretAJour && (
+                <Elements
+                  key={clientSecret}
+                  stripe={stripePromise}
+                  options={{ clientSecret, appearance: apparenceStripe }}
+                >
+                  <ExpressEtape1
+                    clientSecret={clientSecret}
+                    orderConfig={orderConfig}
+                    estPhysique={!isDigital}
+                    emailSaisi={email}
+                    cadeau={cadeau}
+                    nomPays={(code) => (COUNTRIES.some((c) => c.code === code) ? tCountry(code) : code)}
+                  />
+                </Elements>
+              )}
+
               {!isDigital && (
                 <p className="modale__rassurance">
                   <Icone nom="cadeau" taille={13} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }} />
@@ -805,6 +1168,9 @@ export default function CheckoutModal({
                   placeholder={t("emailPlaceholder")}
                   className={inputClass}
                 />
+                {/* Information RGPD : l'adresse sert aussi a une relance
+                    unique du panier (voir goToPayment). */}
+                <p className="caisse-mention">{t("cartReminderNotice")}</p>
               </div>
 
               {/* Physical-only fields */}
@@ -872,45 +1238,58 @@ export default function CheckoutModal({
                 </>
               )}
 
-              <div className="champ-groupe">
-                <label className={labelClass} htmlFor="promo-code">{t("promoLabel")}</label>
-                <div className="champ-avec-bouton">
-                  <input
-                    id="promo-code"
-                    type="text"
-                    value={promoInput}
-                    onChange={(e) => {
-                      setPromoInput(e.target.value.toUpperCase());
-                      setPromoError("");
-                    }}
-                    placeholder={t("promoPlaceholder")}
-                    autoComplete="off"
-                    className={inputClass}
-                    style={{ textTransform: "uppercase" }}
-                  />
-                  <button
-                    type="button"
-                    onClick={applyPromo}
-                    disabled={promoChecking || !promoInput.trim()}
-                    className="bouton bouton--fantome"
-                    style={{ padding: "12px 20px", fontSize: 15, minHeight: 0, flex: "none" }}
-                  >
-                    {t("promoApply")}
-                  </button>
+              {!promoVisible ? (
+                <button
+                  type="button"
+                  className="caisse-lien-promo"
+                  aria-expanded={false}
+                  onClick={() => setPromoOuvert(true)}
+                >
+                  {t("promoToggle")}
+                </button>
+              ) : (
+                <div className="champ-groupe">
+                  <label className={labelClass} htmlFor="promo-code">{t("promoLabel")}</label>
+                  <div className="champ-avec-bouton">
+                    <input
+                      id="promo-code"
+                      type="text"
+                      // Ouvert par un clic sur le lien : le curseur l'y attend.
+                      autoFocus={promoOuvert && !applied}
+                      value={promoInput}
+                      onChange={(e) => {
+                        setPromoInput(e.target.value.toUpperCase());
+                        setPromoError("");
+                      }}
+                      placeholder={t("promoPlaceholder")}
+                      autoComplete="off"
+                      className={inputClass}
+                      style={{ textTransform: "uppercase" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyPromo}
+                      disabled={promoChecking || !promoInput.trim()}
+                      className="bouton bouton--fantome"
+                      style={{ padding: "12px 20px", fontSize: 15, minHeight: 0, flex: "none" }}
+                    >
+                      {t("promoApply")}
+                    </button>
+                  </div>
+                  {applied && (
+                    <p className="alerte alerte--succes">
+                      <Icone nom="coche" taille={15} />
+                      {t("promoApplied", { code: applied.code })} — −{formatPrice(applied.discount)}
+                    </p>
+                  )}
+                  {promoError && (
+                    <p className="alerte alerte--erreur" role="alert">
+                      <Icone nom="alerte" taille={15} />
+                      {promoError}
+                    </p>
+                  )}
                 </div>
-                {applied && (
-                  <p className="alerte alerte--succes">
-                    <Icone nom="coche" taille={15} />
-                    {t("promoApplied", { code: applied.code })} — −{formatPrice(applied.discount)}
-                  </p>
-                )}
-                {promoError && (
-                  <p className="alerte alerte--erreur" role="alert">
-                    <Icone nom="alerte" taille={15} />
-                    {promoError}
-                  </p>
-                )}
-              </div>
+              )}
 
               {/* ─── OPTIONS CADEAU ───
                   Toute la marque parle de cadeau — pages « idées cadeaux »,
@@ -1031,101 +1410,32 @@ export default function CheckoutModal({
                 </div>
               </div>
             ) : (
-              /* Habillage de l'iframe Stripe. Il portait encore le theme
-                 neo-brutaliste du site precedent : bordures noires de 2px,
-                 ombre portee dure « 4px 4px 0 noir », jaune #facc15 (celui de
-                 Tailwind, pas le notre) et une police Poppins que le site ne
-                 charge plus depuis le passage a ToonJaune — le cadre de
-                 paiement s'affichait donc dans une autre typographie, une
-                 autre couleur et un autre style que la modale qui l'entoure.
-                 Recale sur les jetons : #E9BA3B, encre #2A2552, rayon 14. */
-                  <Elements
-                    stripe={stripePromise}
-                    options={{
-                      clientSecret,
-                      appearance: {
-                        theme: "flat",
-                        variables: {
-                          colorBackground: "#FFFFFF",
-                          colorPrimary: "#E9BA3B",
-                          colorText: "#2A2552",
-                          colorTextSecondary: "#5A5578",
-                          colorDanger: "#C8202F",
-                          borderRadius: "14px",
-                          spacingUnit: "4px",
-                          /* Rebond est servi depuis /public : une iframe d'un
-                             autre domaine ne peut pas la charger sans en-tetes
-                             CORS. Pile systeme plutot qu'une police fantome. */
-                          fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif",
-                          fontWeightNormal: "500",
-                        },
-                        rules: {
-                          ".Input": {
-                            border: "1.5px solid rgba(42, 37, 82, .18)",
-                            boxShadow: "none",
-                            padding: "12px 14px",
-                          },
-                          ".Input:focus": {
-                            border: "1.5px solid transparent",
-                            outline: "2px solid #E9BA3B",
-                            boxShadow: "none",
-                          },
-                          ".Label": {
-                            fontWeight: "700",
-                            fontSize: "12.5px",
-                            textTransform: "uppercase",
-                            letterSpacing: ".05em",
-                            color: "#5A5578",
-                          },
-                          ".AccordionItem": {
-                            border: "1.5px solid rgba(42, 37, 82, .18)",
-                            borderRadius: "14px",
-                            marginBottom: "10px",
-                            boxShadow: "none",
-                          },
-                          ".AccordionItem--selected": {
-                            backgroundColor: "#FFF9ED",
-                            border: "2px solid #E9BA3B",
-                          },
-                          ".Tab": {
-                            border: "1.5px solid rgba(42, 37, 82, .18)",
-                            borderRadius: "14px",
-                            boxShadow: "none",
-                          },
-                          ".Tab--selected": {
-                            backgroundColor: "#FFF9ED",
-                            border: "2px solid #E9BA3B",
-                            color: "#2A2552",
-                          },
-                        },
-                      },
-                    }}
-                  >
-                    <PaymentForm
-                      onClose={() => setStep("info")}
-                      clientSecret={clientSecret}
-                      formData={{
-                        email,
-                        firstName,
-                        lastName,
-                        address,
-                        addressLine2,
-                        city,
-                        postalCode,
-                        country: tCountry(countryCode),
-                        phone: `${phonePrefix} ${phone}`.trim(),
-                        gift: estCadeau
-                          ? {
-                              message: messageCadeau.trim() || null,
-                              recipientEmail: emailDestinataire.trim() || null,
-                              deliverAfter: dateRemise || null,
-                            }
-                          : null,
-                      }}
-                      orderConfig={orderConfig}
-                      montant={formatPrice(amountDue)}
-                    />
-                  </Elements>
+              /* Habillage : voir `apparenceStripe`. La cle remonte l'instance
+                 si le secret change entre deux passages a l'etape 2. */
+              <Elements
+                key={clientSecret}
+                stripe={stripePromise}
+                options={{ clientSecret, appearance: apparenceStripe }}
+              >
+                <PaymentForm
+                  onClose={() => setStep("info")}
+                  clientSecret={clientSecret}
+                  formData={{
+                    email,
+                    firstName,
+                    lastName,
+                    address,
+                    addressLine2,
+                    city,
+                    postalCode,
+                    country: tCountry(countryCode),
+                    phone: `${phonePrefix} ${phone}`.trim(),
+                    gift: cadeau,
+                  }}
+                  orderConfig={orderConfig}
+                  montant={formatPrice(amountDue)}
+                />
+              </Elements>
             )}
           </>
         )}

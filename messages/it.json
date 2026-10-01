@@ -333,7 +333,27 @@
     "review9Name": "Camille F.",
     "review9Text": "I miei figli hanno adorato vedersi in versione cartoon! Un ricordo di famiglia unico.",
     "uploadPlusTard": "facoltativo qui",
-    "uploadApresPaiement": "Non hai le foto sottomano? Potrai inviarle subito dopo il pagamento, con un link che ti manderemo."
+    "uploadApresPaiement": "Non hai le foto sottomano? Potrai inviarle subito dopo il pagamento, con un link che ti manderemo.",
+    "carteEtape": "La tua carta",
+    "carteAide": "Lascia vuoto ciò che vuoi: sceglierà l'illustratore per te.",
+    "carteNom": "Nome sulla carta",
+    "carteNomExemple": "Es.: Tom e Maureen · 09.08.2022",
+    "carteAttaque1": "Attacco 1",
+    "carteAttaque1Exemple": "Es.: Abbraccio Tuono",
+    "carteAttaque2": "Attacco 2",
+    "carteAttaque2Exemple": "Es.: Pisolino Lampo",
+    "cartePv": "Punti salute (PS)",
+    "optStep": "Opzioni",
+    "optBanner": "Striscione con il tuo testo",
+    "optBannerSub": "Es.: «Buon compleanno Mitchell», disegnato nella scena",
+    "optBannerPlaceholder": "Testo dello striscione (max 40 caratteri)",
+    "optExtraDecor": "Sfondo aggiuntivo",
+    "optExtraDecorSub": "Gli stessi personaggi su un secondo sfondo: due immagini",
+    "optExtraDecorRecap": "2° sfondo: {decor}",
+    "optExpress": "Express 24 h",
+    "optExpressSub": "Il tuo ritratto entro 24 ore, weekend compreso",
+    "optExpressSubPrint": "Disegno entro 24 ore, weekend compreso, poi la stampa",
+    "optExpressRecap": "Express 24 h"
   },
   "checkout": {
     "orderConfirmed": "Ordine confermato",
@@ -446,7 +466,8 @@
       "JE": "Jersey",
       "IM": "Isola di Man",
       "GI": "Gibilterra",
-      "AX": "Isole Åland"
+      "AX": "Isole Åland",
+      "MY": "Malesia"
     },
     "continueToPayment": "Continua al pagamento →",
     "loadingPayment": "Caricamento pagamento...",
@@ -466,7 +487,7 @@
     "errorTechnical": "Errore tecnico durante la preparazione del pagamento.",
     "step1Of2": "Passo 1/2",
     "step2Of2": "Passo 2/2",
-    "orderByGuidance": "Ti serve per una data precisa? Calcola 2 giorni per il disegno + 3 giorni lavorativi per stampa e consegna.",
+    "orderByGuidance": "Ti serve per una data precisa? Calcola 2 giorni per il disegno, 1 giorno per approvare l'anteprima, poi 3-7 giorni lavorativi per stampa e consegna.",
     "giftToggle": "È un regalo",
     "giftHint": "Messaggio, invio al destinatario, data di consegna",
     "giftMessageLabel": "Messaggio per il destinatario",
@@ -474,7 +495,13 @@
     "giftRecipientLabel": "E-mail del destinatario",
     "giftRecipientHint": "Facoltativo — il ritratto gli arriverà direttamente.",
     "giftDateLabel": "Non inviare prima del",
-    "giftDateHint": "Facoltativo — conserviamo il ritratto fino a quella data."
+    "giftDateHint": "Facoltativo — conserviamo il ritratto fino a quella data.",
+    "addPoster": "Aggiungi il poster 30×40: +{prix}",
+    "addPosterSub": "Il ritratto stampato su carta opaca e consegnato a casa, oltre al file.",
+    "promoToggle": "Ho un codice sconto",
+    "cartReminderNotice": "Potremmo ricordarti il tuo carrello una volta via e-mail.",
+    "expressOrFillIn": "oppure inserisci i tuoi dati",
+    "expressShippingIncluded": "Spedizione inclusa"
   },
   "giftPage": {
     "section": "Idee regalo",
@@ -498,28 +525,28 @@
     },
     "saintValentin": {
       "promo": "San Valentino — ritratto unico, ritocchi illimitati,",
-      "promoFort": "ordina entro il {date}",
+      "promoFort": "ordina entro {date}",
       "heroTitre1": "Un regalo di San Valentino",
       "heroTitre2": "che non si compra",
       "heroSous": "La vostra foto più bella insieme, trasformata in un ritratto unico. Anteprima in 2 giorni, ritocchi illimitati."
     },
     "feteDesMeres": {
       "promo": "Festa della Mamma —",
-      "promoFort": "ordina entro il {date}",
+      "promoFort": "ordina entro {date}",
       "heroTitre1": "Il regalo per la Festa della Mamma",
       "heroTitre2": "che conserverà",
       "heroSous": "La vostra foto di famiglia trasformata in un ritratto unico. Anteprima in 2 giorni, ritocchi illimitati."
     },
     "feteDesPeres": {
       "promo": "Festa del Papà —",
-      "promoFort": "ordina entro il {date}",
+      "promoFort": "ordina entro {date}",
       "heroTitre1": "Un regalo per la Festa del Papà",
       "heroTitre2": "che non è l'ennesima cravatta",
       "heroSous": "La sua foto, nel mondo che preferisce. Anteprima in 2 giorni, ritocchi illimitati."
     },
     "halloween": {
       "promo": "Halloween si avvicina —",
-      "promoFort": "ordina entro il {date}",
+      "promoFort": "ordina entro {date}",
       "heroTitre1": "Il tuo ritratto,",
       "heroTitre2": "versione Halloween",
       "heroSous": "Tutta la famiglia in stile cartone animato. Anteprima in 2 giorni, ritocchi illimitati."
@@ -533,21 +560,24 @@
     },
     "noel": {
       "promo": "Natale —",
-      "promoFort": "ordina entro il {date}",
+      "promoFort": "ordina entro {date}",
       "heroTitre1": "Il regalo di Natale",
       "heroTitre2": "che non si dimentica",
       "heroSous": "La vostra foto trasformata in un ritratto unico, in tempo per il 25. Anteprima in 2 giorni."
-    }
+    },
+    "phaseNumerique": "il ritratto digitale arriva ancora in tempo se ordini entro {date}"
   },
   "gift": {
-    "generic": "Regalo per una data precisa? Ricevilo in {digitalDays} giorni in digitale, o in {days} giorni lavorativi per la versione stampata.",
-    "deadline": "{event}: ordina entro il {date} per riceverlo in tempo.",
+    "generic": "Regalo per una data precisa? Ricevilo in {digitalDays} giorni in digitale, o in {daysMin}-{days} giorni lavorativi per la versione stampata.",
+    "deadline": "{event}: ordina entro {date} per riceverlo in tempo.",
     "event_saintValentin": "San Valentino",
     "event_feteDesMeres": "Festa della Mamma",
     "event_feteDesPeres": "Festa del Papà",
     "event_halloween": "Halloween",
     "event_blackFriday": "Black Friday",
-    "event_noel": "Natale"
+    "event_noel": "Natale",
+    "deadlineDouble": "{event}: ordina entro {date} per un ritratto stampato, o entro {dateNumerique} in digitale.",
+    "deadlineNumerique": "{event}: è tardi per la stampa, ma il ritratto digitale arriva in tempo se ordini entro {date}."
   },
   "exitIntent": {
     "title": "Già in partenza?",
@@ -684,7 +714,7 @@
     "navFaq": "Domande",
     "navTousStyles": "Vedi i 36 stili",
     "heroOeil": "Ritratto personalizzato",
-    "heroNote": "Anteprima in 2 giorni, senza impegno",
+    "heroNote": "Il tuo ritratto in 2 giorni, ritocchi illimitati",
     "etapesTitre": "Tre passaggi,",
     "etapesAccent": "tutto qui",
     "etapesSous": "Nessun account da creare, nessun software. Basta una foto.",
@@ -701,7 +731,7 @@
     "atoutsAccent": "differenza",
     "atoutsSous": "Ogni ritratto parte dalla tua foto, e da nient'altro.",
     "atout1T": "Anteprima rapida",
-    "atout1D": "La tua prima anteprima arriva in 2 giorni. Appena la approvi, il file ad alta definizione parte via e-mail.",
+    "atout1D": "Il tuo ritratto arriva in 2 giorni. In digitale, il file ad alta definizione parte subito via e-mail; in stampa, approvi l'anteprima prima che stampiamo.",
     "atout2T": "Ritocchi illimitati",
     "atout2D": "Sistemiamo finché non è perfetto, tutte le volte che serve, senza costi aggiuntivi.",
     "atout3T": "Va bene qualsiasi foto",
@@ -760,7 +790,7 @@
     "etapeAnimauxCompris": "(animali inclusi)",
     "depotParcourir": "sfoglia",
     "economie": "Risparmi",
-    "garantieTexte": "Soddisfatto o rimborsato",
+    "garantieTexte": "Ritocchi illimitati, o rimborsato",
     "contactTitre": "Una domanda prima di ordinare?",
     "contactHoraires": "Risposta entro 24 h, dal lunedì al venerdì",
     "catalogueTitre": "Trentasei universi,",
@@ -792,12 +822,16 @@
     "prixUnite": "a personaggio",
     "prixNote": "Una famiglia di 4 personaggi: {prix}. Nessun costo nascosto.",
     "agrandir": "Ingrandisci l'immagine",
-    "fermer": "Chiudi"
+    "fermer": "Chiudi",
+    "lancement": "Prezzo di lancio fino al {date}, poi {prix} a ritratto",
+    "garantieImprime": "Approvi il ritratto prima che lo stampiamo. Non ti convince dopo i ritocchi? Rimborsato.",
+    "garantieNumerique": "Ritocchi finché non ti piace davvero. Non ti convince? Rimborsato.",
+    "offerts": "In regalo con il ritratto: sfondo, avatar e biglietto da stampare."
   },
   "metaPages": {
     "aPropos": {
       "title": "Chi siamo — Cartoonova, ritratti cartoon personalizzati",
-      "description": "Dietro Cartoonova, ritratti cartoon creati uno a uno partendo dalle tue foto. Anteprima in 48 ore, ritocchi illimitati, consegna in 3-5 giorni."
+      "description": "Dietro Cartoonova, ritratti cartoon creati uno a uno partendo dalle tue foto. Anteprima in 48 ore, ritocchi illimitati, stampe consegnate in 3-7 giorni lavorativi."
     },
     "avis": {
       "title": "Recensioni dei clienti — cosa dicono del loro ritratto Cartoonova",
@@ -822,6 +856,18 @@
     "confidentialite": {
       "title": "Informativa sulla privacy — Cartoonova",
       "description": "Quali dati raccogliamo, perché, per quanto tempo li conserviamo e come esercitare i tuoi diritti."
+    },
+    "bonCadeau": {
+      "title": "Carta regalo ritratto cartoon | Cartoonova",
+      "description": "Regala un ritratto cartoon senza avere la foto: una carta regalo stampabile per tutti i 35 stili, ricevuta via e-mail in pochi secondi."
+    },
+    "noel": {
+      "title": "Regalo di Natale personalizzato: ritratto cartoon dalla tua foto | Cartoonova",
+      "description": "Un ritratto cartoon dalla tua foto per Natale: date limite per ordinare, versione digitale fino all'ultimo e carta regalo stampabile."
+    },
+    "guidePhoto": {
+      "title": "Quale foto inviare per un ritratto cartoon? | Cartoonova",
+      "description": "Viso visibile, di fronte, buona luce, foto nitida: i nostri consigli per scegliere la foto del tuo ritratto cartoon personalizzato, e gli errori da evitare."
     }
   },
   "alt": {
@@ -829,5 +875,153 @@
     "exempleFaq": "Ritratto cartoon incorniciato a casa di un cliente",
     "posterDessine": "Ritratto cartoon personalizzato",
     "photoEnvoyee": "La foto che hai appena caricato"
+  },
+  "bonCadeau": {
+    "titre": "Regala un ritratto,",
+    "accent": "anche senza la foto",
+    "sous": "Una carta regalo da stampare o inviare: chi la riceve sceglie il suo stile e invia le sue foto.",
+    "etape1": "Scegli un importo e paghi.",
+    "etape2": "Ricevi la carta via e-mail, pronta da stampare.",
+    "etape3": "Chi la riceve sceglie lo stile e inserisce il codice al momento dell'ordine.",
+    "montant": "Importo",
+    "email": "Il tuo indirizzo e-mail",
+    "emailAide": "È qui che ti inviamo la carta.",
+    "prenom": "Nome di chi la riceve (facoltativo)",
+    "message": "Il tuo messaggio (facoltativo)",
+    "continuer": "Continua — {prix}",
+    "recap": "Carta regalo da {prix}",
+    "modifier": "Modifica",
+    "payer": "Paga {prix}",
+    "paiementEnCours": "Pagamento in corso…",
+    "conditions": "Valida 12 mesi, utilizzabile in più volte, nella valuta d'acquisto. Non convertibile in denaro. Su ogni ordine resta almeno 1 da pagare; il credito residuo resta utilizzabile.",
+    "erreurEmail": "Inserisci un indirizzo e-mail valido.",
+    "erreur": "Non è stato possibile preparare il pagamento. Riprova tra un attimo."
+  },
+  "noel": {
+    "surtitre": "Natale",
+    "titre": "Il regalo di Natale",
+    "accent": "che non si dimentica",
+    "sous": "Un ritratto cartoon disegnato dalla tua foto. Ecco fino a quando ordinare perché arrivi in tempo.",
+    "impressionTitre": "Poster, tela o cornice",
+    "impressionTexte": "Ordina entro {date}: 2 giorni di disegno, 1 giorno per approvare l'anteprima, poi stampa e consegna.",
+    "numeriqueTitre": "Versione digitale",
+    "numeriqueTexte": "Ordina entro {date}: il ritratto arriva via e-mail, pronto da stampare a casa o da regalare su uno schermo.",
+    "bonTitre": "Carta regalo",
+    "bonTexte": "Fino alla sera del {date}: niente da spedire, la carta arriva via e-mail in pochi secondi, pronta sotto l'albero.",
+    "bonCta": "Regala una carta regalo",
+    "universTitre": "Gli stili più regalati",
+    "universSous": "Ogni stile ha la sua pagina di Natale: idee, esempi e risposte sui tempi.",
+    "faqTitre": "Le tue domande sul Natale"
+  },
+  "contactForm": {
+    "nom": "Il tuo nome",
+    "email": "La tua e-mail",
+    "sujet": "Oggetto",
+    "message": "Messaggio",
+    "envoyer": "Invia",
+    "envoi": "Invio in corso…",
+    "envoyeTitre": "Messaggio <accent>inviato</accent>",
+    "autreMessage": "Scrivi un altro messaggio",
+    "erreurEmail": "Questo indirizzo e-mail non sembra valido. Controllalo e riprova.",
+    "erreurMessage": "Il tuo messaggio è vuoto o troppo lungo (massimo 5000 caratteri).",
+    "erreurTrop": "Hai inviato diversi messaggi di fila. Riprova tra un'ora o scrivici direttamente a support@cartoonova.com.",
+    "erreurServeur": "Non è stato possibile inviare il tuo messaggio. Riprova tra un attimo o scrivici direttamente a support@cartoonova.com."
+  },
+  "fiche": {
+    "etapeQui": "Chi c'è nel ritratto?",
+    "lignePersonnes": "Persone",
+    "photoBouton": "Aggiungi una foto",
+    "photoBoutonAutre": "Aggiungi un'altra foto",
+    "photoGlisser": "oppure trascinale qui dal tuo computer",
+    "ajouterPrecision": "+ Aggiungi una precisazione",
+    "dateNumerique": "Ordina oggi → il tuo ritratto {date}",
+    "dateExpress": "Ordina oggi → il tuo ritratto domani, {date}",
+    "dateImprime": "Ordina oggi → anteprima {apercu}, il tuo ritratto a casa tra il {debut} e il {fin}",
+    "dateImprimeExpress": "Ordina oggi → anteprima domani, {apercu}, il tuo ritratto a casa tra il {debut} e il {fin}",
+    "qRessembleQ": "E se non mi somiglia?",
+    "qRessembleR": "Ritocchiamo il tuo ritratto tutte le volte che serve, gratis: somiglianza, colori, dettagli. Se non ti convince ancora, ti rimborsiamo per intero. Per un ritratto stampato, chiedilo prima di approvare l'anteprima: una volta approvata, si avvia la stampa.",
+    "qPhotosQ": "Quante foto devo inviare?",
+    "qPhotosR": "Basta una foto nitida per persona (e per animale): di fronte, ben illuminata, con il viso ben visibile. Puoi inviarne fino a {max}.",
+    "qPhotosLien": "Quale foto scegliere?",
+    "qPlusTardQ": "Posso pagare e inviare le foto più tardi?",
+    "qPlusTardR": "Sì. Subito dopo il pagamento ricevi via e-mail un link per caricare le tue foto. I tempi di realizzazione partono da quando le riceviamo."
+  },
+  "guidePhoto": {
+    "lienPied": "Quale foto inviare?",
+    "surtitre": "Guida alle foto",
+    "titre": "Quale foto",
+    "accent": "inviare?",
+    "sous": "Il disegno parte dalla tua foto: più è chiara, più il ritratto ti somiglia. Ecco cosa funziona, cosa è meglio evitare e i casi particolari.",
+    "illustrationAlt": "Una foto originale e il ritratto cartoon disegnato a partire da essa",
+    "illustrationLegende": "Una foto nitida e ben illuminata basta per un ritratto fedele.",
+    "bonsTitre": "Cosa funziona",
+    "bonsSous": "Non serve un fotografo: una foto fatta con il telefono va benissimo.",
+    "bon1Titre": "Il viso ben visibile",
+    "bon1Texte": "Lineamenti, capelli e occhiali da vista creano la somiglianza: devono vedersi chiaramente.",
+    "bon2Titre": "Di fronte, o quasi",
+    "bon2Texte": "Di fronte o di tre quarti si vedono entrambi gli occhi e la forma del viso. Di profilo, metà dei dettagli sparisce.",
+    "bon3Titre": "Una buona luce",
+    "bon3Texte": "La luce del giorno, vicino a una finestra o all'aperto, dà colori fedeli. Evita le ombre forti sul viso.",
+    "bon4Titre": "Una foto nitida",
+    "bon4Texte": "Ingrandisci sugli occhi: se restano nitidi, è perfetta. Il file originale è sempre meglio di uno screenshot.",
+    "bon5Titre": "Una foto per persona basta",
+    "bon5Texte": "Non serve che tutti posino insieme: una buona foto di ogni persona, scattata separatamente, dà spesso un risultato migliore.",
+    "bon6Titre": "Fino a 8 foto",
+    "bon6Texte": "Puoi inviare fino a 8 foto per ordine: una per persona o animale, più una per un abito o un dettaglio a cui tieni.",
+    "eviterTitre": "Da evitare",
+    "eviterSous": "Con queste foto il ritratto somiglia meno.",
+    "evite1Titre": "Gli occhiali da sole",
+    "evite1Texte": "Nascondono gli occhi, la parte più espressiva del viso. Gli occhiali da vista, invece, non sono un problema.",
+    "evite2Titre": "Le foto sfocate",
+    "evite2Texte": "Una foto mossa o troppo compressa cancella i dettagli del viso.",
+    "evite3Titre": "Il controluce",
+    "evite3Texte": "Una finestra o il sole dietro la persona lasciano il suo viso in ombra.",
+    "evite4Titre": "Persone troppo lontane",
+    "evite4Texte": "In una foto di paesaggio o di gruppo scattata da lontano, il viso è grande solo pochi pixel.",
+    "casTitre": "Casi particolari",
+    "cas1Titre": "Gli animali",
+    "cas1Texte": "Una foto nitida di ogni animale, meglio se all'altezza dei suoi occhi. Scegline una in cui si vedano bene il pelo e le macchie.",
+    "cas2Titre": "Foto di gruppo o foto separate?",
+    "cas2Texte": "Una foto di gruppo va bene se ogni viso è nitido e abbastanza grande. Altrimenti, invia una foto per persona: le riuniamo nello stesso disegno.",
+    "cas3Titre": "Non hai ancora la foto giusta?",
+    "cas3Texte": "Puoi ordinare subito e inviare le foto più tardi, con il link di caricamento che ricevi dopo l'ordine.",
+    "faqTitre": "Domande frequenti",
+    "faq1Q": "Basta una foto fatta con il telefono?",
+    "faq1R": "Sì. I telefoni di oggi scattano foto più che abbastanza dettagliate. Invia il file originale invece di uno screenshot o di una foto ricevuta via chat, spesso compressa.",
+    "faq2Q": "Quante foto posso inviare?",
+    "faq2R": "Fino a 8 foto per ordine. Basta una buona foto per persona o animale; le altre possono mostrare un abito, un'acconciatura o un dettaglio.",
+    "faq3Q": "Serve una foto con tutti insieme?",
+    "faq3R": "No. Le foto separate funzionano benissimo: ogni persona viene disegnata dalla propria foto, poi tutti vengono riuniti nello stesso ritratto.",
+    "faq4Q": "Posso inviare le foto dopo aver ordinato?",
+    "faq4R": "Sì. Dopo l'ordine ricevi un link di caricamento per inviare o completare le foto quando le hai.",
+    "faq5Q": "E se la mia foto non è perfetta?",
+    "faq5R": "Invia la migliore che hai. Ricevi un'anteprima prima della versione finale e puoi chiedere modifiche.",
+    "ctaTitre": "La tua foto è pronta?",
+    "ctaTexte": "Scegli il tuo universo e inizia il tuo ritratto.",
+    "ctaBouton": "Scegli il mio stile"
+  },
+  "page404": {
+    "surtitre": "Errore 404",
+    "titre": "Questa pagina",
+    "accent": "non esiste",
+    "texte": "Forse il link è vecchio o copiato male. Niente panico: tutti i nostri stili sono ancora qui.",
+    "boutonCollections": "Vedi tutti gli stili",
+    "boutonAccueil": "Torna alla home",
+    "stylesTitre": "Gli stili più richiesti",
+    "stylesSous": "Un buon punto di partenza se cercavi un ritratto in particolare."
+  },
+  "cadeauPage": {
+    "surtitre": "Idee regalo",
+    "titre": "Un ritratto cartoon",
+    "accent": "da regalare",
+    "sous": "Scegli l'occasione, poi lo stile: ogni idea ha la sua pagina, con i tempi e le risposte alle domande che ci si pone prima di fare un regalo.",
+    "noelTitre": "Natale si avvicina",
+    "noelTexte": "Le date limite per ricevere il ritratto in tempo e gli stili più regalati.",
+    "noelBouton": "Vai alla pagina di Natale",
+    "bonTitre": "La carta regalo",
+    "bonTexte": "Non sai quale stile scegliere? Regala una carta: la persona sceglie il suo universo e invia lei stessa le sue foto.",
+    "bonBouton": "Regala una carta regalo",
+    "pourOccasion": "Per {occasion}",
+    "aPartirDe": "da {prix}"
   }
 }

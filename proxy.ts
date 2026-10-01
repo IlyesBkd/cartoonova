@@ -171,6 +171,9 @@ export const config = {
     // e-mail, tire sa langue du pays detecte a la commande, et un prefixe de
     // langue n'y aurait rien a faire. Sans cette exclusion, /depot/... etait
     // redirige vers /fr/depot/... qui n'existe pas.
-    "/((?!api|_next|_vercel|ingest|success|confirm-poster|depot|suivi|.*\\..*).*)",
+    // `bonus/` et `bon/` (avec la barre) : cadeaux offerts et bon cadeau
+    // imprimable, meme regle que `suivi`. La barre evite d'exclure aussi
+    // `/bon-cadeau`, qui est une page de langue ordinaire.
+    "/((?!api|_next|_vercel|ingest|success|confirm-poster|depot|suivi|bonus/|bon/|.*\\..*).*)",
   ],
 };

@@ -50,6 +50,7 @@ export default function FooterCartoon() {
   const tf = useTranslations("footer");
   const tn = useTranslations("nav");
   const tGift = useTranslations("giftPage");
+  const tGuide = useTranslations("guidePhoto");
   const locale = useLocale() as Locale;
   const lien = useLien();
 
@@ -128,6 +129,9 @@ export default function FooterCartoon() {
                   </li>
                   <li>
                     <Link href={lien("/#etapes")}>{t("navEtapes")}</Link>
+                  </li>
+                  <li>
+                    <Link href={lien("/quelle-photo")}>{tGuide("lienPied")}</Link>
                   </li>
                   <li>
                     <Link href={lien("/contact")}>{tn("contact")}</Link>

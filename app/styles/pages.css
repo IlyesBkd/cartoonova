@@ -1,0 +1,70 @@
+/* Pages de contenu : guide photo, 404, index des idees cadeaux.
+   Toutes les grilles passent par minmax(0, 1fr) : avec 1fr seul, un titre
+   long ou une image elargit sa colonne et la page deborde horizontalement
+   sur mobile. */
+
+/* Grille de cartes produit a six elements : 3 colonnes, puis 2. Six cartes
+   tombent juste sur 3 colonnes, la ou .styles-grille (4) laisse un trou. */
+.pages-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+@media (max-width: 860px) { .pages-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
+@media (max-width: 520px) {
+  .pages-grille .carte__corps { padding: 14px 14px 16px; }
+  .pages-grille .carte h3 { font-size: 16px; }
+}
+
+/* ---------- Guide « Quelle photo envoyer ? » ---------- */
+.guide-photo__illus { margin: 0 auto; max-width: 520px; display: grid; gap: 12px; text-align: center; }
+.guide-photo__illus img {
+  width: 100%; height: auto; border-radius: var(--rayon-lg); box-shadow: var(--ombre); background: var(--papier);
+}
+.guide-photo__illus figcaption { color: var(--encre-doux); font-size: 15px; }
+
+.guide-photo__grille {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px;
+  margin: 0; padding: 0; list-style: none;
+}
+.guide-photo__grille--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 960px) { .guide-photo__grille--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .guide-photo__grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .guide-photo__grille, .guide-photo__grille--4 { grid-template-columns: minmax(0, 1fr); }
+}
+
+.guide-photo__conseil {
+  background: var(--papier); border-radius: var(--rayon-lg); box-shadow: var(--ombre);
+  padding: 22px; display: grid; gap: 8px; align-content: start;
+  border-top: 6px solid var(--soleil);
+}
+.guide-photo__conseil--bon { border-top-color: #2E9E5B; }
+.guide-photo__conseil--evite { border-top-color: #C8202F; }
+.guide-photo__conseil h3 { font-size: 19px; margin: 0; }
+.guide-photo__conseil p { margin: 0; color: var(--encre-doux); font-size: 15.5px; }
+.guide-photo__picto { font-size: 26px; line-height: 1; }
+
+.guide-photo__cta { text-align: center; display: grid; gap: 14px; justify-items: center; }
+.guide-photo__cta h2 { font-size: var(--t-section); margin: 0; }
+.guide-photo__cta p { margin: 0; color: var(--encre-doux); max-width: 52ch; }
+
+/* ---------- 404 ---------- */
+.page-404 .chapeau { margin-bottom: 24px; }
+.page-404__actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+/* ---------- Index des idees cadeaux ---------- */
+.cadeau-vedettes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 720px) { .cadeau-vedettes { grid-template-columns: minmax(0, 1fr); } }
+.cadeau-vedette {
+  border-radius: var(--rayon-lg); padding: 26px 24px; text-decoration: none; color: var(--encre);
+  display: grid; gap: 10px; align-content: start; justify-items: start;
+  box-shadow: var(--ombre); transition: transform .18s ease, box-shadow .18s ease;
+}
+.cadeau-vedette:hover { transform: translateY(-4px); box-shadow: var(--ombre-forte); }
+.cadeau-vedette--noel { background: #FCE9E9; border: 2px solid #C8202F; }
+.cadeau-vedette--bon { background: var(--soleil-pale); border: 2px solid var(--soleil); }
+.cadeau-vedette h2 { font-size: clamp(21px, 3vw, 26px); margin: 0; }
+.cadeau-vedette p { margin: 0; color: var(--encre-doux); }
+.cadeau-vedette__picto { font-size: 32px; line-height: 1; }
+.cadeau-vedette .bouton { margin-top: 6px; }
+
+.cadeau-occasion { padding: clamp(40px, 6vw, 72px) 0; }
+.cadeau-occasion__titre { font-size: clamp(24px, 3.4vw, 34px); margin: 0 0 22px; }
+.cadeau-occasion__titre::first-letter { text-transform: uppercase; }

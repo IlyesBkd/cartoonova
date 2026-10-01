@@ -44,6 +44,31 @@ export function orderTrackingToken(orderId: string): string {
   return `${orderId}.${signOrderId(orderId)}`;
 }
 
+/* ─── Bon cadeau imprimable ──────────────────────────────────────────
+   Meme principe : `<code>.<signature>`. Sans signature, il suffirait de
+   deviner un code pour afficher — et utiliser — le bon de quelqu'un d'autre. */
+
+export function bonToken(code: string): string {
+  const sig = createHmac("sha256", secret()).update(`bon:${code.trim().toUpperCase()}`).digest("hex").slice(0, 32);
+  return `${code}.${sig}`;
+}
+
+/** Renvoie le code du bon si la signature est valide, sinon null. */
+export function parseBonToken(token: string): string | null {
+  const separateur = token.lastIndexOf(".");
+  if (separateur <= 0) return null;
+  const code = token.slice(0, separateur);
+  if (!/^[A-Z0-9-]{6,40}$/.test(code)) return null;
+  try {
+    const attendue = Buffer.from(bonToken(code));
+    const recue = Buffer.from(token);
+    if (attendue.length !== recue.length) return null;
+    return timingSafeEqual(attendue, recue) ? code : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Renvoie l'identifiant de commande si la signature est valide, sinon null. */
 export function parseOrderTrackingToken(token: string): string | null {
   const separateur = token.lastIndexOf(".");

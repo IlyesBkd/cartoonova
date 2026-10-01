@@ -14,11 +14,25 @@ import type { Locale } from "../i18n/config";
  */
 
 /* ═══ delais annonces ═══════════════════════════════════════════════════
-   Delai reel annonce partout sur le site : 2 jours ouvres de dessin (delai du
-   digital), puis 3 jours ouvres d'impression et livraison pour le physique. */
+   2 jours ouvres de dessin (le delai du numerique), 1 jour pour que le client
+   valide l'apercu avant tirage, puis l'impression et la livraison Gelato.
+
+   Celles-ci comptaient 3 jours, alors que l'e-mail d'expedition annonce
+   « 3 a 7 jours ouvres » — et que la validation de l'apercu n'etait comptee
+   nulle part. La date limite de Noel tombait ainsi le 18 decembre : un client
+   qui commandait ce jour-la recevait son poster apres le 25. Les dates limites
+   prennent desormais le haut de la fourchette ; le bas ne sert qu'aux textes
+   qui annoncent un delai (« 6 a 10 jours ouvres »). */
 export const DRAWING_BUSINESS_DAYS = 2;
-export const PRINT_SHIPPING_BUSINESS_DAYS = 3;
-export const TOTAL_BUSINESS_DAYS = DRAWING_BUSINESS_DAYS + PRINT_SHIPPING_BUSINESS_DAYS;
+export const VALIDATION_BUSINESS_DAYS = 1;
+export const PRINT_SHIPPING_MIN_BUSINESS_DAYS = 3;
+export const PRINT_SHIPPING_BUSINESS_DAYS = 7;
+export const TOTAL_MIN_BUSINESS_DAYS =
+  DRAWING_BUSINESS_DAYS + VALIDATION_BUSINESS_DAYS + PRINT_SHIPPING_MIN_BUSINESS_DAYS;
+export const TOTAL_BUSINESS_DAYS =
+  DRAWING_BUSINESS_DAYS + VALIDATION_BUSINESS_DAYS + PRINT_SHIPPING_BUSINESS_DAYS;
+/** Le numerique : le dessin, plus un jour de marge pour une retouche. */
+export const DIGITAL_BUSINESS_DAYS = DRAWING_BUSINESS_DAYS + 1;
 
 /** Retire `days` jours ouvres (samedi/dimanche exclus, jours feries non geres). */
 export function subtractBusinessDays(date: Date, days: number): Date {
@@ -32,9 +46,14 @@ export function subtractBusinessDays(date: Date, days: number): Date {
   return result;
 }
 
-/** Derniere date de commande pour esperer une reception avant `target`. */
+/** Derniere date de commande d'un portrait IMPRIME pour le recevoir avant `target`. */
 export function getOrderByDate(target: Date): Date {
   return subtractBusinessDays(target, TOTAL_BUSINESS_DAYS);
+}
+
+/** Derniere date de commande d'un portrait NUMERIQUE pour le recevoir avant `target`. */
+export function getDigitalOrderByDate(target: Date): Date {
+  return subtractBusinessDays(target, DIGITAL_BUSINESS_DAYS);
 }
 
 /* ═══ calendrier ════════════════════════════════════════════════════════ */
@@ -256,8 +275,17 @@ export interface EvenementActif {
   cle: CleEvenement;
   /** Date de l'evenement lui-meme. */
   date: Date;
-  /** Derniere date de commande pour recevoir a temps, ou null si non livrable. */
+  /** Derniere date de commande d'un imprime pour recevoir a temps, ou null si non livrable. */
   commanderAvant: Date | null;
+  /** Derniere date de commande d'un numerique, ou null si non livrable. */
+  commanderAvantNumerique: Date | null;
+  /**
+   * « impression » tant qu'un imprime arrive a temps ; « numerique » ensuite,
+   * jusqu'a la date limite du numerique. La campagne ne s'eteignait plus a la
+   * date limite d'impression qu'au prix d'un mensonge — elle se taisait alors
+   * qu'un portrait numerique pouvait encore arriver pour le 25.
+   */
+  phase: "impression" | "numerique" | null;
 }
 
 /**
@@ -285,12 +313,18 @@ export function evenementActif(
     for (const annee of [maintenant.getFullYear(), maintenant.getFullYear() + 1]) {
       const date = resoudre(def.parLocale?.[locale] ?? def.regle, annee);
       const commanderAvant = def.livraison ? getOrderByDate(date) : null;
-      const fermeture = commanderAvant ?? date;
+      const commanderAvantNumerique = def.livraison ? getDigitalOrderByDate(date) : null;
+      const fermeture = commanderAvantNumerique ?? date;
       const ouverture = ajouterJours(date, -def.joursAvant);
 
       if (maintenant < ouverture || maintenant > fermeture) continue;
       if (!meilleur || date < meilleur.date) {
-        meilleur = { cle: def.cle, date, commanderAvant };
+        const phase = !commanderAvant
+          ? null
+          : maintenant <= commanderAvant
+            ? "impression"
+            : "numerique";
+        meilleur = { cle: def.cle, date, commanderAvant, commanderAvantNumerique, phase };
       }
     }
   }
@@ -318,8 +352,10 @@ export type CleAffichee = CleEvenement | "anniversaire";
 
 export interface EvenementAffiche {
   cle: CleAffichee;
-  /** « 22 mai », deja dans la langue du marche. Vide hors campagne livrable. */
+  /** « 22 mai », deja dans la langue du marche. Vide hors campagne livrable.
+      En phase « numerique », c'est la date limite du numerique. */
   dateLimite: string;
+  phase: "impression" | "numerique" | null;
 }
 
 /**
@@ -335,13 +371,13 @@ export function evenementAffiche(
   maintenant: Date = new Date()
 ): EvenementAffiche {
   const actif = evenementActif(locale, maintenant);
-  if (!actif) return { cle: "anniversaire", dateLimite: "" };
+  if (!actif) return { cle: "anniversaire", dateLimite: "", phase: null };
+  const limite = actif.phase === "numerique" ? actif.commanderAvantNumerique : actif.commanderAvant;
   return {
     cle: actif.cle,
-    dateLimite: actif.commanderAvant
-      ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(
-          actif.commanderAvant
-        )
+    dateLimite: limite
+      ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(limite)
       : "",
+    phase: actif.phase,
   };
 }

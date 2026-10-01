@@ -232,7 +232,9 @@ async function main() {
 
   const commandes = (await sql`
     SELECT count(*)::int AS creees,
-           count(*) FILTER (WHERE status = 'PAID')::int AS payees
+           -- paid_at et non status = 'PAID' : l'admin remplace ce statut
+           -- par son suivi, ce qui faisait disparaitre la vente du releve.
+           count(*) FILTER (WHERE paid_at IS NOT NULL)::int AS payees
     FROM orders
     WHERE created_at >= ${d}::date AND created_at < (${f}::date + 1)
   `) as unknown as { creees: number; payees: number }[];

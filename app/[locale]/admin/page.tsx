@@ -13,6 +13,7 @@ import { CATALOGUE } from "@/lib/catalogue";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 import TraductionFr from "@/components/admin/TraductionFr";
+import { PRIX_APRES_LANCEMENT_EUR, lancementEnCours } from "@/lib/lancement";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
@@ -660,7 +661,10 @@ export default function AdminPage() {
         final_image_url: blob.url,
         final_image_scheduled_at:
           data.scheduledAt ?? selectedOrder.final_image_scheduled_at ?? null,
+        /* Express : l'image est partie au depot, sans programmation. */
+        ...(data.envoyeImmediatement ? { final_image_sent_at: new Date().toISOString() } : {}),
       };
+      if (data.envoyeImmediatement) alert("⚡ Commande express : le portrait vient d'être envoyé au client.");
       setSelectedOrder(updated);
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
     } catch (err) {
@@ -1050,7 +1054,13 @@ export default function AdminPage() {
                             </span>
                           </td>
                           <td className="px-4 py-3">{(() => { const opts = typeof o.options === 'string' ? JSON.parse(o.options) : o.options; const s = libelleStyle(opts?.style); return s ? <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-lg text-xs font-bold">{s.emoji} {s.label}</span> : <span className="text-gray-400">—</span>; })()}</td>
-                          <td className="px-4 py-3 text-gray-500">{(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.printOption || "—"}</td>
+                          <td className="px-4 py-3 text-gray-500">
+                            {(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.printOption || "—"}
+                            {/* L'express passe avant toutes les autres : 24 h, week-end compris. */}
+                            {(typeof o.options === 'string' ? JSON.parse(o.options) : o.options)?.express && (
+                              <span className="ml-2 inline-block px-2 py-0.5 rounded-lg bg-red-100 text-red-700 text-xs font-bold">⚡ EXPRESS</span>
+                            )}
+                          </td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
@@ -1264,6 +1274,20 @@ export default function AdminPage() {
                           );
                         })()}
                         <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
+                        {/* Options payées (1er octobre 2026). Le texte de la
+                            banderole est dans la consigne du client. */}
+                        {(() => {
+                          const opts = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options;
+                          if (!opts?.banner && !opts?.extraDecor && !opts?.express) return null;
+                          return (
+                            <div className="col-span-2">
+                              <span className="text-gray-500">Options:</span>{" "}
+                              {opts.express && <span className="font-bold text-red-700">⚡ EXPRESS 24 h (week-end compris) · </span>}
+                              {opts.banner && <span className="font-semibold">🎀 Banderole · </span>}
+                              {opts.extraDecor && <span className="font-semibold">🏞️ 2ᵉ décor : {opts.extraDecorKey ?? "?"}</span>}
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Cout de revient et marge. Sans lui, une toile a 73 $
@@ -2173,6 +2197,19 @@ export default function AdminPage() {
               <p className="text-sm text-gray-500">Modifiez les prix de chaque option, indépendamment pour chaque devise.</p>
             </div>
 
+            {/* Le site annonce « prix de lancement jusqu'au 15 novembre, puis
+                19 € » (lib/lancement.ts). L'annonce disparait seule ; la hausse,
+                elle, se fait ici, a la main. Ce rappel l'empeche d'etre oubliee. */}
+            {!lancementEnCours() && pricesByCurrency.EUR.base < PRIX_APRES_LANCEMENT_EUR.base && (
+              <div className="max-w-2xl mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                <b>Le prix de lancement est terminé.</b> Le site a annoncé {PRIX_APRES_LANCEMENT_EUR.base} € après le
+                15 novembre : mets la grille à jour (base {PRIX_APRES_LANCEMENT_EUR.base} €, personne supplémentaire
+                +{PRIX_APRES_LANCEMENT_EUR.extraPerson} €, toile +{PRIX_APRES_LANCEMENT_EUR.canvas} €), puis les autres
+                devises. Pense aussi au bloc « par personnage » de l&apos;accueil, qui suppose base = personne
+                supplémentaire.
+              </div>
+            )}
+
             <div className="max-w-2xl bg-white border border-gray-200 rounded-xl p-6">
               <div className="flex gap-2 mb-6 border-b border-gray-100 pb-4 flex-wrap">
                 {currencies.map((c) => (
@@ -2200,6 +2237,9 @@ export default function AdminPage() {
                   { key: "canvas" as const, label: "Option Portrait sur Toile", icon: "🖼️" },
                   { key: "poster" as const, label: "Option Poster Encadré", icon: "🖼️" },
                   { key: "posterSimple" as const, label: "Option Poster Simple", icon: "📄" },
+                  { key: "banner" as const, label: "Option Banderole / texte", icon: "🎀" },
+                  { key: "extraDecor" as const, label: "Option Décor supplémentaire", icon: "🏞️" },
+                  { key: "express" as const, label: "Option Express 24 h", icon: "⚡" },
                 ].map((item) => (
                   <div key={item.key}>
                     <label className="text-xs font-semibold text-gray-600 mb-1.5 block">

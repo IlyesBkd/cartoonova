@@ -16,12 +16,23 @@ import {
   getOrdersAwaitingPhotos,
   marquerAlertePhotos,
   getOrdersDueForFinalImage,
+  getPricesForCurrency,
+  runtimeSchemaBootstrapEnabled,
+  sql,
   type LifecycleOrder,
+  type OrderOptions,
 } from "@/lib/db";
+import { getLeadsARelancer, marquerLeadRelance } from "@/lib/leadsCaisse";
+import { relanceCaisseEmail, upsellPosterEmail, formatPrix } from "@/lib/i18n/relances";
+import { estNumerique, tailleImpression } from "@/lib/supportCommande";
+import { deviseValide } from "@/lib/bonCadeauMontants";
+import type { Currency } from "@/lib/currency";
 import { envoyerImageFinale } from "@/lib/emailImageFinale";
 import { sendWelcomeStep, WELCOME_DELAYS_DAYS } from "@/lib/welcomeSequence";
 import {
   getLangFromCountry,
+  LANGS,
+  type Lang,
   reviewRequestEmail,
   reorderEmail,
   abandonedCartEmail,
@@ -45,6 +56,12 @@ const REORDER_DELAY_DAYS = 90;
 // au-dela de 14 jours le contexte d'achat a disparu et la relance derange.
 const ABANDONED_DELAY_HOURS = 4;
 const ABANDONED_MAX_DAYS = 14;
+
+// Relance des leads de la caisse : voir `sendLeadReminders`.
+const LEAD_DELAY_HOURS = 24;
+const LEAD_MAX_DAYS = 7;
+// Proposition du poster aux clients du fichier numerique : voir `sendPrintUpsell`.
+const PRINT_UPSELL_DELAY_DAYS = 7;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -296,6 +313,237 @@ async function sendAbandonedCartEmails(): Promise<{
   return { sent, failed, payeesNonEnregistrees };
 }
 
+/**
+ * Relance des visiteurs partis de la caisse apres avoir donne leur e-mail.
+ *
+ * Le pendant de la relance de panier abandonne pour ceux qui n'ont jamais
+ * atteint l'etape du paiement — donc sans commande PENDING, et jusqu'ici sans
+ * aucune relance. Le cron passe une fois par jour (09:00 UTC) : un lead de la
+ * veille au soir n'a pas encore 24 h et attend le passage suivant, d'ou un
+ * e-mail qui part entre 24 et 48 h apres l'abandon. Au-dela de 7 jours, le
+ * contexte d'achat a disparu : on laisse tomber.
+ *
+ * Les filtres (deja paye, commande creee depuis, desinscrit, deja relance)
+ * sont dans `getLeadsARelancer`.
+ */
+async function sendLeadReminders(): Promise<{ sent: number; failed: number }> {
+  const leads = (await getLeadsARelancer(LEAD_DELAY_HOURS, LEAD_MAX_DAYS)).slice(0, MAX_PER_RUN);
+  let sent = 0;
+  let failed = 0;
+
+  for (const lead of leads) {
+    const lang: Lang = (LANGS as readonly string[]).includes(lead.locale) ? (lead.locale as Lang) : "en";
+    const t = relanceCaisseEmail[lang];
+    const reprise = lienEmail(
+      lead.style ? `${SITE_URL}/${lang}/${lead.style}` : `${SITE_URL}/${lang}/collections`,
+      "relance_caisse"
+    );
+    const unsubscribeUrl =
+      `${SITE_URL}/api/newsletter/unsubscribe` +
+      `?email=${encodeURIComponent(lead.email)}` +
+      `&t=${signEmail(lead.email)}&lang=${lang}`;
+
+    try {
+      await resend.emails.send({
+        from: EXPEDITEUR,
+        to: [lead.email],
+        replyTo: SUPPORT_EMAIL,
+        subject: t.subject,
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+        html: shell(
+          `
+            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting}</p>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
+            <p style="font-size: 16px; margin: 0; color: #333;">${t.reassure}</p>
+            ${button(reprise, t.cta)}
+            <p style="font-size: 14px; margin: 20px 0 0; color: #555;">${t.help}</p>
+          `,
+          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
+           <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
+        ),
+      });
+      /* L'envoi compte autant que le clic : sans denominateur,
+         un taux d'ouverture n'est pas un taux. */
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: lead.email,
+        proprietes: { campagne: "relance_caisse", style: lead.style, print_key: lead.print_key },
+      });
+
+      await marquerLeadRelance(lead.email);
+      sent++;
+    } catch (error: unknown) {
+      failed++;
+      console.error(
+        "[CRON lifecycle-emails] lead reminder failed",
+        lead.id,
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  return { sent, failed };
+}
+
+/* ─── Poster pour les clients du fichier numerique ─────────────────────── */
+
+let upsellSchemaReady: Promise<void> | null = null;
+
+/** Miroir local de migrations/2026-10-relances.sql (en production, rien n'est cree ici). */
+async function ensureUpsellSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
+  if (upsellSchemaReady) return upsellSchemaReady;
+  upsellSchemaReady = (async () => {
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS print_upsell_sent_at TIMESTAMPTZ`;
+  })().catch((e) => {
+    upsellSchemaReady = null;
+    throw e;
+  });
+  return upsellSchemaReady;
+}
+
+interface CommandeNumerique {
+  id: string;
+  customer_email: string;
+  customer_name: string | null;
+  detected_country: string | null;
+  currency: string;
+  options: OrderOptions & { printKey?: string | null };
+}
+
+/**
+ * Clients du fichier numerique livres depuis plus de `jours` jours, jamais
+ * sollicites pour le poster, une ligne par adresse (la livraison la plus
+ * recente).
+ *
+ * Le SQL ecarte ce qui est surement imprime (`printKey` connue et differente
+ * de "digital") ; le reste est tranche par `estNumerique`, seule a connaitre
+ * les dix libelles traduits des commandes anterieures a `printKey`.
+ */
+async function getCommandesNumeriquesPourPoster(jours: number): Promise<CommandeNumerique[]> {
+  await ensureUpsellSchema();
+  const rows = await sql`
+    SELECT o.id, o.customer_email, o.customer_name, o.detected_country, o.currency, o.options
+    FROM orders o
+    WHERE o.final_image_sent_at IS NOT NULL
+      AND o.final_image_sent_at < NOW() - (${jours} * INTERVAL '1 day')
+      AND o.print_upsell_sent_at IS NULL
+      AND o.customer_email IS NOT NULL
+      AND COALESCE(NULLIF(o.options->>'printKey', ''), 'digital') = 'digital'
+      -- Une seule fois par adresse, quelle que soit la commande qui l'a declenche.
+      AND NOT EXISTS (
+        SELECT 1 FROM orders u
+        WHERE lower(u.customer_email) = lower(o.customer_email)
+          AND u.print_upsell_sent_at IS NOT NULL
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM newsletter_subscribers n
+        WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
+      )
+    ORDER BY o.final_image_sent_at DESC
+  `;
+  const vus = new Set<string>();
+  const retenues: CommandeNumerique[] = [];
+  for (const r of rows as unknown as CommandeNumerique[]) {
+    const cle = r.customer_email.toLowerCase();
+    if (vus.has(cle) || !estNumerique(r.options)) continue;
+    vus.add(cle);
+    retenues.push(r);
+  }
+  return retenues;
+}
+
+async function marquerUpsellPosterEnvoye(email: string): Promise<void> {
+  await ensureUpsellSchema();
+  await sql`
+    UPDATE orders SET print_upsell_sent_at = NOW()
+    WHERE lower(customer_email) = lower(${email}) AND print_upsell_sent_at IS NULL
+  `;
+}
+
+/**
+ * Propose le tirage poster aux clients qui n'ont pris que le fichier.
+ *
+ * Une semaine apres la livraison : le portrait a eu le temps d'etre montre,
+ * partage, regrette de n'exister que sur un ecran. L'e-mail de rachat a J+90
+ * reste a part et inchange : il vend un nouveau portrait, celui-ci un tirage
+ * du portrait existant.
+ */
+async function sendPrintUpsell(): Promise<{ sent: number; failed: number }> {
+  const commandes = (await getCommandesNumeriquesPourPoster(PRINT_UPSELL_DELAY_DAYS)).slice(0, MAX_PER_RUN);
+  let sent = 0;
+  let failed = 0;
+  const prixParDevise = new Map<Currency, number>();
+
+  for (const order of commandes) {
+    const lang = getLangFromCountry(order.detected_country);
+    const t = upsellPosterEmail[lang];
+    const devise = deviseValide(order.currency) ?? "EUR";
+    const style = order.options?.style;
+    const lienProduit = lienEmail(
+      style ? `${SITE_URL}/${lang}/${style}` : `${SITE_URL}/${lang}/collections`,
+      "upsell_poster"
+    );
+    const unsubscribeUrl =
+      `${SITE_URL}/api/newsletter/unsubscribe` +
+      `?email=${encodeURIComponent(order.customer_email)}` +
+      `&t=${signEmail(order.customer_email)}&lang=${lang}`;
+
+    try {
+      let prix = prixParDevise.get(devise);
+      if (prix === undefined) {
+        prix = (await getPricesForCurrency(devise)).posterSimple;
+        prixParDevise.set(devise, prix);
+      }
+      const taille = tailleImpression(devise);
+
+      await resend.emails.send({
+        from: EXPEDITEUR,
+        to: [order.customer_email],
+        replyTo: SUPPORT_EMAIL,
+        subject: t.subject(taille),
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+        html: shell(
+          `
+            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body(taille)}</p>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.price(formatPrix(prix, devise, lang))}</p>
+            <p style="font-size: 16px; margin: 0; color: #333;">${t.reply}</p>
+            ${button(lienProduit, t.cta)}
+          `,
+          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
+           <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
+        ),
+      });
+      /* L'envoi compte autant que le clic : sans denominateur,
+         un taux d'ouverture n'est pas un taux. */
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: order.customer_email,
+        proprietes: { campagne: "upsell_poster", order_id: order.id },
+      });
+
+      await marquerUpsellPosterEnvoye(order.customer_email);
+      sent++;
+    } catch (error: unknown) {
+      failed++;
+      console.error(
+        "[CRON lifecycle-emails] print upsell failed",
+        order.id,
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  return { sent, failed };
+}
+
 async function sendWelcomeSteps(): Promise<{ sent: number; failed: number }> {
   let sent = 0;
   let failed = 0;
@@ -481,8 +729,19 @@ export async function GET(req: NextRequest) {
     const reviewRequests = await sendReviewRequests();
     const reorders = await sendReorderEmails();
     const abandoned = await sendAbandonedCartEmails();
+    /* Apres les paniers abandonnes : un visiteur qui a cree une commande
+       entre-temps est exclu des leads, il n'a donc qu'une relance. Chacune
+       des deux nouvelles taches compte ses echecs plutot que de les
+       propager, pour ne pas priver la suite (photos) de son passage. */
+    const enEchec = (tache: string) => (error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`[CRON lifecycle-emails] ${tache} impossible`, message);
+      return { sent: 0, failed: 0, erreur: message };
+    };
+    const leads = await sendLeadReminders().catch(enEchec("relance caisse"));
+    const printUpsell = await sendPrintUpsell().catch(enEchec("upsell poster"));
     const photos = await relancerPhotosManquantes();
-    const result = { imagesFinales, welcome, reviewRequests, reorders, abandoned, photos };
+    const result = { imagesFinales, welcome, reviewRequests, reorders, abandoned, leads, printUpsell, photos };
     console.log("[CRON lifecycle-emails]", JSON.stringify(result));
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {

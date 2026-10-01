@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
+import { OPTIONS_PAYANTES, parseOrderPricingInput } from "@/lib/pricing";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -32,6 +33,13 @@ export async function POST(req: NextRequest) {
     const { quote } = result;
     const amount = Math.round(quote.total * 100);
 
+    /* Les options facturees sont posees sur le PaymentIntent : la commande les
+       relit la (`order/create`), plutot que de croire le navigateur. Un
+       express paye doit etre un express livre — et un express non paye ne
+       doit pas passer devant les autres. */
+    const config = parseOrderPricingInput(orderConfig);
+    const options = OPTIONS_PAYANTES.filter((o) => config?.[o]).join(",");
+
     if (amount < 100) {
       return NextResponse.json({ error: "Montant invalide." }, { status: 400 });
     }
@@ -46,6 +54,7 @@ export async function POST(req: NextRequest) {
         promo_code: quote.promoCode ?? "",
         subtotal: quote.subtotal.toFixed(2),
         discount: quote.discount.toFixed(2),
+        options,
       },
     });
 

@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import type { Locale } from "@/i18n/config";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
+import BandeauLancement from "@/components/BandeauLancement";
 import { CATEGORIES_AFFICHAGE, NOMS_CATEGORIE, produitPhare, type Categorie } from "@/lib/catalogue";
 import type { EvenementAffiche } from "@/lib/evenements";
 import Etoiles from "@/components/tj/Etoiles";
@@ -210,6 +211,7 @@ export default function Accueil({
                   </span>
                 </span>
               </p>
+              <BandeauLancement className="lancement lancement--hero" />
 
               {/* Le second bouton pointait sur « Comment ça marche », qui a
                   sa place dans la barre utilitaire depuis qu'elle existe.

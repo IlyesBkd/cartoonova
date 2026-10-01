@@ -122,6 +122,22 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      /* Express : promis sous 24 h, week-end compris. La tache planifiee ne
+         passe qu'une fois par jour a 09:00 UTC — une image deposee a 10 h
+         partirait le lendemain. On l'envoie donc tout de suite, sauf si le
+         client a demande une remise a une date de cadeau ulterieure. */
+      const dateCadeau = options?.gift?.deliverAfter ? new Date(options.gift.deliverAfter) : null;
+      if (options?.express && order && !(dateCadeau && dateCadeau > new Date())) {
+        const envoi = await envoyerImageFinale({
+          id: orderId,
+          customer_email: order.customer_email,
+          customer_name: order.customer_name ?? null,
+          detected_country: order.detected_country ?? null,
+          final_image_url: finalImageUrl,
+        });
+        return NextResponse.json({ ok: true, saved: true, scheduledAt: null, envoyeImmediatement: true, emailId: envoi.id });
+      }
+
       const quand = await programmerEnvoiImageFinaleSiLibre(
         orderId,
         dateEnvoiProgramme(new Date(), options, order?.created_at)

@@ -97,6 +97,11 @@ export const MESURES = {
   coordonneesValidees: "checkout_info_completed",
   /** Option cadeau activee ou desactivee. */
   cadeauBascule: "gift_toggled",
+  /** Case « ajoute le poster » de la caisse, cochee ou decochee. Elle dira si
+      la vente additionnelle prend, et a quel prix. */
+  posterAjouteCaisse: "checkout_poster_added",
+  /** Bon cadeau paye. Emis cote serveur a la creation du code. */
+  bonCadeauAchete: "gift_card_purchased",
   /** Code promo accepte. */
   promoAccepte: "promo_code_applied",
   /** Code promo refuse, avec le motif. */
@@ -129,6 +134,10 @@ export const MESURES = {
   suiviConsulte: "order_tracked",
   /** Reponse a la demande de confirmation avant impression. */
   posterConfirme: "poster_confirmed",
+  /** Un ami a paye avec un code AMI- : le parrain vient de recevoir son bon.
+      Emis cote serveur (lib/parrainage.ts). Rapporte au nombre de codes
+      montres, c'est la seule mesure qui dira si le parrainage vit. */
+  parrainageRecompense: "referral_reward_issued",
 
   /* ═══ engagement ══════════════════════════════════════════════════════ */
 

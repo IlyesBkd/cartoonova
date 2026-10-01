@@ -6,6 +6,7 @@ import {
   evenementActif,
   DRAWING_BUSINESS_DAYS,
   TOTAL_BUSINESS_DAYS,
+  TOTAL_MIN_BUSINESS_DAYS,
   type CleEvenement,
   type EvenementActif,
 } from "@/lib/evenements";
@@ -39,6 +40,9 @@ const ICONES: Record<CleEvenement, NomIcone> = {
   blackFriday: "eclair",
 };
 
+const formatJour = (locale: Locale, date: Date) =>
+  new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(date);
+
 /**
  * `variante` :
  *  - "ligne"    : texte nu, destine a etre pose dans un conteneur qui porte
@@ -57,7 +61,11 @@ export default function GiftDeadlineNote({
   const contenu = !evenement ? (
     <>
       <Icone nom="cadeau" taille={15} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 7 }} />
-      {t("generic", { digitalDays: DRAWING_BUSINESS_DAYS, days: TOTAL_BUSINESS_DAYS })}
+      {t("generic", {
+        digitalDays: DRAWING_BUSINESS_DAYS,
+        daysMin: TOTAL_MIN_BUSINESS_DAYS,
+        days: TOTAL_BUSINESS_DAYS,
+      })}
     </>
   ) : (
     <>
@@ -66,14 +74,18 @@ export default function GiftDeadlineNote({
         taille={15}
         style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 7 }}
       />
-      {t("deadline", {
-        event: t(`event_${evenement.cle}` as "event_noel"),
-        date: new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(
-          // `livraisonSeulement` garantit une date limite : seuls les
-          // evenements livrables passent le filtre.
-          evenement.commanderAvant as Date
-        ),
-      })}
+      {/* `livraisonSeulement` garantit les deux dates limites : seuls les
+          evenements livrables passent le filtre. */}
+      {evenement.phase === "numerique"
+        ? t("deadlineNumerique", {
+            event: t(`event_${evenement.cle}` as "event_noel"),
+            date: formatJour(locale, evenement.commanderAvantNumerique as Date),
+          })
+        : t("deadlineDouble", {
+            event: t(`event_${evenement.cle}` as "event_noel"),
+            date: formatJour(locale, evenement.commanderAvant as Date),
+            dateNumerique: formatJour(locale, evenement.commanderAvantNumerique as Date),
+          })}
     </>
   );
 

@@ -174,8 +174,25 @@ export default function Navbar({
                   taille={15}
                   style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 8 }}
                 />
-                {tEvt(`${evenement.cle}.promo` as "noel.promo")}{" "}
-                <b>{tEvt(`${evenement.cle}.promoFort` as "noel.promoFort", { date: evenement.dateLimite })}</b>
+                {/* Passee la date limite d'impression, la campagne continue
+                    pour le numerique, qui arrive encore a temps. */}
+                {(() => {
+                  const message =
+                    evenement.phase === "numerique" ? (
+                      <>
+                        {tEvt(`${evenement.cle}.promo` as "noel.promo")}{" "}
+                        <b>{tEvt("phaseNumerique", { date: evenement.dateLimite })}</b>
+                      </>
+                    ) : (
+                      <>
+                        {tEvt(`${evenement.cle}.promo` as "noel.promo")}{" "}
+                        <b>{tEvt(`${evenement.cle}.promoFort` as "noel.promoFort", { date: evenement.dateLimite })}</b>
+                      </>
+                    );
+                  /* A Noel, le bandeau mene a la page Noel : les trois dates
+                     limites et le bon cadeau y sont reunis. */
+                  return evenement.cle === "noel" ? <Link href={lien("/noel")}>{message}</Link> : message;
+                })()}
               </>
             ) : (
               <>

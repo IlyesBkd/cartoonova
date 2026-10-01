@@ -1,9 +1,13 @@
 import { Resend } from "resend";
 import { markFinalImageSent, setOrderLastOutboundMessageId } from "./db";
-import { getLangFromCountry, finalImageEmail } from "./email-i18n";
+import { getLangFromCountry, finalImageEmail, bonusLiens } from "./email-i18n";
+import { orderTrackingToken } from "./emailToken";
+import { SITE_URL } from "./site";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
+import { infosParrainage } from "./parrainage";
+import { parrainageTextes } from "./i18n/relances";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -39,6 +43,20 @@ export async function envoyerImageFinale(
   const lang = getLangFromCountry(order.detected_country);
   const t = finalImageEmail[lang];
   const ref = order.id.slice(0, 8);
+  /* Les cadeaux offerts (fond d'ecran, avatar, carte a imprimer) : la page
+     s'ouvre une fois la commande marquee livree, ce qui suit cet envoi. */
+  const lienBonus = `${SITE_URL}/bonus/${orderTrackingToken(order.id)}`;
+
+  /* Le code ami se montre ici parce que c'est le moment ou le client est le
+     plus content de nous : il vient de decouvrir son portrait. Un echec de
+     creation ne retient pas la livraison — le bloc disparait, c'est tout. */
+  let parrainage: { code: string; recompense: string } | null = null;
+  try {
+    parrainage = await infosParrainage(order.customer_email, lang);
+  } catch (erreur) {
+    console.error("[IMAGE-FINALE] code de parrainage indisponible:", order.id, erreur);
+  }
+  const tp = parrainageTextes[lang];
 
   const result = await resend.emails.send({
     from: EXPEDITEUR,
@@ -67,6 +85,11 @@ export async function envoyerImageFinale(
             <a href="${order.final_image_url}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
               ${t.download}
             </a>
+            <div style="margin-top: 14px;">
+              <a href="${lienBonus}" target="_blank" style="display: inline-block; background: #fff; color: #000; font-weight: 900; padding: 12px 26px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px;">
+                🎁 ${bonusLiens[lang].email}
+              </a>
+            </div>
           </div>
           <!-- L'invitation a la retouche etait en gris, 14px, sous le bouton :
                la place qu'on donne aux mentions legales. Elle porte pourtant la
@@ -77,6 +100,16 @@ export async function envoyerImageFinale(
               ${t.feedback}
             </p>
           </div>
+          ${
+            parrainage
+              ? `<div style="border: 3px dashed #000; border-radius: 12px; padding: 18px 20px; margin-top: 18px; text-align: center;">
+            <p style="font-size: 18px; font-weight: 900; color: #000; margin: 0 0 8px;">${tp.titre}</p>
+            <p style="font-size: 15px; line-height: 1.5; color: #333; margin: 0 0 12px;">${tp.offre(parrainage.recompense)}</p>
+            <p style="margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #555;">${tp.code}</p>
+            <p style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: .06em; color: #000;">${parrainage.code}</p>
+          </div>`
+              : ""
+          }
         </div>
         <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
           <p>${t.thanks}</p>

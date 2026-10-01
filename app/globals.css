@@ -7,6 +7,11 @@
    préflight ne reprenne pas la main sur les styles de base. */
 @import "./toonjaune.css";
 @import "./toonjaune-app.css";
+/* Lot « conversion et apres-vente » (octobre 2026) : une feuille par chantier
+   (caisse, fiche produit, pages). */
+@import "./styles/caisse.css";
+@import "./styles/fiche.css";
+@import "./styles/pages.css";
 
 html {
   scroll-behavior: smooth;
