@@ -367,7 +367,7 @@ async function enregistrer(ligne) {
     VALUES (
       ${ligne.jour}, ${ligne.surface}, ${ligne.langue}, ${ligne.requete}, ${ligne.entite},
       ${ligne.cite}, ${ligne.position}, ${ligne.url_citee},
-      ${JSON.stringify(ligne.concurrents)}::jsonb, ${ligne.extrait}
+      ${JSON.stringify(ligne.concurrents)}::text::jsonb, ${ligne.extrait}
     )
     ON CONFLICT (jour, surface, requete) DO UPDATE SET
       cite = EXCLUDED.cite, position = EXCLUDED.position, url_citee = EXCLUDED.url_citee,

@@ -38,7 +38,7 @@ export async function enregistrerPassage(sql, tache, ok, demarreLe, resume = {},
         'cartoonova', ${tache}, ${demarreLe.toISOString()}, NOW(),
         ${Date.now() - demarreLe.getTime()}, ${ok},
         ${produit ?? null},
-        ${Object.keys(details).length ? JSON.stringify(details) : null},
+        ${Object.keys(details).length ? JSON.stringify(details) : null}::text::jsonb,
         ${erreur ?? null}
       )
     `;

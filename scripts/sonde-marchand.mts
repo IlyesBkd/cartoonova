@@ -174,7 +174,7 @@ async function main() {
   await sql`
     INSERT INTO marchand_jours (jour, produits, part_refusee, impressions, clics, problemes, releve_le)
     VALUES (CURRENT_DATE, ${etat.produits}, ${etat.partRefusee},
-            ${perf.impressions}, ${perf.clics}, ${JSON.stringify(problemes)}::jsonb, NOW())
+            ${perf.impressions}, ${perf.clics}, ${JSON.stringify(problemes)}::text::jsonb, NOW())
     ON CONFLICT (jour) DO UPDATE SET
       produits = EXCLUDED.produits, part_refusee = EXCLUDED.part_refusee,
       impressions = EXCLUDED.impressions, clics = EXCLUDED.clics,

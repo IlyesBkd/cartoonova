@@ -170,7 +170,13 @@ export async function withFreshDatabaseClient<T>(run: (client: ClientSql) => Pro
 
 /* L'interface actuelle n'utilise que les requetes taguees. Garder le client
    paresseux evite qu'un build Next sans secrets d'execution tente de se
-   connecter a la base. */
+   connecter a la base.
+
+   JSON : toujours ecrire `${JSON.stringify(x)}::text::jsonb`, jamais
+   `${JSON.stringify(x)}::jsonb`. Avec `::jsonb`, la bibliotheque `postgres`
+   voit un parametre jsonb et le serialise une seconde fois : la base stocke
+   une chaine au lieu d'un tableau, et la lecture casse (`sections.map is not
+   a function`). C'est arrive des la bascule depuis Neon, le 25/09/2026. */
 export const sql = ((strings: TemplateStringsArray, ...values: unknown[]) =>
   Reflect.apply(getClientSql(), undefined, [strings, ...values])) as ClientSql;
 
@@ -370,7 +376,7 @@ export async function enregistrerPhotosCommande(
 ): Promise<DbOrder | null> {
   const rows = await sql`
     UPDATE orders
-    SET photo_urls = ${JSON.stringify(photoUrls)}::jsonb
+    SET photo_urls = ${JSON.stringify(photoUrls)}::text::jsonb
     WHERE id = ${orderId}::uuid
     RETURNING *
   `;
@@ -699,7 +705,7 @@ export async function recordPosterConfirmationResponse(
     SET poster_confirmation_status = ${status},
         poster_confirmation_responded_at = NOW(),
         poster_confirmation_note = ${normalizedNote},
-        poster_confirmation_photos = ${normalizedPhotos}::jsonb
+        poster_confirmation_photos = ${normalizedPhotos}::text::jsonb
     WHERE poster_confirmation_token = ${token}
       AND (
         (${previousRespondedAt ?? null}::timestamptz IS NULL AND poster_confirmation_responded_at IS NULL)
@@ -708,7 +714,7 @@ export async function recordPosterConfirmationResponse(
       AND (
         poster_confirmation_status IS DISTINCT FROM ${status}
         OR poster_confirmation_note IS DISTINCT FROM ${normalizedNote}
-        OR poster_confirmation_photos IS DISTINCT FROM ${normalizedPhotos}::jsonb
+        OR poster_confirmation_photos IS DISTINCT FROM ${normalizedPhotos}::text::jsonb
       )
     RETURNING *
   `;
@@ -1065,7 +1071,7 @@ async function ensurePricesSchema(): Promise<void> {
         devise === "EUR" ? eur : scale(exchangeRates[devise]),
       ])
     ) as PricesByCurrency;
-    await sql`UPDATE prices SET data = ${JSON.stringify(seeded)}::jsonb WHERE id = 'singleton'`;
+    await sql`UPDATE prices SET data = ${JSON.stringify(seeded)}::text::jsonb WHERE id = 'singleton'`;
   })().catch((e) => {
     pricesSchemaReady = null;
     throw e;
@@ -1116,7 +1122,7 @@ export async function getAllPrices(querySql: ClientSql = sql): Promise<PricesByC
 
 export async function updateAllPrices(data: PricesByCurrency): Promise<void> {
   await ensurePricesSchema();
-  await sql`UPDATE prices SET data = ${JSON.stringify(data)}::jsonb WHERE id = 'singleton'`;
+  await sql`UPDATE prices SET data = ${JSON.stringify(data)}::text::jsonb WHERE id = 'singleton'`;
 }
 
 // ─── Newsletter ──────────────────────────────────────────────────────

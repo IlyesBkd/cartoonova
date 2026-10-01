@@ -76,7 +76,7 @@ export async function enregistrerRetouche(
     await assurerSchema();
     await sql`
       INSERT INTO retouches (order_id, note, photos)
-      VALUES (${orderId}::uuid, ${note}, ${JSON.stringify(photos)}::jsonb)
+      VALUES (${orderId}::uuid, ${note}, ${JSON.stringify(photos)}::text::jsonb)
     `;
   } catch (erreur) {
     console.error("[retouches] enregistrement impossible:", orderId, erreur);

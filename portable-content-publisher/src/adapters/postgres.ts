@@ -126,7 +126,7 @@ export class PostgresCmsAdapter implements CmsAdapter {
       ) VALUES (
         ${record.id}, ${record.projectId}, ${record.topicId}, ${record.kind}, ${record.locale}, ${record.category},
         ${record.slug}, ${record.title}, ${record.excerpt}, ${record.body},
-        ${JSON.stringify(record.images)}::jsonb, ${JSON.stringify(record.sourceUrls)}::jsonb, ${JSON.stringify(record.seo)}::jsonb,
+        ${JSON.stringify(record.images)}::text::jsonb, ${JSON.stringify(record.sourceUrls)}::text::jsonb, ${JSON.stringify(record.seo)}::text::jsonb,
         ${record.status}, ${record.fingerprint}, ${record.revision}, ${record.createdAt}, ${record.updatedAt}
       )
       ON CONFLICT (fingerprint) DO NOTHING
@@ -144,9 +144,9 @@ export class PostgresCmsAdapter implements CmsAdapter {
         title = ${record.title},
         excerpt = ${record.excerpt},
         body = ${record.body},
-        images = ${JSON.stringify(record.images)}::jsonb,
-        source_urls = ${JSON.stringify(record.sourceUrls)}::jsonb,
-        seo = ${JSON.stringify(record.seo)}::jsonb,
+        images = ${JSON.stringify(record.images)}::text::jsonb,
+        source_urls = ${JSON.stringify(record.sourceUrls)}::text::jsonb,
+        seo = ${JSON.stringify(record.seo)}::text::jsonb,
         status = ${record.status},
         revision = revision + 1,
         updated_at = ${new Date().toISOString()},

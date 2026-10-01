@@ -40,7 +40,7 @@ export async function ecrireEtat<T>(cle: string, valeur: T): Promise<void> {
   await assurerSchema();
   await sql`
     INSERT INTO seo_state (cle, valeur, modifie_le)
-    VALUES (${cle}, ${JSON.stringify(valeur)}, NOW())
+    VALUES (${cle}, ${JSON.stringify(valeur)}::text::jsonb, NOW())
     ON CONFLICT (cle) DO UPDATE SET valeur = EXCLUDED.valeur, modifie_le = NOW()
   `;
 }

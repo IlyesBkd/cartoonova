@@ -155,13 +155,13 @@ export async function POST(req: NextRequest) {
         ${address || null},
         ${total},
         ${currency},
-        ${options}::jsonb,
-        ${photoUrlsJson}::jsonb,
+        ${options}::text::jsonb,
+        ${photoUrlsJson}::text::jsonb,
         'PENDING',
         ${detectedCountry || null},
         ${promoCode || null},
         ${discount || null},
-        ${origineValidee ? JSON.stringify(origineValidee) : null}::jsonb
+        ${origineValidee ? JSON.stringify(origineValidee) : null}::text::jsonb
       )
       RETURNING id
     `;

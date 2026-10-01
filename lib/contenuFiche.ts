@@ -129,8 +129,8 @@ export async function enregistrerContenuFiche(
     INSERT INTO contenus_fiche (produit, locale, intro, sections, faq, empreinte, maj_le)
     VALUES (
       ${contenu.produit}, ${contenu.locale}, ${contenu.intro},
-      ${JSON.stringify(contenu.sections)}::jsonb,
-      ${JSON.stringify(contenu.faq)}::jsonb,
+      ${JSON.stringify(contenu.sections)}::text::jsonb,
+      ${JSON.stringify(contenu.faq)}::text::jsonb,
       ${contenu.empreinte ?? null}, NOW()
     )
     ON CONFLICT (produit, locale) DO UPDATE SET
