@@ -191,7 +191,7 @@ Faits utilisables, et rien d'autre :
 - cree a partir des photos envoyees, pour ce client seul (ne jamais decrire la methode de realisation : ni main, ni artiste, ni illustrateur, ni outil)
 - apercu sous 2 jours ouvres, retouches illimitees
 - a partir de 5 EUR par personnage
-- supports : fichier numerique, poster, toile, poster encadre
+- supports : fichier numerique, poster, toile, portrait encadre
 
 Reponds en JSON strict, sans texte autour :
 {"intro":"2 phrases","sections":[{"titre":"...","corps":"2 paragraphes separes par une ligne vide"}],"faq":[{"question":"...","reponse":"..."}]}

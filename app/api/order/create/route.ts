@@ -88,6 +88,8 @@ export async function POST(req: NextRequest) {
     const currency = paymentIntent.currency.toUpperCase();
     const promoCode = paymentIntent.metadata?.promo_code || null;
     const discount = Number(paymentIntent.metadata?.discount || 0) || 0;
+    // Livraison des impressions : posee par `/api/checkout`, jamais reprise du navigateur.
+    const shippingAmount = Number(paymentIntent.metadata?.shipping || 0) || 0;
     /* Options payantes : lues sur le PaymentIntent, ou `/api/checkout` les a
        posees apres les avoir facturees — pas reprises du navigateur. */
     const optionsPayees = new Set((paymentIntent.metadata?.options || "").split(",").filter(Boolean));
@@ -130,6 +132,7 @@ export async function POST(req: NextRequest) {
       extraDecorKey:
         optionsPayees.has("extraDecor") && typeof extraDecorKey === "string" ? extraDecorKey.slice(0, 80) : null,
       express: optionsPayees.has("express"),
+      shippingAmount: shippingAmount > 0 ? shippingAmount : undefined,
       gift: estCadeau ? cadeau : null,
       style: style || null,
       description,

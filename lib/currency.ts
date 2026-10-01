@@ -85,12 +85,17 @@ export function toEUR(amount: number, currency: string): number {
   return Math.round((amount / taux) * 100) / 100;
 }
 
+/* Sans centimes quand le montant est rond (49 €), avec quand il ne l'est pas
+   (48,90 €). Arrondir a l'euro affichait 49 € pour un paiement de 48,90 € des
+   que la livraison a 4,90 € s'est ajoutee : le prix affiche doit etre celui
+   qui est facture, au centime pres. */
 export function formatPrice(amount: number, currency: Currency, locale: string): string {
+  const centimes = Math.round(amount * 100) % 100 !== 0;
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: centimes ? 2 : 0,
+    maximumFractionDigits: centimes ? 2 : 0,
   }).format(amount);
 }
 

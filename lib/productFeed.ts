@@ -198,9 +198,11 @@ export async function buildProductFeed({
   // Google accepte les deux graphies, Pinterest exige "in stock".
   const availability = variant === "pinterest" ? "in stock" : "in_stock";
 
-  /* Livraison declaree a zero : le tunnel de paiement n'ajoute aucun frais de
-     port (aucun `shipping_options` dans la session Stripe), le port est donc
-     compris dans le prix. Sans cet attribut, Merchant Center retombe sur les
+  /* Livraison declaree a zero : le prix annonce est celui du fichier
+     numerique (`prices.base`, support par defaut de la fiche), qui n'a rien a
+     expedier. Le forfait des impressions (`prices.shipping`, depuis le
+     2 octobre 2026) ne s'ajoute qu'au choix d'un support physique, donc il ne
+     concerne pas cette offre. Sans cet attribut, Merchant Center retombe sur les
      regles du compte et desapprouve les articles tant qu'aucune n'est definie —
      c'est le motif de rejet le plus courant a l'ouverture d'un flux. */
   /* La langue designe le pays tant que la devise est celle attendue pour elle ;

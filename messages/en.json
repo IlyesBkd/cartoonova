@@ -174,7 +174,6 @@
     "giftDesc": "Add a personalized message",
     "giftMessagePlaceholder": "Your personalized message...",
     "gift": "It's a gift",
-    "portraitEncadré": "Framed Portrait",
     "customizeTitle": "Customize Your",
     "customizeHighlight": "Caricature",
     "customizeSubtitle": "Choose your options step by step. The total updates in real time.",
@@ -197,7 +196,7 @@
     "step5": "Print options",
     "digital": "Digital",
     "canvas": "Canvas Portrait",
-    "poster": "Framed Poster",
+    "poster": "Framed Portrait",
     "includedLabel": "INCLUDED",
     "totalLabel": "Your Total",
     "buyNow": "Buy now",
@@ -353,7 +352,8 @@
     "optExpress": "24-hour express",
     "optExpressSub": "Your portrait delivered within 24 hours, weekends included",
     "optExpressSubPrint": "Drawing delivered within 24 hours, weekends included, then printing",
-    "optExpressRecap": "24-hour express"
+    "optExpressRecap": "24-hour express",
+    "shippingLine": "incl. shipping: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Order confirmed",
@@ -501,7 +501,8 @@
     "promoToggle": "I have a promo code",
     "cartReminderNotice": "We may remind you about your cart once by email.",
     "expressOrFillIn": "or fill in your details",
-    "expressShippingIncluded": "Shipping included"
+    "expressShippingIncluded": "Shipping included in the total",
+    "shippingLine": "Shipping"
   },
   "giftPage": {
     "section": "Gift ideas",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Upload Any Photo",
     "hiwStep2Texte": "Upload photos from your device or social media — now or later — to create your cartoon portrait.",
     "hiwStep3Titre": "Get Your Portrait",
-    "hiwStep3Texte": "Get your digital download in 2 days. Add a canvas, a framed poster, a mug, and more.",
+    "hiwStep3Texte": "Get your digital download in 2 days. Add a canvas, a framed portrait, a mug, and more.",
     "hiwChoisirDecor": "Pick a background",
     "hiwChoisirFichiers": "Choose files",
     "hiwCommande": "Ordered",

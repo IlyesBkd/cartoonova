@@ -35,3 +35,9 @@
 }
 .succes-depot .bouton { width: 100%; font-size: 17px; min-height: 56px; }
 .succes-depot p { margin: 0; font-size: 13px; font-weight: 600; color: var(--encre-doux); }
+
+/* Ligne de livraison juste au-dessus du total a payer. */
+.modale__port {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin: 0; font-size: 13px; font-weight: 600; color: var(--encre-doux);
+}

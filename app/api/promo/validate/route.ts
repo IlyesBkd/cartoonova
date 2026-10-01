@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       valid: Boolean(quote.promoCode),
       reason: quote.promoRejected,
       subtotal: quote.subtotal,
+      shipping: quote.shipping,
       discount: quote.discount,
       total: quote.total,
       currency: quote.currency,

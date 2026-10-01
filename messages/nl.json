@@ -174,7 +174,6 @@
     "giftDesc": "Voeg een persoonlijk bericht toe",
     "giftMessagePlaceholder": "Je persoonlijke bericht...",
     "gift": "Het is een cadeau",
-    "portraitEncadré": "Ingelijst portret",
     "customizeTitle": "Stel je",
     "customizeHighlight": "karikatuur samen",
     "customizeSubtitle": "Kies je opties stap voor stap. Het totaal wordt live bijgewerkt.",
@@ -197,7 +196,7 @@
     "step5": "Afdrukopties",
     "digital": "Digitaal",
     "canvas": "Canvasportret",
-    "poster": "Ingelijste poster",
+    "poster": "Ingelijst portret",
     "includedLabel": "INBEGREPEN",
     "totalLabel": "Jouw totaal",
     "buyNow": "Nu kopen",
@@ -353,7 +352,8 @@
     "optExpress": "Express 24 uur",
     "optExpressSub": "Je portret binnen 24 uur, ook in het weekend",
     "optExpressSubPrint": "Tekening binnen 24 uur, ook in het weekend, daarna het drukken",
-    "optExpressRecap": "Express 24 uur"
+    "optExpressRecap": "Express 24 uur",
+    "shippingLine": "incl. verzending: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Bestelling bevestigd",
@@ -501,7 +501,8 @@
     "promoToggle": "Ik heb een kortingscode",
     "cartReminderNotice": "We kunnen je één keer per e-mail aan je winkelmandje herinneren.",
     "expressOrFillIn": "of vul je gegevens in",
-    "expressShippingIncluded": "Verzending inbegrepen"
+    "expressShippingIncluded": "Verzending inbegrepen in het totaal",
+    "shippingLine": "Verzending"
   },
   "giftPage": {
     "section": "Cadeau-ideeën",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Upload een foto",
     "hiwStep2Texte": "Upload foto's vanaf je telefoon of sociale media — nu of later — om je cartoonportret te maken.",
     "hiwStep3Titre": "Ontvang je portret",
-    "hiwStep3Texte": "Je digitale bestand is er in 2 dagen. Voeg een canvas, een ingelijste poster of een mok toe.",
+    "hiwStep3Texte": "Je digitale bestand is er in 2 dagen. Voeg een canvas, een ingelijst portret of een mok toe.",
     "hiwChoisirDecor": "Kies een achtergrond",
     "hiwChoisirFichiers": "Bestanden kiezen",
     "hiwCommande": "Besteld",

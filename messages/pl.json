@@ -174,7 +174,6 @@
     "giftDesc": "Dodaj osobistą wiadomość",
     "giftMessagePlaceholder": "Twoja osobista wiadomość...",
     "gift": "To prezent",
-    "portraitEncadré": "Portret w ramie",
     "customizeTitle": "Złóż swoją",
     "customizeHighlight": "karykaturę",
     "customizeSubtitle": "Wybieraj opcje krok po kroku. Suma aktualizuje się na bieżąco.",
@@ -197,7 +196,7 @@
     "step5": "Opcje wydruku",
     "digital": "Cyfrowo",
     "canvas": "Portret na płótnie",
-    "poster": "Plakat w ramie",
+    "poster": "Portret w ramie",
     "includedLabel": "W CENIE",
     "totalLabel": "Twoja suma",
     "buyNow": "Kup teraz",
@@ -353,7 +352,8 @@
     "optExpress": "Ekspres 24 h",
     "optExpressSub": "Portret w 24 godziny, także w weekend",
     "optExpressSubPrint": "Rysunek w 24 godziny, także w weekend, potem druk",
-    "optExpressRecap": "Ekspres 24 h"
+    "optExpressRecap": "Ekspres 24 h",
+    "shippingLine": "w tym dostawa: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Zamówienie potwierdzone",
@@ -501,7 +501,8 @@
     "promoToggle": "Mam kod rabatowy",
     "cartReminderNotice": "Możemy raz przypomnieć Ci e-mailem o Twoim koszyku.",
     "expressOrFillIn": "albo wpisz swoje dane",
-    "expressShippingIncluded": "Dostawa w cenie"
+    "expressShippingIncluded": "Dostawa wliczona w sumę",
+    "shippingLine": "Dostawa"
   },
   "giftPage": {
     "section": "Pomysły na prezent",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Prześlij zdjęcie",
     "hiwStep2Texte": "Prześlij zdjęcia z telefonu albo z mediów społecznościowych — teraz lub później.",
     "hiwStep3Titre": "Odbierz portret",
-    "hiwStep3Texte": "Plik cyfrowy dostajesz w 2 dni. Dołóż płótno, oprawiony plakat albo kubek.",
+    "hiwStep3Texte": "Plik cyfrowy dostajesz w 2 dni. Dołóż płótno, oprawiony portret albo kubek.",
     "hiwChoisirDecor": "Wybierz tło",
     "hiwChoisirFichiers": "Wybierz pliki",
     "hiwCommande": "Zamówione",

@@ -144,7 +144,7 @@ const SUPPORTS: Record<CleSupport, Omit<SupportDecrit, "cle">> = {
   digital: { libelle: "Fichier numérique", taille: null, detail: "haute définition, par e-mail" },
   posterSimple: { libelle: "Poster", taille: TAILLE_IMPRESSION, detail: "papier mat, sans cadre" },
   canvas: { libelle: "Toile", taille: TAILLE_IMPRESSION, detail: "prête à accrocher" },
-  framed: { libelle: "Poster encadré", taille: TAILLE_IMPRESSION, detail: "cadre chêne" },
+  framed: { libelle: "Portrait encadré", taille: TAILLE_IMPRESSION, detail: "cadre chêne" },
 };
 
 /* Les libelles imprimes, dans les dix langues, en minuscules.
@@ -164,8 +164,21 @@ const LIBELLES_IMPRIMES = new Map<string, CleSupport>([
   ["porträtt på canvas", "canvas"],
   ["portræt på lærred", "canvas"],
   ["retrato em tela", "canvas"],
-  // Poster encadre
+  // Portrait encadre. Les formes « poster » sont les libelles d'avant le
+  // 2 octobre 2026, encore portes par les commandes deja passees : ne pas les retirer.
   ["portrait encadré", "framed"],
+  ["poster encadré", "framed"],
+  ["poster incorniciato", "framed"],
+  ["framed portrait", "framed"],
+  ["retrato enmarcado", "framed"],
+  ["retrato encadrado", "framed"],
+  ["retrato emoldurado", "framed"],
+  ["eingerahmtes porträt", "framed"],
+  ["gerahmtes porträt", "framed"],
+  ["ingelijst portret", "framed"],
+  ["portret w ramie", "framed"],
+  ["inramat porträtt", "framed"],
+  ["indrammet portræt", "framed"],
   ["framed poster", "framed"],
   ["póster enmarcado", "framed"],
   ["gerahmtes poster", "framed"],

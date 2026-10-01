@@ -2235,11 +2235,12 @@ export default function AdminPage() {
                   { key: "extraAnimal" as const, label: "Animal supplémentaire", icon: "🐾" },
                   { key: "digital" as const, label: "Option Digital", icon: "💻" },
                   { key: "canvas" as const, label: "Option Portrait sur Toile", icon: "🖼️" },
-                  { key: "poster" as const, label: "Option Poster Encadré", icon: "🖼️" },
+                  { key: "poster" as const, label: "Option Portrait Encadré", icon: "🖼️" },
                   { key: "posterSimple" as const, label: "Option Poster Simple", icon: "📄" },
                   { key: "banner" as const, label: "Option Banderole / texte", icon: "🎀" },
                   { key: "extraDecor" as const, label: "Option Décor supplémentaire", icon: "🏞️" },
                   { key: "express" as const, label: "Option Express 24 h", icon: "⚡" },
+                  { key: "shipping" as const, label: "Livraison (impressions)", icon: "📦" },
                 ].map((item) => (
                   <div key={item.key}>
                     <label className="text-xs font-semibold text-gray-600 mb-1.5 block">
@@ -2248,6 +2249,7 @@ export default function AdminPage() {
                     <div className="relative">
                       <input
                         type="number"
+                        step="any"
                         value={pricesByCurrency[selectedCurrency][item.key]}
                         onChange={(e) => updatePriceField(item.key, Number(e.target.value))}
                         className="w-full px-4 py-2.5 pr-10 text-sm font-semibold border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"

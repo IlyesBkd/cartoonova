@@ -21,7 +21,7 @@ import DateApercu from "@/components/DateApercu";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useProductTracking } from "@/hooks/useProductTracking";
-import { computeOrderSubtotal, type PrintKey } from "@/lib/pricing";
+import { computeOrderSubtotal, computeShipping, type PrintKey } from "@/lib/pricing";
 import type { Prices } from "@/lib/types";
 import type { Decor, LegendeVisuel } from "@/lib/visuels";
 
@@ -224,7 +224,10 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     extraDecor: decorSupChoisi,
     express,
   } as const;
-  const total = prix ? computeOrderSubtotal(prix, configPrix) : 0;
+  /* Livraison des impressions : ajoutee au total affiche, comme le serveur
+     l'ajoute au montant paye. Le numerique n'en a pas. */
+  const port = prix ? computeShipping(prix, support) : 0;
+  const total = prix ? Math.round((computeOrderSubtotal(prix, configPrix) + port) * 100) / 100 : 0;
 
   /* Un tableau plutot que la FileList : celle-ci est vivante, et la remise a
      zero du champ apres chaque choix la viderait pendant l'envoi. */
@@ -583,6 +586,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             <div className="panneau__prix">
               <strong>{prix ? formatPrix(total) : "—"}</strong>
               <span>{tp("totalLabel")}</span>
+              {port > 0 && <small className="panneau__port">{tp("shippingLine", { montant: formatPrix(port) })}</small>}
             </div>
             <BandeauLancement />
             <DateApercu physique={support !== "digital"} express={express} />
@@ -999,6 +1003,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
             <div className="total">
               <span className="total__prix">{prix ? formatPrix(total) : "—"}</span>
+              {port > 0 && <small className="total__port">{tp("shippingLine", { montant: formatPrix(port) })}</small>}
             </div>
 
             <button
@@ -1292,6 +1297,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             extraDecor: decorSupChoisi,
             extraDecorKey: decorSupChoisi ? donnees.decors[indexSup].cle : null,
             express,
+            shipping: port,
             total,
             description: descriptionCommande + (noteComplete ? ` | ${noteComplete}` : ""),
             photoUrls: photos,

@@ -174,7 +174,6 @@
     "giftDesc": "Lägg till ett personligt meddelande",
     "giftMessagePlaceholder": "Ditt personliga meddelande...",
     "gift": "Det är en present",
-    "portraitEncadré": "Inramat porträtt",
     "customizeTitle": "Sätt ihop din",
     "customizeHighlight": "karikatyr",
     "customizeSubtitle": "Välj alternativ steg för steg. Summan uppdateras direkt.",
@@ -197,7 +196,7 @@
     "step5": "Tryckalternativ",
     "digital": "Digitalt",
     "canvas": "Porträtt på canvas",
-    "poster": "Inramad affisch",
+    "poster": "Inramat porträtt",
     "includedLabel": "INGÅR",
     "totalLabel": "Din summa",
     "buyNow": "Köp nu",
@@ -353,7 +352,8 @@
     "optExpress": "Express 24 h",
     "optExpressSub": "Ditt porträtt inom 24 timmar, även på helger",
     "optExpressSubPrint": "Teckningen inom 24 timmar, även på helger, sedan trycket",
-    "optExpressRecap": "Express 24 h"
+    "optExpressRecap": "Express 24 h",
+    "shippingLine": "varav frakt: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Beställning bekräftad",
@@ -501,7 +501,8 @@
     "promoToggle": "Jag har en rabattkod",
     "cartReminderNotice": "Vi kan påminna dig om din varukorg en gång via e-post.",
     "expressOrFillIn": "eller fyll i dina uppgifter",
-    "expressShippingIncluded": "Frakt ingår"
+    "expressShippingIncluded": "Frakt ingår i totalen",
+    "shippingLine": "Frakt"
   },
   "giftPage": {
     "section": "Presenttips",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Ladda upp ett foto",
     "hiwStep2Texte": "Ladda upp foton från telefonen eller sociala medier — nu eller senare.",
     "hiwStep3Titre": "Få ditt porträtt",
-    "hiwStep3Texte": "Den digitala filen är klar på 2 dagar. Lägg till canvas, inramad affisch eller mugg.",
+    "hiwStep3Texte": "Den digitala filen är klar på 2 dagar. Lägg till canvas, inramat porträtt eller mugg.",
     "hiwChoisirDecor": "Välj bakgrund",
     "hiwChoisirFichiers": "Välj filer",
     "hiwCommande": "Beställd",

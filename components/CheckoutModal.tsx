@@ -38,11 +38,19 @@ interface OrderConfig {
   /** Cle du second decor, pour l'illustrateur (null sans l'option). */
   extraDecorKey: string | null;
   express: boolean;
+  /** Livraison comprise dans `total` (impressions seulement), pour la montrer a part. */
+  shipping: number;
   total: number;
   description: string;
   photoUrls: string[];
   style: string;
 }
+
+/** Pays de `COUNTRIES` que l'ExpressCheckoutElement de Stripe refuse comme
+    destination (verifie le 2 octobre 2026 contre la liste renvoyee par Stripe) :
+    Cuba, sous sanctions, et trois territoires americains qu'il ne connait que
+    sous « US ». */
+const PAYS_HORS_STRIPE = new Set(["CU", "VI", "MP", "AS"]);
 
 /** Message lisible d'une erreur attrapee, quelle que soit sa forme. */
 function messageErreur(err: unknown): string {
@@ -340,10 +348,16 @@ function ExpressEtape1({
             // Le transporteur a besoin d'un telephone, comme dans le formulaire.
             phoneNumberRequired: estPhysique,
             shippingAddressRequired: estPhysique,
-            allowedShippingCountries: estPhysique ? COUNTRIES.map((c) => c.code) : undefined,
+            /* Un seul code refuse par Stripe fait echouer la creation de
+               l'element, et la caisse entiere plantait pour un tirage. Le
+               formulaire classique garde ces pays. */
+            allowedShippingCountries: estPhysique
+              ? COUNTRIES.map((c) => c.code).filter((c) => !PAYS_HORS_STRIPE.has(c))
+              : undefined,
             /* Apple Pay refuse d'ouvrir une feuille avec adresse de livraison
-               sans au moins un tarif. La livraison est comprise dans le prix :
-               un tarif unique a zero, qui ne change pas le montant. */
+               sans au moins un tarif. Le PaymentIntent porte deja la livraison
+               dans son montant : le tarif reste a zero, sinon la feuille la
+               compterait deux fois. Seul le libelle dit qu'elle est comprise. */
             shippingRates: estPhysique
               ? [{ id: "livraison-incluse", amount: 0, displayName: t("expressShippingIncluded") }]
               : undefined,
@@ -1379,6 +1393,12 @@ export default function CheckoutModal({
                 <p className="alerte alerte--erreur" role="alert">
                   <Icone nom="alerte" taille={16} />
                   {formError}
+                </p>
+              )}
+              {orderConfig.shipping > 0 && (
+                <p className="modale__port">
+                  <span>{t("shippingLine")}</span>
+                  <span>{formatPrice(orderConfig.shipping)}</span>
                 </p>
               )}
               <div className="modale__total">

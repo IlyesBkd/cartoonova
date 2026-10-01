@@ -1,11 +1,13 @@
 import { getPricesForCurrency } from "./db";
-import { computeOrderSubtotal, parseOrderPricingInput } from "./pricing";
+import { computeOrderSubtotal, computeShipping, parseOrderPricingInput } from "./pricing";
 import { validatePromoCode, type PromoRejection } from "./promoCodes";
 import { currencies, type Currency } from "./currency";
 
 export interface OrderQuote {
   currency: Currency;
   subtotal: number;
+  /** Livraison des impressions, hors remise : le code promo ne porte que sur les produits. */
+  shipping: number;
   discount: number;
   total: number;
   promoCode: string | null;
@@ -40,6 +42,7 @@ export async function quoteOrder(input: {
 
   const prices = await getPricesForCurrency(currency);
   const subtotal = computeOrderSubtotal(prices, config);
+  const shipping = computeShipping(prices, config.printKey);
 
   let discount = 0;
   let promoCode: string | null = null;
@@ -56,7 +59,7 @@ export async function quoteOrder(input: {
     }
   }
 
-  const total = Math.round((subtotal - discount) * 100) / 100;
+  const total = Math.round((subtotal - discount + shipping) * 100) / 100;
 
-  return { quote: { currency, subtotal, discount, total, promoCode, promoRejected } };
+  return { quote: { currency, subtotal, shipping, discount, total, promoCode, promoRejected } };
 }

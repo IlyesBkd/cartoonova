@@ -62,7 +62,16 @@ export function parseOrderPricingInput(raw: unknown): OrderPricingInput | null {
 }
 
 /**
- * Le prix d'une configuration. Appele par le serveur (`lib/orderQuote.ts`) ET
+ * Le forfait de livraison : les impressions seulement, le fichier numerique
+ * n'a rien a expedier. Pur, comme `computeOrderSubtotal`, pour que la fiche, le
+ * devis serveur et le paiement donnent le meme montant.
+ */
+export function computeShipping(prices: PriceSet, printKey: PrintKey): number {
+  return printKey === "digital" ? 0 : Math.round((prices.shipping ?? 0) * 100) / 100;
+}
+
+/**
+ * Le prix d'une configuration, hors livraison. Appele par le serveur (`lib/orderQuote.ts`) ET
  * par la fiche produit : la formule n'existe qu'ici. Elle etait recopiee dans
  * la fiche, avec un commentaire demandant de garder les deux alignees — la
  * premiere option ajoutee d'un seul cote aurait affiche un prix et facture

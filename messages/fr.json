@@ -174,7 +174,6 @@
     "giftDesc": "Ajoutez un message personnalisé",
     "giftMessagePlaceholder": "Votre message personnalisé...",
     "gift": "C'est un cadeau",
-    "portraitEncadré": "Portrait Encadré",
     "customizeTitle": "Personnalisez Votre",
     "customizeHighlight": "Caricature",
     "customizeSubtitle": "Choisissez vos options étape par étape. Le total se met à jour en temps réel.",
@@ -353,7 +352,8 @@
     "optExpress": "Express 24 h",
     "optExpressSub": "Ton portrait livré sous 24 h, week-end compris",
     "optExpressSubPrint": "Dessin livré sous 24 h, week-end compris, puis l'impression",
-    "optExpressRecap": "Express 24 h"
+    "optExpressRecap": "Express 24 h",
+    "shippingLine": "dont livraison : {montant}"
   },
   "checkout": {
     "orderConfirmed": "Commande confirmée",
@@ -501,7 +501,8 @@
     "promoToggle": "J'ai un code promo",
     "cartReminderNotice": "On peut te rappeler ton panier une fois par e-mail.",
     "expressOrFillIn": "ou remplis tes coordonnées",
-    "expressShippingIncluded": "Livraison incluse"
+    "expressShippingIncluded": "Livraison comprise dans le total",
+    "shippingLine": "Livraison"
   },
   "giftPage": {
     "section": "Idées cadeaux",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Envoie n'importe quelle photo",
     "hiwStep2Texte": "Envoie tes photos depuis ton appareil ou tes réseaux sociaux — maintenant ou plus tard — pour créer ton portrait cartoon.",
     "hiwStep3Titre": "Reçois ton portrait",
-    "hiwStep3Texte": "Reçois ton fichier numérique en 2 jours. Ajoute une toile, un poster encadré, une tasse, et plus encore.",
+    "hiwStep3Texte": "Reçois ton fichier numérique en 2 jours. Ajoute une toile, un portrait encadré, une tasse, et plus encore.",
     "hiwChoisirDecor": "Choisis un décor",
     "hiwChoisirFichiers": "Choisir des fichiers",
     "hiwCommande": "Commande",

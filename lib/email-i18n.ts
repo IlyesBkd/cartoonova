@@ -1468,7 +1468,9 @@ export const reorderEmail: Record<Lang, {
    etait l'e-mail de confirmation, et chaque « ou en est ma commande ? »
    devenait un echange avec le support. */
 
-export type EtapeSuivi = "recue" | "dessin" | "apercu" | "envoyee";
+/* `acceptee` et `expediee` ne concernent que les impressions : le numerique
+   passe de l'apercu a l'envoi du fichier. */
+export type EtapeSuivi = "recue" | "dessin" | "apercu" | "acceptee" | "expediee" | "envoyee";
 
 export const orderTrackingPage: Record<Lang, {
   pageTitle: string;
@@ -1486,6 +1488,8 @@ export const orderTrackingPage: Record<Lang, {
   giftDeliverAfter: string;
   giftMessage: string;
   steps: Record<EtapeSuivi, { title: string; body: string }>;
+  /** Bouton sous l'etape « expediee », quand un lien de suivi du colis existe. */
+  trackParcel: string;
   finalTitle: string;
   finalBody: string;
   helpTitle: string;
@@ -1513,7 +1517,10 @@ export const orderTrackingPage: Record<Lang, {
       dessin: { title: "Dessin en cours", body: "Votre portrait est en cours de création. Comptez 2 jours." },
       apercu: { title: "Aperçu envoyé", body: "Vérifiez votre boîte mail : vous pouvez valider ou demander une retouche." },
       envoyee: { title: "Portrait envoyé", body: "Le fichier haute définition est parti par e-mail." },
+      acceptee: { title: "Portrait accepté, en fabrication", body: "Merci d’avoir validé ! Votre portrait part en impression : comptez 3 à 7 jours ouvrés de fabrication et de livraison." },
+      expediee: { title: "Colis expédié", body: "Votre portrait est en route vers chez vous." },
     },
+    trackParcel: "Suivre mon colis",
     finalTitle: "Votre portrait",
     finalBody: "Le voici tel qu’il vous a été envoyé.",
     helpTitle: "Une question ?",
@@ -1541,7 +1548,10 @@ export const orderTrackingPage: Record<Lang, {
       dessin: { title: "Being drawn", body: "Your portrait is being created. Around 2 days." },
       apercu: { title: "Preview sent", body: "Check your inbox: you can approve it or ask for a change." },
       envoyee: { title: "Portrait sent", body: "The high-resolution file has been emailed to you." },
+      acceptee: { title: "Portrait approved, in production", body: "Thanks for approving it! Your portrait is going to print: allow 3 to 7 business days for production and delivery." },
+      expediee: { title: "Parcel shipped", body: "Your portrait is on its way to you." },
     },
+    trackParcel: "Track my parcel",
     finalTitle: "Your portrait",
     finalBody: "Here it is, exactly as it was sent to you.",
     helpTitle: "A question?",
@@ -1569,7 +1579,10 @@ export const orderTrackingPage: Record<Lang, {
       dessin: { title: "En proceso de dibujo", body: "Tu retrato se está creando. Unos 2 días." },
       apercu: { title: "Vista previa enviada", body: "Revisa tu correo: puedes validarla o pedir un cambio." },
       envoyee: { title: "Retrato enviado", body: "El archivo en alta definición ha salido por correo." },
+      acceptee: { title: "Retrato aceptado, en fabricación", body: "¡Gracias por validarlo! Tu retrato pasa a impresión: cuenta de 3 a 7 días hábiles de fabricación y envío." },
+      expediee: { title: "Paquete enviado", body: "Tu retrato va de camino a tu casa." },
     },
+    trackParcel: "Seguir mi paquete",
     finalTitle: "Tu retrato",
     finalBody: "Aquí está, tal como te lo enviamos.",
     helpTitle: "¿Alguna duda?",
@@ -1597,7 +1610,10 @@ export const orderTrackingPage: Record<Lang, {
       dessin: { title: "Wird gezeichnet", body: "Ihr Portrait wird gerade erstellt. Etwa 2 Tage." },
       apercu: { title: "Vorschau verschickt", body: "Prüfen Sie Ihr Postfach: freigeben oder Änderung anfragen." },
       envoyee: { title: "Portrait verschickt", body: "Die hochauflösende Datei ist per E-Mail unterwegs." },
+      acceptee: { title: "Porträt freigegeben, in Herstellung", body: "Danke für die Freigabe! Ihr Porträt geht in den Druck: Rechnen Sie mit 3 bis 7 Werktagen für Herstellung und Lieferung." },
+      expediee: { title: "Paket versendet", body: "Ihr Porträt ist auf dem Weg zu Ihnen." },
     },
+    trackParcel: "Paket verfolgen",
     finalTitle: "Ihr Portrait",
     finalBody: "Hier ist es, genau so wie versendet.",
     helpTitle: "Eine Frage?",
@@ -1625,7 +1641,10 @@ export const orderTrackingPage: Record<Lang, {
       dessin: { title: "In disegno", body: "Il tuo ritratto è in lavorazione. Circa 2 giorni." },
       apercu: { title: "Anteprima inviata", body: "Controlla la posta: puoi approvarla o chiedere una modifica." },
       envoyee: { title: "Ritratto inviato", body: "Il file ad alta definizione è partito via e-mail." },
+      acceptee: { title: "Ritratto approvato, in produzione", body: "Grazie per l’approvazione! Il tuo ritratto va in stampa: calcola 3-7 giorni lavorativi per produzione e consegna." },
+      expediee: { title: "Pacco spedito", body: "Il tuo ritratto è in viaggio verso casa tua." },
     },
+    trackParcel: "Traccia il mio pacco",
     finalTitle: "Il tuo ritratto",
     finalBody: "Eccolo, esattamente come te l’abbiamo inviato.",
     helpTitle: "Una domanda?",
@@ -1653,7 +1672,10 @@ export const orderTrackingPage: Record<Lang, {
     dessin: { title: "Wordt getekend", body: "Je portret wordt gemaakt. Ongeveer 2 dagen." },
     apercu: { title: "Voorbeeld verstuurd", body: "Kijk in je inbox: je kunt goedkeuren of iets laten aanpassen." },
     envoyee: { title: "Portret verstuurd", body: "Het bestand in hoge resolutie is naar je gemaild." },
+    acceptee: { title: "Portret goedgekeurd, in productie", body: "Bedankt voor je goedkeuring! Je portret gaat in druk: reken op 3 tot 7 werkdagen voor productie en levering." },
+    expediee: { title: "Pakket verzonden", body: "Je portret is onderweg naar je toe." },
   },
+  trackParcel: "Mijn pakket volgen",
   finalTitle: "Je portret",
   finalBody: "Hier is het, precies zoals het naar je is gestuurd.",
   helpTitle: "Een vraag?",
@@ -1681,7 +1703,10 @@ export const orderTrackingPage: Record<Lang, {
     dessin: { title: "W trakcie rysowania", body: "Twój portret powstaje. Około 2 dni." },
     apercu: { title: "Podgląd wysłany", body: "Sprawdź skrzynkę: możesz zatwierdzić albo poprosić o zmianę." },
     envoyee: { title: "Portret wysłany", body: "Plik w wysokiej rozdzielczości poszedł na Twojego maila." },
+    acceptee: { title: "Portret zaakceptowany, w produkcji", body: "Dziękujemy za akceptację! Twój portret idzie do druku: na produkcję i dostawę potrzeba 3–7 dni roboczych." },
+    expediee: { title: "Paczka wysłana", body: "Twój portret jest w drodze do Ciebie." },
   },
+  trackParcel: "Śledź moją paczkę",
   finalTitle: "Twój portret",
   finalBody: "Oto on, dokładnie taki, jaki został wysłany.",
   helpTitle: "Masz pytanie?",
@@ -1709,7 +1734,10 @@ export const orderTrackingPage: Record<Lang, {
     dessin: { title: "Ritas nu", body: "Ditt porträtt håller på att skapas. Ungefär 2 dagar." },
     apercu: { title: "Förhandsvisning skickad", body: "Kolla inkorgen: du kan godkänna eller be om en ändring." },
     envoyee: { title: "Porträtt skickat", body: "Filen i hög upplösning har mejlats till dig." },
+    acceptee: { title: "Porträttet godkänt, i tillverkning", body: "Tack för godkännandet! Ditt porträtt går till tryck: räkna med 3 till 7 arbetsdagar för tillverkning och leverans." },
+    expediee: { title: "Paketet skickat", body: "Ditt porträtt är på väg till dig." },
   },
+  trackParcel: "Spåra mitt paket",
   finalTitle: "Ditt porträtt",
   finalBody: "Här är det, precis som det skickades till dig.",
   helpTitle: "En fråga?",
@@ -1737,7 +1765,10 @@ export const orderTrackingPage: Record<Lang, {
     dessin: { title: "Bliver tegnet", body: "Dit portræt er ved at blive lavet. Cirka 2 dage." },
     apercu: { title: "Forhåndsvisning sendt", body: "Tjek indbakken: du kan godkende eller bede om en ændring." },
     envoyee: { title: "Portræt sendt", body: "Filen i høj opløsning er sendt til din mail." },
+    acceptee: { title: "Portræt godkendt, i produktion", body: "Tak for godkendelsen! Dit portræt går i trykken: regn med 3 til 7 hverdage til produktion og levering." },
+    expediee: { title: "Pakke afsendt", body: "Dit portræt er på vej til dig." },
   },
+  trackParcel: "Følg min pakke",
   finalTitle: "Dit portræt",
   finalBody: "Her er det, præcis som det blev sendt til dig.",
   helpTitle: "Et spørgsmål?",
@@ -1765,7 +1796,10 @@ export const orderTrackingPage: Record<Lang, {
     dessin: { title: "A ser desenhado", body: "O teu retrato está a ser criado. Cerca de 2 dias." },
     apercu: { title: "Pré-visualização enviada", body: "Vê o teu email: podes aprovar ou pedir uma alteração." },
     envoyee: { title: "Retrato enviado", body: "O ficheiro em alta resolução foi enviado para o teu email." },
+    acceptee: { title: "Retrato aprovado, em produção", body: "Obrigado por aprovar! O teu retrato vai para impressão: conta com 3 a 7 dias úteis de produção e entrega." },
+    expediee: { title: "Encomenda expedida", body: "O teu retrato está a caminho de ti." },
   },
+  trackParcel: "Seguir a minha encomenda",
   finalTitle: "O teu retrato",
   finalBody: "Aqui está, exactamente como te foi enviado.",
   helpTitle: "Alguma dúvida?",
@@ -2970,19 +3004,21 @@ export const optionsCommande: Record<Lang, {
   banner: string;
   extraDecor: string;
   express: string;
+  /** Ligne de livraison des impressions, dans le recapitulatif. */
+  shipping: string;
   /** Remplace `confirmationEmail.deliveryTime` quand l'express est paye. */
   deliveryExpress: string;
 }> = {
-  fr: { banner: "Banderole / texte personnalisé", extraDecor: "Décor supplémentaire", express: "Express 24 h", deliveryExpress: "Option express : votre dessin est livré sous 24 heures, week-end compris. Pour une impression, comptez ensuite 1 jour pour valider l'aperçu, puis 3 à 7 jours ouvrés de fabrication et de livraison." },
-  en: { banner: "Custom banner / text", extraDecor: "Extra background", express: "24-hour express", deliveryExpress: "Express option: your drawing is delivered within 24 hours, weekends included. For a print, then allow 1 day to approve the preview and 3 to 7 business days for production and delivery." },
-  es: { banner: "Pancarta / texto personalizado", extraDecor: "Fondo adicional", express: "Exprés 24 h", deliveryExpress: "Opción exprés: tu dibujo se entrega en 24 horas, fines de semana incluidos. Para una impresión, cuenta después 1 día para validar la vista previa y 3 a 7 días hábiles de fabricación y envío." },
-  de: { banner: "Banner / eigener Text", extraDecor: "Zusätzlicher Hintergrund", express: "Express 24 Std.", deliveryExpress: "Express-Option: Ihre Zeichnung kommt innerhalb von 24 Stunden, auch am Wochenende. Bei einem Druck folgen 1 Tag für die Freigabe der Vorschau und 3 bis 7 Werktage für Herstellung und Lieferung." },
-  it: { banner: "Striscione / testo personalizzato", extraDecor: "Sfondo aggiuntivo", express: "Express 24 h", deliveryExpress: "Opzione express: il disegno arriva entro 24 ore, weekend compreso. Per una stampa, calcola poi 1 giorno per approvare l'anteprima e 3-7 giorni lavorativi per produzione e consegna." },
-  nl: { banner: "Banner / eigen tekst", extraDecor: "Extra achtergrond", express: "Express 24 uur", deliveryExpress: "Expressoptie: je tekening wordt binnen 24 uur geleverd, ook in het weekend. Bij een print volgen daarna 1 dag om goed te keuren en 3 tot 7 werkdagen voor productie en levering." },
-  pl: { banner: "Baner / własny tekst", extraDecor: "Dodatkowe tło", express: "Ekspres 24 h", deliveryExpress: "Opcja ekspres: rysunek dostarczamy w 24 godziny, także w weekend. Przy wydruku dochodzi potem 1 dzień na akceptację podglądu i 3–7 dni roboczych na produkcję i dostawę." },
-  sv: { banner: "Banderoll / egen text", extraDecor: "Extra bakgrund", express: "Express 24 h", deliveryExpress: "Expressalternativ: teckningen levereras inom 24 timmar, även på helger. För ett tryck tillkommer sedan 1 dag för godkännande och 3 till 7 arbetsdagar för tillverkning och leverans." },
-  da: { banner: "Banner / egen tekst", extraDecor: "Ekstra baggrund", express: "Ekspres 24 t", deliveryExpress: "Ekspres-option: din tegning leveres inden for 24 timer, også i weekenden. For et tryk kommer derefter 1 dag til godkendelse og 3 til 7 hverdage til produktion og levering." },
-  pt: { banner: "Faixa / texto personalizado", extraDecor: "Fundo adicional", express: "Expresso 24 h", deliveryExpress: "Opção expresso: o teu desenho é entregue em 24 horas, fins de semana incluídos. Para uma impressão, conta depois 1 dia para aprovar a pré-visualização e 3 a 7 dias úteis de produção e entrega." },
+  fr: { banner: "Banderole / texte personnalisé", extraDecor: "Décor supplémentaire", express: "Express 24 h", shipping: "Livraison", deliveryExpress: "Option express : votre dessin est livré sous 24 heures, week-end compris. Pour une impression, comptez ensuite 1 jour pour valider l'aperçu, puis 3 à 7 jours ouvrés de fabrication et de livraison." },
+  en: { banner: "Custom banner / text", extraDecor: "Extra background", express: "24-hour express", shipping: "Shipping", deliveryExpress: "Express option: your drawing is delivered within 24 hours, weekends included. For a print, then allow 1 day to approve the preview and 3 to 7 business days for production and delivery." },
+  es: { banner: "Pancarta / texto personalizado", extraDecor: "Fondo adicional", express: "Exprés 24 h", shipping: "Envío", deliveryExpress: "Opción exprés: tu dibujo se entrega en 24 horas, fines de semana incluidos. Para una impresión, cuenta después 1 día para validar la vista previa y 3 a 7 días hábiles de fabricación y envío." },
+  de: { banner: "Banner / eigener Text", extraDecor: "Zusätzlicher Hintergrund", express: "Express 24 Std.", shipping: "Versand", deliveryExpress: "Express-Option: Ihre Zeichnung kommt innerhalb von 24 Stunden, auch am Wochenende. Bei einem Druck folgen 1 Tag für die Freigabe der Vorschau und 3 bis 7 Werktage für Herstellung und Lieferung." },
+  it: { banner: "Striscione / testo personalizzato", extraDecor: "Sfondo aggiuntivo", express: "Express 24 h", shipping: "Spedizione", deliveryExpress: "Opzione express: il disegno arriva entro 24 ore, weekend compreso. Per una stampa, calcola poi 1 giorno per approvare l'anteprima e 3-7 giorni lavorativi per produzione e consegna." },
+  nl: { banner: "Banner / eigen tekst", extraDecor: "Extra achtergrond", express: "Express 24 uur", shipping: "Verzending", deliveryExpress: "Expressoptie: je tekening wordt binnen 24 uur geleverd, ook in het weekend. Bij een print volgen daarna 1 dag om goed te keuren en 3 tot 7 werkdagen voor productie en levering." },
+  pl: { banner: "Baner / własny tekst", extraDecor: "Dodatkowe tło", express: "Ekspres 24 h", shipping: "Dostawa", deliveryExpress: "Opcja ekspres: rysunek dostarczamy w 24 godziny, także w weekend. Przy wydruku dochodzi potem 1 dzień na akceptację podglądu i 3–7 dni roboczych na produkcję i dostawę." },
+  sv: { banner: "Banderoll / egen text", extraDecor: "Extra bakgrund", express: "Express 24 h", shipping: "Frakt", deliveryExpress: "Expressalternativ: teckningen levereras inom 24 timmar, även på helger. För ett tryck tillkommer sedan 1 dag för godkännande och 3 till 7 arbetsdagar för tillverkning och leverans." },
+  da: { banner: "Banner / egen tekst", extraDecor: "Ekstra baggrund", express: "Ekspres 24 t", shipping: "Levering", deliveryExpress: "Ekspres-option: din tegning leveres inden for 24 timer, også i weekenden. For et tryk kommer derefter 1 dag til godkendelse og 3 til 7 hverdage til produktion og levering." },
+  pt: { banner: "Faixa / texto personalizado", extraDecor: "Fundo adicional", express: "Expresso 24 h", shipping: "Envio", deliveryExpress: "Opção expresso: o teu desenho é entregue em 24 horas, fins de semana incluídos. Para uma impressão, conta depois 1 dia para aprovar a pré-visualização e 3 a 7 dias úteis de produção e entrega." },
 };
 
 /* ─── Bon cadeau : e-mail, version imprimable, page de succès ─────────── */

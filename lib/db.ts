@@ -210,6 +210,8 @@ export interface OrderOptions {
   extraDecorKey?: string | null;
   /** Dessin promis sous 24 h, week-end compris. */
   express?: boolean;
+  /** Livraison facturee (impressions), lue sur le PaymentIntent. Absente avant le 2 octobre 2026. */
+  shippingAmount?: number;
 }
 
 export interface DbOrder {
@@ -1056,6 +1058,7 @@ async function ensurePricesSchema(): Promise<void> {
       banner: DEFAULT_PRICE_SET.banner,
       extraDecor: DEFAULT_PRICE_SET.extraDecor,
       express: DEFAULT_PRICE_SET.express,
+      shipping: DEFAULT_PRICE_SET.shipping,
     };
     const scale = (rate: number): PriceSet =>
       Object.fromEntries(

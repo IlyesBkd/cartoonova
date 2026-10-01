@@ -174,7 +174,6 @@
     "giftDesc": "Fügen Sie eine personalisierte Nachricht hinzu",
     "giftMessagePlaceholder": "Ihre personalisierte Nachricht...",
     "gift": "Es ist ein Geschenk",
-    "portraitEncadré": "Eingerahmtes Porträt",
     "customizeTitle": "Personalisieren Sie Ihre",
     "customizeHighlight": "Karikatur",
     "customizeSubtitle": "Wählen Sie Ihre Optionen Schritt für Schritt. Die Summe wird in Echtzeit aktualisiert.",
@@ -197,7 +196,7 @@
     "step5": "Druckoptionen",
     "digital": "Digital",
     "canvas": "Leinwand-Portrait",
-    "poster": "Gerahmtes Poster",
+    "poster": "Gerahmtes Porträt",
     "includedLabel": "INKLUSIVE",
     "totalLabel": "Ihre Summe",
     "buyNow": "Jetzt kaufen",
@@ -353,7 +352,8 @@
     "optExpress": "Express 24 Std.",
     "optExpressSub": "Dein Porträt in 24 Stunden, auch am Wochenende",
     "optExpressSubPrint": "Zeichnung in 24 Stunden, auch am Wochenende, danach der Druck",
-    "optExpressRecap": "Express 24 Std."
+    "optExpressRecap": "Express 24 Std.",
+    "shippingLine": "inkl. Versand: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Bestellung bestätigt",
@@ -501,7 +501,8 @@
     "promoToggle": "Ich habe einen Gutscheincode",
     "cartReminderNotice": "Wir erinnern dich eventuell einmal per E-Mail an deinen Warenkorb.",
     "expressOrFillIn": "oder gib deine Daten ein",
-    "expressShippingIncluded": "Versand inklusive"
+    "expressShippingIncluded": "Versand im Gesamtbetrag enthalten",
+    "shippingLine": "Versand"
   },
   "giftPage": {
     "section": "Geschenkideen",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Lade ein beliebiges Foto hoch",
     "hiwStep2Texte": "Lade Fotos von deinem Gerät oder aus sozialen Netzwerken hoch — jetzt oder später — um dein Cartoon-Portrait zu erstellen.",
     "hiwStep3Titre": "Erhalte dein Portrait",
-    "hiwStep3Texte": "Erhalte deinen digitalen Download in 2 Tagen. Füge eine Leinwand, ein gerahmtes Poster, eine Tasse und mehr hinzu.",
+    "hiwStep3Texte": "Erhalte deinen digitalen Download in 2 Tagen. Füge eine Leinwand, ein gerahmtes Porträt, eine Tasse und mehr hinzu.",
     "hiwChoisirDecor": "Hintergrund wählen",
     "hiwChoisirFichiers": "Dateien auswählen",
     "hiwCommande": "Bestellt",

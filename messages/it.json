@@ -174,7 +174,6 @@
     "giftDesc": "Aggiungi un messaggio personalizzato",
     "giftMessagePlaceholder": "Il tuo messaggio personalizzato...",
     "gift": "È un regalo",
-    "portraitEncadré": "Ritratto Incorniciato",
     "customizeTitle": "Personalizza La Tua",
     "customizeHighlight": "Caricatura",
     "customizeSubtitle": "Scegli le tue opzioni passo dopo passo. Il totale si aggiorna in tempo reale.",
@@ -353,7 +352,8 @@
     "optExpress": "Express 24 h",
     "optExpressSub": "Il tuo ritratto entro 24 ore, weekend compreso",
     "optExpressSubPrint": "Disegno entro 24 ore, weekend compreso, poi la stampa",
-    "optExpressRecap": "Express 24 h"
+    "optExpressRecap": "Express 24 h",
+    "shippingLine": "spedizione inclusa: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Ordine confermato",
@@ -501,7 +501,8 @@
     "promoToggle": "Ho un codice sconto",
     "cartReminderNotice": "Potremmo ricordarti il tuo carrello una volta via e-mail.",
     "expressOrFillIn": "oppure inserisci i tuoi dati",
-    "expressShippingIncluded": "Spedizione inclusa"
+    "expressShippingIncluded": "Spedizione inclusa nel totale",
+    "shippingLine": "Spedizione"
   },
   "giftPage": {
     "section": "Idee regalo",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Carica qualsiasi foto",
     "hiwStep2Texte": "Carica foto dal tuo dispositivo o dai social — ora o più tardi — per creare il tuo ritratto cartoon.",
     "hiwStep3Titre": "Ricevi il tuo ritratto",
-    "hiwStep3Texte": "Ricevi il tuo download digitale in 2 giorni. Aggiungi una tela, un poster incorniciato, una tazza e altro ancora.",
+    "hiwStep3Texte": "Ricevi il tuo download digitale in 2 giorni. Aggiungi una tela, un ritratto incorniciato, una tazza e altro ancora.",
     "hiwChoisirDecor": "Scegli uno sfondo",
     "hiwChoisirFichiers": "Scegli i file",
     "hiwCommande": "Ordinato",

@@ -26,7 +26,7 @@ interface SelectedOptions {
  *
  * Le prix et la devise accompagnent desormais chaque evenement du parcours.
  * Sans eux, l'entonnoir ne comptait que des tetes : impossible de savoir si
- * les visiteurs qui abandonnent sont ceux qui ont configure un poster encadre
+ * les visiteurs qui abandonnent sont ceux qui ont configure un portrait encadre
  * a 89 EUR ou un fichier numerique a 29 EUR — alors que c'est exactement la
  * question que pose le configurateur.
  */

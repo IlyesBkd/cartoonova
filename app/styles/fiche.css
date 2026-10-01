@@ -82,3 +82,12 @@
   margin: 0 0 14px; font-size: 14px; line-height: 1.5; color: var(--encre-doux);
 }
 .questions-achat a { color: var(--encre); font-weight: 600; }
+
+/* Livraison des impressions (2 octobre 2026) : une ligne discrete a cote du
+   total, pour qu'elle ne surprenne personne a la caisse. */
+.panneau__port,
+.total__port {
+  flex-basis: 100%;
+  font-size: 13px; font-weight: 600; color: var(--encre-doux);
+}
+.total__port { display: block; margin-top: 4px; }

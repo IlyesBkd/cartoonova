@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getOrderById } from "@/lib/db";
-import type { DbOrder } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
-import { bonusLiens, getLangFromCountry, orderTrackingPage, type EtapeSuivi } from "@/lib/email-i18n";
+import { bonusLiens, getLangFromCountry, orderTrackingPage } from "@/lib/email-i18n";
+import { etapeAtteinte, etapesDeLaCommande } from "@/lib/etapesSuivi";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 
@@ -21,15 +21,6 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
-
-/** Etape atteinte, deduite de ce que la commande porte deja. */
-function etapeAtteinte(order: DbOrder): EtapeSuivi {
-  if (order.final_image_sent_at) return "envoyee";
-  if (order.poster_confirmation_sent_at) return "apercu";
-  return "dessin";
-}
-
-const ORDRE: EtapeSuivi[] = ["recue", "dessin", "apercu", "envoyee"];
 
 export default async function SuiviPage({
   params,
@@ -63,7 +54,8 @@ export default async function SuiviPage({
   const ref = order.id.slice(0, 8);
   const opts = order.options;
   const courante = etapeAtteinte(order);
-  const indexCourant = ORDRE.indexOf(courante);
+  const ordre = etapesDeLaCommande(order);
+  const indexCourant = ordre.indexOf(courante);
   const photos = Array.isArray(order.photo_urls) ? order.photo_urls.length : 0;
   const date = new Date(order.created_at).toLocaleDateString(lang, {
     day: "numeric",
@@ -98,7 +90,7 @@ export default async function SuiviPage({
 
         {/* ─── Avancement ─── */}
         <ol className="suivi__etapes">
-          {ORDRE.map((cle, i) => {
+          {ordre.map((cle, i) => {
             const etat = i < indexCourant ? "faite" : i === indexCourant ? "courante" : "avenir";
             return (
               <li key={cle} className={`suivi__etape suivi__etape--${etat}`}>
@@ -106,6 +98,11 @@ export default async function SuiviPage({
                 <div>
                   <b>{t.steps[cle].title}</b>
                   <p>{t.steps[cle].body}</p>
+                  {cle === "expediee" && courante === "expediee" && order.suivi_url && order.suivi_url.startsWith("http") && (
+                    <a href={order.suivi_url} className="bouton bouton--primaire" target="_blank" rel="noopener noreferrer">
+                      {t.trackParcel}
+                    </a>
+                  )}
                 </div>
               </li>
             );

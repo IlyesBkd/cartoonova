@@ -174,7 +174,6 @@
     "giftDesc": "Tilføj en personlig besked",
     "giftMessagePlaceholder": "Din personlige besked...",
     "gift": "Det er en gave",
-    "portraitEncadré": "Indrammet portræt",
     "customizeTitle": "Sæt din",
     "customizeHighlight": "karikatur sammen",
     "customizeSubtitle": "Vælg muligheder trin for trin. Summen opdateres løbende.",
@@ -197,7 +196,7 @@
     "step5": "Trykmuligheder",
     "digital": "Digitalt",
     "canvas": "Portræt på lærred",
-    "poster": "Indrammet plakat",
+    "poster": "Indrammet portræt",
     "includedLabel": "MED I PRISEN",
     "totalLabel": "Din sum",
     "buyNow": "Køb nu",
@@ -353,7 +352,8 @@
     "optExpress": "Ekspres 24 t",
     "optExpressSub": "Dit portræt inden for 24 timer, også i weekenden",
     "optExpressSubPrint": "Tegningen inden for 24 timer, også i weekenden, derefter trykket",
-    "optExpressRecap": "Ekspres 24 t"
+    "optExpressRecap": "Ekspres 24 t",
+    "shippingLine": "heraf levering: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Bestilling bekræftet",
@@ -501,7 +501,8 @@
     "promoToggle": "Jeg har en rabatkode",
     "cartReminderNotice": "Vi kan minde dig om din kurv én gang via e-mail.",
     "expressOrFillIn": "eller udfyld dine oplysninger",
-    "expressShippingIncluded": "Levering inkluderet"
+    "expressShippingIncluded": "Levering inkluderet i totalen",
+    "shippingLine": "Levering"
   },
   "giftPage": {
     "section": "Gaveidéer",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Upload et foto",
     "hiwStep2Texte": "Upload fotos fra telefonen eller sociale medier — nu eller senere.",
     "hiwStep3Titre": "Få dit portræt",
-    "hiwStep3Texte": "Den digitale fil er klar på 2 dage. Tilføj lærred, indrammet plakat eller krus.",
+    "hiwStep3Texte": "Den digitale fil er klar på 2 dage. Tilføj lærred, indrammet portræt eller krus.",
     "hiwChoisirDecor": "Vælg baggrund",
     "hiwChoisirFichiers": "Vælg filer",
     "hiwCommande": "Bestilt",

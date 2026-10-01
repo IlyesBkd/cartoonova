@@ -30,7 +30,7 @@ export default function CGV() {
             <li>Fichiers numériques (JPG, PNG haute résolution)</li>
             <li>Impressions sur poster</li>
             <li>Impressions sur canvas (toile)</li>
-            <li>Impressions sur poster encadré</li>
+            <li>Impressions sur portrait encadré</li>
             <li>Impressions sur mug</li>
             <li>Impressions sur Alu-Dibond</li>
           </ul>
@@ -40,7 +40,7 @@ export default function CGV() {
         <section>
           <h2>Article 3 — Prix</h2>
           <p>Les prix sont indiqués en euros (€), toutes taxes comprises (TTC). Cartoonova se réserve le droit de modifier ses prix à tout moment. Les produits seront facturés au tarif en vigueur au moment de la validation de la commande.</p>
-          <p>Les frais de livraison, le cas échéant, sont indiqués et calculés avant la validation finale de la commande.</p>
+          <p>Les impressions (poster, toile, portrait encadré) sont livrées moyennant des frais de livraison forfaitaires, ajoutés au prix des produits et indiqués avant la validation finale de la commande. Le fichier numérique, envoyé par e-mail, n&apos;entraîne aucun frais de livraison.</p>
         </section>
 
         <section>

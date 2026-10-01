@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         promo_code: quote.promoCode ?? "",
         subtotal: quote.subtotal.toFixed(2),
         discount: quote.discount.toFixed(2),
+        shipping: quote.shipping.toFixed(2),
         options,
       },
     });
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       subtotal: quote.subtotal,
+      shipping: quote.shipping,
       discount: quote.discount,
       total: quote.total,
       currency: quote.currency,

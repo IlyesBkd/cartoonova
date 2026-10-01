@@ -174,7 +174,6 @@
     "giftDesc": "Junta uma mensagem personalizada",
     "giftMessagePlaceholder": "A tua mensagem personalizada...",
     "gift": "É uma prenda",
-    "portraitEncadré": "Retrato emoldurado",
     "customizeTitle": "Monta a tua",
     "customizeHighlight": "caricatura",
     "customizeSubtitle": "Escolhe as opções passo a passo. O total actualiza em tempo real.",
@@ -197,7 +196,7 @@
     "step5": "Opções de impressão",
     "digital": "Digital",
     "canvas": "Retrato em tela",
-    "poster": "Poster emoldurado",
+    "poster": "Retrato emoldurado",
     "includedLabel": "INCLUÍDO",
     "totalLabel": "O teu total",
     "buyNow": "Comprar agora",
@@ -353,7 +352,8 @@
     "optExpress": "Expresso 24 h",
     "optExpressSub": "O teu retrato em 24 horas, fins de semana incluídos",
     "optExpressSubPrint": "Desenho em 24 horas, fins de semana incluídos, depois a impressão",
-    "optExpressRecap": "Expresso 24 h"
+    "optExpressRecap": "Expresso 24 h",
+    "shippingLine": "envio incluído: {montant}"
   },
   "checkout": {
     "orderConfirmed": "Encomenda confirmada",
@@ -501,7 +501,8 @@
     "promoToggle": "Tenho um código promocional",
     "cartReminderNotice": "Podemos lembrar-te do teu carrinho uma vez por e-mail.",
     "expressOrFillIn": "ou preenche os teus dados",
-    "expressShippingIncluded": "Envio incluído"
+    "expressShippingIncluded": "Envio incluído no total",
+    "shippingLine": "Envio"
   },
   "giftPage": {
     "section": "Ideias de prenda",
@@ -762,7 +763,7 @@
     "hiwStep2Titre": "Carrega uma foto",
     "hiwStep2Texte": "Carrega fotos do telemóvel ou das redes sociais — agora ou mais tarde.",
     "hiwStep3Titre": "Recebe o teu retrato",
-    "hiwStep3Texte": "O ficheiro digital chega em 2 dias. Junta uma tela, um poster emoldurado ou uma caneca.",
+    "hiwStep3Texte": "O ficheiro digital chega em 2 dias. Junta uma tela, um retrato emoldurado ou uma caneca.",
     "hiwChoisirDecor": "Escolhe o cenário",
     "hiwChoisirFichiers": "Escolher ficheiros",
     "hiwCommande": "Encomendado",

@@ -67,6 +67,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
                 ${opts.banner ? `<li>${oc.banner}</li>` : ""}
                 ${opts.extraDecor ? `<li>${oc.extraDecor}</li>` : ""}
                 ${opts.express ? `<li>⚡ ${oc.express}</li>` : ""}
+                ${opts.shippingAmount ? `<li>${oc.shipping}: ${opts.shippingAmount} ${order.currency}</li>` : ""}
                 <li>${t.total}: ${order.total_price} ${order.currency}</li>
               </ul>
             </div>
