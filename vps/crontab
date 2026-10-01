@@ -1,0 +1,54 @@
+# Planification des taches Cartoonova, sur le VPS.
+#
+#   crontab vps/crontab        pour installer
+#   crontab -l                 pour verifier
+#
+# Les horaires sont en UTC si le VPS l'est ; `timedatectl` le dit. Les heures
+# ci-dessous supposent UTC.
+#
+# ── Pourquoi si peu de lignes ────────────────────────────────────────────
+#
+# Une seule entree declenche toute la chaine nocturne. Sur GitHub Actions il
+# fallait chainer cinq workflows par `workflow_run:` parce que les horaires
+# planifies derivaient de plusieurs heures ; ici l'ordre s'obtient en mettant
+# les commandes a la suite, ce que fait la tache `nuit`.
+#
+# ── Le journal des taches ────────────────────────────────────────────────
+#
+# Chaque tache ecrit son passage dans `ge_job_runs`. La ligne `veille` relit
+# cette table et alerte sur Discord pour ce qui n'a pas rapporte. C'est elle qui
+# ferme la boucle : sans elle, une tache disparue ne se voit pas.
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Le cron n'a pas d'environnement : le chemin doit etre absolu et correspondre
+# a l'emplacement reel du depot sur la machine.
+CARTOONOVA=/srv/cartoonova
+
+# ── Nuit : redaction des fiches, puis les quatre sondes, dans cet ordre ──
+10 2 * * *  $CARTOONOVA/vps/executer.sh nuit
+
+# ── Moteur de blog : cinq passages, la cadence reelle venant de
+#    `config/project.json` (fenetres horaires et cibles par langue) ────────
+0 6,9,12,15,18 * * *  $CARTOONOVA/vps/executer.sh blog
+
+# ── Analyse SEO du moteur : une fois par jour suffit ─────────────────────
+30 6 * * *  $CARTOONOVA/vps/executer.sh blog-seo
+
+# ── Routes servies par l'application ────────────────────────────────────
+0 6 * * *   $CARTOONOVA/vps/executer.sh cron-seo
+0 7 * * *   $CARTOONOVA/vps/executer.sh cron-support
+0 9 * * *   $CARTOONOVA/vps/executer.sh cron-lifecycle
+
+# ── Retouches sans reponse : toutes les trois heures ────────────────────
+#    Le client a recu la promesse d'une reponse sous 24 h. Un passage par jour
+#    laisserait une demande deborder de presque autant ; toutes les trois
+#    heures, l'alerte tombe peu apres l'echeance, sans inonder Discord (une
+#    seule alerte groupee, et rien quand tout a sa reponse).
+15 */3 * * *  $CARTOONOVA/vps/executer.sh cron-retouches
+
+# ── Entonnoir : hebdomadaire, le lundi ──────────────────────────────────
+0 8 * * 1   $CARTOONOVA/vps/executer.sh entonnoir
+
+# ── Veille : apres que tout le reste a eu sa chance de tourner ───────────
+0 11 * * *  $CARTOONOVA/vps/executer.sh veille
