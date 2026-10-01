@@ -1,6 +1,7 @@
 import type { ProjectConfig } from "../core/types.js";
 import type { AdapterBundle } from "./contracts.js";
 import { MockAiAdapter, OpenAiCompatibleAdapter } from "./ai.js";
+import { CorpusFirstSearchAdapter } from "./corpus-search.js";
 import {
   FileAnalyticsAdapter,
   FileCmsAdapter,
@@ -14,7 +15,7 @@ import { SerpApiSearchAdapter } from "./serpapi.js";
 
 export function createAdapters(config: ProjectConfig): AdapterBundle {
   const cms = config.adapters.cms.type === "file" ? new FileCmsAdapter(config) : config.adapters.cms.type === "http-json" ? new HttpCmsAdapter(config) : config.adapters.cms.type === "postgres" ? new PostgresCmsAdapter(config) : null;
-  const search = config.adapters.search.type === "fixture" ? new FixtureSearchAdapter(config) : config.adapters.search.type === "http-json" ? new HttpSearchAdapter(config) : config.adapters.search.type === "serpapi" ? new SerpApiSearchAdapter(config) : null;
+  const search = config.adapters.search.type === "fixture" ? new FixtureSearchAdapter(config) : config.adapters.search.type === "http-json" ? new HttpSearchAdapter(config) : config.adapters.search.type === "serpapi" ? new SerpApiSearchAdapter(config) : config.adapters.search.type === "corpus+serpapi" ? new CorpusFirstSearchAdapter(config) : null;
   const analytics = config.adapters.analytics.type === "file" ? new FileAnalyticsAdapter(config) : config.adapters.analytics.type === "http-json" ? new HttpAnalyticsAdapter(config) : null;
   const media = config.adapters.media.type === "local-catalog" ? new LocalMediaAdapter(config) : config.adapters.media.type === "http-json" ? new HttpMediaAdapter(config) : null;
   const distribution = config.adapters.distribution.type === "json-outbox" ? new JsonOutboxDistributionAdapter(config) : config.adapters.distribution.type === "http-json" ? new HttpDistributionAdapter(config) : null;
