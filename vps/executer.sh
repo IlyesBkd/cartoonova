@@ -81,7 +81,9 @@ appeler_route() {
 suivre() {
   local nom="$1"; shift
   local debut code=0
-  debut=$(date +%s%3N)
+  # Pas `%3N` : le `date` d'Ubuntu recent (uutils) ignore la largeur et
+  # renvoie les nanosecondes entieres.
+  debut=$(( $(date +%s%N) / 1000000 ))
   "$@" || code=$?
   (cd "$RACINE" && node scripts/noter-passage.mjs "$nom" "$code" "$debut") || true
   return "$code"
