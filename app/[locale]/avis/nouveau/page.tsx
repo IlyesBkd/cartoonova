@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { Locale } from "@/i18n/config";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import NouvelAvisClient from "./NouvelAvisClient";
+import { setRequestLocale } from "next-intl/server";
 
 /* Page de fin de parcours, atteinte par un lien envoye par email et portant un
    jeton : elle n'a rien a faire dans l'index. `robots.ts` ne peut pas l'exclure
@@ -18,6 +19,7 @@ export default async function Page({
   searchParams: Promise<{ c?: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const { c } = await searchParams;
 
   const jeton = c ?? "";

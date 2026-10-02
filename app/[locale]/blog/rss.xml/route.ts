@@ -20,7 +20,7 @@ const CHANNEL_TITLE: Record<Locale, string> = {
 };
 
 const CHANNEL_DESCRIPTION: Record<Locale, string> = {
-  fr: "Idées cadeaux, portraits personnalisés et conseils pour bien choisir votre style.",
+  fr: "Idées cadeaux, portraits personnalisés et conseils pour bien choisir ton style.",
   en: "Gift ideas, custom portraits and tips for choosing your style.",
   es: "Ideas de regalo, retratos personalizados y consejos para elegir tu estilo.",
   de: "Geschenkideen, personalisierte Porträts und Tipps zur Wahl des Stils.",

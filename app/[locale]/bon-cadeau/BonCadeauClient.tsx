@@ -7,6 +7,7 @@ import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-
 import { useCurrency } from "@/components/CurrencyProvider";
 import { montantsBon } from "@/lib/bonCadeauMontants";
 import Icone from "@/components/tj/Icone";
+import { emailValide } from "@/lib/email";
 
 /* Achat d'un bon cadeau : un montant, l'e-mail de l'acheteur, un prenom et un
    message facultatifs, puis le paiement. Le bon (code + version imprimable)
@@ -85,7 +86,7 @@ export default function BonCadeauClient() {
 
   const continuer = async () => {
     setErreur("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (!emailValide(email)) {
       setErreur(t("erreurEmail"));
       return;
     }

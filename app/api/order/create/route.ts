@@ -7,6 +7,7 @@ import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
+import { emailValide } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -63,6 +64,10 @@ export async function POST(req: NextRequest) {
 
     if (!paymentIntentId || !email) {
       return NextResponse.json({ error: "Données manquantes." }, { status: 400 });
+    }
+    // Sans adresse valide, la commande ne peut ni etre confirmee ni livree.
+    if (!emailValide(email)) {
+      return NextResponse.json({ error: "Adresse e-mail invalide." }, { status: 400 });
     }
 
     /* Les photos sont nettoyees, plus exigees : la commande peut naitre sans,

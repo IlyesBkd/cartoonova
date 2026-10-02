@@ -15,6 +15,8 @@ import { MESURES } from "@/lib/evenementsMesure";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
 import type { PrintKey } from "@/lib/pricing";
 import Icone from "@/components/tj/Icone";
+import { useRetourFerme } from "@/lib/useRetourFerme";
+import { emailValide, suggestionEmail } from "@/lib/email";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -273,7 +275,7 @@ function ExpressEtape1({
     });
 
     const email = (event.billingDetails?.email || emailSaisi).trim();
-    if (!email) {
+    if (!emailValide(email)) {
       // Ne devrait pas arriver avec `emailRequired` : sans e-mail, la commande
       // ne pourrait ni etre confirmee ni livree.
       event.paymentFailed({ reason: "fail" });
@@ -775,6 +777,10 @@ export default function CheckoutModal({
     onClose();
   }, [onClose, orderConfig.style, orderConfig.total, orderConfig.printOption]);
 
+  /* Retour du telephone = fermer la caisse, quelle que soit l'etape : il
+     ramenait a la page precedente et faisait perdre toute la configuration. */
+  useRetourFerme(open, fermer);
+
   useEffect(() => {
     if (!open) return;
     const auClavier = (e: KeyboardEvent) => {
@@ -940,7 +946,7 @@ export default function CheckoutModal({
       setFormError(message);
     };
 
-    if (!email.trim() || !email.includes("@")) {
+    if (!emailValide(email)) {
       refuser("email", t("errorValidEmail"));
       return;
     }
@@ -961,7 +967,7 @@ export default function CheckoutModal({
 
     // L'e-mail du destinataire est facultatif, mais s'il est saisi il doit etre
     // valide : c'est la seule adresse qui recevra le portrait.
-    if (estCadeau && emailDestinataire.trim() && !emailDestinataire.includes("@")) {
+    if (estCadeau && emailDestinataire.trim() && !emailValide(emailDestinataire)) {
       refuser("email_destinataire", t("errorValidEmail"));
       return;
     }
@@ -1182,6 +1188,21 @@ export default function CheckoutModal({
                   placeholder={t("emailPlaceholder")}
                   className={inputClass}
                 />
+                {/* Faute de frappe probable sur le domaine (gmail.con…) : on
+                    propose la correction, le client tranche. Une adresse
+                    fausse lui faisait perdre confirmation, apercu et portrait. */}
+                {suggestionEmail(email) && (
+                  <p className="caisse-suggestion" role="status">
+                    {t.rich("emailSuggestion", {
+                      email: suggestionEmail(email) ?? "",
+                      lien: (texte) => (
+                        <button type="button" onClick={() => setEmail(suggestionEmail(email) ?? email)}>
+                          {texte}
+                        </button>
+                      ),
+                    })}
+                  </p>
+                )}
                 {/* Information RGPD : l'adresse sert aussi a une relance
                     unique du panier (voir goToPayment). */}
                 <p className="caisse-mention">{t("cartReminderNotice")}</p>

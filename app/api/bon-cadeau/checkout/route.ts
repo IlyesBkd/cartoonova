@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { deviseValide, montantsBon } from "@/lib/bonCadeauMontants";
 import { LANGS } from "@/lib/email-i18n";
+import { emailValide } from "@/lib/email";
 
 /* Prepare le paiement d'un bon cadeau.
 
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     if (!devise || !montantsBon(devise).includes(montant)) {
       return NextResponse.json({ error: "Montant invalide." }, { status: 400 });
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!emailValide(email)) {
       return NextResponse.json({ error: "E-mail invalide." }, { status: 400 });
     }
     const lang = (LANGS as readonly string[]).includes(body.lang) ? body.lang : "en";

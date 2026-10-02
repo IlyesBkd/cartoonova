@@ -186,6 +186,7 @@ Regles absolues :
 - En revanche, ne laisse jamais entendre qu'il s'agit d'un produit officiel : aucune mention de licence, de partenariat, d'ayant droit ou d'approbation. C'est un portrait dans un style inspire, et rien d'autre.
 - Aucun superlatif invente, aucune promesse chiffree qui ne soit pas dans la liste ci-dessous. N'invente ni delai, ni garantie, ni nombre de clients, ni avis.
 - Ton simple et concret, phrases courtes, pas de remplissage.
+- Tutoie le lecteur, comme tout le site (francais « tu », allemand « du », forme familiere dans les autres langues).
 
 Faits utilisables, et rien d'autre :
 - cree a partir des photos envoyees, pour ce client seul (ne jamais decrire la methode de realisation : ni main, ni artiste, ni illustrateur, ni outil)

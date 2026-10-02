@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { locales, type Locale } from "@/i18n/config";
 import { SLUG_PHARE } from "@/lib/catalogue";
 import { visuelsProduit } from "@/lib/visuels";
@@ -65,6 +65,7 @@ function visuelTransformation(): string | null {
 
 export default async function GuidePhotoPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: brut } = await params;
+  setRequestLocale(brut);
   if (!(locales as readonly string[]).includes(brut)) notFound();
   const locale = brut as Locale;
   const t = await getTranslations({ locale, namespace: "guidePhoto" });

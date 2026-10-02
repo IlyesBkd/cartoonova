@@ -1,5 +1,5 @@
 import { Poppins } from "next/font/google";
-import "../globals.css";
+import "../../globals.css";
 
 /* Meme coque que `/confirm-poster` et `/success` : ces pages arrivent par
    e-mail, hors du prefixe de langue, et portent leur propre en-tete. */

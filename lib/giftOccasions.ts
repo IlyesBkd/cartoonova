@@ -44,7 +44,7 @@ const fr: OccasionTable = {
     intro:
       "Un anniversaire revient chaque année, et c'est justement le problème : au bout d'un moment, on a fait le tour des idées. Un portrait personnalisé sort du lot parce qu'il ne peut pas être offert deux fois — il est fait à partir d'une photo précise, de cette personne-là.",
     bullets: [
-      "Personne d'autre ne peut offrir le même : le dessin part de votre photo.",
+      "Personne d'autre ne peut offrir le même : le dessin part de ta photo.",
       "Ça se garde et ça s'accroche, contrairement à la plupart des cadeaux d'anniversaire.",
       "Le dessin est prêt en 2 jours, ce qui laisse une marge même quand on s'y prend tard.",
     ],
@@ -57,7 +57,7 @@ const fr: OccasionTable = {
       {
         question: "Peut-on mettre plusieurs personnes sur le portrait d'anniversaire ?",
         answer:
-          "Oui. Vous pouvez ajouter d'autres personnes et des animaux de compagnie. Pour un bon résultat, mieux vaut fournir une photo nette de chaque personne plutôt qu'une seule photo de groupe prise de loin.",
+          "Oui. Tu peux ajouter d'autres personnes et des animaux de compagnie. Pour un bon résultat, mieux vaut fournir une photo nette de chaque personne plutôt qu'une seule photo de groupe prise de loin.",
       },
     ],
   },
@@ -81,7 +81,7 @@ const fr: OccasionTable = {
       {
         question: "Peut-on offrir un portrait sans l'avoir reçu à temps ?",
         answer:
-          "Oui : vous pouvez offrir la version numérique le jour J et faire livrer l'impression ensuite. Beaucoup de commandes de dernière minute se passent comme ça.",
+          "Oui : tu peux offrir la version numérique le jour J et faire livrer l'impression ensuite. Beaucoup de commandes de dernière minute se passent comme ça.",
       },
     ],
   },
@@ -129,7 +129,7 @@ const fr: OccasionTable = {
       {
         question: "Et si le résultat ne correspond pas à ce qu'on imaginait ?",
         answer:
-          "Un aperçu vous est envoyé avant l'impression : vous pouvez demander des modifications à ce moment-là, avant que quoi que ce soit ne parte à la fabrication.",
+          "Un aperçu t'est envoyé avant l'impression : tu peux demander des modifications à ce moment-là, avant que quoi que ce soit ne parte à la fabrication.",
       },
     ],
   },
@@ -172,7 +172,7 @@ const fr: OccasionTable = {
       {
         question: "Peut-on ajouter un texte ou une dédicace au portrait ?",
         answer:
-          "Vous pouvez préciser vos souhaits dans le champ de description au moment de la commande. On en tient compte lorsque c'est réalisable dans le style choisi.",
+          "Tu peux préciser tes souhaits dans le champ de description au moment de la commande. On en tient compte lorsque c'est réalisable dans le style choisi.",
       },
       {
         question: "Quel délai prévoir pour un pot de départ ?",
@@ -485,7 +485,7 @@ const de: OccasionTable = {
     intro:
       "Ein Geburtstag kommt jedes Jahr wieder — und genau das ist das Problem: irgendwann sind die Ideen aufgebraucht. Ein personalisiertes Portrait fällt auf, weil es sich kein zweites Mal verschenken lässt: es entsteht aus einem bestimmten Foto dieser einen Person.",
     bullets: [
-      "Niemand sonst kann dasselbe schenken: die Zeichnung entsteht aus Ihrem Foto.",
+      "Niemand sonst kann dasselbe schenken: die Zeichnung entsteht aus deinem Foto.",
       "Es wird aufgehoben und aufgehängt — anders als die meisten Geburtstagsgeschenke.",
       "Die Zeichnung ist in 2 Tagen fertig, das lässt auch spät noch Luft.",
     ],
@@ -493,12 +493,12 @@ const de: OccasionTable = {
       {
         question: "Wie lange vorher sollte man bestellen?",
         answer:
-          "Für die digitale Fassung rechnen Sie mit 2 Tagen. Für Poster oder Leinwand rechnen Sie mit bis zu 10 Werktagen zwischen Bestellung und Erhalt: 2 Tage Zeichnung, 1 Tag Freigabe der Vorschau, dann 3 bis 7 Werktage Druck und Versand.",
+          "Für die digitale Fassung rechne mit 2 Tagen. Für Poster oder Leinwand rechne mit bis zu 10 Werktagen zwischen Bestellung und Erhalt: 2 Tage Zeichnung, 1 Tag Freigabe der Vorschau, dann 3 bis 7 Werktage Druck und Versand.",
       },
       {
         question: "Können mehrere Personen auf dem Portrait sein?",
         answer:
-          "Ja. Sie können weitere Personen und Haustiere hinzufügen. Am besten schicken Sie ein scharfes Einzelfoto pro Person statt einer entfernten Gruppenaufnahme.",
+          "Ja. Du kannst weitere Personen und Haustiere hinzufügen. Am besten schickst du ein scharfes Einzelfoto pro Person statt einer entfernten Gruppenaufnahme.",
       },
     ],
   },
@@ -522,7 +522,7 @@ const de: OccasionTable = {
       {
         question: "Kann man schenken, bevor der Druck da ist?",
         answer:
-          "Ja: Sie verschenken am Tag selbst die digitale Fassung und lassen den Druck später liefern. Viele Last-Minute-Bestellungen laufen genau so.",
+          "Ja: Du verschenkst am Tag selbst die digitale Fassung und lässt den Druck später liefern. Viele Last-Minute-Bestellungen laufen genau so.",
       },
     ],
   },
@@ -531,9 +531,9 @@ const de: OccasionTable = {
     label: "den Valentinstag",
     headline: (style) => `${style} zum Valentinstag`,
     intro:
-      "Ein gutes Valentinsgeschenk handelt vom Paar, nicht vom Kalender. Ein Portrait von Ihnen beiden, gezeichnet nach einem Foto, das zählt, sagt etwas, das ein Blumenstrauß nicht sagt.",
+      "Ein gutes Valentinsgeschenk handelt vom Paar, nicht vom Kalender. Ein Porträt von euch beiden, gezeichnet nach einem Foto, das zählt, sagt etwas, das ein Blumenstrauß nicht sagt.",
     bullets: [
-      "Das Portrait entsteht aus einem echten Foto von Ihnen beiden: eine konkrete Erinnerung, kein allgemeines Symbol.",
+      "Das Portrait entsteht aus einem echten Foto von euch beiden: eine konkrete Erinnerung, kein allgemeines Symbol.",
       "Etwas, das bleibt — Blumen halten eine Woche.",
       "Der gewählte Stil erlaubt Romantik ohne Kitsch.",
     ],
@@ -570,7 +570,7 @@ const de: OccasionTable = {
       {
         question: "Und wenn das Ergebnis nicht unseren Vorstellungen entspricht?",
         answer:
-          "Sie erhalten vor dem Druck eine Vorschau: das ist der Moment für Änderungswünsche, bevor irgendetwas in Produktion geht.",
+          "Du bekommst vor dem Druck eine Vorschau: das ist der Moment für Änderungswünsche, bevor irgendetwas in Produktion geht.",
       },
     ],
   },
@@ -613,7 +613,7 @@ const de: OccasionTable = {
       {
         question: "Kann man einen Text oder eine Widmung ergänzen?",
         answer:
-          "Sie können Ihre Wünsche im Beschreibungsfeld der Bestellung angeben. Wir berücksichtigen sie, soweit der gewählte Stil es zulässt.",
+          "Du kannst deine Wünsche im Beschreibungsfeld der Bestellung angeben. Wir berücksichtigen sie, soweit der gewählte Stil es zulässt.",
       },
       {
         question: "Wie viel Zeit sollte man für eine Abschiedsfeier einplanen?",

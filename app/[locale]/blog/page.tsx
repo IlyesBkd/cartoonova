@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
-import { getPublishedArticles } from "@/lib/blogDb";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { articlesPubliesEnCache } from "@/lib/lecturesCache";
 import { SITE_URL } from "@/lib/site";
 import { alternatesPour } from "@/lib/seo";
 
@@ -45,9 +45,10 @@ export default async function BlogIndexPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const [t, articles] = await Promise.all([
     getTranslations({ locale, namespace: "blog" }),
-    getPublishedArticles(locale, 24),
+    articlesPubliesEnCache(locale, 24),
   ]);
 
   return (

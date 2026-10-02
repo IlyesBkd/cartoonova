@@ -7,30 +7,20 @@ import { useLien } from "@/components/useLien";
 import Etoiles from "@/components/tj/Etoiles";
 import IconesAtouts from "@/components/tj/IconesAtouts";
 
+/* Page « À propos ». Tout son texte etait ecrit en francais dans le composant,
+   et s'affichait tel quel sur les dix langues. Il vit maintenant dans
+   `messages/*.json` (espace `aPropos`, plus le recit de `tj`, deja traduit
+   mais jamais affiche). Les chiffres viennent des memes cles que le reste du
+   site : les modifier a un endroit les modifie partout. */
+
+const VALEURS = [1, 2, 3, 4] as const;
+
 export default function AProposPage() {
   const t = useTranslations("tj");
+  const ta = useTranslations("aPropos");
   const tn = useTranslations("nav");
   const tp = useTranslations("product");
   const lien = useLien();
-
-  const valeurs = [
-    {
-      titre: "100 % personnalisé",
-      texte: "Chaque portrait est créé d'après vos photos, pour vous seul. Rien n'est repris d'une commande à l'autre.",
-    },
-    {
-      titre: "Satisfaction garantie",
-      texte: "Révisions illimitées et gratuites. On ne s'arrête pas tant que vous n'êtes pas ravi.",
-    },
-    {
-      titre: "Rapide et fiable",
-      texte: "Dessin en 2 jours, impressions livrées en 5 jours ouvrés. Livraison sécurisée partout dans le monde.",
-    },
-    {
-      titre: "Partout dans le monde",
-      texte: "Plus de 50 pays livrés, et un support qui répond vraiment.",
-    },
-  ];
 
   return (
     <>
@@ -40,12 +30,9 @@ export default function AProposPage() {
             <Etoiles /> {t("heroOeil")}
           </div>
           <h1>
-            Bienvenue chez <span className="accent">Cartoonova</span>
+            {ta("titre")} <span className="accent">Cartoonova</span>
           </h1>
-          <p>
-            Nous transformons vos plus belles photos en caricatures cartoon uniques, chacune créée
-            d&apos;après vos photos.
-          </p>
+          <p>{ta("intro")}</p>
         </div>
       </section>
 
@@ -62,20 +49,11 @@ export default function AProposPage() {
           <div>
             <span className="marqueur">{t("recitMarqueur")}</span>
             <h2>
-              D&apos;une idée à un <span className="accent">cadeau</span>
+              {t("recitTitre")} <span className="accent">{t("recitAccent")}</span>
             </h2>
-            <p>
-              Tout a commencé avec une idée simple : et si on pouvait transformer n&apos;importe qui
-              en personnage de dessin animé ?
-            </p>
-            <p>
-              Avec plus de <strong>85 000 portraits créés</strong>{" "}
-              et une communauté de clients fidèles, nous avons prouvé que l&apos;art du cartoon peut toucher tout le monde.
-            </p>
-            <p>
-              Aujourd&apos;hui, chaque commande est traitée une par une, à partir de vos photos. Rien
-              n&apos;est repris d&apos;un portrait à l&apos;autre : le vôtre part de votre photo, et de rien d&apos;autre.
-            </p>
+            <p>{t("recitP1")}</p>
+            <p>{ta.rich("communaute", { nombre: t("preuveNombre"), b: (c) => <strong>{c}</strong> })}</p>
+            <p>{t("recitP2")}</p>
           </div>
         </div>
       </section>
@@ -85,16 +63,16 @@ export default function AProposPage() {
         <div className="enveloppe">
           <div className="preuve__grille">
             <div>
-              <strong>85 000+</strong>
+              <strong>{t("preuveNombre")}</strong>
               <span>{tp("portraitsCount")}</span>
             </div>
             <div>
-              <strong>3 000+</strong>
+              <strong>{ta("avisNombre")}</strong>
               <span>{tp("verifiedReviews")}</span>
             </div>
             <div>
-              <strong>50+</strong>
-              <span>pays livrés</span>
+              <strong>{ta("paysNombre")}</strong>
+              <span>{ta("paysLabel")}</span>
             </div>
           </div>
         </div>
@@ -106,16 +84,19 @@ export default function AProposPage() {
           <div className="chapeau">
             <span className="surtitre">{t("atoutsSurtitre")}</span>
             <h2>
-              Nos <span className="accent" style={{ color: "var(--encre)" }}>valeurs</span>
+              {ta("valeursTitre")}{" "}
+              <span className="accent" style={{ color: "var(--encre)" }}>
+                {ta("valeursAccent")}
+              </span>
             </h2>
           </div>
           <div className="atouts-grille">
-            {valeurs.map((v, i) => (
-              <article className="atout-carte" key={v.titre}>
-                <div className="atout-carte__num">{`0${i + 1}`}</div>
-                <IconesAtouts index={i + 1} />
-                <h3>{v.titre}</h3>
-                <p>{v.texte}</p>
+            {VALEURS.map((n) => (
+              <article className="atout-carte" key={n}>
+                <div className="atout-carte__num">{`0${n}`}</div>
+                <IconesAtouts index={n} />
+                <h3>{ta(`v${n}Titre`)}</h3>
+                <p>{ta(`v${n}Texte`)}</p>
               </article>
             ))}
           </div>

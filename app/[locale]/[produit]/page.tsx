@@ -13,11 +13,10 @@ import {
   titreProduit,
   universProduit,
 } from "@/lib/catalogue";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { visuelsProduit } from "@/lib/visuels";
-import { getPricesForCurrency } from "@/lib/db";
-import { statistiquesAvis, MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
-import { contenuFiche } from "@/lib/contenuFiche";
+import { MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
+import { contenuFicheEnCache, prixEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache";
 import { PRINT_KEYS } from "@/lib/pricing";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
@@ -83,6 +82,7 @@ export default async function Page({
   params: Promise<{ locale: string; produit: string }>;
 }) {
   const { locale: brut, produit: slug } = await params;
+  setRequestLocale(brut);
   const locale = brut as Locale;
 
   const p = produitParSlug(slug, locale);
@@ -110,14 +110,14 @@ export default async function Page({
   /* Grille tarifaire, pour la fourchette du balisage Product. */
   let prix = DEFAULT_PRICE_SET;
   try {
-    prix = await getPricesForCurrency("EUR");
+    prix = await prixEnCache("EUR");
   } catch {
     // Repli : la fiche reste servie meme si la base est injoignable.
   }
 
   /* Contenu long propre a cet univers. Null tant qu'il n'a pas ete redige :
      la fiche s'affiche alors comme avant, avec la FAQ partagee. */
-  const contenu = await contenuFiche(p.slug, locale);
+  const contenu = await contenuFicheEnCache(p.slug, locale).catch(() => null);
 
   /* Note moyenne, pour les etoiles du resultat enrichi.
      Elle n'existait que sur la page `/avis` : les 36 fiches n'interrogeaient
@@ -126,7 +126,7 @@ export default async function Page({
      Meme seuil que `/avis`, et il vient desormais du meme endroit : sous trois
      avis reels on ne balise rien, parce que les temoignages de repli affiches
      en attendant ne sont rattaches a aucune commande. */
-  const stats = await statistiquesAvis().catch(() => ({ nombre: 0, moyenne: 0 }));
+  const stats = await statistiquesAvisEnCache().catch(() => ({ nombre: 0, moyenne: 0 }));
   const note =
     stats.nombre >= MINIMUM_BALISAGE_AVIS
       ? {

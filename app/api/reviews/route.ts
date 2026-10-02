@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import {
   deposerAvis,
   tousLesAvis,
@@ -122,6 +123,8 @@ export async function POST(req: NextRequest) {
     if (!resultat) {
       return NextResponse.json({ ok: true, statut: "deja_depose" });
     }
+    // Un avis verifie est publie d'office : les pages qui l'affichent sont en cache.
+    if (resultat.statut === "publie") revalidateTag("avis", { expire: 0 });
 
     if (note <= NOTE_ALERTE) {
       await alerterDiscord(
@@ -174,6 +177,8 @@ export async function PATCH(req: NextRequest) {
     }
 
     await changerStatutAvis(id, statut);
+    // Publie ou retire : /avis et les etoiles des fiches doivent suivre tout de suite.
+    revalidateTag("avis", { expire: 0 });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("[PATCH /api/reviews]", error instanceof Error ? error.message : error);

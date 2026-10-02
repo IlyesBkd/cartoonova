@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAllPrices, updateAllPrices, withFreshDatabaseClient } from "@/lib/db";
 import { currencies, type Currency } from "@/lib/currency";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
@@ -58,6 +58,9 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: validated }, { status: 400 });
     }
     await updateAllPrices(validated);
+    /* Les prix sont lus a travers `lib/lecturesCache.ts` : sans l'etiquette,
+       le cache de donnees garderait l'ancienne grille cinq minutes de plus. */
+    revalidateTag("prix", { expire: 0 });
     revalidatePath("/", "layout");
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {

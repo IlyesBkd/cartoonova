@@ -1,9 +1,9 @@
 import Stripe from "stripe";
 import { cookies } from "next/headers";
 import { getOrderByPaymentId } from "@/lib/db";
-import SuccessClient from "@/app/success/SuccessClient";
-import EtatPaiement from "@/app/success/EtatPaiement";
-import AttentePaiement from "@/app/success/AttentePaiement";
+import SuccessClient from "@/app/(hors-langue)/success/SuccessClient";
+import EtatPaiement from "@/app/(hors-langue)/success/EtatPaiement";
+import AttentePaiement from "@/app/(hors-langue)/success/AttentePaiement";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { finaliserCommande } from "@/lib/finaliserCommande";

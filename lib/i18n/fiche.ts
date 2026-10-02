@@ -14,7 +14,7 @@ export const depotBouton: Record<Lang, { bouton: string; boutonAutre: string; gl
   fr: {
     bouton: "Ajouter une photo",
     boutonAutre: "Ajouter une autre photo",
-    glisser: "ou glissez-les ici depuis votre ordinateur",
+    glisser: "ou glisse-les ici depuis ton ordinateur",
   },
   en: {
     bouton: "Add a photo",
@@ -29,7 +29,7 @@ export const depotBouton: Record<Lang, { bouton: string; boutonAutre: string; gl
   de: {
     bouton: "Foto hinzufügen",
     boutonAutre: "Weiteres Foto hinzufügen",
-    glisser: "oder ziehen Sie sie von Ihrem Computer hierher",
+    glisser: "oder zieh sie von deinem Computer hierher",
   },
   it: {
     bouton: "Aggiungi una foto",
@@ -39,7 +39,7 @@ export const depotBouton: Record<Lang, { bouton: string; boutonAutre: string; gl
   nl: {
     bouton: "Foto toevoegen",
     boutonAutre: "Nog een foto toevoegen",
-    glisser: "of sleep ze hierheen vanaf uw computer",
+    glisser: "of sleep ze hierheen vanaf je computer",
   },
   pl: {
     bouton: "Dodaj zdjęcie",

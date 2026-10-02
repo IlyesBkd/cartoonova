@@ -29,6 +29,7 @@ import type { Decor, LegendeVisuel } from "@/lib/visuels";
    donneraient un formulaire qui accepte ce que le serveur refuse. */
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { tailleImpression } from "@/lib/supportCommande";
+import { useRetourFerme } from "@/lib/useRetourFerme";
 
 /* Le prix barre « -40 % » a disparu le 1er octobre 2026 : il affichait un prix
    de reference jamais pratique (le total divise par 0,6), ce que le droit de
@@ -355,6 +356,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
    * agrandissement : sur mobile, un doigt qui glisse leve aussi un clic. */
   const [agrandi, setAgrandi] = useState(false);
   const balayageEnCours = useRef(false);
+  useRetourFerme(agrandi, () => setAgrandi(false));
 
   useEffect(() => {
     if (!agrandi) return;

@@ -1,4 +1,5 @@
 import PageAccueil from "@/components/pages/PageAccueil";
+import { setRequestLocale } from "next-intl/server";
 
 /* Le corps de l'accueil vit dans `components/pages/PageAccueil.tsx` : la page
    pilier `/portrait-personnalise-cartoon` sert exactement le meme, a son
@@ -7,5 +8,6 @@ import PageAccueil from "@/components/pages/PageAccueil";
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return <PageAccueil locale={locale} />;
 }

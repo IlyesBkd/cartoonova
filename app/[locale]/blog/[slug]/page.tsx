@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
-import { getArticleBySlug, getRelatedArticles } from "@/lib/blogDb";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { articleEnCache, articlesLiesEnCache } from "@/lib/lecturesCache";
 import { liensPourArticle } from "@/lib/maillage";
 import LiensProduits from "@/components/blog/LiensProduits";
 import type { Locale } from "@/i18n/config";
@@ -13,6 +13,13 @@ import LectureArticle from "@/components/blog/LectureArticle";
 
 export const revalidate = 300;
 
+/* Aucun article n'est construit au deploiement (il y en a des centaines, et ils
+   viennent de la base) : chacun est genere a sa premiere visite puis servi par
+   le CDN. Sans cette fonction, la page restait rendue a chaque requete. */
+export function generateStaticParams() {
+  return [];
+}
+
 const baseUrl = "https://www.cartoonova.com";
 
 export async function generateMetadata({
@@ -21,7 +28,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const article = await getArticleBySlug(locale, slug);
+  const article = await articleEnCache(locale, slug);
   if (!article) return {};
 
   const url = `${baseUrl}/${locale}/blog/${article.slug}`;
@@ -55,7 +62,8 @@ export default async function BlogArticlePage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const article = await getArticleBySlug(locale, slug);
+  setRequestLocale(locale);
+  const article = await articleEnCache(locale, slug);
   if (!article) notFound();
 
   /* Les fiches a relier depuis cet article. Le blog ne pointait vers aucune
@@ -63,7 +71,7 @@ export default async function BlogArticlePage({
      aucun chemin qui y mene — `liensPourArticle` traite les deux. */
   const [t, related, fiches] = await Promise.all([
     getTranslations({ locale, namespace: "blog" }),
-    getRelatedArticles(locale, article.category, article.id, 3),
+    articlesLiesEnCache(locale, article.category, article.id, 3),
     liensPourArticle(locale as Locale, article.title, article.seo?.keywords ?? []),
   ]);
 

@@ -7,6 +7,12 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig: NextConfig = {
   reactCompiler: true,
 
+  /* Deux mises en page racines (`app/[locale]` et `app/(hors-langue)`) : la
+     404 des URL inconnues vit dans `app/global-not-found.tsx`. */
+  experimental: {
+    globalNotFound: true,
+  },
+
   // ssh2 utilise les API reseau natives de Node et doit rester charge par le
   // runtime serveur Vercel, hors du bundle des Server Components.
   serverExternalPackages: ["ssh2"],

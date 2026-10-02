@@ -16,12 +16,12 @@ export default async function ConfirmPosterPage({
         <div className="w-full max-w-md bg-white rounded-2xl p-6 text-center space-y-2">
           <h1 className="text-xl font-black text-black">Lien invalide ou expiré</h1>
           <p className="text-sm text-black/70">
-            Ce lien de confirmation n&apos;est plus valide. Contactez-nous à info.cartoonova@gmail.com avec votre numéro de commande.
+            Ce lien de confirmation n&apos;est plus valide. Écris-nous à support@cartoonova.com avec ton numéro de commande.
           </p>
           <hr className="/10 my-2" />
           <h1 className="text-xl font-black text-black">Invalid or expired link</h1>
           <p className="text-sm text-black/70">
-            This confirmation link is no longer valid. Contact us at info.cartoonova@gmail.com with your order number.
+            This confirmation link is no longer valid. Contact us at support@cartoonova.com with your order number.
           </p>
         </div>
       </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icone from "@/components/tj/Icone";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BreadcrumbJsonLd, FAQJsonLd } from "@/components/structured-data";
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
@@ -91,6 +91,7 @@ export default async function GiftOccasionPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale: localeRaw, slug } = await params;
+  setRequestLocale(localeRaw);
   const data = resolve(localeRaw, slug);
   if (!data) notFound();
 

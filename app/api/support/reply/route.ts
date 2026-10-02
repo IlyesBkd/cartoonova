@@ -9,11 +9,10 @@ import {
 } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
+import { emailValide } from "@/lib/email";
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
-/** De quoi ecarter une adresse que la synchro n'a pas su lire. */
-const ADRESSE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * L'objet d'une reponse.
@@ -27,7 +26,7 @@ const ADRESSE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 function objetDeReponse(sujet: string | null): string {
   const base = (sujet || "").trim();
-  if (!base) return "Re: votre message";
+  if (!base) return "Re: ton message";
   if (/^(re|ré|rép|rep|aw|antw|odp|sv|vs|r)\s*:/i.test(base)) return base;
   return `Re: ${base}`;
 }
@@ -87,7 +86,8 @@ export async function POST(req: NextRequest) {
        Envoyer a cette adresse ferait rebondir le courrier sans que personne ne
        le sache : l'envoi serait enregistre comme parti, et le client n'aurait
        jamais rien recu. */
-    if (!destinataire || !ADRESSE.test(destinataire)) {
+    // Ecarte une adresse que la synchro n'a pas su lire.
+    if (!destinataire || !emailValide(destinataire)) {
       return NextResponse.json(
         { error: `Adresse destinataire inutilisable (« ${destinataire || "vide"} ») : impossible d'écrire.` },
         { status: 422 }
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
     const sujet = message
       ? objetDeReponse(message.subject)
       : (objet || "").trim() ||
-        `Votre commande Cartoonova #${String(commande!.id).slice(0, 8)}`;
+        `Ta commande Cartoonova #${String(commande!.id).slice(0, 8)}`;
 
     /* Le rattachement du fil tient a ces deux en-tetes. Sans eux la reponse
        arrive comme un message isole, a cote de la question du client plutot

@@ -1,5 +1,5 @@
 import { CATALOGUE_EN_LIGNE, slugProduit, universProduit, type Produit } from "./catalogue";
-import { produitsJamaisLus } from "./indexation";
+import { produitsJamaisLusEnCache } from "./lecturesCache";
 import { visuelsProduit } from "./visuels";
 import type { Locale } from "@/i18n/config";
 
@@ -114,7 +114,7 @@ export async function liensPourArticle(
   if (retenus.length < combien) {
     let orphelines: string[] = [];
     try {
-      orphelines = await produitsJamaisLus(locale);
+      orphelines = await produitsJamaisLusEnCache(locale);
     } catch {
       /* Sonde muette : on continue sans cette preference. */
     }

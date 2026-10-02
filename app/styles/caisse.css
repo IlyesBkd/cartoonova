@@ -41,3 +41,10 @@
   display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
   margin: 0; font-size: 13px; font-weight: 600; color: var(--encre-doux);
 }
+
+/* Suggestion de correction de l'e-mail (gmail.con -> gmail.com). */
+.caisse-suggestion { margin: 6px 0 0; font-size: 14px; font-weight: 600; color: var(--encre); }
+.caisse-suggestion button {
+  font: inherit; color: var(--encre); text-decoration: underline; text-underline-offset: 3px;
+  background: none; border: 0; padding: 0; cursor: pointer;
+}

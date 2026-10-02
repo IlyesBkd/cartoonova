@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import PageAccueil from "@/components/pages/PageAccueil";
 import { BreadcrumbJsonLd } from "@/components/structured-data";
 import { SITE_URL } from "@/lib/site";
+import { setRequestLocale } from "next-intl/server";
 
 /**
  * Page pilier « portrait personnalisé cartoon ».
@@ -38,9 +39,9 @@ const CHEMIN = "/portrait-personnalise-cartoon";
 const TEXTES_HERO = {
   oeil: "Portrait cartoon personnalisé",
   titre1: "Portrait personnalisé cartoon",
-  titre2: "d'après votre photo",
+  titre2: "d'après ta photo",
   sous:
-    "Vos photos transformées en caricature personnalisée, unique au monde. " +
+    "Tes photos transformées en caricature personnalisée, unique au monde. " +
     "Aperçu sous 2 jours, retouches illimitées.",
   note: "Aperçu sous 2 jours, sans engagement",
 };
@@ -55,9 +56,9 @@ export async function generateMetadata({
 
   return {
     title:
-      "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de votre Photo | Cartoonova",
+      "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de ta Photo | Cartoonova",
     description:
-      "Transformez vos photos en portraits personnalisés style cartoon ! Créez votre caricature unique en quelques clics. Idée cadeau originale parfaite. Qualité garantie, livraison rapide. Découvrez Cartoonova !",
+      "Transforme tes photos en portraits personnalisés style cartoon ! Crée ta caricature unique en quelques clics. Idée cadeau originale, qualité garantie, aperçu sous 2 jours.",
     metadataBase: new URL(SITE_URL),
     /* Pas de `languages` ici, et c'est delibere : le hero de cette page est
        redige en francais et le reste dans toutes les langues. Annoncer une
@@ -67,7 +68,7 @@ export async function generateMetadata({
     openGraph: {
       title: "Portrait Personnalisé Cartoon - Cartoonova",
       description:
-        "Créez votre caricature personnalisée à partir de votre photo. Cadeau unique et original !",
+        "Crée ta caricature personnalisée à partir de ta photo. Un cadeau unique et original !",
       url: `${SITE_URL}${path}`,
       siteName: "Cartoonova",
       images: [
@@ -84,7 +85,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: "Portrait Personnalisé Cartoon | Cartoonova",
-      description: "Transformez vos photos en portraits cartoons uniques !",
+      description: "Transforme tes photos en portraits cartoon uniques !",
       images: [`${SITE_URL}/simpson_photos_produit/0009_1.jpg`],
     },
     robots: {
@@ -107,6 +108,7 @@ export default async function PortraitPersonnaliseCartoon({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
 
   return (
     <>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { setRequestLocale } from "next-intl/server";
 
 const VARIANTS = [
   {
@@ -78,6 +79,7 @@ export default async function SimpsonMockupsIndex({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  setRequestLocale(locale);
 
   return (
     <div

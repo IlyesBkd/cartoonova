@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { subscribeToNewsletter } from "@/lib/db";
 import { sendWelcomeStep } from "@/lib/welcomeSequence";
 import { locales } from "@/i18n/config";
+import { emailValide } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
 // Volontairement permissif : on refuse ce qui n'est manifestement pas un email,
 // la validation reelle se fait a l'envoi.
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     };
 
     const email = typeof body.email === "string" ? body.email.trim() : "";
-    if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
+    if (!email || !emailValide(email)) {
       return NextResponse.json({ error: "invalid_email" }, { status: 400 });
     }
 

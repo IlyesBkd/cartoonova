@@ -68,3 +68,24 @@
 .cadeau-occasion { padding: clamp(40px, 6vw, 72px) 0; }
 .cadeau-occasion__titre { font-size: clamp(24px, 3.4vw, 34px); margin: 0 0 22px; }
 .cadeau-occasion__titre::first-letter { text-transform: uppercase; }
+
+/* Accueil mobile : une image dans le premier ecran (2 octobre 2026).
+   Sur telephone, la photo venait apres toute la colonne de texte (prix,
+   boutons, atouts) : le premier ecran ne montrait aucun portrait, sur un site
+   qui vend des portraits. La colonne de texte est dissoute (display:
+   contents) pour glisser une version compacte de la meme image entre le
+   titre et le sous-titre, sans la dupliquer ni la recharger. */
+@media (max-width: 720px) {
+  .hero__grille { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+  .hero__texte-col { display: contents; }
+  .hero__oeil { order: 1; }
+  .hero h1 { order: 2; }
+  .hero__visuel { order: 3; align-self: center; width: min(230px, 62vw); margin: 10px auto 0; }
+  .hero__photo { transform: none; }
+  .hero__texte { order: 4; margin-top: 12px; }
+  .hero__prix { order: 5; }
+  .hero__grille .lancement--hero { order: 6; }
+  .hero__actions { order: 7; align-self: stretch; }
+  .hero__note { order: 8; }
+  .hero__grille .atouts { order: 9; align-self: stretch; }
+}

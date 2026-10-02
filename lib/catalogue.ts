@@ -214,7 +214,7 @@ export const CATALOGUE: Produit[] = [
     description: {
       fr: "Crée ton affiche Wanted One Piece personnalisée ! Ajoute ta photo, fixe ta prime de pirate et choisis ton décor. Avis de recherche dispo en poster et cadre.",
       en: "Create your own One Piece wanted poster! Become a legendary pirate with your custom bounty.",
-      de: "Erstellen Sie Ihr eigenes One Piece Steckbrief! Werden Sie ein legendärer Pirat mit Ihrem persönlichen Kopfgeld.",
+      de: "Erstell deinen eigenen One-Piece-Steckbrief! Werde ein legendärer Pirat mit deinem persönlichen Kopfgeld.",
       es: "¡Crea tu propio cartel de búsqueda One Piece! Conviértete en un pirata legendario con tu recompensa personalizada.",
       it: "Crea il tuo poster ricercato One Piece! Diventa un pirata leggendario con la tua taglia personalizzata.",
     },
@@ -291,7 +291,7 @@ export const CATALOGUE: Produit[] = [
     description: {
       fr: "Offre un cadre Dragon Ball Z personnalisé ! Transforme ta photo en portrait Saiyan avec un dessin unique sur tableau ou poster. Le cadeau DBZ parfait !",
       en: "Transform into a Super Saiyan! Custom portrait in Dragon Ball Z style, made from your photo.",
-      de: "Verwandeln Sie sich in einen Super-Saiyajin! Personalisiertes Porträt im Dragon Ball Z Stil.",
+      de: "Verwandle dich in einen Super-Saiyajin! Personalisiertes Porträt im Dragon Ball Z Stil.",
       es: "¡Transfórmate en Super Saiyan! Retrato personalizado estilo Dragon Ball Z, a partir de tu foto.",
       it: "Trasformati in Super Saiyan! Ritratto personalizzato in stile Dragon Ball Z, dalla tua foto.",
     },
@@ -313,9 +313,9 @@ export const CATALOGUE: Produit[] = [
       it: "Ritratto Studio Ghibli Personalizzato",
     },
     description: {
-      fr: "Entrez dans l'univers enchanté de Ghibli ! Portrait magique inspiré de Totoro, Chihiro et Mononoké.",
+      fr: "Entre dans l'univers enchanté de Ghibli ! Portrait magique inspiré de Totoro, Chihiro et Mononoké.",
       en: "Enter the enchanted world of Ghibli! Magical portrait inspired by Totoro, Spirited Away and Mononoke.",
-      de: "Betreten Sie die verzauberte Welt von Ghibli! Magisches Portrait inspiriert von Totoro, Chihiro und Mononoke.",
+      de: "Betritt die verzauberte Welt von Ghibli! Magisches Portrait inspiriert von Totoro, Chihiro und Mononoke.",
       es: "¡Entra en el mundo encantado de Ghibli! Retrato mágico inspirado en Totoro, Chihiro y Mononoke.",
       it: "Entra nel mondo incantato di Ghibli! Ritratto magico ispirato a Totoro, Chihiro e Mononoke.",
     },
@@ -405,9 +405,9 @@ export const CATALOGUE: Produit[] = [
     personnages: true,
     decorsAttendus: 0,
     description: {
-      fr: "Devenez le héros de votre propre conte de fées Disney ! Portrait magique style animation classique.",
+      fr: "Deviens le héros de ton propre conte de fées Disney ! Portrait magique style animation classique.",
       en: "Become the hero of your own Disney fairy tale! Magical portrait in classic animation style.",
-      de: "Werden Sie der Held Ihres eigenen Disney-Märchens! Magisches Portrait im klassischen Animationsstil.",
+      de: "Werde der Held deines eigenen Disney-Märchens! Magisches Portrait im klassischen Animationsstil.",
       es: "¡Conviértete en el héroe de tu propio cuento de hadas Disney! Retrato mágico estilo animación clásica.",
       it: "Diventa l'eroe della tua fiaba Disney! Ritratto magico in stile animazione classica.",
     },
@@ -422,7 +422,7 @@ export const CATALOGUE: Produit[] = [
     personnages: true,
     decorsAttendus: 0,
     description: {
-      fr: "Envie d'un portrait Family Guy sur-mesure ? Faites-vous dessiner dans le style de la série et offrez un cadeau fun et original aux fans du dessin animé !",
+      fr: "Envie d'un portrait Family Guy sur-mesure ? Fais-toi dessiner dans le style de la série et offre un cadeau fun et original aux fans du dessin animé !",
     },
   },
   {
@@ -484,7 +484,7 @@ export const CATALOGUE: Produit[] = [
     description: {
       fr: "Crée ton affiche Rick et Morty personnalisée ! Transforme ta photo en dessin original et imprime-le en poster ou cadre. Un cadeau fun pour tous les fans.",
       en: "Wubba Lubba Dub Dub! Join Rick and Morty in their interdimensional adventures with your portrait.",
-      de: "Wubba Lubba Dub Dub! Begleiten Sie Rick und Morty auf ihren interdimensionalen Abenteuern mit Ihrem Portrait.",
+      de: "Wubba Lubba Dub Dub! Begleite Rick und Morty auf ihren interdimensionalen Abenteuern mit deinem Porträt.",
       es: "¡Wubba Lubba Dub Dub! Únete a Rick y Morty en sus aventuras interdimensionales con tu retrato.",
       it: "Wubba Lubba Dub Dub! Unisciti a Rick e Morty nelle loro avventure interdimensionali con il tuo ritratto.",
     },
@@ -505,7 +505,7 @@ export const CATALOGUE: Produit[] = [
     description: {
       fr: "Transforme ta photo en portrait Simpson personnalisé ! Pose en famille à Springfield avec un dessin fun. Affiche ta caricature en tableau, cadre ou poster !",
       en: "Transform your photo into a beautiful custom Simpson caricature. The perfect gift!",
-      de: "Verwandeln Sie Ihr Foto in eine wunderschöne personalisierte Simpson-Karikatur. Das perfekte Geschenk!",
+      de: "Verwandle dein Foto in eine wunderschöne personalisierte Simpson-Karikatur. Das perfekte Geschenk!",
       es: "Transforma tu foto en una hermosa caricatura Simpson personalizada. ¡El regalo perfecto!",
       it: "Trasforma la tua foto in una bellissima caricatura Simpson personalizzata. Il regalo perfetto!",
     },
@@ -575,7 +575,7 @@ export const CATALOGUE: Produit[] = [
     personnages: true,
     decorsAttendus: 0,
     description: {
-      fr: "Transformez-vous en justicier avec un portrait Batman personnalisé ! Un cadeau unique pour tout fan du Chevalier Noir.",
+      fr: "Transforme-toi en justicier avec un portrait Batman personnalisé ! Un cadeau unique pour tout fan du Chevalier Noir.",
     },
   },
   {
@@ -691,7 +691,7 @@ export const CATALOGUE: Produit[] = [
     personnages: true,
     decorsAttendus: 0,
     description: {
-      fr: "Offrez un portrait Les Indestructibles personnalisé, créé d'après vos photos. L'idée cadeau en couple ou en famille, en poster ou en cadre.",
+      fr: "Offre un portrait Les Indestructibles personnalisé, créé d'après tes photos. L'idée cadeau en couple ou en famille, en poster ou en cadre.",
     },
   },
   {

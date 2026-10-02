@@ -1,4 +1,4 @@
-import "../globals.css";
+import "../../globals.css";
 
 /* Le bon cadeau imprimable : arrive depuis un e-mail, hors de [locale], avec
    sa propre coque, comme /suivi et /bonus. */

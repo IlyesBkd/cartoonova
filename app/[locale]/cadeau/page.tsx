@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { locales, type Locale } from "@/i18n/config";
 import { OCCASIONS, OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
-import { getPricesForCurrency } from "@/lib/db";
+import { prixEnCache } from "@/lib/lecturesCache";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import { vignetteProduit } from "@/lib/visuels";
 import { alternatesPour } from "@/lib/seo";
@@ -46,6 +46,7 @@ export default async function GiftIndexPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale: localeRaw } = await params;
+  setRequestLocale(localeRaw);
   if (!(locales as readonly string[]).includes(localeRaw)) notFound();
   const locale = localeRaw as Locale;
   const t = await getTranslations({ locale, namespace: "cadeauPage" });
@@ -54,7 +55,7 @@ export default async function GiftIndexPage({
      pour tous les visiteurs, elle ne peut donc pas suivre la devise de chacun. */
   let prixDepart = DEFAULT_PRICE_SET.base;
   try {
-    prixDepart = (await getPricesForCurrency("EUR")).base;
+    prixDepart = (await prixEnCache("EUR")).base;
   } catch {
     // Repli sur la grille par defaut si la base est injoignable.
   }

@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { mesure, identifier } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import Icone, { type NomIcone } from "@/components/tj/Icone";
 import TeteAide from "@/components/tj/TeteAide";
+import { useRetourFerme } from "@/lib/useRetourFerme";
+import { emailValide } from "@/lib/email";
 
 /** Événement d'ouverture, émis par le lien « Aide » de l'en-tête. */
 export const EVENEMENT_AIDE = "cartoonova:aide";
@@ -25,38 +28,22 @@ export const EVENEMENT_AIDE = "cartoonova:aide";
 type Message = { de: "bot" | "moi"; texte: string };
 type Ecran = "accueil" | "email" | "fil";
 
-/** Sujets proposés sur l'accueil. Le premier ouvre la conversation nue. */
-const SUJETS: { id: string; icone: NomIcone; titre: string; sous: string }[] = [
-  {
-    id: "commande",
-    icone: "camion",
-    titre: "Où en est ma commande ?",
-    sous: "Suivi, délais et livraison",
-  },
-  {
-    id: "modification",
-    icone: "crayon",
-    titre: "Modifier ma commande",
-    sous: "Photo, style, texte ou adresse",
-  },
-  {
-    id: "retouche",
-    icone: "palette",
-    titre: "Demander une retouche",
-    sous: "Révisions illimitées avant impression",
-  },
-  {
-    id: "cadeau",
-    icone: "cadeau",
-    titre: "Commander pour une date précise",
-    sous: "Anniversaire, Noël, mariage",
-  },
+/** Sujets proposés sur l'accueil. Les textes viennent de `messages/*.json`
+    (espace `chat`) : le widget etait en francais dans les dix langues. Le
+    libelle francais reste celui qui part sur Discord, pour que l'equipe lise
+    toujours le meme sujet, quelle que soit la langue du visiteur. */
+const SUJETS: { id: string; icone: NomIcone; cle: "Commande" | "Modif" | "Retouche" | "Cadeau"; discord: string }[] = [
+  { id: "commande", icone: "camion", cle: "Commande", discord: "Où en est ma commande ?" },
+  { id: "modification", icone: "crayon", cle: "Modif", discord: "Modifier ma commande" },
+  { id: "retouche", icone: "palette", cle: "Retouche", discord: "Demander une retouche" },
+  { id: "cadeau", icone: "cadeau", cle: "Cadeau", discord: "Commander pour une date précise" },
 ];
 
 /** Initiales des conseillers, pour les têtes qui se chevauchent dans l'en-tête. */
 const EQUIPE = ["L", "M", "S"];
 
 export default function ChatWidget() {
+  const t = useTranslations("chat");
   const [ouvert, setOuvert] = useState(false);
   const [ecran, setEcran] = useState<Ecran>("accueil");
   const [sujet, setSujet] = useState<string | null>(null);
@@ -102,6 +89,8 @@ export default function ChatWidget() {
     return () => window.removeEventListener(EVENEMENT_AIDE, ouvrir);
   }, []);
 
+  useRetourFerme(ouvert, () => setOuvert(false));
+
   /* Échap ferme le panneau, comme n'importe quelle surface posée du site. */
   useEffect(() => {
     if (!ouvert) return;
@@ -118,7 +107,7 @@ export default function ChatWidget() {
 
   const validerEmail = () => {
     const valeur = email.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(valeur)) {
+    if (!emailValide(valeur)) {
       setErreurEmail(true);
       return;
     }
@@ -130,9 +119,7 @@ export default function ChatWidget() {
     setMessages([
       {
         de: "bot",
-        texte: choisi
-          ? `Bonjour ! On regarde ça tout de suite : « ${choisi.titre} ». Donnez-nous le numéro de commande ou quelques détails, et on vous répond.`
-          : "Bonjour et bienvenue chez Cartoonova ! Dites-nous tout, on vous répond au plus vite.",
+        texte: choisi ? t("botSujet", { titre: t(`sujet${choisi.cle}`) }) : t("botLibre"),
       },
     ]);
     setEcran("fil");
@@ -149,7 +136,7 @@ export default function ChatWidget() {
     /* Le sujet choisi sur l'accueil accompagne le premier message : l'équipe
        arrive dans Discord avec le contexte, sans champ supplémentaire côté API. */
     const choisi = SUJETS.find((s) => s.id === sujet);
-    const corps = premierEnvoi && choisi ? `[${choisi.titre}] ${texte}` : texte;
+    const corps = premierEnvoi && choisi ? `[${choisi.discord}] ${texte}` : texte;
     /* Le contenu du message ne part pas dans la mesure — il est deja dans
        Discord, et il contient des numeros de commande. Seul le fait qu'un
        message ait ete envoye compte ici. */
@@ -176,9 +163,7 @@ export default function ChatWidget() {
         ...m,
         {
           de: "bot",
-          texte: premierEnvoi
-            ? "Merci ! Votre message est bien arrivé, notre équipe vous répond par e-mail sous 2 h ouvrées."
-            : "C'est noté, on ajoute ça à votre demande.",
+          texte: premierEnvoi ? t("botMerci") : t("botNote"),
         },
       ]);
       setEnvoiEnCours(false);
@@ -200,7 +185,7 @@ export default function ChatWidget() {
         <div
           className={`clavardage${ecran === "fil" ? " clavardage--conversation" : ""}`}
           role="dialog"
-          aria-label="Aide Cartoonova"
+          aria-label={t("ariaDialog")}
         >
           <header className={`clavardage__entete${enConversation ? " clavardage__entete--compact" : ""}`}>
             {enConversation ? (
@@ -209,7 +194,7 @@ export default function ChatWidget() {
                   type="button"
                   className="clavardage__retour"
                   onClick={() => setEcran("accueil")}
-                  aria-label="Revenir à l'accueil de l'aide"
+                  aria-label={t("ariaRetour")}
                 >
                   <Fleche />
                 </button>
@@ -217,14 +202,14 @@ export default function ChatWidget() {
                   <b>Cartoonova</b>
                   <span>
                     <i className="clavardage__pastille" aria-hidden="true" />
-                    En ligne
+                    {t("enLigne")}
                   </span>
                 </div>
                 <button
                   type="button"
                   className="clavardage__fermer"
                   onClick={() => setOuvert(false)}
-                  aria-label="Fermer l'aide"
+                  aria-label={t("ariaFermer")}
                 >
                   <Icone nom="croix" taille={14} />
                 </button>
@@ -233,20 +218,20 @@ export default function ChatWidget() {
               <>
                 <div className="clavardage__barre">
                   <div>
-                    <p className="clavardage__surtitre">Bienvenue chez</p>
+                    <p className="clavardage__surtitre">{t("bienvenue")}</p>
                     <p className="clavardage__marque">Cartoonova</p>
                   </div>
                   <button
                     type="button"
                     className="clavardage__fermer"
                     onClick={() => setOuvert(false)}
-                    aria-label="Fermer l'aide"
+                    aria-label={t("ariaFermer")}
                   >
                     <Icone nom="croix" taille={14} />
                   </button>
                 </div>
-                <p className="clavardage__salut">Bonjour 👋</p>
-                <p className="clavardage__accroche">Une question sur votre portrait ? On est là.</p>
+                <p className="clavardage__salut">{t("salut")}</p>
+                <p className="clavardage__accroche">{t("accroche")}</p>
                 <div className="clavardage__delai">
                   <div className="clavardage__equipe" aria-hidden="true">
                     {EQUIPE.map((initiale) => (
@@ -255,7 +240,7 @@ export default function ChatWidget() {
                       </span>
                     ))}
                   </div>
-                  <span>Réponse en moins de 2 h</span>
+                  <span>{t("delai")}</span>
                   <Horloge />
                 </div>
               </>
@@ -276,8 +261,8 @@ export default function ChatWidget() {
                       <Icone nom="discussion" taille={18} />
                     </span>
                     <span className="clavardage__lien-texte">
-                      <span className="clavardage__lien-titre">Démarrer une conversation</span>
-                      <span className="clavardage__lien-sous">Une vraie personne vous répond</span>
+                      <span className="clavardage__lien-titre">{t("demarrer")}</span>
+                      <span className="clavardage__lien-sous">{t("demarrerSous")}</span>
                     </span>
                     <Chevron />
                   </button>
@@ -285,7 +270,7 @@ export default function ChatWidget() {
               </div>
 
               <div className="clavardage__corps">
-                <p className="clavardage__intertitre">Liens rapides</p>
+                <p className="clavardage__intertitre">{t("liensRapides")}</p>
                 <div className="clavardage__carte">
                   {SUJETS.map((s) => (
                     <button
@@ -298,15 +283,15 @@ export default function ChatWidget() {
                         <Icone nom={s.icone} taille={18} />
                       </span>
                       <span className="clavardage__lien-texte">
-                        <span className="clavardage__lien-titre">{s.titre}</span>
-                        <span className="clavardage__lien-sous">{s.sous}</span>
+                        <span className="clavardage__lien-titre">{t(`sujet${s.cle}`)}</span>
+                        <span className="clavardage__lien-sous">{t(`sujet${s.cle}Sous`)}</span>
                       </span>
                       <Chevron />
                     </button>
                   ))}
                 </div>
 
-                <p className="clavardage__signature">Cartoonova — du lundi au samedi, 9 h – 19 h</p>
+                <p className="clavardage__signature">{t("signature")}</p>
               </div>
             </>
           )}
@@ -318,11 +303,8 @@ export default function ChatWidget() {
             <div className="clavardage__corps">
               <div className="clavardage__carte">
                 <div className="clavardage__accueil">
-                  <h3>Votre e-mail pour commencer</h3>
-                  <p>
-                    Il nous sert à vous répondre même si vous quittez la page. Aucun envoi
-                    publicitaire.
-                  </p>
+                  <h3>{t("emailTitre")}</h3>
+                  <p>{t("emailTexte")}</p>
                   <input
                     ref={champEmailRef}
                     type="email"
@@ -332,13 +314,13 @@ export default function ChatWidget() {
                       setErreurEmail(false);
                     }}
                     onKeyDown={(e) => e.key === "Enter" && validerEmail()}
-                    placeholder="votre@email.com"
+                    placeholder={t("emailPlaceholder")}
                     className="champ-ligne"
                     aria-invalid={erreurEmail}
-                    aria-label="Votre adresse e-mail"
+                    aria-label={t("emailAria")}
                   />
                   {erreurEmail && (
-                    <p style={{ color: "#B3261E" }}>Cette adresse ne semble pas valide.</p>
+                    <p style={{ color: "#B3261E" }}>{t("emailInvalide")}</p>
                   )}
                   <button
                     type="button"
@@ -346,7 +328,7 @@ export default function ChatWidget() {
                     className="bouton bouton--primaire"
                     style={{ width: "100%", justifyContent: "center", fontSize: 16 }}
                   >
-                    Continuer
+                    {t("continuer")}
                   </button>
                 </div>
               </div>
@@ -362,7 +344,7 @@ export default function ChatWidget() {
                   </div>
                 ))}
                 {envoiEnCours && (
-                  <div className="bulle clavardage__frappe" aria-label="Cartoonova est en train d'écrire">
+                  <div className="bulle clavardage__frappe" aria-label={t("ariaEcrit")}>
                     <i />
                     <i />
                     <i />
@@ -378,15 +360,15 @@ export default function ChatWidget() {
                     value={saisie}
                     onChange={(e) => setSaisie(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && envoyer()}
-                    placeholder="Écrivez votre message…"
-                    aria-label="Votre message"
+                    placeholder={t("saisiePlaceholder")}
+                    aria-label={t("saisieAria")}
                   />
                   <button
                     type="button"
                     onClick={envoyer}
                     disabled={!saisie.trim() || envoiEnCours}
                     className={`clavardage__envoi${saisie.trim() && !envoiEnCours ? " clavardage__envoi--actif" : ""}`}
-                    aria-label="Envoyer le message"
+                    aria-label={t("ariaEnvoyer")}
                   >
                     <Icone nom="envoyer" taille={16} />
                   </button>
@@ -402,11 +384,11 @@ export default function ChatWidget() {
         type="button"
         onClick={() => setOuvert((o) => !o)}
         className={`clavardage__lanceur${ouvert ? " clavardage__lanceur--ouvert" : ""}`}
-        aria-label={ouvert ? "Fermer l'aide" : "Ouvrir l'aide"}
+        aria-label={ouvert ? t("ariaFermer") : t("ariaOuvrir")}
         aria-expanded={ouvert}
       >
         {ouvert ? <Icone nom="croix" taille={17} /> : <TeteAide taille={37} />}
-        <span className="clavardage__lanceur-texte">Live Chat</span>
+        <span className="clavardage__lanceur-texte">{t("lanceur")}</span>
       </button>
     </div>
   );

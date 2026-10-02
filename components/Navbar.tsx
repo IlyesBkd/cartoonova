@@ -26,6 +26,7 @@ import {
   type Categorie,
   type Produit,
 } from "@/lib/catalogue";
+import { useRetourFerme } from "@/lib/useRetourFerme";
 
 /* En-tete du systeme ToonJaune (blocs/entete.html) : barre promo indigo,
    en-tete collante, logo a gauche, menu a droite, bouton d'action.
@@ -61,6 +62,8 @@ export default function Navbar({
 }) {
   const [menuOuvert, setMenuOuvert] = useState<Categorie | null>(null);
   const [replieOuvert, setReplieOuvert] = useState(false);
+  // Le retour du telephone ferme le menu au lieu de quitter la page.
+  useRetourFerme(replieOuvert, () => setReplieOuvert(false));
   const [sectionRepliee, setSectionRepliee] = useState<Categorie | null>(null);
   const enteteRef = useRef<HTMLElement>(null);
   const minuterie = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -69,6 +72,7 @@ export default function Navbar({
   const t = useTranslations("tj");
   const tn = useTranslations("nav");
   const tp = useTranslations("product");
+  const tc = useTranslations("chat");
   const tEvt = useTranslations("evenements");
   const lien = useLien();
   const chemin = usePathname();
@@ -315,7 +319,7 @@ export default function Navbar({
               onClick={() => window.dispatchEvent(new Event(EVENEMENT_AIDE))}
             >
               <TeteAide taille={28} />
-              <span>Live Chat</span>
+              <span>{tc("lanceur")}</span>
             </button>
             <LanguageAndCurrencySwitcher />
           </div>

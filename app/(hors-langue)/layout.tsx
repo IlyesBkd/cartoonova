@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 import { locales, defaultLocale } from "@/i18n/config";
-import "./globals.css";
+import "../globals.css";
 
 /* Revendication du domaine chez Pinterest. La balise doit rester en place :
    Pinterest la reverifie periodiquement, et la revendication saute si elle

@@ -4,6 +4,7 @@ import { currencies } from "@/lib/currency";
 import { PRINT_KEYS } from "@/lib/pricing";
 import { enregistrerLead } from "@/lib/leadsCaisse";
 import { cleDepuisRequete, enregistrerEchec, verifierLimite } from "@/lib/rateLimit";
+import { emailValide } from "@/lib/email";
 
 /**
  * Passage a la caisse : l'e-mail est saisi, le paiement n'a pas encore eu lieu.
@@ -17,7 +18,6 @@ import { cleDepuisRequete, enregistrerEchec, verifierLimite } from "@/lib/rateLi
 export const dynamic = "force-dynamic";
 
 // Meme filtre permissif que la newsletter : la vraie validation, c'est l'envoi.
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 // Un style est un segment d'URL du site : il finit dans le lien de la relance.
 const STYLE_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   const email = typeof body.email === "string" ? body.email.trim() : "";
-  if (!email || email.length > 254 || !EMAIL_RE.test(email)) return vide(400);
+  if (!email || !emailValide(email)) return vide(400);
 
   const locale = typeof body.locale === "string" ? body.locale : "";
   if (!(locales as readonly string[]).includes(locale)) return vide(400);

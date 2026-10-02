@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const CONFIRMATION: Record<Lang, { title: string; body: string }> = {
   fr: {
     title: "C'est fait",
-    body: "Vous ne recevrez plus d'emails marketing de Cartoonova. Les emails liés à une commande en cours continuent d'arriver.",
+    body: "Tu ne recevras plus d'e-mails marketing de Cartoonova. Les e-mails liés à une commande en cours continuent d'arriver.",
   },
   en: {
     title: "Done",
@@ -22,7 +22,7 @@ const CONFIRMATION: Record<Lang, { title: string; body: string }> = {
   },
   de: {
     title: "Erledigt",
-    body: "Sie erhalten keine Marketing-E-Mails von Cartoonova mehr. E-Mails zu einer laufenden Bestellung kommen weiterhin an.",
+    body: "Du bekommst keine Marketing-E-Mails von Cartoonova mehr. E-Mails zu einer laufenden Bestellung kommen weiterhin an.",
   },
   it: {
     title: "Fatto",
@@ -87,6 +87,6 @@ export async function GET(req: NextRequest) {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[GET /api/newsletter/unsubscribe] Error:", message);
-    return page("Erreur", "La désinscription a échoué. Écrivez-nous à support@cartoonova.com.", 500);
+    return page("Erreur", "La désinscription a échoué. Écris-nous à support@cartoonova.com.", 500);
   }
 }

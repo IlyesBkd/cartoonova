@@ -1,6 +1,6 @@
 import { Poppins } from "next/font/google";
 import PostHogProvider from "@/components/PostHogProvider";
-import "../globals.css";
+import "../../globals.css";
 
 const poppins = Poppins({
   variable: "--font-poppins",

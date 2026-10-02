@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { type Locale } from "@/i18n/config";
 import { SITE_URL } from "@/lib/site";
 import Catalogue, { type CarteCatalogue } from "@/components/pages/Catalogue";
@@ -15,7 +15,7 @@ import {
   type Categorie,
 } from "@/lib/catalogue";
 import { visuelsProduit } from "@/lib/visuels";
-import { getPricesForCurrency } from "@/lib/db";
+import { prixEnCache } from "@/lib/lecturesCache";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import { alternatesPour } from "@/lib/seo";
 
@@ -49,6 +49,7 @@ export async function generateMetadata({
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: brut } = await params;
+  setRequestLocale(brut);
   const locale = brut as Locale;
 
   const produits: CarteCatalogue[] = CATALOGUE_EN_LIGNE.map((p) => {
@@ -72,7 +73,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
 
   let prixDepart = DEFAULT_PRICE_SET.base;
   try {
-    prixDepart = (await getPricesForCurrency("EUR")).base;
+    prixDepart = (await prixEnCache("EUR")).base;
   } catch {
     // Repli sur la grille par defaut si la base est injoignable.
   }

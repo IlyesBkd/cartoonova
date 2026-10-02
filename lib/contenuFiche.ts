@@ -92,6 +92,20 @@ async function assurerSchema(): Promise<void> {
  */
 export async function contenuFiche(produit: string, locale: string): Promise<ContenuFiche | null> {
   try {
+    return await lireContenuFiche(produit, locale);
+  } catch (erreur) {
+    console.error("[contenuFiche] lecture impossible:", produit, locale, erreur);
+    return null;
+  }
+}
+
+/**
+ * Meme lecture, mais qui leve si la base ne repond pas. C'est elle que met en
+ * cache `lib/lecturesCache.ts` : une erreur n'est pas mise en cache, alors
+ * qu'un `null` de panne le serait pour une heure.
+ */
+export async function lireContenuFiche(produit: string, locale: string): Promise<ContenuFiche | null> {
+  {
     await assurerSchema();
     const rows = await sql`
       SELECT produit, locale, intro, sections, faq, maj_le
@@ -114,9 +128,6 @@ export async function contenuFiche(produit: string, locale: string): Promise<Con
       faq,
       majLe: String(r.maj_le),
     };
-  } catch (erreur) {
-    console.error("[contenuFiche] lecture impossible:", produit, locale, erreur);
-    return null;
   }
 }
 

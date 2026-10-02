@@ -47,7 +47,7 @@ const TEXTES: Record<Locale, Textes> = {
   fr: {
     titre: "Un mot sur la mesure d'audience",
     texte:
-      "Nous mesurons la navigation pour comprendre ce qui fonctionne sur le site. Si vous refusez, nous continuons a compter les visites sans aucun identifiant ni cookie.",
+      "Nous mesurons la navigation pour comprendre ce qui fonctionne sur le site. Si tu refuses, on continue de compter les visites sans aucun identifiant ni cookie.",
     accepter: "Accepter",
     refuser: "Refuser",
     enSavoirPlus: "En savoir plus",

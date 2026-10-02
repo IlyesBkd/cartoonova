@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { findOrderByCustomerEmail, insertSupportMessage } from "@/lib/db";
 import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 import { cleDepuisRequete } from "@/lib/rateLimit";
+import { emailValide } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,6 @@ export const dynamic = "force-dynamic";
 
 // Meme regle que la newsletter : on refuse ce qui n'est manifestement pas un
 // e-mail, la vraie verification se fait quand on repond.
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const NOM_MAX = 100;
 const SUJET_MAX = 200;
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
   const sujet = texte(body.sujet);
   const message = texte(body.message);
 
-  if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
+  if (!email || !emailValide(email)) {
     return NextResponse.json({ error: "invalid_email" }, { status: 400 });
   }
   if (nom.length > NOM_MAX || sujet.length > SUJET_MAX) {

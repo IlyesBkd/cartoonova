@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { locales, type Locale } from "@/i18n/config";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { OCCASIONS, buildGiftSlug } from "@/lib/giftOccasions";
@@ -52,6 +52,7 @@ function prochainNoel(locale: Locale): Date {
 
 export default async function NoelPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: brut } = await params;
+  setRequestLocale(brut);
   if (!(locales as readonly string[]).includes(brut)) notFound();
   const locale = brut as Locale;
   const t = await getTranslations({ locale, namespace: "noel" });
