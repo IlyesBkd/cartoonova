@@ -152,6 +152,173 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
   - Correctif possible : masquer les montants jusqu'à la lecture du cookie.
 - **P1-21. Chiffres toujours inventés.** La page À propos les affiche maintenant dans les 10 langues : « 85 000+ », « 3 000+ avis », « 50+ pays ». Ils sont regroupés dans des clés, pour être corrigés en un seul endroit dès la décision P0-1.
 
+---
+
+## Audit avant publicité — 2 octobre 2026 (ChatGPT Ads, 10 langues)
+
+**Ce qui a été fait :**
+- **Crawl de la production :** les 937 URL du sitemap.
+- **Rendu réel :** 245 pages dans les 10 langues, sur mobile et sur bureau.
+- **Achats complets en local** (Stripe test, base de dev) :
+  - numérique avec carte de vœux, par carte classique ;
+  - toile livrée à Berlin, avec 3-D Secure ;
+  - carte refusée.
+- **Après-vente :** états simulés en base (sans photo, aperçu envoyé, retouche demandée via l'interface, portrait livré) et rendu des pages.
+- **Autres contrôles :** revue des routes API, `npm audit`, règles et outillage de ChatGPT Ads.
+
+Les commandes de test ont été supprimées de la base de dev (vérifié : 0 restante).
+
+**Ce qui marche bien (mesuré) :**
+- **Pages :**
+  - 937 pages en 200, 0 lien cassé ;
+  - 0 titre trop long ou en double, 0 page sans image de partage ni données structurées.
+- **Vitesse :** LCP mobile médian 0,9 s ; pages d'atterrissage entre 0,5 et 0,7 s, servies par le cache.
+- **Rendu :** 0 erreur JavaScript, CLS sous 0,1 partout, 0 texte français sur les pages étrangères.
+- **Paiement :** carte, 3-D Secure et refus fonctionnent. La commande est enregistrée avec ses options, la livraison à 4,90 € et l'origine `utm_*`.
+- **Conversion Google Ads :** envoyée une seule fois, avec le montant, la devise et le numéro de transaction.
+- **Après-vente :** la carte « prochaine action » du suivi, la demande de retouche (enregistrée avec sa note) et la page bonus fonctionnent.
+- **Relances :** le double appel des relances (crontab Hermes + VPS) n'envoie pas d'e-mail en double, parce que chaque envoi est marqué (`…_sent_at`).
+
+**Corrigé le 2 octobre 2026 (même jour), vérifié en local, mis en ligne :**
+- **AD-2 :** la redirection de `/` garde toute la requête (`oppref`, `utm_*`, `gclid`).
+- **V-1 :**
+  - la langue du site au paiement est posée sur le PaymentIntent, puis sur la commande (nouvelle colonne `orders.langue`, créée en production et en dev) ;
+  - tout l'après-vente passe par `langueCommande()`, et le pays ne sert plus que de repli pour les anciennes commandes ;
+  - vérifié : une commande passée depuis `/de` sans pays détecté a son suivi et son dépôt en allemand.
+- **V-2 :** `next` et `eslint-config-next` passent en 16.3.8.
+- **V-3 :** Amazon Pay est exclu des deux PaymentIntents (`excluded_payment_method_types`) : plus aucune requête ni aucun cookie Amazon.
+- **V-4 :** le paiement du bon cadeau a la carte ouverte en tête, comme dans la caisse, avec un squelette pendant le chargement. Le bouton attend que le formulaire soit prêt. Un achat complet par carte de test aboutit, la carte étant saisissable en 8 s en local.
+- **V-5 :**
+  - le support s'affiche « Fichier numérique » (et son équivalent dans les 10 langues) au lieu de « Digital » ;
+  - les totaux de la page de succès et de l'e-mail de confirmation s'affichent au format local (« 5 € ») au lieu de « 9.00 EUR ».
+- **V-6 (P1-18) :**
+  - les 61 textes de fiches au vouvoiement (35 FR, 26 DE) sont réécrits au tutoiement et écrits en production, après une sauvegarde de la table (`/home/ubuntu/sauvegarde-contenus_fiche-20261002-2053.sql`) ;
+  - restent 3 formes polies voulues : le client qui s'adresse à la boutique, et « Sie » au sens de « ils ».
+- **V-7 :** la tuile « 48H » devient « 2 jours », et les descriptions des fiches passent de « Aperçu sous 48 h » à « Aperçu sous 2 jours », dans les 10 langues.
+- **V-9 :** limites par IP : newsletter 3 / 10 min, chat 5 / 10 min, vérification de code promo 10 / 10 min (au-delà, 429). Vérifié : la 4ᵉ inscription reçoit un 429.
+
+### A. Bloquant pour la pub
+
+**AD-1. Marques et personnages sous licence.** 👤 décision → 🤖
+- Les règles publicitaires d'OpenAI n'autorisent que les marques que l'annonceur possède ou est autorisé à utiliser. Elles interdisent aussi de laisser croire à un partenariat, et les produits qui imitent une marque sans autorisation.
+- Or tout le catalogue est nommé d'après des marques : « Portrait Simpson Personnalisé », Disney, Naruto, Pokémon, Marvel… jusque dans les URL. Aucune page ne dit que le site n'est pas affilié à ces marques.
+- **Conséquence :**
+  - une annonce qui cite une de ces marques sera refusée ;
+  - une page d'atterrissage centrée sur une marque peut l'être aussi ;
+  - à répétition, c'est le compte qui risque la suspension.
+- **À faire :**
+  - annonces génériques (« portrait cartoon personnalisé d'après ta photo ») ;
+  - atterrissage sur des pages neutres : l'accueil, `/portrait-personnalise-cartoon` (aujourd'hui en français seulement, sans équivalent dans les 9 autres langues), le bon cadeau, le portfolio ;
+  - mention de non-affiliation dans le pied de page et sur les fiches (« style inspiré de…, sans lien avec les ayants droit »).
+- Le risque juridique de fond (vendre des portraits « style Simpson/Disney ») existe indépendamment de la pub. C'est à faire valider par toi.
+
+**AD-2. Les paramètres de pub sont perdus sur la page d'accueil.** 🤖 S
+- `https://www.cartoonova.com/?oppref=…&utm_source=…` redirige vers `/fr` **sans les paramètres** (`proxy.ts:81`, `new URL("/fr", request.url)` ne recopie pas la requête). Vérifié en production.
+- ChatGPT Ads attribue les ventes grâce au paramètre `oppref` de l'URL d'arrivée : avec une annonce pointant sur le domaine nu, **aucune vente ne serait attribuée**, et l'origine `utm_*` serait perdue aussi.
+- Les autres redirections (apex vers www, http vers https, sans langue vers `/fr/...`) gardent bien les paramètres.
+
+**AD-3. Aucun suivi des conversions ChatGPT.** 🤖 M + 👤 identifiants
+- **Il faut, dans Ads Manager → Conversions :**
+  - le Pixel ID et la clé de l'API serveur ;
+  - côté site, le script `oaiq` (`bzrcdn.openai.com`), qui capture `oppref` dans le cookie `__oppref` ;
+  - l'événement `order_created`, avec le montant **en centimes**, la devise et un `event_id` égal au numéro de commande ;
+  - de préférence, le même événement envoyé côté serveur depuis le webhook Stripe : même `event_id`, et `obref` lu depuis le cookie et stocké avec la commande.
+- **Autres points :**
+  - ajouter `bzrcdn.openai.com` et `bzr.openai.com` à la CSP ;
+  - garder `oppref` dans l'origine de la commande (`lib/origineVisite.ts` ne garde que `utm_source/medium/campaign`) ;
+  - le bon cadeau n'envoie aucune conversion, ni Google ni autre.
+
+**AD-4. Aucun consentement aux cookies, alors que les visiteurs sont européens.** 🤖 M
+- Avant tout choix, un visiteur reçoit déjà :
+  - `_gcl_au` (Google Ads) ;
+  - le cookie PostHog ;
+  - les cookies Stripe ;
+  - des cookies **Amazon** (`session-id`, `apay-session-set`…, via Amazon Pay dans Stripe).
+- Le bandeau existe dans le code (`BandeauConsentement.tsx`), mais il est coupé (`NEXT_PUBLIC_CONSENT_BANNER` absent).
+- C'est contraire au RGPD et à la directive ePrivacy : la CNIL sanctionne ce cas. Le pixel ChatGPT, lui, doit démarrer sur `oaiq("consent", false)` et n'être activé qu'après accord.
+- **À faire :**
+  - un bandeau accepter/refuser dans les 10 langues ;
+  - Google Ads en Consent Mode ;
+  - pixel ChatGPT et PostHog conditionnés au choix.
+
+**AD-5. Points ouverts qui restent bloquants avant de payer du trafic :**
+- **P0-1 / P1-21 :** chiffres et avis inventés, toujours en ligne. Vu sur la fiche Simpson : « 2 540 avis vérifiés · 85 000+ portraits livrés », des avis « Achat vérifié », et des témoignages rédigés dans les traductions (`product.review*Text`). La règle de la plateforme comme le droit de la consommation l'interdisent.
+- **P0-2 / L-1 :** identité légale qui ressemble à un placeholder. Un annonceur doit être identifiable.
+- **L-2 :** la politique de confidentialité cite toujours Google Analytics (2 fois) et aucun des outils réels (PostHog, Google Ads, Stripe, Resend, OVH, le futur pixel ChatGPT).
+- **P0-4 :** toujours aucune sauvegarde automatique de la base (aucun `pg_dump` dans les crontabs du VPS). Plus de trafic, c'est plus de commandes à perdre.
+- **« Made in France » et « Imprimé en France »** (`product.madeInFrance`, `tj.legImpression`) : affirmation invérifiable tant que l'imprimeur n'est pas confirmé (Gelato ou Optimal Print ?). Le script de coûts parle de Gelato, qui imprime dans le pays du client. À retirer, ou à prouver.
+- **Images importées** (cartoontoi.fr ?) : à confirmer avant de les montrer à des milliers de visiteurs payés.
+
+### B. Coûte des ventes
+
+**V-1. La langue des e-mails et des pages après-vente vient de l'IP, pas du client.** 🤖 S
+- Partout (`getLangFromCountry(order.detected_country)`) : confirmation, suivi, dépôt, aperçu, relances, livraison, options.
+- Vérifié : une commande passée sur le site **français**, livraison France, a un suivi en **anglais**, parce que le pays n'était pas détecté. Un Belge néerlandophone, un Suisse alémanique ou un expatrié reçoit la langue de son IP. Un pays absent de la table donne l'anglais.
+- **Correction :** enregistrer la langue du site au moment de la commande et l'utiliser partout ; garder le pays seulement en secours.
+
+**V-2. `next` 16.2.1 a des failles critiques** (déni de service des Server Components, contournement du middleware…). `sharp`, `undici`, `nodemailer` et `postcss` sont en « haut ». 🤖 S
+- Monter `next` au dernier correctif 16.x, puis relancer build et parcours.
+
+**V-3. Amazon Pay (P1-14) toujours actif dans Stripe.** 👤 S
+- Erreurs « merchantId=undefined » à chaque ouverture de la caisse, des cookies Amazon posés sans consentement, et Amazon Pay proposé dans le formulaire du bon cadeau.
+- À désactiver dans Stripe (Paramètres → Moyens de paiement), en test **et** en live.
+
+**V-4. Le formulaire de paiement du bon cadeau.** 🤖 S + 👤 test
+- Il s'affiche après plusieurs secondes de zone blanche (12 à 25 s mesurés en local), en accordéon avec Klarna, Bancontact, Amazon Pay et EPS. C'est différent de la caisse des portraits.
+- L'automatisation n'a pas pu y saisir la carte : **l'achat d'un bon cadeau n'a pas pu être testé jusqu'au bout**. À tester à la main (P2-4), et à aligner sur la caisse des portraits.
+- Le texte « Il reste au moins 1 à payer sur chaque commande » (L-3) est affiché aux clients tel quel : incompréhensible.
+
+**V-5. Récapitulatif de commande** (caisse, page de succès) : 🤖 S
+- le support s'affiche « Digital » en anglais dans la version française ;
+- le total s'affiche « 9.00 EUR » au lieu de « 9 € » ;
+- les options choisies (carte de vœux…) n'apparaissent pas ;
+- la livraison n'est pas détaillée sur la page de succès d'un tirage.
+
+**V-6. Textes des fiches au vouvoiement** (P1-18), visibles sur la fiche Simpson : « Choisissez le format souhaité, téléchargez votre photo ». Le site tutoie partout ailleurs. 🤖 S, après P0-7.
+
+**V-7. Promesse de délai incohérente sur la fiche :** le badge « 48H Aperçu » à côté d'« aperçu sous 2 jours » ; « Livré en 2 jours » (`product.delivered48h`, `collections.badgeDelivery24h`), alors que l'impression prend 3 à 7 jours ouvrés de plus. Pour une pub, la promesse doit être la même partout : « fichier en 2 jours ». 🤖 S
+
+**V-8. Bascule du prix de lancement (P1-16) toujours manuelle.** La fin du 5 € est annoncée pour le 15 novembre, mais rien ne change seul. Avec de la pub en cours, un oubli affiche une promesse fausse, et un retard fait vendre à perte. 🤖 S
+
+**V-9. Routes publiques sans limite de débit :** 🤖 S
+- `newsletter` envoie un e-mail de bienvenue à n'importe quelle adresse : on peut s'en servir pour bombarder des tiers, ce qui abîme la réputation d'envoi. Il faudrait une limite et un double opt-in.
+- `upload` permet à n'importe qui de remplir le stockage Blob (10 Mo par fichier, images seulement).
+- `chat` relaie vers Discord.
+- `promo/validate` permet de deviner des codes.
+
+### C. Finitions
+
+- **F-1.** Collections : 3,2 Mo sur mobile dans les 10 langues, la page la plus lourde du site.
+- **F-2.** Chaque page embarque toutes les traductions dans son HTML : environ 190 Ko par page, 250 Ko pour les collections. Ne charger que les espaces utiles à la page.
+- **F-3.** Portfolio : 24 écrans sur mobile (31 cartes en une colonne). Passer à 2 colonnes, ou afficher les premières cartes avec un bouton « Voir plus ».
+- **F-4.** Débordement horizontal sur mobile : `/de/cgv` (+8 px), `/de/politique-de-confidentialite` (+6 px), `/nl/politique-de-confidentialite` (+39 px). Ce sont des mots longs sans césure.
+- **F-5.** `/fr/portrait-personnalise-cartoon` n'existe qu'en français, alors que c'est la meilleure page d'atterrissage neutre (voir AD-1).
+- **F-6.** Des articles de blog datés sont dépassés : « Fête des pères 2026 », « Mother's Day 2026 ». Les mettre à jour ou les dater moins.
+- **F-7.** Suivi : la ligne « Format » affiche la valeur brute (`portrait`).
+- **F-8.** Le message de carte refusée vouvoie (« Votre carte a été refusée ») : c'est le texte de Stripe.
+- **F-9.** Ouvrir la page de succès sur un autre appareil renvoie la conversion. Google la dédoublonne grâce au numéro de transaction ; le pixel ChatGPT devra utiliser le même identifiant.
+
+### Non testé dans cet audit
+
+- **Achat d'un bon cadeau jusqu'au paiement** (voir V-4).
+- **Admin :** l'envoi de la carte de vœux et du calendrier depuis l'admin. L'appel aurait écrit dans le stockage Blob de production ; les PDF eux-mêmes ont été vérifiés à leur création.
+- **Rendu visuel des e-mails :** leurs textes français ont été relus (tutoiement et délais cohérents), mais pas leur affichage dans Gmail ou Outlook.
+- **Rapports CSP reçus depuis le déploiement :** ils sont dans Discord et dans les journaux Vercel, auxquels je n'ai pas accès.
+- **Apple Pay et Google Pay**, et le paiement réel en production.
+
+### Feu vert pub : la checklist
+
+1. [ ] Décision sur les marques (AD-1) : annonces génériques, pages d'atterrissage neutres, mention de non-affiliation.
+2. [ ] Paramètres gardés sur la page d'accueil (AD-2).
+3. [ ] Pixel ChatGPT et API de conversions branchés, testés en mode debug (AD-3).
+4. [ ] Bandeau de consentement actif, et cookies seulement après accord (AD-4).
+5. [ ] Chiffres et avis inventés retirés (P0-1).
+6. [ ] Vraie identité légale (P0-2) et politique de confidentialité à jour (L-2).
+7. [ ] Sauvegarde automatique de la base (P0-4).
+8. [ ] « Made in France » prouvé ou retiré, origine des images confirmée.
+9. [ ] Langue des e-mails = langue du client (V-1), `next` à jour (V-2), Amazon Pay coupé (V-3).
+10. [ ] Une vraie commande test en production, y compris un bon cadeau (P2-4).
+
 ## Comment l'audit a été fait
 
 | Passe | Ce qui a été testé | Résultat |

@@ -38,6 +38,11 @@ export async function POST(req: NextRequest) {
       description: `Bon cadeau Cartoonova ${montant} ${devise}`,
       receipt_email: email,
       automatic_payment_methods: { enabled: true },
+      /* Amazon Pay est actif sur le compte Stripe sans etre configure : il
+         produisait des erreurs « merchantId=undefined » et posait des cookies
+         Amazon avant tout consentement. Exclu ici, quel que soit le reglage du
+         tableau de bord. */
+      excluded_payment_method_types: ["amazon_pay"],
       metadata: {
         type: "bon_cadeau",
         email,

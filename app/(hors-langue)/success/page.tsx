@@ -7,7 +7,7 @@ import AttentePaiement from "@/app/(hors-langue)/success/AttentePaiement";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { finaliserCommande } from "@/lib/finaliserCommande";
-import { bonCadeauTextes, getLangFromCountry, langueDemandee, successPage } from "@/lib/email-i18n";
+import { bonCadeauTextes, getLangFromCountry, langueDemandee, successPage, langueCommande } from "@/lib/email-i18n";
 import { finaliserBonCadeau, formatMontant, lienImpression, type BonCadeau } from "@/lib/bonCadeau";
 
 /* L'e-mail de confirmation, la notification Discord et la mesure de l'achat
@@ -113,7 +113,7 @@ export default async function SuccessPage(props: {
       return (
         <SuccessClient
           order={issue.order}
-          lang={langueVisite ?? getLangFromCountry(issue.order.detected_country)}
+          lang={langueVisite ?? langueCommande(issue.order)}
           trackingUrl={`/suivi/${orderTrackingToken(issue.order.id)}`}
           /* Commande payee sans photo : le depot devient la premiere action.
              Le jeton est signe ici, cote serveur, comme celui du suivi. */

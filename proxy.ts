@@ -77,8 +77,13 @@ export function proxy(request: NextRequest) {
        passe une fois par un reseau etranger resterait bloque sur cette langue
        — et par Google, qui figerait la langue vue par son robot. Une
        redirection qui varie ne peut pas etre permanente.
-       C'est `x-default` qui donne a Google la version stable de repli. */
-    return NextResponse.redirect(new URL(`/${target}`, request.url));
+       C'est `x-default` qui donne a Google la version stable de repli.
+       La requete suit : une annonce qui pointe sur le domaine nu porte son
+       identifiant de clic (`oppref`, `gclid`) et ses `utm_*` ; les perdre ici
+       rendait la vente impossible a attribuer. */
+    const cible = new URL(`/${target}`, request.url);
+    cible.search = request.nextUrl.search;
+    return NextResponse.redirect(cible);
   }
 
   /* Anciennes URL sans prefixe de langue — /avis, /cgv, /simpson… — heritees

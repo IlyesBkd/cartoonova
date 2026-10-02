@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cleDepuisRequete, limiteur } from "@/lib/rateLimit";
+
+/* 5 messages par IP et par 10 min : chaque message part sur Discord. */
+const tropDeMessages = limiteur(5, 10 * 60 * 1000);
 
 export async function POST(req: NextRequest) {
+  if (tropDeMessages(cleDepuisRequete(req))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
   try {
     const { email, message } = await req.json();
 

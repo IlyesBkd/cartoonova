@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { marquerPayee } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
-import { getLangFromCountry, confirmationEmail, depotPhotosPage, optionsCommande } from "@/lib/email-i18n";
+import { confirmationEmail, depotPhotosPage, optionsCommande, langueCommande } from "@/lib/email-i18n";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 import { mesureServeur, personneServeur } from "@/lib/analyticsServeur";
@@ -11,6 +11,7 @@ import { alerteDiscord, COULEUR_SOLEIL, COULEUR_ATTENTION } from "@/lib/discord"
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
 import { lienEmail } from "./utmEmail";
+import { formatPrix } from "@/lib/i18n/relances";
 import { debiterBonCadeau } from "./promoCodes";
 import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
@@ -37,7 +38,7 @@ const resend = new Resend(process.env.RESEND_API_KEY!);
 async function envoyerConfirmation(order: DbOrder): Promise<void> {
   try {
     const opts = order.options;
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = confirmationEmail[lang];
     const td = depotPhotosPage[lang];
     const oc = optionsCommande[lang];
@@ -69,8 +70,8 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
                 ${opts.express ? `<li>⚡ ${oc.express}</li>` : ""}
                 ${opts.carteVoeux ? `<li>${oc.carteVoeux}</li>` : ""}
                 ${opts.calendrier ? `<li>${oc.calendrier}</li>` : ""}
-                ${opts.shippingAmount ? `<li>${oc.shipping}: ${opts.shippingAmount} ${order.currency}</li>` : ""}
-                <li>${t.total}: ${order.total_price} ${order.currency}</li>
+                ${opts.shippingAmount ? `<li>${oc.shipping}: ${formatPrix(Number(opts.shippingAmount), order.currency, lang)}</li>` : ""}
+                <li>${t.total}: ${formatPrix(Number(order.total_price), order.currency, lang)}</li>
               </ul>
             </div>
             <div style="text-align: center; margin: 30px 0;">

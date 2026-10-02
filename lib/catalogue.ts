@@ -159,25 +159,25 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
   fr: (u) =>
-    `Transforme ta photo en portrait ${u} personnalisé. Aperçu sous 48 h, retouches illimitées, disponible en fichier numérique, poster, toile ou cadre.`,
+    `Transforme ta photo en portrait ${u} personnalisé. Aperçu sous 2 jours, retouches illimitées, disponible en fichier numérique, poster, toile ou cadre.`,
   en: (u) =>
-    `Turn your photo into a custom ${u} portrait. Preview within 48 h, unlimited revisions, available as a digital file, poster, canvas or framed print.`,
+    `Turn your photo into a custom ${u} portrait. Preview within 2 days, unlimited revisions, available as a digital file, poster, canvas or framed print.`,
   es: (u) =>
-    `Convierte tu foto en un retrato ${u} personalizado. Vista previa en 48 h, retoques ilimitados, disponible en digital, póster, lienzo o enmarcado.`,
+    `Convierte tu foto en un retrato ${u} personalizado. Vista previa en 2 días, retoques ilimitados, disponible en digital, póster, lienzo o enmarcado.`,
   de: (u) =>
-    `Verwandle dein Foto in ein personalisiertes ${u}-Porträt. Vorschau in 48 Std., unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
+    `Verwandle dein Foto in ein personalisiertes ${u}-Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
   it: (u) =>
-    `Trasforma la tua foto in un ritratto ${u} personalizzato. Anteprima in 48 h, ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
+    `Trasforma la tua foto in un ritratto ${u} personalizzato. Anteprima in 2 giorni, ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
   nl: (u) =>
-    `Laat je foto omtoveren tot een gepersonaliseerd ${u} portret. Voorbeeld binnen 48 uur, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
+    `Laat je foto omtoveren tot een gepersonaliseerd ${u} portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
   pl: (u) =>
-    `Zamień swoje zdjęcie w spersonalizowany portret ${u}. Podgląd w 48 godzin, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
+    `Zamień swoje zdjęcie w spersonalizowany portret ${u}. Podgląd w 2 dni, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
   sv: (u) =>
-    `Förvandla ditt foto till ett personligt ${u}-porträtt. Förhandsvisning inom 48 timmar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
+    `Förvandla ditt foto till ett personligt ${u}-porträtt. Förhandsvisning inom 2 dagar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
   da: (u) =>
-    `Forvandl dit foto til et personligt ${u}-portræt. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
+    `Forvandl dit foto til et personligt ${u}-portræt. Forhåndsvisning inden for 2 dage, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
   pt: (u) =>
-    `Transforma a tua foto num retrato ${u} personalizado. Pré-visualização em 48 h, retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
+    `Transforma a tua foto num retrato ${u} personalizado. Pré-visualização em 2 dias, retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */

@@ -577,7 +577,10 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <b>{t("tuileRetouches")}</b>
             </div>
             <div className="tuile tuile--fort">
-              <b>48H</b>
+              {/* Meme promesse que partout ailleurs : un aperçu en 2 jours. « 48H »
+                  se lisait a cote de « aperçu sous 2 jours », deux formulations
+                  pour une seule promesse. */}
+              <b>{t("tuileDelai")}</b>
               <b style={{ fontFamily: "var(--texte)", fontSize: "12.5px", color: "#fff" }}>
                 {t("tuileApercu")}
               </b>

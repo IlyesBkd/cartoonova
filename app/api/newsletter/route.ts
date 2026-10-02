@@ -3,6 +3,12 @@ import { subscribeToNewsletter } from "@/lib/db";
 import { sendWelcomeStep } from "@/lib/welcomeSequence";
 import { locales } from "@/i18n/config";
 import { emailValide } from "@/lib/email";
+import { cleDepuisRequete, limiteur } from "@/lib/rateLimit";
+
+/* 3 inscriptions par IP et par 10 min : chaque inscription envoie un e-mail
+   de bienvenue, a n'importe quelle adresse saisie. Sans limite, la route
+   pouvait servir a bombarder des tiers et abimer la reputation d'envoi. */
+const tropDInscriptions = limiteur(3, 10 * 60 * 1000);
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +16,9 @@ export const dynamic = "force-dynamic";
 // la validation reelle se fait a l'envoi.
 
 export async function POST(req: NextRequest) {
+  if (tropDInscriptions(cleDepuisRequete(req))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
   try {
     const body = (await req.json()) as {
       email?: unknown;

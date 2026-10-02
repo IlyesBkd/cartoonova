@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getOrderById, markReviewRequestSent } from "@/lib/db";
-import { getLangFromCountry, reviewRequestEmail } from "@/lib/email-i18n";
+import { reviewRequestEmail, langueCommande } from "@/lib/email-i18n";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { avisExistePourCommande } from "@/lib/reviewsDb";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cette commande a deja un avis." }, { status: 409 });
     }
 
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = reviewRequestEmail[lang];
     const lien = `${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`;
 

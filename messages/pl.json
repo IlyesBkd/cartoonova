@@ -194,7 +194,7 @@
     "uploading": "Przesyłanie...",
     "photosUploaded": "Przesłano {count} zdjęcie(a)",
     "step5": "Opcje wydruku",
-    "digital": "Cyfrowo",
+    "digital": "Plik cyfrowy",
     "canvas": "Portret na płótnie",
     "poster": "Portret w ramie",
     "includedLabel": "W CENIE",
@@ -835,7 +835,8 @@
     "lancement": "Cena na start do {date}, potem {prix} za portret",
     "garantieImprime": "Akceptujesz portret, zanim go wydrukujemy. Po poprawkach nadal nie przekonuje? Zwrot pieniędzy.",
     "garantieNumerique": "Poprawki, aż go pokochasz. Nie przekonuje? Zwrot pieniędzy.",
-    "offerts": "Gratis do portretu: tapeta, awatar i kartka do wydruku."
+    "offerts": "Gratis do portretu: tapeta, awatar i kartka do wydruku.",
+    "tuileDelai": "2 dni"
   },
   "metaPages": {
     "aPropos": {

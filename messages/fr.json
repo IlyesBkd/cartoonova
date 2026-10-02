@@ -194,7 +194,7 @@
     "uploading": "Upload en cours...",
     "photosUploaded": "{count} photo(s) uploadée(s)",
     "step5": "Options d'impression",
-    "digital": "Digital",
+    "digital": "Fichier numérique",
     "canvas": "Portrait sur Toile",
     "poster": "Portrait Encadré",
     "includedLabel": "INCLUS",
@@ -835,7 +835,8 @@
     "lancement": "Prix de lancement jusqu'au {date}, puis {prix} le portrait",
     "garantieImprime": "Tu valides ton portrait avant qu'on l'imprime. Pas convaincu après les retouches ? Remboursé.",
     "garantieNumerique": "Retouches jusqu'à ce que tu l'adores. Pas convaincu ? Remboursé.",
-    "offerts": "Offerts avec ton portrait : fond d'écran, avatar et carte à imprimer."
+    "offerts": "Offerts avec ton portrait : fond d'écran, avatar et carte à imprimer.",
+    "tuileDelai": "2 jours"
   },
   "metaPages": {
     "aPropos": {

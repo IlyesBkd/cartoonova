@@ -194,7 +194,7 @@
     "uploading": "Caricamento...",
     "photosUploaded": "{count} foto caricate",
     "step5": "Opzioni di stampa",
-    "digital": "Digitale",
+    "digital": "File digitale",
     "canvas": "Ritratto su Tela",
     "poster": "Ritratto Incorniciato",
     "includedLabel": "INCLUSO",
@@ -835,7 +835,8 @@
     "lancement": "Prezzo di lancio fino al {date}, poi {prix} a ritratto",
     "garantieImprime": "Approvi il ritratto prima che lo stampiamo. Non ti convince dopo i ritocchi? Rimborsato.",
     "garantieNumerique": "Ritocchi finché non ti piace davvero. Non ti convince? Rimborsato.",
-    "offerts": "In regalo con il ritratto: sfondo, avatar e biglietto da stampare."
+    "offerts": "In regalo con il ritratto: sfondo, avatar e biglietto da stampare.",
+    "tuileDelai": "2 giorni"
   },
   "metaPages": {
     "aPropos": {

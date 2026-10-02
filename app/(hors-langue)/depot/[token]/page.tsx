@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
-import { getLangFromCountry, depotPhotosPage } from "@/lib/email-i18n";
+import { depotPhotosPage, langueCommande } from "@/lib/email-i18n";
 import DepotClient from "./DepotClient";
 
 /**
@@ -50,7 +50,7 @@ export default async function DepotPage({
 
   /* La langue vient du pays detecte a la commande, comme pour les e-mails :
      ce lien arrive par courrier, hors du prefixe de langue du site. */
-  const lang = getLangFromCountry(order.detected_country ?? null);
+  const lang = langueCommande(order);
   const t = depotPhotosPage[lang];
 
   const dejaRecues = Array.isArray(order.photo_urls) && order.photo_urls.length > 0;

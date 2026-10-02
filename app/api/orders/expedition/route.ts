@@ -6,7 +6,7 @@ import {
   marquerExpediee,
   setOrderLastOutboundMessageId,
 } from "@/lib/db";
-import { getLangFromCountry, shippingEmail } from "@/lib/email-i18n";
+import { shippingEmail, langueCommande } from "@/lib/email-i18n";
 import { estPhysique } from "@/lib/supportCommande";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
 
     await enregistrerExpedition(orderId, fournisseurRef, lien, transporteur);
 
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = shippingEmail[lang];
     const ref = order.id.slice(0, 8);
     const lienHtml = echapper(lien);

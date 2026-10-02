@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { markFinalImageSent, setOrderLastOutboundMessageId } from "./db";
-import { getLangFromCountry, finalImageEmail, bonusLiens } from "./email-i18n";
+import { finalImageEmail, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
 import { SITE_URL } from "./site";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
@@ -40,7 +40,7 @@ export interface DestinataireImageFinale {
 export async function envoyerImageFinale(
   order: DestinataireImageFinale
 ): Promise<{ id: string | null }> {
-  const lang = getLangFromCountry(order.detected_country);
+  const lang = langueCommande(order);
   const t = finalImageEmail[lang];
   const ref = order.id.slice(0, 8);
   /* Les cadeaux offerts (fond d'ecran, avatar, carte a imprimer) : la page

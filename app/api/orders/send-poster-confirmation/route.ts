@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
-import { setPosterConfirmationToken, setOrderLastOutboundMessageId } from "@/lib/db";
-import { getLangFromCountry, posterConfirmationEmail } from "@/lib/email-i18n";
+import { getOrderById, setPosterConfirmationToken, setOrderLastOutboundMessageId } from "@/lib/db";
+import { langueCommande, posterConfirmationEmail } from "@/lib/email-i18n";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 
@@ -22,7 +22,10 @@ export async function POST(req: NextRequest) {
     const token = randomBytes(24).toString("hex");
     await setPosterConfirmationToken(orderId, token);
 
-    const lang = getLangFromCountry(detectedCountry);
+    /* La langue vient de la commande (langue du site au paiement), le pays
+       envoye par l'admin ne sert que si la commande est introuvable. */
+    const commande = await getOrderById(orderId);
+    const lang = langueCommande(commande ?? { detected_country: detectedCountry });
     const t = posterConfirmationEmail[lang];
     const ref = (orderRef || orderId).slice(0, 8);
     const confirmUrl = `${new URL(req.url).origin}/confirm-poster/${token}`;

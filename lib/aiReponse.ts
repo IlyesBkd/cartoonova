@@ -1,7 +1,7 @@
 import type { DbOrder, OrderOptions, SupportReply } from "./db";
 import { decrireSupport, estPhysique } from "./supportCommande";
 import { lireConsigne } from "./consigneClient";
-import { getLangFromCountry, type Lang } from "./email-i18n";
+import { type Lang, langueCommande } from "./email-i18n";
 
 /**
  * Rediger le brouillon d'une reponse au support.
@@ -209,7 +209,7 @@ export async function redigerReponseSupport(input: {
      site : c'est le signal le plus proche du client dont dispose la commande,
      et le meme qui choisit deja la langue de tous les e-mails transactionnels.
      Sans commande, le francais — la boite est francaise. */
-  const langue: Lang = input.commande ? getLangFromCountry(input.commande.detected_country) : "fr";
+  const langue: Lang = input.commande ? langueCommande(input.commande) : "fr";
 
   const blocs = [
     FAITS,

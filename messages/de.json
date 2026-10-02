@@ -194,7 +194,7 @@
     "uploading": "Wird hochgeladen...",
     "photosUploaded": "{count} Foto(s) hochgeladen",
     "step5": "Druckoptionen",
-    "digital": "Digital",
+    "digital": "Digitale Datei",
     "canvas": "Leinwand-Portrait",
     "poster": "Gerahmtes Porträt",
     "includedLabel": "INKLUSIVE",
@@ -835,7 +835,8 @@
     "lancement": "Einführungspreis bis zum {date}, danach {prix} pro Porträt",
     "garantieImprime": "Du gibst dein Porträt frei, bevor wir drucken. Nach den Korrekturen nicht überzeugt? Geld zurück.",
     "garantieNumerique": "Korrekturen, bis du es liebst. Nicht überzeugt? Geld zurück.",
-    "offerts": "Gratis zu deinem Porträt: Hintergrundbild, Profilbild und Karte zum Ausdrucken."
+    "offerts": "Gratis zu deinem Porträt: Hintergrundbild, Profilbild und Karte zum Ausdrucken.",
+    "tuileDelai": "2 Tage"
   },
   "metaPages": {
     "aPropos": {

@@ -1,5 +1,5 @@
 import { getOrderByConfirmationToken } from "@/lib/db";
-import { getLangFromCountry, posterConfirmationPage } from "@/lib/email-i18n";
+import { posterConfirmationPage, langueCommande } from "@/lib/email-i18n";
 import ConfirmClient from "./ConfirmClient";
 
 export default async function ConfirmPosterPage({
@@ -28,7 +28,7 @@ export default async function ConfirmPosterPage({
     );
   }
 
-  const lang = getLangFromCountry(order.detected_country);
+  const lang = langueCommande(order);
   const t = posterConfirmationPage[lang];
   const ref = order.id.slice(0, 8);
 

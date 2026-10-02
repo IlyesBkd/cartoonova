@@ -3,7 +3,7 @@ import { put } from "@vercel/blob";
 import { Resend } from "resend";
 import { getOrderById, type OrderOptions } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
-import { getLangFromCountry, optionsCommande } from "@/lib/email-i18n";
+import { optionsCommande, langueCommande } from "@/lib/email-i18n";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { genererCarteVoeux } from "@/lib/extras/carteVoeux";
 import { genererCalendrier } from "@/lib/extras/calendrier";
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Cette commande n'a ni carte de voeux ni calendrier." }, { status: 400 });
     }
 
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const oc = optionsCommande[lang];
     const ref = order.id.slice(0, 8);
 

@@ -234,6 +234,8 @@ export interface DbOrder {
       remplace 'PAID' par son propre statut de suivi. */
   paid_at: string | null;
   detected_country: string | null;
+  /** Langue du site au paiement. Null sur les commandes anterieures a octobre 2026. */
+  langue?: string | null;
   final_image_url: string | null;
   final_image_sent_at: string | null;
   /** Date a laquelle l'e-mail d'illustration finale doit partir.
@@ -608,6 +610,7 @@ export interface CommandeAEnvoyer {
   customer_email: string;
   customer_name: string | null;
   detected_country: string | null;
+  langue?: string | null;
   final_image_url: string;
   options: OrderOptions;
 }
@@ -622,7 +625,7 @@ export interface CommandeAEnvoyer {
 export async function getOrdersDueForFinalImage(): Promise<CommandeAEnvoyer[]> {
   await ensureEnvoiProgrammeSchema();
   const rows = await sql`
-    SELECT id, customer_email, customer_name, detected_country, final_image_url, options
+    SELECT id, customer_email, customer_name, detected_country, langue, final_image_url, options
     FROM orders
     WHERE final_image_scheduled_at IS NOT NULL
       AND final_image_scheduled_at <= NOW()
@@ -663,6 +666,8 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
        sur une vente reelle sans pouvoir etre tranchee : rien n'etait garde ici,
        et la reponse dormait dans un outil tiers. */
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS origine JSONB`;
+    /* Langue du site au paiement, lue par `langueCommande`. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS langue TEXT`;
     /* Date du signalement « photos jamais envoyees ». Sans elle, l'alerte
        repartait a chaque passage du cron pour la meme commande. */
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS photos_alerte_le TIMESTAMPTZ`;
@@ -1253,6 +1258,7 @@ export interface LifecycleOrder {
   customer_email: string;
   customer_name: string | null;
   detected_country: string | null;
+  langue?: string | null;
   final_image_sent_at: string;
 }
 
@@ -1266,6 +1272,7 @@ async function ensureLifecycleSchema(): Promise<void> {
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS review_request_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS reorder_email_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS abandoned_email_sent_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS langue TEXT`;
   })().catch((e) => {
     lifecycleSchemaReady = null;
     throw e;
@@ -1277,7 +1284,7 @@ async function ensureLifecycleSchema(): Promise<void> {
 export async function getOrdersDueForReviewRequest(days: number): Promise<LifecycleOrder[]> {
   await ensureLifecycleSchema();
   const rows = await sql`
-    SELECT id, customer_email, customer_name, detected_country, final_image_sent_at
+    SELECT id, customer_email, customer_name, detected_country, langue, final_image_sent_at
     FROM orders o
     WHERE o.final_image_sent_at IS NOT NULL
       AND o.final_image_sent_at < NOW() - (${days} * INTERVAL '1 day')
@@ -1297,7 +1304,7 @@ export async function getOrdersDueForReorderEmail(days: number): Promise<Lifecyc
   await ensureLifecycleSchema();
   const rows = await sql`
     SELECT DISTINCT ON (lower(o.customer_email))
-      o.id, o.customer_email, o.customer_name, o.detected_country, o.final_image_sent_at
+      o.id, o.customer_email, o.customer_name, o.detected_country, o.langue, o.final_image_sent_at
     FROM orders o
     WHERE o.final_image_sent_at IS NOT NULL
       AND o.final_image_sent_at < NOW() - (${days} * INTERVAL '1 day')
@@ -1319,6 +1326,7 @@ export interface AbandonedOrder {
   customer_email: string;
   customer_name: string | null;
   detected_country: string | null;
+  langue?: string | null;
   total_price: number;
   currency: string;
   options: OrderOptions;
@@ -1340,7 +1348,7 @@ export async function getOrdersDueForAbandonedEmail(
   await ensurePaidAtSchema();
   const rows = await sql`
     SELECT o.id, o.payment_intent_id, o.customer_email, o.customer_name,
-           o.detected_country, o.total_price, o.currency, o.options, o.created_at
+           o.detected_country, o.langue, o.total_price, o.currency, o.options, o.created_at
     FROM orders o
     WHERE o.status = 'PENDING'
       AND o.created_at < NOW() - (${hours} * INTERVAL '1 hour')

@@ -194,7 +194,7 @@
     "uploading": "Laddar upp...",
     "photosUploaded": "{count} foto uppladdade",
     "step5": "Tryckalternativ",
-    "digital": "Digitalt",
+    "digital": "Digital fil",
     "canvas": "Porträtt på canvas",
     "poster": "Inramat porträtt",
     "includedLabel": "INGÅR",
@@ -835,7 +835,8 @@
     "lancement": "Lanseringspris till {date}, därefter {prix} per porträtt",
     "garantieImprime": "Du godkänner porträttet innan vi trycker det. Fortfarande inte övertygad efter ändringarna? Pengarna tillbaka.",
     "garantieNumerique": "Ändringar tills du älskar det. Inte övertygad? Pengarna tillbaka.",
-    "offerts": "Gratis med ditt porträtt: bakgrundsbild, avatar och kort att skriva ut."
+    "offerts": "Gratis med ditt porträtt: bakgrundsbild, avatar och kort att skriva ut.",
+    "tuileDelai": "2 dagar"
   },
   "metaPages": {
     "aPropos": {

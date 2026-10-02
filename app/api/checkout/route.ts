@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { OPTIONS_PAYANTES, parseOrderPricingInput } from "@/lib/pricing";
+import { LANGS } from "@/lib/email-i18n";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -11,7 +12,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderConfig, currency, promoCode, description, style, photoUrls } = body;
+    const { orderConfig, currency, promoCode, description, style, photoUrls, lang } = body;
+    const langue = (LANGS as readonly string[]).includes(lang) ? (lang as string) : "";
 
     /* Les photos sont nettoyees mais plus exigees : une commande peut naitre
        sans, le client les depose apres paiement (voir `lib/orderPhotos.ts`).
@@ -49,6 +51,11 @@ export async function POST(req: NextRequest) {
       currency: quote.currency.toLowerCase(),
       description: typeof description === "string" ? description.slice(0, 500) : undefined,
       automatic_payment_methods: { enabled: true },
+      /* Amazon Pay est actif sur le compte Stripe sans etre configure : il
+         produisait des erreurs « merchantId=undefined » et posait des cookies
+         Amazon avant tout consentement. Exclu ici, quel que soit le reglage du
+         tableau de bord. */
+      excluded_payment_method_types: ["amazon_pay"],
       metadata: {
         style: typeof style === "string" ? style.slice(0, 40) : "",
         promo_code: quote.promoCode ?? "",
@@ -56,6 +63,7 @@ export async function POST(req: NextRequest) {
         discount: quote.discount.toFixed(2),
         shipping: quote.shipping.toFixed(2),
         options,
+        lang: langue,
       },
     });
 

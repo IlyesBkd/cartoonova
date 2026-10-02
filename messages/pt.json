@@ -194,7 +194,7 @@
     "uploading": "A carregar...",
     "photosUploaded": "{count} foto(s) carregada(s)",
     "step5": "Opções de impressão",
-    "digital": "Digital",
+    "digital": "Ficheiro digital",
     "canvas": "Retrato em tela",
     "poster": "Retrato emoldurado",
     "includedLabel": "INCLUÍDO",
@@ -835,7 +835,8 @@
     "lancement": "Preço de lançamento até {date}, depois {prix} por retrato",
     "garantieImprime": "Aprovas o teu retrato antes de o imprimirmos. Depois dos retoques ainda não te convence? Reembolsado.",
     "garantieNumerique": "Retoques até adorares. Não te convence? Reembolsado.",
-    "offerts": "Oferta com o teu retrato: fundo de ecrã, avatar e cartão para imprimir."
+    "offerts": "Oferta com o teu retrato: fundo de ecrã, avatar e cartão para imprimir.",
+    "tuileDelai": "2 dias"
   },
   "metaPages": {
     "aPropos": {

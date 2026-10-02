@@ -4,7 +4,7 @@ import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { libelleSupportCourt } from "@/lib/supportCommande";
 import { enregistrerRetouche, nombreRetouches } from "@/lib/retouches";
 import { recordPosterConfirmationResponse, setOrderLastOutboundMessageId, type DbOrder } from "@/lib/db";
-import { getLangFromCountry } from "@/lib/email-i18n";
+import { langueCommande } from "@/lib/email-i18n";
 import { accuseRetoucheEmail } from "@/lib/i18n/serveur";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 
@@ -31,7 +31,7 @@ function echapper(texte: string): string {
 async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promise<void> {
   try {
     if (!order.customer_email) return;
-    const t = accuseRetoucheEmail[getLangFromCountry(order.detected_country)];
+    const t = accuseRetoucheEmail[langueCommande(order)];
     const ref = order.id.slice(0, 8);
     const nom = order.customer_name ? echapper(order.customer_name) : null;
     /* La demande recopiee : le client voit ce qui a ete compris, et peut

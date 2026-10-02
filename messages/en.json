@@ -194,7 +194,7 @@
     "uploading": "Uploading...",
     "photosUploaded": "{count} photo(s) uploaded",
     "step5": "Print options",
-    "digital": "Digital",
+    "digital": "Digital file",
     "canvas": "Canvas Portrait",
     "poster": "Framed Portrait",
     "includedLabel": "INCLUDED",
@@ -835,7 +835,8 @@
     "lancement": "Launch price until {date}, then {prix} per portrait",
     "garantieImprime": "You approve your portrait before we print it. Still not convinced after revisions? Refunded.",
     "garantieNumerique": "Revisions until you love it. Not convinced? Refunded.",
-    "offerts": "Free with your portrait: phone wallpaper, avatar and a printable card."
+    "offerts": "Free with your portrait: phone wallpaper, avatar and a printable card.",
+    "tuileDelai": "2 days"
   },
   "metaPages": {
     "aPropos": {

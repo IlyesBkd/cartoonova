@@ -97,3 +97,34 @@ export function cleDepuisRequete(req: Request): string {
   }
   return req.headers.get("x-real-ip")?.trim() || "inconnue";
 }
+
+/**
+ * Fenetre glissante par cle (en general l'IP), pour les routes publiques qui
+ * declenchent un envoi : e-mail de bienvenue, message Discord, verification de
+ * code promo. Compteur en memoire, donc par instance : il n'arrete pas un
+ * attaquant determine, mais empeche un script naif de bombarder une adresse
+ * d'e-mails ou de deviner des codes a la chaine.
+ *
+ * Renvoie une fonction : `true` = refuser (limite atteinte), sinon l'appel est
+ * compte.
+ */
+export function limiteur(max: number, fenetreMs: number): (cle: string) => boolean {
+  const traces = new Map<string, number[]>();
+  return (cle: string) => {
+    const maintenant = Date.now();
+    const recents = (traces.get(cle) ?? []).filter((t) => t > maintenant - fenetreMs);
+    if (recents.length >= max) {
+      traces.set(cle, recents);
+      return true;
+    }
+    recents.push(maintenant);
+    traces.set(cle, recents);
+    // Purge opportuniste : sans elle la table grossirait indefiniment.
+    if (traces.size > 1000) {
+      for (const [autre, dates] of traces) {
+        if (!dates.some((t) => t > maintenant - fenetreMs)) traces.delete(autre);
+      }
+    }
+    return false;
+  };
+}

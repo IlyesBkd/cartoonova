@@ -8,6 +8,7 @@ import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
 import { emailValide } from "@/lib/email";
+import { LANGS } from "@/lib/email-i18n";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -27,6 +28,9 @@ async function ensureOrderPromoSchema(): Promise<void> {
        une colonne inconnue — la creation etant portee par un autre schema, qui
        n'est jamais appele sur ce chemin. Les deux sont idempotentes. */
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS origine JSONB`;
+    /* Langue du site au paiement (voir `langueCommande`). Declaree ici pour
+       la meme raison qu'`origine`. */
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS langue TEXT`;
   })().catch((e) => {
     orderPromoSchemaReady = null;
     throw e;
@@ -98,6 +102,9 @@ export async function POST(req: NextRequest) {
     /* Options payantes : lues sur le PaymentIntent, ou `/api/checkout` les a
        posees apres les avoir facturees — pas reprises du navigateur. */
     const optionsPayees = new Set((paymentIntent.metadata?.options || "").split(",").filter(Boolean));
+    /* Langue : lue sur le PaymentIntent, ou `/api/checkout` l'a validee. */
+    const langueMeta = paymentIntent.metadata?.lang || "";
+    const langue = (LANGS as readonly string[]).includes(langueMeta) ? langueMeta : null;
 
     const customerName = [firstName, lastName].filter(Boolean).join(" ") || null;
 
@@ -159,7 +166,7 @@ export async function POST(req: NextRequest) {
       INSERT INTO orders (
         payment_intent_id, customer_email, customer_name, customer_address,
         total_price, currency, options, photo_urls, status, detected_country,
-        promo_code, discount_amount, origine
+        promo_code, discount_amount, origine, langue
       ) VALUES (
         ${paymentIntentId},
         ${email},
@@ -173,7 +180,8 @@ export async function POST(req: NextRequest) {
         ${detectedCountry || null},
         ${promoCode || null},
         ${discount || null},
-        ${origineValidee ? JSON.stringify(origineValidee) : null}::text::jsonb
+        ${origineValidee ? JSON.stringify(origineValidee) : null}::text::jsonb,
+        ${langue}
       )
       RETURNING id
     `;

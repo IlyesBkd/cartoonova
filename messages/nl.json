@@ -194,7 +194,7 @@
     "uploading": "Uploaden...",
     "photosUploaded": "{count} foto('s) geüpload",
     "step5": "Afdrukopties",
-    "digital": "Digitaal",
+    "digital": "Digitaal bestand",
     "canvas": "Canvasportret",
     "poster": "Ingelijst portret",
     "includedLabel": "INBEGREPEN",
@@ -835,7 +835,8 @@
     "lancement": "Introductieprijs tot {date}, daarna {prix} per portret",
     "garantieImprime": "Je keurt je portret goed voordat we het drukken. Na de aanpassingen nog niet overtuigd? Geld terug.",
     "garantieNumerique": "Aanpassingen tot je het geweldig vindt. Niet overtuigd? Geld terug.",
-    "offerts": "Gratis bij je portret: achtergrond, avatar en een kaart om te printen."
+    "offerts": "Gratis bij je portret: achtergrond, avatar en een kaart om te printen.",
+    "tuileDelai": "2 dagen"
   },
   "metaPages": {
     "aPropos": {

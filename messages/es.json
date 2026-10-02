@@ -194,7 +194,7 @@
     "uploading": "Subiendo...",
     "photosUploaded": "{count} foto(s) subida(s)",
     "step5": "Opciones de impresión",
-    "digital": "Digital",
+    "digital": "Archivo digital",
     "canvas": "Retrato en Lienzo",
     "poster": "Retrato Enmarcado",
     "includedLabel": "INCLUIDO",
@@ -835,7 +835,8 @@
     "lancement": "Precio de lanzamiento hasta el {date}, después {prix} el retrato",
     "garantieImprime": "Validas tu retrato antes de que lo imprimamos. ¿No te convence tras los retoques? Te lo reembolsamos.",
     "garantieNumerique": "Retoques hasta que te encante. ¿No te convence? Te lo reembolsamos.",
-    "offerts": "De regalo con tu retrato: fondo de pantalla, avatar y tarjeta para imprimir."
+    "offerts": "De regalo con tu retrato: fondo de pantalla, avatar y tarjeta para imprimir.",
+    "tuileDelai": "2 días"
   },
   "metaPages": {
     "aPropos": {

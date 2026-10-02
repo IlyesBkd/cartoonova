@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
-import { bonusLiens, getLangFromCountry, orderTrackingPage } from "@/lib/email-i18n";
+import { bonusLiens, orderTrackingPage, langueCommande } from "@/lib/email-i18n";
 import { etapeAtteinte, etapesDeLaCommande, prochaineAction } from "@/lib/etapesSuivi";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -49,7 +49,7 @@ export default async function SuiviPage({
     );
   }
 
-  const lang = getLangFromCountry(order.detected_country);
+  const lang = langueCommande(order);
   const t = orderTrackingPage[lang];
   const ref = order.id.slice(0, 8);
   const opts = order.options;

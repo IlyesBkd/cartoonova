@@ -58,6 +58,24 @@ export function getLangFromCountry(country: string | null | undefined): Lang {
  return countryToLang[country.toUpperCase()] || "en";
 }
 
+/**
+ * Langue d'une commande : celle du site sur lequel le client a paye.
+ *
+ * Jusqu'en octobre 2026, tout l'apres-vente (e-mails, suivi, depot, apercu) se
+ * deduisait du pays de l'IP : une commande passee sur le site francais sans
+ * pays detecte recevait son suivi en anglais, un Belge neerlandophone ou un
+ * expatrie la langue de son IP. Le pays ne sert plus que de repli, pour les
+ * commandes anterieures a la colonne `langue`.
+ */
+export function langueCommande(order: {
+ langue?: string | null;
+ detected_country?: string | null;
+}): Lang {
+ const l = order.langue;
+ if (l && (LANGS as readonly string[]).includes(l)) return l as Lang;
+ return getLangFromCountry(order.detected_country);
+}
+
 // ─── Confirmation email (order placed) ────────────────────────────────
 export const confirmationEmail: Record<Lang, {
  subject: string;

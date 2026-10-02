@@ -871,6 +871,9 @@ export default function CheckoutModal({
         style: orderConfig.style,
         // Le serveur refuse de creer un PaymentIntent sans photo.
         photoUrls: orderConfig.photoUrls,
+        // Langue du site : c'est elle, et non le pays de l'IP, qui choisira
+        // la langue des e-mails et des pages apres-vente.
+        lang: locale,
       }),
     })
       .then((r) => r.json())

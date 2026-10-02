@@ -37,6 +37,9 @@ function Paiement({ libelle, enCours }: { libelle: string; enCours: string }) {
   const locale = useLocale();
   const [erreur, setErreur] = useState("");
   const [occupe, setOccupe] = useState(false);
+  // Le bouton attend que le formulaire Stripe soit pret : avant, un clic
+  // partait sur un formulaire encore vide.
+  const [pret, setPret] = useState(false);
 
   const payer = async () => {
     if (!stripe || !elements) return;
@@ -53,14 +56,24 @@ function Paiement({ libelle, enCours }: { libelle: string; enCours: string }) {
 
   return (
     <div className="bon-achat__paiement">
-      <PaymentElement />
+      {/* Memes reglages que la caisse des portraits (CheckoutModal) : la carte
+          ouverte d'emblee, en tete. Avec la disposition par defaut, la carte
+          etait repliee parmi Klarna, Bancontact, EPS…, et rien ne disait
+          qu'il fallait la toucher pour saisir son numero. */}
+      <PaymentElement
+        onReady={() => setPret(true)}
+        options={{
+          layout: { type: "accordion", defaultCollapsed: false, radios: false, spacedAccordionItems: true },
+          paymentMethodOrder: ["card"],
+        }}
+      />
       {erreur && (
         <p className="alerte alerte--erreur" role="alert">
           <Icone nom="alerte" taille={16} />
           {erreur}
         </p>
       )}
-      <button type="button" className="bouton bouton--primaire" disabled={!stripe || occupe} onClick={payer}>
+      <button type="button" className="bouton bouton--primaire" disabled={!stripe || !pret || occupe} onClick={payer}>
         {occupe ? enCours : libelle}
       </button>
     </div>
@@ -166,7 +179,7 @@ export default function BonCadeauClient() {
               </button>
             </>
           ) : (
-            <Elements stripe={stripePromise} options={{ clientSecret: secret, appearance: APPARENCE }}>
+            <Elements stripe={stripePromise} options={{ clientSecret: secret, appearance: APPARENCE, loader: "always" }}>
               <p className="bon-achat__recap">
                 {t("recap", { prix: formatRaw(montantValide) })}
                 <button type="button" className="lien-retour" onClick={() => setSecret("")}>

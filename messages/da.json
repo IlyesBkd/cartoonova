@@ -194,7 +194,7 @@
     "uploading": "Uploader...",
     "photosUploaded": "{count} foto uploadet",
     "step5": "Trykmuligheder",
-    "digital": "Digitalt",
+    "digital": "Digital fil",
     "canvas": "Portræt på lærred",
     "poster": "Indrammet portræt",
     "includedLabel": "MED I PRISEN",
@@ -835,7 +835,8 @@
     "lancement": "Introduktionspris indtil {date}, derefter {prix} pr. portræt",
     "garantieImprime": "Du godkender portrættet, før vi trykker det. Stadig ikke overbevist efter rettelserne? Pengene tilbage.",
     "garantieNumerique": "Rettelser, til du elsker det. Ikke overbevist? Pengene tilbage.",
-    "offerts": "Gratis med dit portræt: baggrund, avatar og kort til udskrivning."
+    "offerts": "Gratis med dit portræt: baggrund, avatar og kort til udskrivning.",
+    "tuileDelai": "2 dage"
   },
   "metaPages": {
     "aPropos": {

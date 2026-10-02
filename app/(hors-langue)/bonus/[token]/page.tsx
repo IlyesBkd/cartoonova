@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
-import { bonusPage, getLangFromCountry } from "@/lib/email-i18n";
+import { bonusPage, langueCommande } from "@/lib/email-i18n";
 import { infosParrainage } from "@/lib/parrainage";
 import { parrainageTextes } from "@/lib/i18n/relances";
 import BonusClient from "./BonusClient";
@@ -39,7 +39,7 @@ export default async function BonusPage({ params }: { params: Promise<{ token: s
     );
   }
 
-  const lang = getLangFromCountry(order.detected_country);
+  const lang = langueCommande(order);
   const t = bonusPage[lang];
 
   if (!order.final_image_url || !order.final_image_sent_at) {

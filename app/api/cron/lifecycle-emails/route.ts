@@ -29,15 +29,7 @@ import { deviseValide } from "@/lib/bonCadeauMontants";
 import type { Currency } from "@/lib/currency";
 import { envoyerImageFinale } from "@/lib/emailImageFinale";
 import { sendWelcomeStep, WELCOME_DELAYS_DAYS } from "@/lib/welcomeSequence";
-import {
-  getLangFromCountry,
-  LANGS,
-  type Lang,
-  reviewRequestEmail,
-  reorderEmail,
-  abandonedCartEmail,
-  depotPhotosPage,
-} from "@/lib/email-i18n";
+import { LANGS, type Lang, reviewRequestEmail, reorderEmail, abandonedCartEmail, depotPhotosPage, langueCommande } from "@/lib/email-i18n";
 import { signEmail, orderTrackingToken } from "@/lib/emailToken";
 import { SITE_URL } from "@/lib/site";
 import { finaliserCommande } from "@/lib/finaliserCommande";
@@ -101,7 +93,7 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
   let failed = 0;
 
   for (const order of orders) {
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = reviewRequestEmail[lang];
 
     try {
@@ -149,7 +141,7 @@ async function sendReorderEmails(): Promise<{ sent: number; failed: number }> {
   let failed = 0;
 
   for (const order of orders as LifecycleOrder[]) {
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = reorderEmail[lang];
     const unsubscribeUrl =
       `${SITE_URL}/api/newsletter/unsubscribe` +
@@ -226,7 +218,7 @@ async function sendAbandonedCartEmails(): Promise<{
   let payeesNonEnregistrees = 0;
 
   for (const order of orders) {
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = abandonedCartEmail[lang];
 
     try {
@@ -410,6 +402,7 @@ interface CommandeNumerique {
   customer_email: string;
   customer_name: string | null;
   detected_country: string | null;
+  langue?: string | null;
   currency: string;
   options: OrderOptions & { printKey?: string | null };
 }
@@ -426,7 +419,7 @@ interface CommandeNumerique {
 async function getCommandesNumeriquesPourPoster(jours: number): Promise<CommandeNumerique[]> {
   await ensureUpsellSchema();
   const rows = await sql`
-    SELECT o.id, o.customer_email, o.customer_name, o.detected_country, o.currency, o.options
+    SELECT o.id, o.customer_email, o.customer_name, o.detected_country, o.langue, o.currency, o.options
     FROM orders o
     WHERE o.final_image_sent_at IS NOT NULL
       AND o.final_image_sent_at < NOW() - (${jours} * INTERVAL '1 day')
@@ -479,7 +472,7 @@ async function sendPrintUpsell(): Promise<{ sent: number; failed: number }> {
   const prixParDevise = new Map<Currency, number>();
 
   for (const order of commandes) {
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = upsellPosterEmail[lang];
     const devise = deviseValide(order.currency) ?? "EUR";
     const style = order.options?.style;
@@ -596,7 +589,7 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
 
   for (const order of enAttente) {
     const heures = (Date.now() - new Date(order.created_at).getTime()) / 3_600_000;
-    const lang = getLangFromCountry(order.detected_country);
+    const lang = langueCommande(order);
     const t = depotPhotosPage[lang];
 
     /* Passe le second delai sans reponse : ce n'est plus un oubli. On previent

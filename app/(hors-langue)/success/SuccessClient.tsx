@@ -7,6 +7,7 @@ import Icone from "@/components/tj/Icone";
 import { GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
 import { successPage, type Lang } from "@/lib/email-i18n";
 import { depotSucces } from "@/lib/i18n/caisse";
+import { formatPrix } from "@/lib/i18n/relances";
 
 declare global {
   interface Window {
@@ -176,7 +177,7 @@ export default function SuccessClient({
               <div className="bg-soleil rounded p-1 sm:p-2 sm:rounded-lg col-span-2 sm:col-span-2">
                 <p className="text-xs sm:text-xs font-black text-black/60 uppercase mb-1">{t.total}</p>
                 <p className="text-sm sm:text-lg lg:text-xl font-black text-black">
-                  {order.total_price} {order.currency}
+                  {formatPrix(Number(order.total_price), order.currency, lang)}
                 </p>
               </div>
             </div>
