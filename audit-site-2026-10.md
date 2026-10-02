@@ -13,7 +13,18 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
   - Les pages de langue sont maintenant statiques : régénérées en arrière-plan au plus toutes les heures (fiches, collections, cadeau : 5 min, à cause des prix), puis servies par le CDN. Le build passe de 0 à 1 023 pages pré-générées.
   - Toutes les lectures en base des pages publiques passent par un cache partagé (`lib/lecturesCache.ts`), invalidé tout de suite quand un prix change ou qu'un avis est modéré.
   - Restructuration : `app/[locale]/layout.tsx` est devenue la mise en page racine. Les pages hors langue (succès, suivi, dépôt, bon, bonus, confirmation d'aperçu) sont passées dans `app/(hors-langue)/`, sans changement d'URL. La 404 des URL inconnues vit dans `app/global-not-found.tsx`.
-  - Mesure en production : à faire juste après le déploiement.
+  - **Mesuré en production après le déploiement (commit c86a9a1), sur les mêmes 185 pages que l'audit :**
+
+    | Mesure | Avant | Après |
+    |---|---|---|
+    | LCP mobile médian | 2,46 s | 0,96 s |
+    | Pages au-dessus de 2,5 s | 91 | 17 |
+    | Pages au-dessus de 4 s | 65 | 13 |
+    | Sauts de mise en page (CLS > 0,1) | 3 | 0 |
+    | Pages étrangères contenant du français | 170 | 0 |
+
+  - Le temps de réponse du serveur passe de 7–16 s (première visite) à 0,15–1 s. Les réponses sont servies depuis le cache (`X-Vercel-Cache: HIT`, `Cache-Control: public`).
+  - Reste lente : la toute première visite d'une page qui n'a pas encore été générée, en particulier les articles de blog, créés à la demande (jusqu'à 18 s, une seule fois par article). Piste (S-8 ci-dessous) : pré-générer les 30 articles les plus récents au déploiement.
 - **P0-6 Bouton retour.** Il ferme la caisse, l'image agrandie, le menu mobile et le chat, au lieu de quitter la page. La configuration reste intacte. Après une fermeture par la croix, un seul appui sur retour suffit pour quitter la page.
 - **P1-1 Chat** traduit dans les 10 langues. Le bouton s'appelle « Aide ». Une seule promesse de délai partout : réponse sous 24 h, du lundi au vendredi (au lieu de « moins de 2 h »).
 - **P1-2 À propos** traduite dans les 10 langues. Délais corrigés : aperçu en 2 jours, impression en 3 à 7 jours ouvrés.
@@ -241,6 +252,10 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 **S-7. Google Merchant.** 🤖 S
 - Le flux déclare une livraison à 0 € pour le prix de départ (le numérique), ce qui reste juste.
 - À vérifier après déploiement : aucun avertissement « prix ou livraison incohérents » dans Merchant Center.
+
+**S-8. Pré-générer les articles de blog récents.** 🤖 S
+- Un article n'est généré qu'à sa première visite : jusqu'à 18 s pour ce premier visiteur, souvent Googlebot.
+- **Correction :** `generateStaticParams` renvoie les 30 articles les plus récents de chaque langue.
 
 ---
 
