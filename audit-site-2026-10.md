@@ -197,6 +197,15 @@ Les commandes de test ont été supprimées de la base de dev (vérifié : 0 res
 - **V-7 :** la tuile « 48H » devient « 2 jours », et les descriptions des fiches passent de « Aperçu sous 48 h » à « Aperçu sous 2 jours », dans les 10 langues.
 - **V-9 :** limites par IP : newsletter 3 / 10 min, chat 5 / 10 min, vérification de code promo 10 / 10 min (au-delà, 429). Vérifié : la 4ᵉ inscription reçoit un 429.
 
+**Mesure PostHog complétée (2 octobre 2026, commit ee89773), vérifiée en production sans rien envoyer :**
+- **Nouveaux événements :** `ad_landing`, `cta_clicked`, `faq_opened`, `payment_form_ready` / `payment_form_error`, `gift_card_amount_selected`, `gift_card_checkout_started`, `gift_card_payment_initiated`, `gift_card_payment_error`, `portfolio_filtered`, `bonus_used`, `page_not_found`.
+- **Ce qui est maintenant suivi :**
+  - `product_clicked` part de partout : accueil, menu, fiches similaires, portfolio, pages cadeau (écouteur global `components/SuiviGlobal.tsx`) ;
+  - les options payantes (express, banderole, décor, carte, calendrier) passent par `option_selected`.
+- **Pages après-vente :** suivi, dépôt, aperçu, bonus et bon envoient leurs vues de page. Le jeton des URL est masqué (`/suivi/<jeton>`).
+- **Attribution :** le dernier clic publicitaire (`oppref`, `gclid`, `fbclid`) est gardé dans l'origine de la commande.
+- **Pollution par les tests :** la mesure serveur ne tourne qu'en production, et les adresses `@resend.dev` / `@example.*` sont ignorées partout. Les 4 faux achats du 2 octobre sont exclus par le filtre « trafic interne » de PostHog (les 3 vraies ventes de septembre restent comptées).
+
 ### A. Bloquant pour la pub
 
 **AD-1. Marques et personnages sous licence.** 👤 décision → 🤖
