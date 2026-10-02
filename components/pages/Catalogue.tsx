@@ -98,6 +98,8 @@ export default function Catalogue({
     <Link
       className="carte"
       href={lien(`/${p.slug}`)}
+      // Mesure faite ici, avec plus de details : l'ecouteur global l'ignore.
+      data-suivi="manuel"
       key={p.slug}
       onClick={() =>
         mesure(MESURES.produitClique, {

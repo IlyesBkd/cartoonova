@@ -1,10 +1,8 @@
-import PostHogProvider from "@/components/PostHogProvider";
-
-/* La page de succes mesure le paiement abouti : elle seule, hors de [locale],
-   a besoin du fournisseur PostHog. La coque HTML est celle de
-   `app/(hors-langue)/layout.tsx` — ce layout en rendait une seconde
-   (<html>/<body> dans le <body>), ce qui cassait l'hydratation de la page. */
+/* Le fournisseur PostHog est desormais pose par `app/(hors-langue)/layout.tsx`
+   pour toutes les pages hors langue (suivi, depot, apercu, bonus, bon) : il
+   ne vivait qu'ici, et ces pages n'envoyaient aucune vue de page. Le garder
+   aussi ici doublerait chaque mesure de la page de succes. */
 
 export default function SuccessLayout({ children }: { children: React.ReactNode }) {
-  return <PostHogProvider>{children}</PostHogProvider>;
+  return children;
 }

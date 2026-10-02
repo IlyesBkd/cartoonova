@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { useLien } from "@/components/useLien";
 import Etoiles from "@/components/tj/Etoiles";
 import type { Categorie } from "@/lib/catalogue";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 /** Un montage avant/apres reel, prepare cote serveur (page.tsx). */
 export interface RealisationPortfolio {
@@ -61,7 +63,10 @@ export default function PortfolioPage({
                 type="button"
                 className="filtre"
                 aria-pressed={filtre === "tous"}
-                onClick={() => setFiltre("tous")}
+                onClick={() => {
+                  setFiltre("tous");
+                  mesure(MESURES.portfolioFiltre, { filter: "tous" });
+                }}
               >
                 {t("filtreTous")} ({realisations.length})
               </button>
@@ -71,7 +76,10 @@ export default function PortfolioPage({
                   type="button"
                   className="filtre"
                   aria-pressed={filtre === c.cle}
-                  onClick={() => setFiltre(c.cle)}
+                  onClick={() => {
+                    setFiltre(c.cle);
+                    mesure(MESURES.portfolioFiltre, { filter: c.cle });
+                  }}
                 >
                   {c.nom} ({realisations.filter((r) => r.categorie === c.cle).length})
                 </button>

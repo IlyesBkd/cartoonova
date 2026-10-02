@@ -49,6 +49,7 @@ export default function LiensProduits({
           <Link
             key={fiche.slug}
             href={`/${locale}/${fiche.slug}`}
+            data-suivi="manuel"
             className="carte"
             onClick={() =>
               mesure(MESURES.produitClique, {

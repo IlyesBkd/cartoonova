@@ -28,7 +28,10 @@ export const MESURES = {
      pose par la bibliotheque : c'est lui qui donne le temps passe. */
   vueDePage: "$pageview",
 
-  /** Clic sur une carte produit — accueil, catalogue, menu, suggestions. */
+  /** Clic vers une fiche, de n'importe ou (accueil, catalogue, menu, fiches
+      similaires, portfolio, blog, pages cadeau). Le catalogue et le blog
+      l'emettent eux-memes avec plus de details ; partout ailleurs, l'ecouteur
+      global de `SuiviGlobal` le fait, avec `source` = la page d'origine. */
   produitClique: "product_clicked",
   /** Filtre ou tri applique sur le catalogue. */
   catalogueFiltre: "catalogue_filtered",
@@ -175,6 +178,39 @@ export const MESURES = {
   formulaireContactEnvoye: "contact_submitted",
   /** Article de blog lu jusqu'au bout — mesure au defilement. */
   articleLu: "article_read",
+
+  /* ═══ ajouts d'octobre 2026 : tout ce qui manquait avant la pub ═══════ */
+
+  /** Arrivee depuis une publicite : identifiant de clic (`oppref` ChatGPT,
+      `gclid` Google, `fbclid` Meta) ou `utm_medium` payant. Une fois par
+      session. C'est le denominateur de chaque campagne. */
+  arriveePub: "ad_landing",
+  /** Bouton ou lien d'appel a l'action clique (classe `bouton`, ou attribut
+      `data-cta`). Ecouteur global : couvre aussi les pages rendues cote
+      serveur. Porte le libelle, la cible, la page et la zone. */
+  ctaClique: "cta_clicked",
+  /** Question de FAQ ouverte, sur n'importe quelle page. Dit quelles
+      inquietudes reviennent avant l'achat. */
+  faqOuverte: "faq_opened",
+  /** Formulaire de paiement Stripe pret, avec son temps de chargement. Un
+      formulaire qui ne s'affiche pas est un abandon que rien ne montrait. */
+  formulairePaiementPret: "payment_form_ready",
+  /** Le formulaire Stripe n'a pas pu se charger. */
+  formulairePaiementErreur: "payment_form_error",
+  /** Bon cadeau : montant choisi. */
+  bonCadeauMontant: "gift_card_amount_selected",
+  /** Bon cadeau : passage au paiement (coordonnees validees). */
+  bonCadeauCaisse: "gift_card_checkout_started",
+  /** Bon cadeau : clic sur « Payer ». */
+  bonCadeauPaiementLance: "gift_card_payment_initiated",
+  /** Bon cadeau : paiement refuse par Stripe. */
+  bonCadeauPaiementEchoue: "gift_card_payment_error",
+  /** Filtre du portfolio. */
+  portfolioFiltre: "portfolio_filtered",
+  /** Cadeau de la page bonus telecharge, imprime ou copie. */
+  bonusUtilise: "bonus_used",
+  /** Page introuvable (404). Une annonce ou un lien casse se voit ici. */
+  pageIntrouvable: "page_not_found",
 } as const;
 
 /** Tous les noms acceptes par `mesure()`. */

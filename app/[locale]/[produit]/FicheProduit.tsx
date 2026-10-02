@@ -827,7 +827,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <Etape numero titre={tp("optStep")} precision={tp("optional")}>
                 <div className="options-payantes">
                   <label className="option-payante">
-                    <input type="checkbox" checked={banderole} onChange={(e) => setBanderole(e.target.checked)} />
+                    <input type="checkbox" checked={banderole} onChange={(e) => { setBanderole(e.target.checked); trackOptionSelected("addon", `banner:${e.target.checked ? "on" : "off"}`, prix?.banner ?? 0); }} />
                     <span className="option-payante__texte">
                       <b>{tp("optBanner")}</b>
                       <small>{tp("optBannerSub")}</small>
@@ -848,7 +848,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   {decorSupPossible && (
                     <>
                       <label className="option-payante">
-                        <input type="checkbox" checked={decorSup} onChange={(e) => setDecorSup(e.target.checked)} />
+                        <input type="checkbox" checked={decorSup} onChange={(e) => { setDecorSup(e.target.checked); trackOptionSelected("addon", `extraDecor:${e.target.checked ? "on" : "off"}`, prix?.extraDecor ?? 0); }} />
                         <span className="option-payante__texte">
                           <b>{tp("optExtraDecor")}</b>
                           <small>{tp("optExtraDecorSub")}</small>
@@ -875,7 +875,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   )}
 
                   <label className="option-payante">
-                    <input type="checkbox" checked={express} onChange={(e) => setExpress(e.target.checked)} />
+                    <input type="checkbox" checked={express} onChange={(e) => { setExpress(e.target.checked); trackOptionSelected("addon", `express:${e.target.checked ? "on" : "off"}`, prix?.express ?? 0); }} />
                     <span className="option-payante__texte">
                       <b>{tp("optExpress")}</b>
                       <small>{support === "digital" ? tp("optExpressSub") : tp("optExpressSubPrint")}</small>
@@ -890,7 +890,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     <div className="options-saison">
                       <p className="options-saison__titre">{tp("optSaisonTitre")}</p>
                       <label className="option-payante">
-                        <input type="checkbox" checked={carteVoeux} onChange={(e) => setCarteVoeux(e.target.checked)} />
+                        <input type="checkbox" checked={carteVoeux} onChange={(e) => { setCarteVoeux(e.target.checked); trackOptionSelected("addon", `carteVoeux:${e.target.checked ? "on" : "off"}`, prix?.carteVoeux ?? 0); }} />
                         <span className="option-payante__texte">
                           <b>{tp("optCarteVoeux")}</b>
                           <small>{tp("optCarteVoeuxSub")}</small>
@@ -898,7 +898,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                         <span className="option-payante__prix">+{formatPrix(prix.carteVoeux)}</span>
                       </label>
                       <label className="option-payante">
-                        <input type="checkbox" checked={calendrier} onChange={(e) => setCalendrier(e.target.checked)} />
+                        <input type="checkbox" checked={calendrier} onChange={(e) => { setCalendrier(e.target.checked); trackOptionSelected("addon", `calendrier:${e.target.checked ? "on" : "off"}`, prix?.calendrier ?? 0); }} />
                         <span className="option-payante__texte">
                           <b>{tp("optCalendrier")}</b>
                           <small>{tp("optCalendrierSub")}</small>

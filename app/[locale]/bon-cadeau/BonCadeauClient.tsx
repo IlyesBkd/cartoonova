@@ -8,6 +8,8 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { montantsBon } from "@/lib/bonCadeauMontants";
 import Icone from "@/components/tj/Icone";
 import { emailValide } from "@/lib/email";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 /* Achat d'un bon cadeau : un montant, l'e-mail de l'acheteur, un prenom et un
    message facultatifs, puis le paiement. Le bon (code + version imprimable)
@@ -31,7 +33,7 @@ const APPARENCE = {
   },
 };
 
-function Paiement({ libelle, enCours }: { libelle: string; enCours: string }) {
+function Paiement({ libelle, enCours, montant, devise }: { libelle: string; enCours: string; montant: number; devise: string }) {
   const stripe = useStripe();
   const elements = useElements();
   const locale = useLocale();
@@ -40,17 +42,22 @@ function Paiement({ libelle, enCours }: { libelle: string; enCours: string }) {
   // Le bouton attend que le formulaire Stripe soit pret : avant, un clic
   // partait sur un formulaire encore vide.
   const [pret, setPret] = useState(false);
+  const [ouvertLe] = useState(() => Date.now());
 
   const payer = async () => {
     if (!stripe || !elements) return;
     setOccupe(true);
     setErreur("");
+    mesure(MESURES.bonCadeauPaiementLance, { value: montant, currency: devise });
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: { return_url: `${window.location.origin}/success?lang=${locale}` },
     });
     // On n'arrive ici qu'en cas d'echec : sinon Stripe a deja redirige.
-    if (error) setErreur(error.message ?? "");
+    if (error) {
+      setErreur(error.message ?? "");
+      mesure(MESURES.bonCadeauPaiementEchoue, { value: montant, currency: devise, code: error.code ?? null, type: error.type });
+    }
     setOccupe(false);
   };
 
@@ -61,7 +68,11 @@ function Paiement({ libelle, enCours }: { libelle: string; enCours: string }) {
           etait repliee parmi Klarna, Bancontact, EPS…, et rien ne disait
           qu'il fallait la toucher pour saisir son numero. */}
       <PaymentElement
-        onReady={() => setPret(true)}
+        onReady={() => {
+          setPret(true);
+          mesure(MESURES.formulairePaiementPret, { context: "bon_cadeau", load_ms: Date.now() - ouvertLe });
+        }}
+        onLoadError={(e) => mesure(MESURES.formulairePaiementErreur, { context: "bon_cadeau", type: e.error?.type ?? null })}
         options={{
           layout: { type: "accordion", defaultCollapsed: false, radios: false, spacedAccordionItems: true },
           paymentMethodOrder: ["card"],
@@ -113,6 +124,7 @@ export default function BonCadeauClient() {
       const data = await r.json();
       if (!r.ok || !data.clientSecret) throw new Error(data.error);
       setSecret(data.clientSecret);
+      mesure(MESURES.bonCadeauCaisse, { value: montantValide, currency, has_message: Boolean(message.trim()), has_firstname: Boolean(prenom.trim()) });
     } catch {
       setErreur(t("erreur"));
     } finally {
@@ -147,7 +159,10 @@ export default function BonCadeauClient() {
                     type="button"
                     className="vignette vignette--texte"
                     aria-pressed={m === montantValide}
-                    onClick={() => setMontant(m)}
+                    onClick={() => {
+                      setMontant(m);
+                      mesure(MESURES.bonCadeauMontant, { value: m, currency });
+                    }}
                   >
                     <span className="vignette__nom">{formatRaw(m)}</span>
                   </button>
@@ -186,7 +201,12 @@ export default function BonCadeauClient() {
                   {t("modifier")}
                 </button>
               </p>
-              <Paiement libelle={t("payer", { prix: formatRaw(montantValide) })} enCours={t("paiementEnCours")} />
+              <Paiement
+                libelle={t("payer", { prix: formatRaw(montantValide) })}
+                enCours={t("paiementEnCours")}
+                montant={montantValide}
+                devise={currency}
+              />
             </Elements>
           )}
           <p className="bon-achat__conditions">{t("conditions")}</p>

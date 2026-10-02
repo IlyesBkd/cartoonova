@@ -74,9 +74,21 @@ const MOTIF_EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
 /** URL d'une photo client deposee sur Vercel Blob. */
 const MOTIF_BLOB = /https?:\/\/[\w-]+\.public\.blob\.vercel-storage\.com\/\S*/g;
 
+/* Jeton signe dans le chemin des pages apres-vente (/suivi/<jeton>,
+   /depot/<jeton>…). C'est un lien d'acces : celui qui le possede voit la
+   commande. Il ne doit jamais partir chez un tiers, ni dans une URL de page
+   vue, ni dans un referent. */
+const MOTIF_JETON = /\/(suivi|depot|bonus|bon|confirm-poster)\/[^/?#\s]+/g;
+
 function nettoyerChaine(valeur: string): string {
-  return valeur.replace(MOTIF_EMAIL, "<email>").replace(MOTIF_BLOB, "<photo>");
+  return valeur
+    .replace(MOTIF_EMAIL, "<email>")
+    .replace(MOTIF_BLOB, "<photo>")
+    .replace(MOTIF_JETON, "/$1/<jeton>");
 }
+
+/** Adresses reservees aux tests : une session de test ne doit rien compter. */
+const MOTIF_ADRESSE_TEST = /@(resend\.dev|example\.(com|org|net))$/i;
 
 /**
  * Les cles qui portent l'IDENTITE et non une donnee incidente. Elles doivent
@@ -144,6 +156,8 @@ function traficInterne(): boolean {
 export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResult | null {
   if (traficInterne()) return null;
   if (!evenement?.properties) return evenement;
+  const id = evenement.properties.distinct_id;
+  if (typeof id === "string" && MOTIF_ADRESSE_TEST.test(id)) return null;
 
   for (const [cle, valeur] of Object.entries(evenement.properties)) {
     /* L'identite passe avant tout le reste : la reecrire revient a fusionner

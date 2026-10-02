@@ -28,10 +28,28 @@ import type { NomEvenement } from "@/lib/evenementsMesure";
 let client: PostHog | null = null;
 let clientTente = false;
 
+/* Seule la production mesure. Un serveur local ou une preview Vercel partagent
+   la meme cle PostHog : le 2 octobre 2026, cinq achats de test passes en local
+   (dont un bon cadeau de 40 EUR) sont arrives comme de vraies ventes. Le
+   filtre du navigateur (`filtrerAvantEnvoi`) ne voyait pas ces envois-ci. */
+// `VERCEL` vaut "1" sur toute fonction Vercel ; `VERCEL_ENV` distingue la
+// production des previews quand il est expose (absent : on le traite comme la
+// production, pour ne jamais couper la mesure des vraies ventes par erreur).
+const MESURE_ACTIVE =
+  process.env.VERCEL === "1" &&
+  process.env.VERCEL_ENV !== "preview" &&
+  process.env.VERCEL_ENV !== "development";
+
+/** Adresses reservees aux tests (Resend, exemples) : jamais des clients. */
+export function estAdresseDeTest(identifiant: string): boolean {
+  return /@(resend\.dev|example\.(com|org|net))$/i.test(identifiant.trim());
+}
+
 function obtenirClient(): PostHog | null {
   if (clientTente) return client;
   clientTente = true;
 
+  if (!MESURE_ACTIVE) return null;
   const cle = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   if (!cle) return null;
 
@@ -62,6 +80,7 @@ export async function mesureServeur(
     proprietes,
   }: { identifiant: string; proprietes?: Record<string, unknown> }
 ): Promise<void> {
+  if (estAdresseDeTest(identifiant)) return;
   const posthog = obtenirClient();
   if (!posthog) return;
 
@@ -89,6 +108,7 @@ export async function personneServeur(
   identifiant: string,
   proprietes: Record<string, unknown>
 ): Promise<void> {
+  if (estAdresseDeTest(identifiant)) return;
   const posthog = obtenirClient();
   if (!posthog) return;
 

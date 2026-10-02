@@ -43,6 +43,11 @@ export interface OrigineVisite {
   arrivee: string;
   /** Date du premier contact, en ISO. */
   le: string;
+  /** Dernier clic publicitaire connu : plateforme et identifiant de clic
+      (`oppref` ChatGPT, `gclid` Google, `fbclid` Meta). Contrairement au
+      reste, il est mis a jour a chaque nouveau clic : c'est lui qui permet
+      d'attribuer la vente a la campagne. */
+  pub?: { plateforme: string; clic: string; le: string } | null;
 }
 
 function tronquer(v: string | null, max = 120): string | null {
@@ -58,12 +63,36 @@ function tronquer(v: string | null, max = 120): string | null {
  * empecher de naviguer. On perd alors l'attribution, ce qui est un manque,
  * pas une panne.
  */
+/** Clic publicitaire present dans l'URL d'arrivee, ou null. */
+function clicPub(params: URLSearchParams): OrigineVisite["pub"] {
+  const paires: [string, string][] = [["oppref", "chatgpt"], ["gclid", "google"], ["gbraid", "google"], ["wbraid", "google"], ["fbclid", "meta"]];
+  for (const [param, plateforme] of paires) {
+    const v = params.get(param);
+    if (v) return { plateforme, clic: v.slice(0, 200), le: new Date().toISOString() };
+  }
+  return null;
+}
+
+function ecrire(origine: OrigineVisite): void {
+  const expire = new Date(Date.now() + DUREE_JOURS * 864e5).toUTCString();
+  document.cookie =
+    `${CLE}=${encodeURIComponent(JSON.stringify(origine))}` +
+    `; path=/; expires=${expire}; SameSite=Lax`;
+}
+
 export function capturerOrigine(): void {
   if (typeof document === "undefined") return;
   try {
-    if (document.cookie.includes(`${CLE}=`)) return; // deja connu
-
     const params = new URLSearchParams(window.location.search);
+    const pub = clicPub(params);
+
+    if (document.cookie.includes(`${CLE}=`)) {
+      // Origine deja connue : seul un nouveau clic publicitaire la complete.
+      const connue = lireOrigine();
+      if (pub && connue) ecrire({ ...connue, pub });
+      return;
+    }
+
     let referent = "direct";
     if (document.referrer) {
       try {
@@ -82,12 +111,10 @@ export function capturerOrigine(): void {
       utm_campaign: tronquer(params.get("utm_campaign"), 60),
       arrivee: window.location.pathname.slice(0, 120),
       le: new Date().toISOString(),
+      pub,
     };
 
-    const expire = new Date(Date.now() + DUREE_JOURS * 864e5).toUTCString();
-    document.cookie =
-      `${CLE}=${encodeURIComponent(JSON.stringify(origine))}` +
-      `; path=/; expires=${expire}; SameSite=Lax`;
+    ecrire(origine);
   } catch {
     /* Stockage indisponible : on continue sans attribution. */
   }
@@ -134,5 +161,17 @@ export function validerOrigine(valeur: unknown): OrigineVisite | null {
     le: typeof o.le === "string" && !Number.isNaN(Date.parse(o.le))
       ? o.le
       : new Date().toISOString(),
+    pub: validerPub(o.pub),
   };
+}
+
+/* Le cookie est modifiable : seules trois plateformes connues et un
+   identifiant borne passent. */
+function validerPub(v: unknown): OrigineVisite["pub"] {
+  if (!v || typeof v !== "object") return null;
+  const p = v as Record<string, unknown>;
+  if (typeof p.plateforme !== "string" || !["chatgpt", "google", "meta"].includes(p.plateforme)) return null;
+  if (typeof p.clic !== "string" || !p.clic.trim()) return null;
+  const le = typeof p.le === "string" && !Number.isNaN(Date.parse(p.le)) ? p.le : new Date().toISOString();
+  return { plateforme: p.plateforme, clic: p.clic.slice(0, 200), le };
 }

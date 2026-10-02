@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 import { locales, defaultLocale } from "@/i18n/config";
+import PostHogProvider from "@/components/PostHogProvider";
 import "../globals.css";
 
 /* Mise en page racine des pages hors langue (succes, suivi, depot, bon,
@@ -114,7 +115,7 @@ export default async function RootLayout({
           </>
         )}
 
-        {children}
+        <PostHogProvider>{children}</PostHogProvider>
       </body>
     </html>
   );

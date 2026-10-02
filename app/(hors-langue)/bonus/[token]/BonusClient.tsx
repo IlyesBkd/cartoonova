@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { bonusPage, type Lang, type OccasionCarte } from "@/lib/email-i18n";
+import { mesure } from "@/lib/analytics";
+import { MESURES } from "@/lib/evenementsMesure";
 
 /* Fond d'ecran 1080x1920 et avatar 1024x1024, dessines dans des canvas a
    partir du portrait final ; carte A6 en HTML, imprimee par le navigateur
@@ -117,7 +119,10 @@ function CarteParrainage({ p }: { p: ParrainageBonus }) {
         <small>{p.etiquette}</small>
         <b>{p.code}</b>
       </div>
-      <button type="button" className="bouton bouton--primaire" onClick={copier} aria-live="polite">
+      <button type="button" className="bouton bouton--primaire" onClick={() => {
+        mesure(MESURES.bonusUtilise, { gift: "referral_code", action: "copy" });
+        copier();
+      }} aria-live="polite">
         {copie ? p.copie : p.copier}
       </button>
     </section>
@@ -175,7 +180,10 @@ export default function BonusClient({
           type="button"
           className="bouton bouton--primaire"
           disabled={!img}
-          onClick={() => telecharger(fond.current, `cartoonova-fond-ecran-${ref8}.png`)}
+          onClick={() => {
+            mesure(MESURES.bonusUtilise, { gift: "wallpaper", action: "download" });
+            telecharger(fond.current, `cartoonova-fond-ecran-${ref8}.png`);
+          }}
         >
           {t.download}
         </button>
@@ -200,7 +208,10 @@ export default function BonusClient({
           type="button"
           className="bouton bouton--primaire"
           disabled={!img}
-          onClick={() => telecharger(avatar.current, `cartoonova-avatar-${ref8}.png`)}
+          onClick={() => {
+            mesure(MESURES.bonusUtilise, { gift: "avatar", action: "download" });
+            telecharger(avatar.current, `cartoonova-avatar-${ref8}.png`);
+          }}
         >
           {t.download}
         </button>
@@ -255,7 +266,10 @@ export default function BonusClient({
           <p className="carte-a6__voeu">{voeu}</p>
         </div>
 
-        <button type="button" className="bouton bouton--primaire" onClick={() => window.print()}>
+        <button type="button" className="bouton bouton--primaire" onClick={() => {
+          mesure(MESURES.bonusUtilise, { gift: "card", action: "print" });
+          window.print();
+        }}>
           {t.print}
         </button>
         <p className="bonus__aide">{t.printHint}</p>

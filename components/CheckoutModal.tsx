@@ -403,6 +403,8 @@ function PaymentForm({
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Temps de chargement du formulaire Stripe, mesure a son affichage.
+  const [monteLe] = useState(() => Date.now());
 
   const getPaymentIntentId = () => idPaymentIntent(clientSecret);
 
@@ -553,6 +555,12 @@ function PaymentForm({
             {t("cardPayment")}
           </div>
           <PaymentElement
+            onReady={() =>
+              mesure(MESURES.formulairePaiementPret, { context: "portrait", load_ms: Date.now() - monteLe })
+            }
+            onLoadError={(e) =>
+              mesure(MESURES.formulairePaiementErreur, { context: "portrait", type: e.error?.type ?? null })
+            }
             options={{
               /* Le formulaire de carte s'ouvre d'emblee. En accordeon replie,
                  il fallait d'abord toucher « Carte bancaire » : un geste de

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import MesurePage404 from "@/components/MesurePage404";
 import "./globals.css";
 
 /* 404 des URL qu'aucune route ne couvre. Le site a deux mises en page racines
@@ -18,6 +19,7 @@ export default function GlobalNotFound() {
   return (
     <html lang="fr">
       <body>
+        <MesurePage404 />
         <main style={{ minHeight: "70vh", display: "grid", placeItems: "center", textAlign: "center", padding: "48px 16px" }}>
           <div>
             <h1>404</h1>

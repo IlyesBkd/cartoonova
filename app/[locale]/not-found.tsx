@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { locales, defaultLocale, type Locale } from "@/i18n/config";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { vignetteProduit } from "@/lib/visuels";
+import MesurePage404 from "@/components/MesurePage404";
 
 /* 404 dans la coque du site. Sans ce fichier, chaque `notFound()` appele sous
    /[locale] (slug produit inconnu, article absent, occasion inconnue...)
@@ -22,6 +23,7 @@ export default async function NotFoundLocalise() {
 
   return (
     <>
+      <MesurePage404 />
       <section className="section page-404">
         <div className="enveloppe">
           <div className="chapeau">

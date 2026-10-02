@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { contexte, mesure, bandeauConsentementActif } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import { locales } from "@/i18n/config";
+import SuiviGlobal from "@/components/SuiviGlobal";
 
 /* Le fournisseur de contexte `posthog-js/react` a ete retire : son seul role
    etait d'alimenter `usePostHog()`, qui n'etait appele que par ce fichier.
@@ -71,6 +72,7 @@ export default function PostHogProvider({ children }: { children: ReactNode }) {
       <Suspense fallback={null}>
         <VueDePage />
       </Suspense>
+      <SuiviGlobal />
       {children}
       {bandeauConsentementActif && <BandeauConsentement />}
     </>
