@@ -118,7 +118,9 @@ export default async function BlogArticlePage({
         <ArticleBody markdown={article.body} />
 
         {article.images.length > 1 && (
-          <div className="grid sm:grid-cols-2 gap-4 mt-10">
+          /* Rail horizontal sur mobile (voir pages.css) : empilees, ces images
+             ajoutaient un ecran chacune sous l'article. */
+          <div className="article-images mt-10">
             {article.images.slice(1).map((image, index) => (
               <div key={index} style={{ position: "relative", aspectRatio: "4 / 3", borderRadius: "var(--rayon)", overflow: "hidden" }}>
                 <Image src={image.url} alt={image.alt} fill className="object-cover" sizes="(max-width: 768px) 100vw, 384px" />
@@ -135,6 +137,10 @@ export default async function BlogArticlePage({
         slugArticle={article.slug}
       />
 
+      {/* Le bandeau jaune ne s'affiche que s'il n'y a aucune fiche liee : sinon
+          les cartes juste au-dessus sont deja l'appel a l'action, et le bandeau
+          en faisait un second, un ecran plus bas. */}
+      {fiches.length === 0 && (
       <section className="section" style={{ background: "var(--soleil)" }}>
         <div className="enveloppe" style={{ textAlign: "center" }}>
           <h2 className="text-2xl sm:text-3xl font-black text-black uppercase mb-3">{t("ctaTitle")}</h2>
@@ -147,11 +153,12 @@ export default async function BlogArticlePage({
           </Link>
         </div>
       </section>
+      )}
 
       {related.length > 0 && (
         <section className="enveloppe" style={{ paddingBlock: "clamp(38px,5vw,62px)" }}>
           <h2 className="text-2xl font-black text-black uppercase mb-6">{t("relatedArticles")}</h2>
-          <div className="grid sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
             {related.map((item) => {
               const relatedCover = item.images[0];
               return (

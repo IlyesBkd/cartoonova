@@ -9,7 +9,7 @@ import {
 } from "@stripe/stripe-js";
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { mesure, identifier } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
@@ -17,6 +17,7 @@ import type { PrintKey } from "@/lib/pricing";
 import Icone from "@/components/tj/Icone";
 import { useRetourFerme } from "@/lib/useRetourFerme";
 import { emailValide, suggestionEmail } from "@/lib/email";
+import { useSuggestionsAdresse, type AdresseSuggeree } from "@/lib/useSuggestionsAdresse";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -113,11 +114,12 @@ async function insererCommandeEnAttente(
 ): Promise<void> {
   const paymentIntentId = idPaymentIntent(clientSecret);
   if (!paymentIntentId) {
-    console.error("[CHECKOUT] ❌ paymentIntentId est VIDE! clientSecret:", clientSecret);
+    /* Rien de plus dans la console : le navigateur du client n'a pas a y
+       voir son secret de paiement ni son adresse (journaux retires le
+       2 octobre 2026, ils exposaient e-mail et clientSecret). */
+    console.error("[CHECKOUT] identifiant de paiement introuvable");
     throw new Error("PaymentIntent ID manquant.");
   }
-  console.log("[CHECKOUT] 📝 INSERT PENDING | PI:", paymentIntentId, "| email:", formData.email);
-
   const detectedCountry = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1] || null;
 
   const res = await fetch("/api/order/create", {
@@ -155,16 +157,11 @@ async function insererCommandeEnAttente(
     }),
   });
 
-  console.log("[CHECKOUT] /api/order/create response status:", res.status);
-
   if (!res.ok) {
-    const err = await res.json().catch(() => null);
-    console.error("[CHECKOUT] ❌ Erreur création commande:", err);
+    console.error("[CHECKOUT] enregistrement de la commande refuse :", res.status);
     throw new Error("Erreur lors de l'enregistrement de la commande.");
   }
 
-  const data = await res.json();
-  console.log("[CHECKOUT] ✅ Commande PENDING créée, orderId:", data.orderId);
 }
 
 /* Habillage de l'iframe Stripe. Il portait encore le theme neo-brutaliste du
@@ -409,9 +406,8 @@ function PaymentForm({
 
   // ─── Card payment flow ─────────────────────────────────────────────
   const handleCardPayment = async () => {
-    console.log("[CARD] 🚀 Début handleCardPayment");
     if (!stripe || !elements) {
-      console.error("[CARD] ❌ stripe ou elements null");
+      console.error("[CARD] Stripe pas pret");
       setError("Le système de paiement n'est pas prêt.");
       return;
     }
@@ -422,22 +418,18 @@ function PaymentForm({
 
     try {
       // 1. Validate elements
-      console.log("[CARD] 1. Appel elements.submit()...");
       const { error: submitError } = await elements.submit();
       if (submitError) {
-        console.error("[CARD] ❌ elements.submit() erreur:", submitError);
+        console.error("[CARD] validation refusee :", submitError.type, submitError.code ?? "");
         setError(submitError.message || "Erreur de validation.");
         return;
       }
-      console.log("[CARD] ✅ elements.submit() OK");
 
       // 2. Insert PENDING order
-      console.log("[CARD] 2. Insertion commande PENDING...");
       await insertPendingOrder();
 
       // 3. Confirm payment
       const successUrl = `${window.location.origin}/success?lang=${langueCourante()}`;
-      console.log("[CARD] 3. Appel stripe.confirmPayment() | return_url:", successUrl);
 
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -445,26 +437,18 @@ function PaymentForm({
         redirect: "if_required",
       });
 
-      console.log("[CARD] 4. Résultat confirmPayment:", {
-        error: stripeError?.message || null,
-        paymentIntentId: paymentIntent?.id || null,
-        paymentIntentStatus: paymentIntent?.status || null,
-      });
-
       if (stripeError) {
-        console.error("[CARD] ❌ Erreur Stripe:", stripeError);
+        console.error("[CARD] paiement refuse :", stripeError.type, stripeError.code ?? "");
         mesure(MESURES.paiementEchoue, { method: "card", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else if (paymentIntent) {
         // Payment succeeded inline — manually redirect
         const redirectUrl = `/success?payment_intent=${paymentIntent.id}&lang=${langueCourante()}`;
-        console.log("[CARD] ✅ Paiement inline OK, redirect manuel vers:", redirectUrl);
         window.location.href = redirectUrl;
-      } else {
-        console.log("[CARD] ℹ️ Ni error ni paymentIntent → Stripe a redirigé automatiquement");
       }
+      // Ni erreur ni PaymentIntent : Stripe a deja redirige vers la page de succes.
     } catch (err) {
-      console.error("[CARD] 💥 Erreur critique:", err);
+      console.error("[CARD] erreur inattendue :", err instanceof Error ? err.name : "inconnue");
       setError(messageErreur(err));
     } finally {
       setLoading(false);
@@ -473,9 +457,8 @@ function PaymentForm({
 
   // ─── Express Checkout flow (Apple Pay / Google Pay) ────────────────
   const handleExpressPayment = async () => {
-    console.log("[EXPRESS] 🚀 Début handleExpressPayment");
     if (!stripe || !elements) {
-      console.error("[EXPRESS] ❌ stripe ou elements null");
+      console.error("[EXPRESS] Stripe pas pret");
       return;
     }
 
@@ -486,12 +469,10 @@ function PaymentForm({
     try {
       // 1. Do NOT call elements.submit() — the wallet already submitted
       // 2. Insert PENDING order BEFORE confirming (redirect will lose JS context)
-      console.log("[EXPRESS] 1. Insertion commande PENDING (avant confirm)...");
       await insertPendingOrder();
 
       // 3. Confirm — no redirect option = defaults to "always"
       const successUrl = `${window.location.origin}/success?lang=${langueCourante()}`;
-      console.log("[EXPRESS] 2. Appel stripe.confirmPayment() | return_url:", successUrl);
 
       const { error: stripeError } = await stripe.confirmPayment({
         elements,
@@ -499,19 +480,17 @@ function PaymentForm({
       });
 
       // If we reach here, there was an error (redirect didn't happen)
-      console.log("[EXPRESS] 3. confirmPayment retourné (pas de redirect!), error:", stripeError?.message || "aucune");
       if (stripeError) {
-        console.error("[EXPRESS] ❌ Erreur Express Checkout:", stripeError);
+        console.error("[EXPRESS] paiement refuse :", stripeError.type, stripeError.code ?? "");
         mesure(MESURES.paiementEchoue, { method: "express", error: stripeError.message, style: orderConfig.style });
         setError(stripeError.message || "Erreur de paiement.");
       } else {
         // Fallback: shouldn't happen but just in case
         const piId = getPaymentIntentId();
-        console.log("[EXPRESS] ⚠️ Pas d'erreur mais pas de redirect. Fallback redirect. PI:", piId);
         window.location.href = `/success?payment_intent=${piId}&lang=${langueCourante()}`;
       }
     } catch (err) {
-      console.error("[EXPRESS] 💥 Erreur Express:", err);
+      console.error("[EXPRESS] erreur inattendue :", err instanceof Error ? err.name : "inconnue");
       setError(messageErreur(err));
     } finally {
       setLoading(false);
@@ -655,6 +634,26 @@ export default function CheckoutModal({
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [countryCode, setCountryCode] = useState("FR");
+  /* Suggestions d'adresse : actives pendant la frappe dans le champ adresse,
+     coupees des qu'une proposition est choisie ou que le champ est quitte. */
+  const locale = useLocale();
+  const [rechercheAdresse, setRechercheAdresse] = useState(false);
+  const [indexAdresse, setIndexAdresse] = useState(-1);
+  const { suggestions: adresses, source: sourceAdresse } = useSuggestionsAdresse(
+    address,
+    countryCode,
+    locale,
+    rechercheAdresse
+  );
+  const choisirAdresse = (a: AdresseSuggeree) => {
+    setAddress(a.ligne1);
+    setPostalCode(a.codePostal);
+    setCity(a.ville);
+    setRechercheAdresse(false);
+    setIndexAdresse(-1);
+    mesure(MESURES.adresseSuggeree, { country: countryCode, style: orderConfig.style });
+    document.getElementById("checkout-adresse2")?.focus();
+  };
   const [phonePrefix, setPhonePrefix] = useState("+33");
   const [phone, setPhone] = useState("");
   const [formError, setFormError] = useState("");
@@ -783,16 +782,51 @@ export default function CheckoutModal({
 
   useEffect(() => {
     if (!open) return;
+    /* Accessibilite : a l'ouverture le focus restait sur le bouton
+       « Commander », derriere la fenetre — un lecteur d'ecran ou un clavier
+       continuaient de parcourir la fiche. Il entre maintenant dans la caisse
+       (sur le champ e-mail), y reste (Tab boucle a l'interieur), et revient
+       au bouton d'origine a la fermeture. */
+    const declencheur = document.activeElement as HTMLElement | null;
+    const focusables = () =>
+      Array.from(
+        boiteRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])'
+        ) ?? []
+      ).filter((el) => el.offsetParent !== null);
     const auClavier = (e: KeyboardEvent) => {
-      if (e.key === "Escape") fermer();
+      if (e.key === "Escape") {
+        fermer();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const liste = focusables();
+      if (!liste.length) return;
+      const premier = liste[0];
+      const dernier = liste[liste.length - 1];
+      const actif = document.activeElement;
+      if (e.shiftKey && (actif === premier || !boiteRef.current?.contains(actif))) {
+        e.preventDefault();
+        dernier.focus();
+      } else if (!e.shiftKey && (actif === dernier || !boiteRef.current?.contains(actif))) {
+        e.preventDefault();
+        premier.focus();
+      }
     };
     document.addEventListener("keydown", auClavier);
     const debordementInitial = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    boiteRef.current?.focus();
+    /* Sur ecran tactile, donner le focus au champ ouvrirait le clavier et
+       masquerait la moitie de la caisse avant meme que le client l'ait lue :
+       le focus va alors a la fenetre elle-meme, ce qui suffit aux lecteurs
+       d'ecran. Au clavier et a la souris, directement au champ e-mail. */
+    const tactile = window.matchMedia("(pointer: coarse)").matches;
+    const champEmail = tactile ? null : boiteRef.current?.querySelector<HTMLInputElement>("#checkout-email");
+    (champEmail ?? boiteRef.current)?.focus({ preventScroll: true });
     return () => {
       document.removeEventListener("keydown", auClavier);
       document.body.style.overflow = debordementInitial;
+      declencheur?.focus?.({ preventScroll: true });
     };
   }, [open, fermer]);
 
@@ -1065,6 +1099,7 @@ export default function CheckoutModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="modale-titre"
+        tabIndex={-1}
         ref={boiteRef}
       >
         <div className="modale__entete">
@@ -1224,7 +1259,68 @@ export default function CheckoutModal({
 
                   <div className="champ-groupe">
                     <label className={labelClass} htmlFor="checkout-adresse">{t("address")}</label>
-                    <input id="checkout-adresse" type="text" autoComplete="address-line1" value={address} onChange={(e) => setAddress(e.target.value)} placeholder={t("addressPlaceholder")} className={inputClass} />
+                    <input
+                      id="checkout-adresse"
+                      type="text"
+                      autoComplete="address-line1"
+                      value={address}
+                      onChange={(e) => {
+                        setAddress(e.target.value);
+                        setRechercheAdresse(true);
+                        setIndexAdresse(-1);
+                      }}
+                      onBlur={() => setTimeout(() => setRechercheAdresse(false), 150)}
+                      onKeyDown={(e) => {
+                        if (!adresses.length) return;
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          setIndexAdresse((i) => (i + 1) % adresses.length);
+                        } else if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          setIndexAdresse((i) => (i <= 0 ? adresses.length - 1 : i - 1));
+                        } else if (e.key === "Enter" && indexAdresse >= 0) {
+                          e.preventDefault();
+                          choisirAdresse(adresses[indexAdresse]);
+                        } else if (e.key === "Escape") {
+                          // Ferme la liste sans fermer la caisse.
+                          e.stopPropagation();
+                          e.nativeEvent.stopImmediatePropagation();
+                          setRechercheAdresse(false);
+                        }
+                      }}
+                      role="combobox"
+                      aria-expanded={adresses.length > 0}
+                      aria-controls="checkout-adresse-liste"
+                      aria-autocomplete="list"
+                      aria-activedescendant={indexAdresse >= 0 ? `checkout-adresse-${indexAdresse}` : undefined}
+                      placeholder={t("addressPlaceholder")}
+                      className={inputClass}
+                    />
+                    {adresses.length > 0 && (
+                      <div className="caisse-adresses">
+                        <ul id="checkout-adresse-liste" role="listbox" aria-label={t("adresseSuggestions")}>
+                          {adresses.map((a, i) => (
+                            <li
+                              key={a.id}
+                              id={`checkout-adresse-${i}`}
+                              role="option"
+                              aria-selected={i === indexAdresse}
+                              className={i === indexAdresse ? "actif" : undefined}
+                              // mousedown plutot que click : il passe avant le blur du champ.
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                choisirAdresse(a);
+                              }}
+                            >
+                              {a.libelle}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="caisse-adresses__source">
+                          {sourceAdresse === "ban" ? "Base Adresse Nationale" : "© OpenStreetMap"}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="champ-groupe">

@@ -48,3 +48,23 @@
   font: inherit; color: var(--encre); text-decoration: underline; text-underline-offset: 3px;
   background: none; border: 0; padding: 0; cursor: pointer;
 }
+
+/* La boite recoit le focus a l'ouverture (tabIndex -1) : pas de cadre de
+   focus autour de toute la fenetre, il n'aide personne. */
+.modale__boite:focus { outline: none; }
+
+/* Suggestions d'adresse (2 octobre 2026). Dans le flux et non en surimpression :
+   la boite de la caisse coupe tout ce qui deborde (overflow hidden). */
+.caisse-adresses {
+  margin-top: 6px; border: 1px solid var(--encre-voile); border-radius: 12px;
+  background: #fff; overflow: hidden;
+}
+.caisse-adresses ul { list-style: none; margin: 0; padding: 4px 0; }
+.caisse-adresses li {
+  padding: 11px 14px; font-size: 15px; line-height: 1.35; cursor: pointer; color: var(--encre);
+}
+.caisse-adresses li + li { border-top: 1px solid var(--encre-voile); }
+.caisse-adresses li:hover, .caisse-adresses li.actif { background: var(--soleil-pale); }
+.caisse-adresses__source {
+  margin: 0; padding: 4px 14px 6px; font-size: 11px; color: var(--encre-doux); text-align: right;
+}

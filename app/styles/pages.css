@@ -89,3 +89,30 @@
   .hero__note { order: 8; }
   .hero__grille .atouts { order: 9; align-self: stretch; }
 }
+
+/* Collections sur mobile (P1-17, 2 octobre 2026) : chaque categorie devient un
+   rail horizontal au lieu d'une grille de deux colonnes. Trente-six styles
+   empiles faisaient dix-huit rangees de cartes ; on lit maintenant une rangee
+   par categorie, et on fait defiler celle qui interesse. Les resultats d'une
+   recherche restent en grille. */
+@media (max-width: 640px) {
+  .catalogue-groupe .styles-grille {
+    display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin-inline: -24px; padding: 2px 24px 10px;
+    scrollbar-width: none;
+  }
+  .catalogue-groupe .styles-grille::-webkit-scrollbar { display: none; }
+  .catalogue-groupe .styles-grille > * { flex: 0 0 44%; scroll-snap-align: start; }
+  .catalogue-groupe + .catalogue-groupe { margin-top: 30px; }
+}
+
+/* Images supplementaires d'un article : grille sur ordinateur, rail sur mobile. */
+.article-images { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 640px) {
+  .article-images {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px;
+    margin-inline: -24px; padding: 0 24px 8px; scrollbar-width: none;
+  }
+  .article-images::-webkit-scrollbar { display: none; }
+  .article-images > * { flex: 0 0 78%; scroll-snap-align: start; }
+}

@@ -503,7 +503,8 @@
     "expressOrFillIn": "eller fyll i dina uppgifter",
     "expressShippingIncluded": "Frakt ingår i totalen",
     "shippingLine": "Frakt",
-    "emailSuggestion": "Menade du <lien>{email}</lien>?"
+    "emailSuggestion": "Menade du <lien>{email}</lien>?",
+    "adresseSuggestions": "Föreslagna adresser"
   },
   "giftPage": {
     "section": "Presenttips",

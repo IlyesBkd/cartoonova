@@ -16,7 +16,6 @@ import BandeauLancement from "@/components/BandeauLancement";
 import Etoiles from "@/components/tj/Etoiles";
 import BadgeVerifie from "@/components/tj/BadgeVerifie";
 import BulleQueue from "@/components/tj/BulleQueue";
-import IconesCta from "@/components/tj/IconesCta";
 import DateApercu from "@/components/DateApercu";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -1052,14 +1051,14 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 <summary>{tf("qPlusTardQ")}</summary>
                 <p>{tf("qPlusTardR")}</p>
               </details>
-            </div>
-
-            <div className="contact">
-              <p>{t("contactTitre")}</p>
-              <p>
-                <a href="mailto:support@cartoonova.com">support@cartoonova.com</a>
-              </p>
-              <p style={{ fontSize: 13 }}>{t("contactHoraires")}</p>
+              {/* Le contact etait un bloc a part, toujours ouvert : il devient
+                  la quatrieme question, au meme endroit et plus court. */}
+              <details>
+                <summary>{t("contactTitre")}</summary>
+                <p>
+                  <a href="mailto:support@cartoonova.com">support@cartoonova.com</a> · {t("contactHoraires")}
+                </p>
+              </details>
             </div>
           </div>
         </div>
@@ -1133,16 +1132,24 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               {donnees.contenu.intro && (
                 <p className="fiche-contenu__intro">{donnees.contenu.intro}</p>
               )}
-              {donnees.contenu.sections.map((bloc, i) => (
-                <div key={i} className="fiche-contenu__bloc">
-                  <h2>{bloc.titre}</h2>
-                  {/* Une ligne vide separe deux paragraphes. Le texte reste du
-                      texte : aucun HTML n'est injecte depuis la base. */}
-                  {bloc.corps.split(/\n\s*\n/).map((para, j) => (
-                    <p key={j}>{para.trim()}</p>
-                  ))}
-                </div>
-              ))}
+              {/* Chaque partie est repliee : c'etait le plus long bloc de la
+                  page (plusieurs ecrans sur mobile). Le texte reste dans la
+                  page, ouvert ou non — c'est lui qui la distingue des autres
+                  fiches aux yeux de Google. */}
+              <div className="questions-achat fiche-contenu__plis">
+                {donnees.contenu.sections.map((bloc, i) => (
+                  <details key={i} className="fiche-contenu__bloc">
+                    <summary>
+                      <h2>{bloc.titre}</h2>
+                    </summary>
+                    {/* Une ligne vide separe deux paragraphes. Le texte reste du
+                        texte : aucun HTML n'est injecte depuis la base. */}
+                    {bloc.corps.split(/\n\s*\n/).map((para, j) => (
+                      <p key={j}>{para.trim()}</p>
+                    ))}
+                  </details>
+                ))}
+              </div>
             </div>
           </section>
         )}
@@ -1163,13 +1170,13 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <div className="faq">
                 {donnees.contenu?.faq?.length
                   ? donnees.contenu.faq.map((q, i) => (
-                      <details key={i} name="faq" open={i === 0}>
+                      <details key={i} name="faq">
                         <summary>{q.question}</summary>
                         <p>{q.reponse}</p>
                       </details>
                     ))
                   : [1, 2, 3, 4, 5].map((n) => (
-                      <details key={n} name="faq" open={n === 1}>
+                      <details key={n} name="faq">
                         <summary>{tProduit(`faqQ${n}` as "faqQ1")}</summary>
                         <p>{tProduit(`faqA${n}` as "faqA1")}</p>
                       </details>
@@ -1181,7 +1188,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
         {/* ---------- SIMILAIRES ---------- */}
         {donnees.similaires.length > 0 && (
-          <section className="section" id="similaires" style={{ background: "var(--cendre)" }}>
+          <section className="section similaires" id="similaires" style={{ background: "var(--cendre)" }}>
             <div className="enveloppe">
               <div className="chapeau">
                 <h2>
@@ -1214,51 +1221,20 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                   </Link>
                 ))}
               </div>
+              {/* Sur mobile, les fiches defilent en rail (voir fiche.css) ; la suite
+                  est dans le catalogue. */}
+              <p className="similaires__tous">
+                <Link className="bouton bouton--contour" href={lien("/collections")}>
+                  {t("stylesTous")}
+                </Link>
+              </p>
             </div>
           </section>
         )}
 
-        {/* ---------- BANNIÈRE FINALE ---------- */}
-        <section className="section" style={{ paddingBlock: "clamp(34px, 4vw, 60px)" }}>
-          <div className="enveloppe">
-            <div className="cta-fin">
-              <div className="cta-fin__texte">
-                <h2>
-                  {t("ctaTitre")} <span className="accent">{t("ctaAccent")}</span> ?
-                </h2>
-                <p>{t("ctaTexte")}</p>
-                {/* Pointait sur #etapes, c'est-a-dire la section explicative
-                    « Trois etapes, c'est tout » : le dernier appel a l'action
-                    de la page renvoyait vers un texte, pas vers l'achat. */}
-                <a className="cta-fin__bouton" href="#configurateur">
-                  {tp("createMyPortrait")}
-                  <IconesCta.Fleche />
-                </a>
-                <div className="cta-fin__atouts">
-                  <div>
-                    <span>
-                      <IconesCta.Chrono />
-                    </span>{" "}
-                    {t("ctaAtout1")}
-                  </div>
-                  <div>
-                    <span>
-                      <IconesCta.Crayon />
-                    </span>{" "}
-                    {t("ctaAtout2")}
-                  </div>
-                  <div>
-                    <span>
-                      <IconesCta.Photo />
-                    </span>{" "}
-                    {t("ctaAtout3")}
-                  </div>
-                </div>
-              </div>
-              <div className="cta-fin__visuel" aria-hidden="true" />
-            </div>
-          </div>
-        </section>
+        {/* La banniere finale « Pret a ... ? » vivait ici. Retiree le 2 octobre
+            2026 : la barre d'achat collante porte deja le prix et le bouton sur
+            toute la page, et la banniere ajoutait un ecran en bas de fiche. */}
       </div>
 
       {/* ---------- BARRE D'ACHAT COLLANTE ----------

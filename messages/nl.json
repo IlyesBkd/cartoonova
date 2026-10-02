@@ -503,7 +503,8 @@
     "expressOrFillIn": "of vul je gegevens in",
     "expressShippingIncluded": "Verzending inbegrepen in het totaal",
     "shippingLine": "Verzending",
-    "emailSuggestion": "Bedoelde je <lien>{email}</lien>?"
+    "emailSuggestion": "Bedoelde je <lien>{email}</lien>?",
+    "adresseSuggestions": "Voorgestelde adressen"
   },
   "giftPage": {
     "section": "Cadeau-ideeën",

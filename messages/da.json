@@ -503,7 +503,8 @@
     "expressOrFillIn": "eller udfyld dine oplysninger",
     "expressShippingIncluded": "Levering inkluderet i totalen",
     "shippingLine": "Levering",
-    "emailSuggestion": "Mente du <lien>{email}</lien>?"
+    "emailSuggestion": "Mente du <lien>{email}</lien>?",
+    "adresseSuggestions": "Foreslåede adresser"
   },
   "giftPage": {
     "section": "Gaveidéer",

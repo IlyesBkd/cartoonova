@@ -9,8 +9,6 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { CATEGORIES, CATEGORIES_AFFICHAGE, type Categorie } from "@/lib/catalogue";
 import Etoiles from "@/components/tj/Etoiles";
 import Icone from "@/components/tj/Icone";
-import IconesAtouts from "@/components/tj/IconesAtouts";
-import IconesCta from "@/components/tj/IconesCta";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 
@@ -42,7 +40,6 @@ export default function Catalogue({
   const t = useTranslations("tj");
   const tc = useTranslations("collections");
   const tp = useTranslations("product");
-  const th = useTranslations("home");
   const lien = useLien();
   const { format: formatPrix } = useCurrency();
 
@@ -291,78 +288,10 @@ export default function Catalogue({
           l'accueil porte déjà un « Comment ça marche » illustré et détaillé
           (section .hiw), dont celle-ci n'était qu'un résumé en trois cartes. */}
 
-      {/* ═══ ATOUTS ═══ */}
-      <section className="section atouts-sec">
-        <div className="enveloppe">
-          <div className="chapeau">
-            <span className="surtitre">{t("atoutsSurtitre")}</span>
-            <h2>
-              {t("atoutsTitre")}{" "}
-              <span className="accent" style={{ color: "var(--encre)" }}>
-                {t("atoutsAccent")}
-              </span>
-            </h2>
-            <p>{t("atoutsSous")}</p>
-          </div>
-          <div className="atouts-grille">
-            {[1, 2, 3, 4].map((n) => (
-              <article className="atout-carte" key={n}>
-                <div className="atout-carte__num">{`0${n}`}</div>
-                <IconesAtouts index={n} />
-                <h3>{t(`atout${n}T` as "atout1T")}</h3>
-                <p>{t(`atout${n}D` as "atout1D")}</p>
-              </article>
-            ))}
-          </div>
-          <div className="preuve-ligne">
-            <p>
-              <strong>{t("preuveNombre")}</strong> {t("preuveTexte")}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ BANNIÈRE FINALE ═══ */}
-      <section className="section" style={{ paddingBlock: "clamp(34px, 4vw, 60px)" }}>
-        <div className="enveloppe">
-          <div className="cta-fin">
-            <div className="cta-fin__texte">
-              <h2>
-                {t("ctaTitre")} <span className="accent">{t("ctaAccent")}</span> ?
-              </h2>
-              <p>{t("ctaTexte")}</p>
-              {/* Pointait sur #etapes — la section « Trois étapes », retirée.
-                  Un bouton « Créer mon portrait » a de toute façon plus sa
-                  place sur la grille des styles que sur un texte explicatif. */}
-              <a className="cta-fin__bouton" href="#styles">
-                {th("createMyPortrait")}
-                <IconesCta.Fleche />
-              </a>
-              <div className="cta-fin__atouts">
-                <div>
-                  <span>
-                    <IconesCta.Chrono />
-                  </span>{" "}
-                  {t("ctaAtout1")}
-                </div>
-                <div>
-                  <span>
-                    <IconesCta.Crayon />
-                  </span>{" "}
-                  {t("ctaAtout2")}
-                </div>
-                <div>
-                  <span>
-                    <IconesCta.Photo />
-                  </span>{" "}
-                  {t("ctaAtout3")}
-                </div>
-              </div>
-            </div>
-            <div className="cta-fin__visuel" aria-hidden="true" />
-          </div>
-        </div>
-      </section>
+      {/* Les sections « Atouts » et la banniere finale vivaient ici. Retirees
+          le 2 octobre 2026 : la premiere repetait les quatre atouts du haut de
+          page, la seconde renvoyait a la grille de cette meme page. Elles
+          ajoutaient trois ecrans sur mobile. */}
     </>
   );
 }

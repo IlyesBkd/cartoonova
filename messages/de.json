@@ -503,7 +503,8 @@
     "expressOrFillIn": "oder gib deine Daten ein",
     "expressShippingIncluded": "Versand im Gesamtbetrag enthalten",
     "shippingLine": "Versand",
-    "emailSuggestion": "Meintest du <lien>{email}</lien>?"
+    "emailSuggestion": "Meintest du <lien>{email}</lien>?",
+    "adresseSuggestions": "Adressvorschläge"
   },
   "giftPage": {
     "section": "Geschenkideen",

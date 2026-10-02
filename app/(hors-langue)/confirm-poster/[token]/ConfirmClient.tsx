@@ -97,8 +97,12 @@ export default function ConfirmClient({
     setSending(null);
   };
 
+  /* Fuseau et format fixes : sans eux, le serveur (UTC) et le navigateur (heure
+     locale) ecrivaient deux dates differentes, et l'hydratation divergeait. */
   const formattedDate = responseDate
-    ? new Date(responseDate).toLocaleString(lang)
+    ? new Intl.DateTimeFormat(lang, { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }).format(
+        new Date(responseDate)
+      )
     : null;
 
   return (

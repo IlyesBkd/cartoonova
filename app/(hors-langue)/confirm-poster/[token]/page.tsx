@@ -10,21 +10,21 @@ export default async function ConfirmPosterPage({
   const { token } = await params;
   const order = await getOrderByConfirmationToken(token);
 
+  /* Lien inconnu : langue inconnue, donc francais puis anglais, avec les
+     textes traduits et le meme gabarit que les autres pages apres-vente. */
   if (!order) {
+    const fr = posterConfirmationPage.fr;
+    const en = posterConfirmationPage.en;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-300 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl p-6 text-center space-y-2">
-          <h1 className="text-xl font-black text-black">Lien invalide ou expiré</h1>
-          <p className="text-sm text-black/70">
-            Ce lien de confirmation n&apos;est plus valide. Écris-nous à support@cartoonova.com avec ton numéro de commande.
-          </p>
-          <hr className="/10 my-2" />
-          <h1 className="text-xl font-black text-black">Invalid or expired link</h1>
-          <p className="text-sm text-black/70">
-            This confirmation link is no longer valid. Contact us at support@cartoonova.com with your order number.
-          </p>
+      <main className="suivi">
+        <div className="suivi__carte suivi__carte--vide">
+          <h1>{fr.invalidTitle}</h1>
+          <p>{fr.invalidBody}</p>
+          <hr />
+          <h1>{en.invalidTitle}</h1>
+          <p>{en.invalidBody}</p>
         </div>
-      </div>
+      </main>
     );
   }
 

@@ -91,3 +91,34 @@
   font-size: 13px; font-weight: 600; color: var(--encre-doux);
 }
 .total__port { display: block; margin-top: 4px; }
+
+/* Cibles tactiles d'au moins 24 px (accessibilite, 2 octobre 2026) : la croix
+   qui retire une photo faisait 20 px, le fil d'Ariane 22 px de haut. */
+.depot-apercu button { width: 28px; height: 28px; top: 2px; right: 2px; font-size: 15px; }
+.fil a { display: inline-block; padding-block: 4px; }
+
+/* Fiche plus courte sur mobile (P1-17, 2 octobre 2026). */
+/* Le texte propre a l'univers, replie : le titre de chaque partie garde sa
+   taille de titre de section, sans les marges d'un h2 hors du resume. */
+.fiche-contenu__plis { margin-top: 18px; }
+.fiche-contenu__plis summary h2 { display: inline; font-size: clamp(18px, 2.2vw, 22px); margin: 0; }
+.fiche-contenu__plis details > p { margin: 0 0 12px; }
+.similaires__tous { text-align: center; margin-top: 22px; display: none; }
+@media (max-width: 640px) {
+  /* L'illustration de la FAQ prenait un ecran entier. */
+  .faq-visuel { display: none; }
+  /* Fiches similaires en rail horizontal, comme les collections, puis un
+     lien vers tout le catalogue. */
+  .similaires .styles-grille {
+    display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin-inline: -24px; padding: 2px 24px 10px; scrollbar-width: none;
+  }
+  .similaires .styles-grille::-webkit-scrollbar { display: none; }
+  .similaires .styles-grille > * { flex: 0 0 44%; scroll-snap-align: start; }
+  .similaires__tous { display: block; }
+}
+.fiche-contenu__plis .fiche-contenu__bloc { margin: 0; }
+.fiche-contenu__plis .fiche-contenu__bloc p { font-size: 15.5px; line-height: 1.65; }
+
+/* Cases des options payantes : 24 px, la taille minimale d'une cible tactile. */
+.option-payante input { width: 24px; height: 24px; }

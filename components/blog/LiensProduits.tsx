@@ -43,7 +43,8 @@ export default function LiensProduits({
   return (
     <section className="enveloppe" style={{ paddingBlock: "clamp(30px,4vw,52px)" }}>
       <h2 className="text-2xl font-black text-black uppercase mb-6">{titre}</h2>
-      <div className="grid sm:grid-cols-3 gap-6">
+      {/* Deux colonnes sur mobile : une carte par ligne faisait trois ecrans. */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
         {fiches.map((fiche, rang) => (
           <Link
             key={fiche.slug}

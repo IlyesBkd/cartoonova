@@ -6,6 +6,11 @@ import { META_PIXEL_ID } from "@/lib/metaPixel";
 import { locales, defaultLocale } from "@/i18n/config";
 import "../globals.css";
 
+/* Mise en page racine des pages hors langue (succes, suivi, depot, bon,
+   bonus, confirmation d'apercu). Elle seule rend <html> et <body> : un layout
+   enfant qui en rendrait un second casserait l'hydratation (constate le
+   2 octobre 2026 sur /depot, /confirm-poster et /success). */
+
 /* Revendication du domaine chez Pinterest. La balise doit rester en place :
    Pinterest la reverifie periodiquement, et la revendication saute si elle
    disparait. Posee a la racine et non dans `app/[locale]/layout.tsx` pour couvrir

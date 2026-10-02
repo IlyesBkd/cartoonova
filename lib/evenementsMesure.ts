@@ -93,6 +93,8 @@ export const MESURES = {
   /** Un champ du formulaire est refuse. Porte le nom du champ : c'est la
       mesure qui dit quel champ fait perdre des commandes. */
   champInvalide: "checkout_field_invalid",
+  /** Adresse choisie dans les suggestions de la caisse : dit si elles servent. */
+  adresseSuggeree: "checkout_address_suggested",
   /** Coordonnees validees, passage a l'etape de paiement. */
   coordonneesValidees: "checkout_info_completed",
   /** Option cadeau activee ou desactivee. */

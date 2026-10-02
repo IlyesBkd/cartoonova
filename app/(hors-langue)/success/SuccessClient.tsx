@@ -87,12 +87,6 @@ export default function SuccessClient({
       currency: order.currency,
       transaction_id: order.payment_intent_id,
     });
-    console.log("[GTAG] ✅ Conversion Google Ads envoyée:", {
-      send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
-      value: order.total_price,
-      currency: order.currency,
-      transaction_id: order.payment_intent_id,
-    });
 
     // Meta Pixel purchase event — no-op until NEXT_PUBLIC_META_PIXEL_ID is set (see notesmanuel.md)
     if (typeof window !== "undefined" && window.fbq) {

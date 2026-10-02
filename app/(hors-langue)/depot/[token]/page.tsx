@@ -29,21 +29,29 @@ export default async function DepotPage({
   const orderId = parseOrderTrackingToken(token);
   const order = orderId ? await getOrderById(orderId) : null;
 
-  /* La langue vient du pays detecte a la commande, comme pour les e-mails :
-     ce lien arrive par courrier, hors du prefixe de langue du site. */
-  const lang = getLangFromCountry(order?.detected_country ?? null);
-  const t = depotPhotosPage[lang];
-
+  /* Sans commande, aucune langue connue : la page parlait anglais a tout le
+     monde, clients francais compris. On affiche francais puis anglais, comme
+     les pages de suivi et de bonus. */
   if (!order) {
+    const fr = depotPhotosPage.fr;
+    const en = depotPhotosPage.en;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-yellow-400 to-yellow-300 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl p-6 text-center space-y-2">
-          <h1 className="text-xl font-black text-black">{t.invalidTitle}</h1>
-          <p className="text-sm text-black/70">{t.invalidBody}</p>
+      <main className="suivi">
+        <div className="suivi__carte suivi__carte--vide">
+          <h1>{fr.invalidTitle}</h1>
+          <p>{fr.invalidBody}</p>
+          <hr />
+          <h1>{en.invalidTitle}</h1>
+          <p>{en.invalidBody}</p>
         </div>
-      </div>
+      </main>
     );
   }
+
+  /* La langue vient du pays detecte a la commande, comme pour les e-mails :
+     ce lien arrive par courrier, hors du prefixe de langue du site. */
+  const lang = getLangFromCountry(order.detected_country ?? null);
+  const t = depotPhotosPage[lang];
 
   const dejaRecues = Array.isArray(order.photo_urls) && order.photo_urls.length > 0;
 
