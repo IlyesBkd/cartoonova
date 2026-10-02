@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Versand im Gesamtbetrag enthalten",
     "shippingLine": "Versand",
     "emailSuggestion": "Meintest du <lien>{email}</lien>?",
-    "adresseSuggestions": "Adressvorschläge"
+    "adresseSuggestions": "Adressvorschläge",
+    "accepterCgv": "Mit deiner Bestellung akzeptierst du unsere <lien>Allgemeinen Geschäftsbedingungen</lien>."
   },
   "giftPage": {
     "section": "Geschenkideen",
@@ -834,10 +835,10 @@
   "metaPages": {
     "aPropos": {
       "title": "Über Cartoonova — personalisierte Cartoon-Porträts",
-      "description": "Hinter Cartoonova stehen Cartoon-Porträts, die einzeln nach deinen Fotos entstehen. Vorschau in 2 Tagen, unbegrenzte Korrekturen, Drucke in 3 bis 7 Werktagen geliefert."
+      "description": "Hinter Cartoonova stehen Cartoon-Porträts, einzeln nach deinen Fotos gezeichnet. Vorschau in 2 Tagen, unbegrenzte Korrekturen, Druck in 3–7 Werktagen."
     },
     "avis": {
-      "title": "Kundenbewertungen — was Kunden über ihr Cartoonova-Porträt sagen",
+      "title": "Kundenbewertungen zum Cartoonova-Porträt",
       "description": "Rückmeldungen von Kundinnen und Kunden, die ihr Cartoon-Porträt bestellt haben: Ähnlichkeit, Druckqualität, Lieferzeit. Lies mit, bevor du bestellst."
     },
     "contact": {
@@ -865,12 +866,12 @@
       "description": "Verschenke ein Cartoon-Porträt ohne Foto: ein druckbarer Gutschein für alle 35 Stile, in Sekunden per E-Mail."
     },
     "noel": {
-      "title": "Personalisiertes Weihnachtsgeschenk: Cartoon-Porträt nach Foto | Cartoonova",
+      "title": "Weihnachtsgeschenk: Cartoon-Porträt nach Foto",
       "description": "Ein Cartoon-Porträt nach deinem Foto zu Weihnachten: Bestellfristen, digitale Version bis zuletzt und ein druckbarer Gutschein."
     },
     "guidePhoto": {
       "title": "Welches Foto für ein Cartoon-Porträt schicken? | Cartoonova",
-      "description": "Gesicht sichtbar, von vorne, gutes Licht, scharfes Foto: unsere Tipps für das richtige Foto für dein personalisiertes Cartoon-Porträt – und die Fehler, die du vermeiden solltest."
+      "description": "Welches Foto für ein Cartoon-Porträt? Gute und schlechte Beispiele, mehrere Personen, Haustiere: so wird dein Porträt dir wirklich ähnlich."
     }
   },
   "alt": {

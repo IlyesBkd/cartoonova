@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Livraison comprise dans le total",
     "shippingLine": "Livraison",
     "emailSuggestion": "Tu voulais dire <lien>{email}</lien> ?",
-    "adresseSuggestions": "Adresses suggérées"
+    "adresseSuggestions": "Adresses suggérées",
+    "accepterCgv": "En commandant, tu acceptes nos <lien>conditions générales de vente</lien>."
   },
   "giftPage": {
     "section": "Idées cadeaux",
@@ -833,8 +834,8 @@
   },
   "metaPages": {
     "aPropos": {
-      "title": "Qui sommes-nous — Cartoonova, portraits cartoon personnalisés",
-      "description": "Derrière Cartoonova, des portraits cartoon créés un par un à partir de tes photos. Aperçu sous 2 jours, retouches illimitées, impression livrée en 3 à 7 jours ouvrés."
+      "title": "Qui sommes-nous — portraits cartoon personnalisés",
+      "description": "Derrière Cartoonova, des portraits cartoon créés un par un d'après tes photos. Aperçu sous 2 jours, retouches illimitées, impression en 3 à 7 jours ouvrés."
     },
     "avis": {
       "title": "Avis clients — ce qu'ils disent de leur portrait Cartoonova",

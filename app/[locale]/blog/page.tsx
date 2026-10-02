@@ -4,7 +4,9 @@ import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { articlesPubliesEnCache } from "@/lib/lecturesCache";
 import { SITE_URL } from "@/lib/site";
-import { alternatesPour } from "@/lib/seo";
+import { metadataPage } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { filAriane, pageWeb } from "@/lib/donneesStructurees";
 
 export const revalidate = 300;
 
@@ -18,23 +20,14 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "blog" });
 
+  const meta = metadataPage({ locale, chemin: "/blog", titre: t("metaTitle"), description: t("metaDescription") });
   return {
-    title: t("metaTitle"),
-    description: t("metaDescription"),
+    ...meta,
     alternates: {
-      ...alternatesPour(locale, "/blog"),
+      ...meta.alternates,
       types: {
-        "application/rss+xml": [
-          { url: `${baseUrl}/${locale}/blog/rss.xml`, title: t("metaTitle") },
-        ],
+        "application/rss+xml": [{ url: `${baseUrl}/${locale}/blog/rss.xml`, title: t("metaTitle") }],
       },
-    },
-    openGraph: {
-      title: t("metaTitle"),
-      description: t("metaDescription"),
-      url: `${baseUrl}/${locale}/blog`,
-      siteName: "Cartoonova",
-      type: "website",
     },
   };
 }
@@ -51,8 +44,31 @@ export default async function BlogIndexPage({
     articlesPubliesEnCache(locale, 24),
   ]);
 
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const url = `${baseUrl}/${locale}/blog`;
+
   return (
     <>
+      <JsonLd
+        noeuds={[
+          {
+            ...pageWeb("CollectionPage", locale, url, t("metaTitle"), t("metaDescription")),
+            mainEntity: {
+              "@type": "ItemList",
+              itemListElement: articles.map((a, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                url: `${baseUrl}/${locale}/blog/${a.slug}`,
+                name: a.title,
+              })),
+            },
+          },
+          filAriane([
+            [tNav("home"), `${baseUrl}/${locale}`],
+            [t("title"), url],
+          ]),
+        ]}
+      />
       <section className="entete-page">
         <div className="enveloppe">
           <h1>

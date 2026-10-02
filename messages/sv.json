@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Frakt ingår i totalen",
     "shippingLine": "Frakt",
     "emailSuggestion": "Menade du <lien>{email}</lien>?",
-    "adresseSuggestions": "Föreslagna adresser"
+    "adresseSuggestions": "Föreslagna adresser",
+    "accepterCgv": "Genom att beställa godkänner du våra <lien>allmänna försäljningsvillkor</lien>."
   },
   "giftPage": {
     "section": "Presenttips",
@@ -834,10 +835,10 @@
   "metaPages": {
     "aPropos": {
       "title": "Om Cartoonova — personliga porträtt",
-      "description": "Bakom Cartoonova finns porträtt som görs ett i taget utifrån dina foton. Förhandsvisning inom 48 timmar, obegränsat med ändringar, tryck levererade på 3 till 7 arbetsdagar."
+      "description": "Bakom Cartoonova: cartoonporträtt som skapas ett i taget utifrån dina foton. Förhandsvisning på 2 dagar, obegränsade ändringar, tryck på 3–7 arbetsdagar."
     },
     "avis": {
-      "title": "Kundomdömen — vad kunderna tycker om sitt Cartoonova-porträtt",
+      "title": "Kundomdömen om Cartoonova-porträttet",
       "description": "Omdömen från dem som redan beställt sitt porträtt: likheten, tryckkvaliteten, leveranstiden. Läs innan du beställer."
     },
     "contact": {

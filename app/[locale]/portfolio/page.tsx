@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { OG_LOCALE, alternatesPour, urlAbsolue } from "@/lib/seo";
-import type { Locale } from "@/i18n/config";
+import { metadataPage, urlAbsolue } from "@/lib/seo";
 import PortfolioClient from "./PortfolioClient";
+import JsonLd from "@/components/JsonLd";
+import { filAriane, pageWeb } from "@/lib/donneesStructurees";
 
 /* Coque serveur. La page elle-meme reste un composant client — elle a besoin
    des hooks de traduction — et un composant client ne peut pas exporter de
@@ -11,29 +12,30 @@ import PortfolioClient from "./PortfolioClient";
 
 const CHEMIN = "/portfolio";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metaPages.portfolio" });
-
-  return {
-    title: t("title"),
-    description: t("description"),
-    alternates: alternatesPour(locale, CHEMIN),
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: urlAbsolue(locale, CHEMIN),
-      siteName: "Cartoonova",
-      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
-      type: "website",
-    },
-  };
+  // Titre et description a la bonne longueur, carte de partage avec image (lib/seo.ts).
+  return metadataPage({ locale, chemin: CHEMIN, titre: t("title"), description: t("description") });
 }
 
-export default function Page() {
-  return <PortfolioClient />;
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metaPages.portfolio" });
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const url = urlAbsolue(locale, CHEMIN);
+  return (
+    <>
+      <JsonLd
+        noeuds={[
+          pageWeb("CollectionPage", locale, url, t("title"), t("description")),
+          filAriane([
+            [tNav("home"), urlAbsolue(locale)],
+            [t("title"), url],
+          ]),
+        ]}
+      />
+      <PortfolioClient />
+    </>
+  );
 }

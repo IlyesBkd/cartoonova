@@ -152,7 +152,9 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
   pl: (u) => `Spersonalizowany Portret ${u}`,
   sv: (u) => `Personligt ${u}-porträtt`,
   da: (u) => `Personligt ${u}-portræt`,
-  pt: (u) => `Retrato ${u} Personalizado`,
+  /* Tournure portugaise naturelle, et distincte de l'espagnol : les deux
+     gabarits donnaient 27 titres identiques entre /es et /pt. */
+  pt: (u) => `Retrato personalizado de ${u}`,
 };
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {

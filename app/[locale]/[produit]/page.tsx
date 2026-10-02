@@ -17,10 +17,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { visuelsProduit } from "@/lib/visuels";
 import { MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
 import { contenuFicheEnCache, prixEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache";
-import { PRINT_KEYS } from "@/lib/pricing";
+import { offresPortrait } from "@/lib/donneesStructurees";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
-import { OG_LOCALE, alternatesPour } from "@/lib/seo";
+import { OG_LOCALE, alternatesPour, couper, titreSeo } from "@/lib/seo";
 
 /* Route produit unique. Les six univers historiques gardent leur slug
    (/simpson, /dbz, /disney, /ghibli, /onepiece, /rickandmorty) : les
@@ -43,12 +43,13 @@ export async function generateMetadata({
   if (!p) return {};
 
   const titre = titreProduit(p, locale);
-  const description = descriptionProduit(p, locale);
+  // Le texte complet reste sur la fiche ; la balise, elle, tient en 158 caracteres.
+  const description = couper(descriptionProduit(p, locale));
   const image = visuelsProduit(p.slug).partage[0];
   const slugs = slugsProduit(p);
 
   return {
-    title: `${titre} — Cartoonova`,
+    title: titreSeo(titre),
     description,
     // Chaque langue a son propre slug : les alternances se lisent dans la
     // table, elles ne se deduisent pas du chemin courant.
@@ -183,25 +184,19 @@ export default async function Page({
                 brand: { "@type": "Brand", name: "Cartoonova" },
                 image: visuels.galerie.map((v) => `${SITE_URL}${v}`),
                 category: donnees.categorieNom,
-                /* Sans `offers`, Google ne peut pas produire de resultat
-                   enrichi produit : ni prix, ni disponibilite, ni devise.
-                   `lowPrice` est le prix de depart reel — le fichier numerique
-                   seul, dont le supplement vaut zero. `highPrice` est ce meme
-                   portrait sur toile, le support le plus cher. La fourchette
-                   decrit donc un portrait a une personne, options en sus :
-                   annoncer un maximum tenant compte des dix personnages
-                   possibles gonflerait le prix affiche en resultat de
-                   recherche sans decrire ce que la plupart commandent. */
-                offers: {
-                  "@type": "AggregateOffer",
-                  priceCurrency: "EUR",
-                  lowPrice: prix.base,
-                  highPrice: prix.base + prix.canvas,
-                  offerCount: PRINT_KEYS.length,
-                  availability: "https://schema.org/InStock",
-                  url: `${SITE_URL}/${locale}/${slug}`,
-                  seller: { "@type": "Organization", name: "Cartoonova" },
-                },
+                /* Une offre par support (fichier, poster, toile, portrait
+                   encadre), pour un portrait a une personne : le prix que la
+                   fiche affiche par defaut. Elles portent ce que Google exige
+                   d'une fiche marchande depuis 2024 — validite du prix,
+                   livraison (0 EUR pour le fichier, forfait pour un tirage) et
+                   politique de retour — sans quoi la fiche n'a pas de resultat
+                   enrichi produit. Voir `lib/donneesStructurees.ts`. */
+                offers: offresPortrait(prix, `${SITE_URL}/${locale}/${slug}`, {
+                  digital: tProduit("digital"),
+                  posterSimple: tProduit("posterOption"),
+                  canvas: tProduit("canvas"),
+                  framed: tProduit("poster"),
+                }),
                 /* `sku` : l'identifiant stable du produit, celui du flux
                    Merchant. Il aide les moteurs a reconnaitre qu'une fiche vue
                    en francais et sa version anglaise sont le meme produit. */

@@ -1532,6 +1532,18 @@ export default function CheckoutModal({
                 <Icone nom="cadenas" taille={13} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }} />
                 {t("securePayment")} · {t("cardNeverStored")}
               </p>
+              {/* La caisse ne renvoyait nulle part vers les CGV, que le client
+                  accepte pourtant en payant (CGV art. 1). Lien dans sa langue :
+                  les CGV sont traduites dans les dix langues. */}
+              <p className="caisse-cgv">
+                {t.rich("accepterCgv", {
+                  lien: (texte) => (
+                    <a href={`/${locale}/cgv`} target="_blank" rel="noopener">
+                      {texte}
+                    </a>
+                  ),
+                })}
+              </p>
             </div>
           </>
         )}

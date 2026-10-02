@@ -68,3 +68,7 @@
 .caisse-adresses__source {
   margin: 0; padding: 4px 14px 6px; font-size: 11px; color: var(--encre-doux); text-align: right;
 }
+
+/* Acceptation des CGV, sous le bouton de paiement. */
+.caisse-cgv { margin: 0; font-size: 12.5px; text-align: center; color: var(--encre-doux); }
+.caisse-cgv a { color: var(--encre); text-decoration: underline; text-underline-offset: 2px; }

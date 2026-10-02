@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Shipping included in the total",
     "shippingLine": "Shipping",
     "emailSuggestion": "Did you mean <lien>{email}</lien>?",
-    "adresseSuggestions": "Suggested addresses"
+    "adresseSuggestions": "Suggested addresses",
+    "accepterCgv": "By ordering, you accept our <lien>terms and conditions of sale</lien>."
   },
   "giftPage": {
     "section": "Gift ideas",
@@ -837,7 +838,7 @@
       "description": "Behind Cartoonova, cartoon portraits made one by one from your photos. Preview within 48 h, unlimited revisions, prints delivered in 3 to 7 business days."
     },
     "avis": {
-      "title": "Customer Reviews — What People Say About Their Cartoonova Portrait",
+      "title": "Customer reviews of their Cartoonova portrait",
       "description": "Feedback from people who had their cartoon portrait drawn: likeness, print quality, turnaround. Read it before you order."
     },
     "contact": {
@@ -865,7 +866,7 @@
       "description": "Give a cartoon portrait without needing the photo: a printable gift card for all 35 styles, emailed in seconds."
     },
     "noel": {
-      "title": "Personalized Christmas gift: cartoon portrait from your photo | Cartoonova",
+      "title": "Christmas gift: a cartoon portrait from your photo",
       "description": "A cartoon portrait from your photo for Christmas: order-by dates, a digital version right up to the last minute, and a printable gift card."
     },
     "guidePhoto": {

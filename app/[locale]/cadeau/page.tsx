@@ -9,7 +9,9 @@ import { OCCASIONS, OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
 import { prixEnCache } from "@/lib/lecturesCache";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
 import { vignetteProduit } from "@/lib/visuels";
-import { alternatesPour } from "@/lib/seo";
+import { metadataPage, urlAbsolue } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { filAriane, pageWeb } from "@/lib/donneesStructurees";
 
 /* Index des idees cadeaux. C'etait une liste de 36 liens texte : correcte
    pour Google, illisible pour un visiteur, qui doit choisir sur un visuel.
@@ -33,11 +35,11 @@ export async function generateMetadata({
   if (!(locales as readonly string[]).includes(localeRaw)) return {};
   const locale = localeRaw as Locale;
   const t = await getTranslations({ locale, namespace: "giftPage" });
+  const tc = await getTranslations({ locale, namespace: "cadeauPage" });
 
-  return {
-    title: `${t("section")} | Cartoonova`,
-    alternates: alternatesPour(locale, "/cadeau"),
-  };
+  /* La page n'avait ni description ni carte de partage : elle heritait de
+     celles de l'accueil, mot pour mot, dans les dix langues. */
+  return metadataPage({ locale, chemin: "/cadeau", titre: t("section"), description: tc("sous") });
 }
 
 export default async function GiftIndexPage({
@@ -65,8 +67,32 @@ export default async function GiftIndexPage({
     maximumFractionDigits: Number.isInteger(prixDepart) ? 0 : 2,
   }).format(prixDepart);
 
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tGift = await getTranslations({ locale, namespace: "giftPage" });
+  const url = urlAbsolue(locale, "/cadeau");
+
   return (
     <main className="page-tj">
+      <JsonLd
+        noeuds={[
+          {
+            ...pageWeb("CollectionPage", locale, url, tGift("section"), t("sous")),
+            mainEntity: {
+              "@type": "ItemList",
+              itemListElement: OCCASION_KEYS.map((key, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                name: t("pourOccasion", { occasion: OCCASIONS[locale][key].label }),
+                url: `${url}#${key}`,
+              })),
+            },
+          },
+          filAriane([
+            [tNav("home"), urlAbsolue(locale)],
+            [tGift("section"), url],
+          ]),
+        ]}
+      />
       <section className="section">
         <div className="enveloppe">
           <div className="chapeau">

@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Levering inkluderet i totalen",
     "shippingLine": "Levering",
     "emailSuggestion": "Mente du <lien>{email}</lien>?",
-    "adresseSuggestions": "Foreslåede adresser"
+    "adresseSuggestions": "Foreslåede adresser",
+    "accepterCgv": "Ved at bestille accepterer du vores <lien>salgs- og leveringsbetingelser</lien>."
   },
   "giftPage": {
     "section": "Gaveidéer",
@@ -834,10 +835,10 @@
   "metaPages": {
     "aPropos": {
       "title": "Om Cartoonova — personlige portrætter",
-      "description": "Bag Cartoonova er portrætter, der laves ét ad gangen ud fra dine fotos. Forhåndsvisning inden for 48 timer, ubegrænsede rettelser, tryk leveret på 3 til 7 hverdage."
+      "description": "Bag Cartoonova: cartoonportrætter skabt ét ad gangen ud fra dine fotos. Forhåndsvisning på 2 dage, ubegrænsede rettelser, tryk på 3–7 hverdage."
     },
     "avis": {
-      "title": "Kundeanmeldelser — hvad kunderne siger om deres Cartoonova-portræt",
+      "title": "Kundeanmeldelser af Cartoonova-portrættet",
       "description": "Erfaringer fra dem, der har fået tegnet deres portræt: ligheden, trykkvaliteten, leveringstiden. Læs med, før du bestiller."
     },
     "contact": {

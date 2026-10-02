@@ -17,7 +17,9 @@ import {
 import { visuelsProduit } from "@/lib/visuels";
 import { prixEnCache } from "@/lib/lecturesCache";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
-import { alternatesPour } from "@/lib/seo";
+import { metadataPage, urlAbsolue } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { filAriane } from "@/lib/donneesStructurees";
 
 // Un seul univers est annonce best-seller sur le site. Le slug etait ecrit ici
 // en dur ; il vient maintenant de `SLUG_PHARE`, l'unique endroit du code ou le
@@ -32,19 +34,12 @@ export async function generateMetadata({
   const locale = brut as Locale;
   const t = await getTranslations({ locale, namespace: "tj" });
 
-  const titre = `${t("catalogueTitre")} ${t("catalogueAccent")} — Cartoonova`;
-
-  return {
-    title: titre,
+  return metadataPage({
+    locale,
+    chemin: "/collections",
+    titre: `${t("catalogueTitre")} ${t("catalogueAccent")}`,
     description: t("catalogueSous"),
-    alternates: alternatesPour(locale, "/collections"),
-    openGraph: {
-      title: titre,
-      description: t("catalogueSous"),
-      url: `${SITE_URL}/${locale}/collections`,
-      type: "website",
-    },
-  };
+  });
 }
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
@@ -78,8 +73,17 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
     // Repli sur la grille par defaut si la base est injoignable.
   }
 
+  // Fil d'Ariane (donnees structurees) : Accueil > cette page.
+  const tArianeNav = await getTranslations({ locale: brut, namespace: "nav" });
+  const tArianePage = await getTranslations({ locale: brut, namespace: "tj" });
+  const ariane = filAriane([
+    [tArianeNav("home"), urlAbsolue(brut)],
+    [tArianePage("catalogueTitre"), urlAbsolue(brut, "/collections")],
+  ]);
+
   return (
     <>
+      <JsonLd noeuds={[ariane]} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

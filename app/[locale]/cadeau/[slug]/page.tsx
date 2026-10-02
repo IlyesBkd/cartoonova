@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CATALOGUE_EN_LIGNE, universProduit } from "@/lib/catalogue";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,7 +17,7 @@ import {
   buildGiftSlug,
   parseGiftSlug,
 } from "@/lib/giftOccasions";
-import { OG_LOCALE, alternatesPour } from "@/lib/seo";
+import { OG_LOCALE, alternatesPour, couper, titreSeo } from "@/lib/seo";
 
 export const revalidate = 86400;
 
@@ -25,6 +26,12 @@ export function generateStaticParams() {
     allGiftSlugs(locale).map((slug) => ({ locale, slug }))
   );
 }
+
+/** « Portrait » dans chaque langue, pour un titre court : « Portrait Simpson ». */
+const MOT_PORTRAIT: Record<Locale, string> = {
+  fr: "Portrait", en: "Portrait", es: "Retrato", de: "Porträt", it: "Ritratto",
+  nl: "Portret", pl: "Portret", sv: "Porträtt", da: "Portræt", pt: "Retrato",
+};
 
 function resolve(localeRaw: string, slug: string) {
   if (!(locales as readonly string[]).includes(localeRaw)) return null;
@@ -52,11 +59,22 @@ export async function generateMetadata({
   if (!data) return {};
 
   const { locale, product, occasion, occasionKey, styleName } = data;
-  const title = `${occasion.headline(styleName)} | Cartoonova`;
+  /* Titre de 60 caracteres au plus : le nom complet du produit
+     (« Portrait Simpson Personnalise pour un anniversaire ») depassait sur la
+     plupart des 360 pages. On essaie du plus complet au plus court. */
+  const univers = (() => {
+    const p = CATALOGUE_EN_LIGNE.find((x) => x.slug === product.slug);
+    return p ? universProduit(p, locale) : styleName;
+  })();
+  const candidats = [styleName, `${MOT_PORTRAIT[locale]} ${univers}`, univers].map((s) => occasion.headline(s));
+  const title = titreSeo(candidats.find((c) => c.length <= 60) ?? candidats[candidats.length - 1]);
+  // Le texte d'introduction est le meme pour les six styles d'une occasion :
+  // le style en tete rend chaque description unique.
+  const description = couper(`${candidats[1]}. ${occasion.intro}`);
 
   return {
     title,
-    description: occasion.intro.slice(0, 155),
+    description,
     // Le slug differe d'une langue a l'autre : chaque alternance se calcule.
     alternates: alternatesPour(
       locale,
@@ -66,7 +84,7 @@ export async function generateMetadata({
     ),
     openGraph: {
       title,
-      description: occasion.intro.slice(0, 200),
+      description,
       url: `${SITE_URL}/${locale}/cadeau/${slug}`,
       siteName: "Cartoonova",
       locale: OG_LOCALE[locale] ?? OG_LOCALE.fr,
@@ -79,7 +97,7 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title,
-      description: occasion.intro.slice(0, 155),
+      description,
       images: [`${SITE_URL}${product.image}`],
     },
   };

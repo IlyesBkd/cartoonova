@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { OG_LOCALE, alternatesPour, urlAbsolue } from "@/lib/seo";
-import type { Locale } from "@/i18n/config";
+import { metadataPage, urlAbsolue } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 import { MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
 import { avisPubliesEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache";
@@ -10,6 +9,8 @@ import { avisPubliesEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache
    quand il passe par la moderation (`revalidateTag("avis")`). */
 export const revalidate = 300;
 import AvisClient from "./AvisClient";
+import JsonLd from "@/components/JsonLd";
+import { filAriane } from "@/lib/donneesStructurees";
 
 /* Le balisage `Review`/`AggregateRating` n'apparait qu'a partir de
    `MINIMUM_BALISAGE_AVIS` avis reels, deposes via un lien signe qui prouve
@@ -23,27 +24,11 @@ import AvisClient from "./AvisClient";
 
 const CHEMIN = "/avis";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metaPages.avis" });
-
-  return {
-    title: t("title"),
-    description: t("description"),
-    alternates: alternatesPour(locale, CHEMIN),
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: urlAbsolue(locale, CHEMIN),
-      siteName: "Cartoonova",
-      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
-      type: "website",
-    },
-  };
+  // Titre et description a la bonne longueur, carte de partage avec image (lib/seo.ts).
+  return metadataPage({ locale, chemin: CHEMIN, titre: t("title"), description: t("description") });
 }
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
@@ -87,8 +72,17 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         }
       : null;
 
+  // Fil d'Ariane (donnees structurees) : Accueil > cette page.
+  const tArianeNav = await getTranslations({ locale: locale, namespace: "nav" });
+  const tArianePage = await getTranslations({ locale: locale, namespace: "metaPages.avis" });
+  const ariane = filAriane([
+    [tArianeNav("home"), urlAbsolue(locale)],
+    [tArianePage("title"), urlAbsolue(locale, "/avis")],
+  ]);
+
   return (
     <>
+      <JsonLd noeuds={[ariane]} />
       {balisage && (
         <script
           type="application/ld+json"

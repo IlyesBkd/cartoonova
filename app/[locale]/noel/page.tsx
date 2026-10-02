@@ -8,7 +8,9 @@ import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { OCCASIONS, buildGiftSlug } from "@/lib/giftOccasions";
 import { dateEvenement, getDigitalOrderByDate, getOrderByDate } from "@/lib/evenements";
 import { vignetteProduit } from "@/lib/visuels";
-import { OG_LOCALE, alternatesPour, urlAbsolue } from "@/lib/seo";
+import { metadataPage, urlAbsolue } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { filAriane } from "@/lib/donneesStructurees";
 
 /* La page Noel : les trois dates limites, le bon cadeau, et les univers les
    plus offerts, chacun vers sa page « portrait X pour Noel » deja existante.
@@ -28,19 +30,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metaPages.noel" });
-  return {
-    title: t("title"),
-    description: t("description"),
-    alternates: alternatesPour(locale, CHEMIN),
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: urlAbsolue(locale, CHEMIN),
-      siteName: "Cartoonova",
-      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
-      type: "website",
-    },
-  };
+  // Titre et description a la bonne longueur, carte de partage avec image (lib/seo.ts).
+  return metadataPage({ locale, chemin: CHEMIN, titre: t("title"), description: t("description") });
 }
 
 /** Le prochain 25 decembre : apres Noel, la page parle deja du suivant. */
@@ -67,8 +58,17 @@ export default async function NoelPage({ params }: { params: Promise<{ locale: s
     { cle: "bon", titre: t("bonTitre"), texte: t("bonTexte", { date: jour(new Date(noel.getTime() - 86400000)) }) },
   ];
 
+  // Fil d'Ariane (donnees structurees) : Accueil > cette page.
+  const tArianeNav = await getTranslations({ locale: brut, namespace: "nav" });
+  const tArianePage = await getTranslations({ locale: brut, namespace: "metaPages.noel" });
+  const ariane = filAriane([
+    [tArianeNav("home"), urlAbsolue(brut)],
+    [tArianePage("title"), urlAbsolue(brut, "/noel")],
+  ]);
+
   return (
     <>
+      <JsonLd noeuds={[ariane]} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

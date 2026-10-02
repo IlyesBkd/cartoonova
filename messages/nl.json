@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Verzending inbegrepen in het totaal",
     "shippingLine": "Verzending",
     "emailSuggestion": "Bedoelde je <lien>{email}</lien>?",
-    "adresseSuggestions": "Voorgestelde adressen"
+    "adresseSuggestions": "Voorgestelde adressen",
+    "accepterCgv": "Met je bestelling ga je akkoord met onze <lien>algemene verkoopvoorwaarden</lien>."
   },
   "giftPage": {
     "section": "Cadeau-ideeën",
@@ -834,7 +835,7 @@
   "metaPages": {
     "aPropos": {
       "title": "Over Cartoonova — gepersonaliseerde cartoonportretten",
-      "description": "Achter Cartoonova: cartoonportretten die stuk voor stuk vanaf jouw foto's worden gemaakt. Voorbeeld binnen 48 uur, onbeperkt aanpassen, prints geleverd in 3 tot 7 werkdagen."
+      "description": "Achter Cartoonova: cartoonportretten, één voor één gemaakt naar jouw foto's. Voorbeeld in 2 dagen, onbeperkt aanpassen, print in 3 tot 7 werkdagen."
     },
     "avis": {
       "title": "Klantreviews — wat klanten van hun Cartoonova-portret vinden",
@@ -870,7 +871,7 @@
     },
     "guidePhoto": {
       "title": "Welke foto stuur je voor een cartoonportret? | Cartoonova",
-      "description": "Gezicht zichtbaar, van voren, goed licht, scherpe foto: onze tips om de foto voor je gepersonaliseerde cartoonportret te kiezen, en de fouten die je beter vermijdt."
+      "description": "Welke foto voor een cartoonportret? Goede en slechte voorbeelden, meerdere personen, huisdieren: zo lijkt je portret echt op jou."
     }
   },
   "alt": {

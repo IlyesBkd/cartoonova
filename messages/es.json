@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Envío incluido en el total",
     "shippingLine": "Envío",
     "emailSuggestion": "¿Quisiste decir <lien>{email}</lien>?",
-    "adresseSuggestions": "Direcciones sugeridas"
+    "adresseSuggestions": "Direcciones sugeridas",
+    "accepterCgv": "Al hacer tu pedido, aceptas nuestras <lien>condiciones generales de venta</lien>."
   },
   "giftPage": {
     "section": "Ideas de regalo",
@@ -834,7 +835,7 @@
   "metaPages": {
     "aPropos": {
       "title": "Quiénes somos — Cartoonova, retratos cartoon personalizados",
-      "description": "Detrás de Cartoonova, retratos cartoon creados uno a uno a partir de tus fotos. Vista previa en 48 h, retoques ilimitados, impresión entregada en 3 a 7 días hábiles."
+      "description": "Detrás de Cartoonova, retratos cartoon creados uno a uno a partir de tus fotos. Vista previa en 2 días, retoques ilimitados, impresión en 3 a 7 días hábiles."
     },
     "avis": {
       "title": "Opiniones de clientes — qué dicen de su retrato Cartoonova",
@@ -865,7 +866,7 @@
       "description": "Regala un retrato cartoon sin tener la foto: una tarjeta regalo imprimible para los 35 estilos, recibida por correo en segundos."
     },
     "noel": {
-      "title": "Regalo de Navidad personalizado: retrato cartoon a partir de tu foto | Cartoonova",
+      "title": "Regalo de Navidad: retrato cartoon de tu foto",
       "description": "Un retrato cartoon a partir de tu foto para Navidad: fechas límite de pedido, versión digital hasta el último momento y tarjeta regalo imprimible."
     },
     "guidePhoto": {

@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getPricesForCurrency } from "./db";
 import { lireContenuFiche } from "./contenuFiche";
 import { avisPublies, statistiquesAvis } from "./reviewsDb";
-import { getArticleBySlug, getPublishedArticles, getRelatedArticles } from "./blogDb";
+import { getAllPublishedArticleRefs, getArticleBySlug, getPublishedArticles, getRelatedArticles } from "./blogDb";
 import { produitsJamaisLus } from "./indexation";
 
 /* Lectures en base mises en cache, pour les pages publiques.
@@ -69,3 +69,9 @@ export const produitsJamaisLusEnCache = unstable_cache(
   ["produits-jamais-lus"],
   { revalidate: 3600, tags: ["indexation"] }
 );
+
+/** Toutes les references d'articles publies (langue, slug, sujet), pour les hreflang. */
+export const refsArticlesEnCache = unstable_cache(() => getAllPublishedArticleRefs(), ["blog-refs"], {
+  revalidate: 3600,
+  tags: ["blog"],
+});

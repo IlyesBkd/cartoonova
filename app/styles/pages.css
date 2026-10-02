@@ -116,3 +116,6 @@
   .article-images::-webkit-scrollbar { display: none; }
   .article-images > * { flex: 0 0 78%; scroll-snap-align: start; }
 }
+
+/* Pages legales traduites : la mention « la version francaise fait foi ». */
+.legal-avertissement { padding: 10px 14px; border-left: 3px solid var(--soleil); background: var(--soleil-pale); border-radius: 6px; }

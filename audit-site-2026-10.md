@@ -8,6 +8,7 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
 |---|---|---|
 | 2 octobre 2026 | P0-3, P0-6, P1-1, P1-2, P1-3, P1-4, P1-5, P1-6, P1-10 | Faits, déployés et mesurés en production, voir ci-dessous |
 | 2 octobre 2026 (2ᵉ lot) | P1-8, P1-9, P1-11, P1-12, P1-13, P1-15, P1-17 | Faits, déployés et revérifiés en production ; P1-14 attend une action dans Stripe |
+| 2 octobre 2026 (lot SEO) | S-1 à S-8 | Faits, vérifiés sur un build de production local ; L-1 à L-4 à faire relire |
 
 **Fait le 2 octobre 2026, deuxième lot :**
 - **P1-8 Suggestions d'adresse** à la caisse des impressions :
@@ -35,6 +36,39 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
   - Collections : sections en doublon retirées (atouts, bannière), catégories en rails horizontaux.
   - Article : images en rail, cartes en 2 colonnes, bandeau d'appel en double retiré.
   - Ce qui reste est l'essentiel : le configurateur fait à lui seul 4,7 écrans sur la fiche, et le texte de l'article 16,4.
+
+**Fait le 2 octobre 2026, lot SEO (S-1 à S-8) :**
+
+| Mesure (900 pages, build de production) | Avant | Après |
+|---|---|---|
+| Pages sans image de partage | 113 | 0 |
+| Pages sans données structurées | 73 | 0 |
+| Titres de plus de 60 caractères | 307 | 0 |
+| Descriptions de plus de 160 caractères | 183 | 0 |
+| Titres en double (es/pt) | 27 | 0 |
+| Descriptions en double | 70 | 0 (dernière correction après la mesure) |
+
+- **S-1 Fiches produit :**
+  - une offre par support (fichier, poster, toile, portrait encadré) avec son prix et la date de fin de validité (fin du prix de lancement) ;
+  - livraison déclarée : 0 € pour le fichier, forfait pour un tirage, délais des CGV ;
+  - politique de retour déclarée (création sur mesure : pas de retour, CGV art. 8) ;
+  - le prix maximal ne sous-estime plus le portrait encadré.
+- **S-2 :** une image de partage aux couleurs du site (`public/og/`), sur toutes les pages qui n'en avaient pas.
+- **S-3 :** données structurées sur le blog, cadeau, bon cadeau (produit à 3 montants, retour 14 jours), portfolio, contact, à propos et pages légales, plus un fil d'Ariane partout.
+- **S-4 :** titres limités à 60 caractères (la marque n'est ajoutée que si elle tient) et descriptions à 158 caractères, coupées au mot près. Les gabarits trop longs sont réécrits.
+- **S-5 :** `/cadeau` a sa propre description, le gabarit portugais est distinct de l'espagnol, et chaque page cadeau par occasion porte le nom de son style.
+- **S-6 Pages légales :**
+  - CGV, mentions légales et confidentialité sont traduites dans les 10 langues (`lib/legal/`), avec la mention « la version française fait foi », et sont indexables ;
+  - les liens gardent la langue de la page ;
+  - la caisse affiche « En commandant, tu acceptes nos conditions générales de vente » avec un lien. Ce lien manquait totalement.
+- **S-7 :** le flux Merchant (fichier, port à 0 €) et les données structurées des fiches disent maintenant la même chose. **À vérifier par toi :** Merchant Center et le test des résultats enrichis de Google (search.google.com/test/rich-results) sur une fiche, après le déploiement.
+- **S-8 :** les 30 articles les plus récents de chaque langue sont générés au déploiement, avec leurs hreflang et leur `og:locale`.
+
+**À faire relire (contenu juridique, pas du code) :**
+- **L-1. Identité de la société** (P0-2) : la raison sociale, l'adresse, le SIRET, le RCS, la TVA, le téléphone et le directeur de publication ressemblent à des valeurs d'exemple. Ils sont regroupés dans `lib/legal/entreprise.ts` : les vraies valeurs se renseignent là, une seule fois, pour les 10 langues.
+- **L-2. La politique de confidentialité ne décrit pas les outils réels.** Elle cite Google Analytics, alors que le site utilise PostHog (mesure d'audience), Google Ads et le pixel Meta (conversions), Resend (e-mails), Stripe (paiement), un serveur OVH en Europe (base de données) et un assistant IA pour préparer les réponses du support. À mettre à jour avant de s'y fier.
+- **L-3. CGV, article 9 bis :** « un minimum de 1 (dans la devise de la commande) » est obscur, et « ni remboursable » contredit le droit de rétractation de 14 jours accordé juste après. À clarifier en français, puis à reporter dans les 9 traductions.
+- **L-4.** Les traductions juridiques ont été faites avec soin mais pas par un juriste. La version française fait foi, et c'est écrit en tête de chaque traduction.
 
 **P1-14 Amazon Pay, à faire par toi dans Stripe :**
 - Ouvre dashboard.stripe.com, puis Paramètres → Paiements → Moyens de paiement.

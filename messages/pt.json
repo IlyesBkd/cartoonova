@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Envio incluído no total",
     "shippingLine": "Envio",
     "emailSuggestion": "Querias dizer <lien>{email}</lien>?",
-    "adresseSuggestions": "Moradas sugeridas"
+    "adresseSuggestions": "Moradas sugeridas",
+    "accepterCgv": "Ao encomendar, aceitas as nossas <lien>condições gerais de venda</lien>."
   },
   "giftPage": {
     "section": "Ideias de prenda",
@@ -834,7 +835,7 @@
   "metaPages": {
     "aPropos": {
       "title": "Sobre a Cartoonova — retratos personalizados",
-      "description": "Por trás da Cartoonova, retratos criados um a um a partir das tuas fotos. Pré-visualização em 48 h, retoques ilimitados, impressões entregues em 3 a 7 dias úteis."
+      "description": "A Cartoonova cria retratos cartoon um a um a partir das tuas fotos. Pré-visualização em 2 dias, retoques ilimitados, impressão em 3 a 7 dias úteis."
     },
     "avis": {
       "title": "Opiniões de clientes — o que dizem do retrato Cartoonova",
@@ -865,7 +866,7 @@
       "description": "Oferece um retrato cartoon sem teres a foto: um vale-oferta para imprimir, válido nos 35 estilos, recebido por email em segundos."
     },
     "noel": {
-      "title": "Prenda de Natal personalizada: retrato cartoon a partir da tua foto | Cartoonova",
+      "title": "Prenda de Natal: retrato cartoon da tua foto",
       "description": "Um retrato cartoon a partir da tua foto para o Natal: datas-limite de encomenda, versão digital até ao último momento e vale-oferta para imprimir."
     },
     "guidePhoto": {

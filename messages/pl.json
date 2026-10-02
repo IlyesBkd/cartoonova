@@ -17,7 +17,7 @@
     "viewAllStyles": "Zobacz wszystkie style"
   },
   "blog": {
-    "metaTitle": "Blog Cartoonova — pomysły na prezent i przewodniki po stylach",
+    "metaTitle": "Blog Cartoonova — pomysły na prezent i style",
     "metaDescription": "Pomysły na prezent, przewodniki po stylach i praktyczne porady o spersonalizowanych portretach.",
     "title": "Blog Cartoonova",
     "subtitle": "Pomysły na prezent, przewodniki po stylach i praktyczne porady.",
@@ -504,7 +504,8 @@
     "expressShippingIncluded": "Dostawa wliczona w sumę",
     "shippingLine": "Dostawa",
     "emailSuggestion": "Czy chodziło Ci o <lien>{email}</lien>?",
-    "adresseSuggestions": "Sugerowane adresy"
+    "adresseSuggestions": "Sugerowane adresy",
+    "accepterCgv": "Składając zamówienie, akceptujesz nasz <lien>regulamin sprzedaży</lien>."
   },
   "giftPage": {
     "section": "Pomysły na prezent",
@@ -865,12 +866,12 @@
       "description": "Podaruj portret cartoon bez zdjęcia: karta podarunkowa do wydruku, ważna dla 35 stylów, wysyłana e-mailem w kilka sekund."
     },
     "noel": {
-      "title": "Spersonalizowany prezent na święta: portret cartoon ze zdjęcia | Cartoonova",
+      "title": "Prezent na święta: portret cartoon ze zdjęcia",
       "description": "Portret cartoon ze zdjęcia na Boże Narodzenie: terminy zamówień, wersja cyfrowa do ostatniej chwili i karta podarunkowa do wydruku."
     },
     "guidePhoto": {
       "title": "Jakie zdjęcie wysłać do portretu cartoon? | Cartoonova",
-      "description": "Widoczna twarz, ujęcie z przodu, dobre światło, ostre zdjęcie: nasze wskazówki, jak wybrać zdjęcie do spersonalizowanego portretu cartoon, i błędy, których lepiej unikać."
+      "description": "Jakie zdjęcie do portretu cartoon? Dobre i złe przykłady, kilka osób, zwierzęta: tak, by portret był naprawdę podobny."
     }
   },
   "alt": {

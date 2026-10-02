@@ -6,7 +6,9 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { locales, type Locale } from "@/i18n/config";
 import { SLUG_PHARE } from "@/lib/catalogue";
 import { visuelsProduit } from "@/lib/visuels";
-import { OG_LOCALE, alternatesPour, urlAbsolue } from "@/lib/seo";
+import { metadataPage, urlAbsolue } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import { filAriane } from "@/lib/donneesStructurees";
 
 /* Guide « Quelle photo envoyer ? ». La qualite du portrait depend d'abord de
    la photo recue : un client qui hesite sur sa photo n'achete pas, et un
@@ -28,19 +30,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metaPages.guidePhoto" });
-  return {
-    title: t("title"),
-    description: t("description"),
-    alternates: alternatesPour(locale, CHEMIN),
-    openGraph: {
-      title: t("title"),
-      description: t("description"),
-      url: urlAbsolue(locale, CHEMIN),
-      siteName: "Cartoonova",
-      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
-      type: "website",
-    },
-  };
+  // Titre et description a la bonne longueur, carte de partage avec image (lib/seo.ts).
+  return metadataPage({ locale, chemin: CHEMIN, titre: t("title"), description: t("description") });
 }
 
 /* Les cles sont numerotees plutot que rangees en tableau : le fichier de
@@ -73,8 +64,17 @@ export default async function GuidePhotoPage({ params }: { params: Promise<{ loc
   const illustration = visuelTransformation();
   const faq = FAQ.map((n) => ({ question: t(`faq${n}Q`), reponse: t(`faq${n}R`) }));
 
+  // Fil d'Ariane (donnees structurees) : Accueil > cette page.
+  const tArianeNav = await getTranslations({ locale: brut, namespace: "nav" });
+  const tArianePage = await getTranslations({ locale: brut, namespace: "metaPages.guidePhoto" });
+  const ariane = filAriane([
+    [tArianeNav("home"), urlAbsolue(brut)],
+    [tArianePage("title"), urlAbsolue(brut, "/quelle-photo")],
+  ]);
+
   return (
     <>
+      <JsonLd noeuds={[ariane]} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

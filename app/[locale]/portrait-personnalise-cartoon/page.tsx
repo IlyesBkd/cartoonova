@@ -55,10 +55,10 @@ export async function generateMetadata({
   const path = `/${locale}${CHEMIN}`;
 
   return {
-    title:
-      "Portrait Personnalisé Cartoon - Caricature Personnalisée à partir de ta Photo | Cartoonova",
+    // 60 et 158 caracteres au plus : l'ancien titre en faisait 87.
+    title: "Portrait personnalisé cartoon d'après ta photo",
     description:
-      "Transforme tes photos en portraits personnalisés style cartoon ! Crée ta caricature unique en quelques clics. Idée cadeau originale, qualité garantie, aperçu sous 2 jours.",
+      "Transforme ta photo en portrait cartoon personnalisé : Simpson, Disney, manga… Aperçu sous 2 jours, retouches illimitées. Une idée cadeau originale.",
     metadataBase: new URL(SITE_URL),
     /* Pas de `languages` ici, et c'est delibere : le hero de cette page est
        redige en francais et le reste dans toutes les langues. Annoncer une
@@ -66,9 +66,9 @@ export async function generateMetadata({
        Les versions non francaises passent donc en `noindex`. */
     alternates: { canonical: `${SITE_URL}${path}` },
     openGraph: {
-      title: "Portrait Personnalisé Cartoon - Cartoonova",
+      title: "Portrait personnalisé cartoon d'après ta photo",
       description:
-        "Crée ta caricature personnalisée à partir de ta photo. Un cadeau unique et original !",
+        "Transforme ta photo en portrait cartoon personnalisé. Aperçu sous 2 jours, retouches illimitées.",
       url: `${SITE_URL}${path}`,
       siteName: "Cartoonova",
       images: [
@@ -84,8 +84,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: "Portrait Personnalisé Cartoon | Cartoonova",
-      description: "Transforme tes photos en portraits cartoon uniques !",
+      title: "Portrait personnalisé cartoon d'après ta photo",
+      description: "Transforme ta photo en portrait cartoon personnalisé.",
       images: [`${SITE_URL}/simpson_photos_produit/0009_1.jpg`],
     },
     robots: {

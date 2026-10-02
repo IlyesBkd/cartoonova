@@ -12,7 +12,7 @@ import { CATALOGUE_EN_LIGNE } from "@/lib/catalogue";
 import { vignetteProduit } from "@/lib/visuels";
 import { evenementAffiche } from "@/lib/evenements";
 import { SITE_URL } from "@/lib/site";
-import { OG_LOCALE, alternatesPour } from "@/lib/seo";
+import { IMAGE_PARTAGE, OG_LOCALE, alternatesPour } from "@/lib/seo";
 import { GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 import "../globals.css";
@@ -71,11 +71,14 @@ export async function generateMetadata({
       siteName: "Cartoonova",
       locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
       type: "website",
+      // Image de la marque : un lien vers l'accueil partage sans visuel sinon.
+      images: [{ url: IMAGE_PARTAGE, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: t("ogTitle"),
       description: t("ogDescription"),
+      images: [IMAGE_PARTAGE],
     },
     robots: {
       index: true,

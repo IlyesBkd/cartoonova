@@ -43,7 +43,7 @@ const pages: PageDef[] = [
   { path: "", changeFrequency: "weekly", priority: 1 },
   { path: "/collections", changeFrequency: "weekly", priority: 0.95 },
   // Les fiches produit viennent du catalogue, plus bas.
-  // Non traduite : indexable en francais seulement, comme les pages legales.
+  // Non traduite : indexable en francais seulement.
   { path: "/portrait-personnalise-cartoon", changeFrequency: "weekly", priority: 0.85, locales: ["fr"] },
   { path: "/blog", changeFrequency: "daily", priority: 0.8 },
   { path: "/cadeau", changeFrequency: "monthly", priority: 0.8 },
@@ -54,9 +54,10 @@ const pages: PageDef[] = [
   { path: "/avis", changeFrequency: "monthly", priority: 0.7 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
   { path: "/a-propos", changeFrequency: "yearly", priority: 0.4 },
-  { path: "/cgv", changeFrequency: "yearly", priority: 0.3, locales: ["fr"] },
-  { path: "/mentions-legales", changeFrequency: "yearly", priority: 0.3, locales: ["fr"] },
-  { path: "/politique-de-confidentialite", changeFrequency: "yearly", priority: 0.3, locales: ["fr"] },
+  // Traduites dans les dix langues depuis le 2 octobre 2026 (lib/legal).
+  { path: "/cgv", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/mentions-legales", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/politique-de-confidentialite", changeFrequency: "yearly", priority: 0.3 },
 ];
 
 /** Bloc `alternates` d'une entree, quand le chemin est le meme partout. */

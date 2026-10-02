@@ -50,19 +50,10 @@ export function urlAbsolue(locale: string, chemin = ""): string {
 /**
  * Metadata des trois pages legales — CGV, mentions legales, confidentialite.
  *
- * Leur corps est redige en francais et l'est reste dans les cinq langues. Deux
- * facons de traiter ca : traduire, ou ne pas faire passer du francais pour de
- * l'allemand. Traduire des CGV n'est pas un travail d'ingenierie — une clause
- * mal rendue engage la societe — donc les versions non francaises passent en
- * `noindex, follow` en attendant une traduction professionnelle.
- *
- * Consequence assumee : pas de `hreflang` sur ces pages. Annoncer une version
- * allemande que l'on demande a Google de ne pas indexer serait contradictoire.
- * Le canonical reste sur la page elle-meme, et `follow` laisse circuler le
- * maillage vers le reste du site.
- *
- * Ces pages ne sont de toute facon pas des actifs SEO : le releve du
- * 2026-08-17 les montre positionnees sur le numero RCS de la societe.
+ * Depuis le 2 octobre 2026 elles sont traduites dans les dix langues
+ * (lib/legal/*), la version francaise faisant foi : elles sont donc indexables
+ * partout, avec leurs alternances hreflang. Avant, les versions non francaises
+ * servaient du francais en `noindex`.
  */
 export async function metadataPageLegale(
   { params }: { params: Promise<{ locale: string }> },
@@ -72,19 +63,7 @@ export async function metadataPageLegale(
   const { locale } = await params;
   const { getTranslations } = await import("next-intl/server");
   const t = await getTranslations({ locale, namespace: `metaPages.${cle}` });
-
-  const indexable = locale === "fr";
-
-  return {
-    title: t("title"),
-    description: t("description"),
-    alternates: { canonical: urlAbsolue(locale, chemin) },
-    robots: {
-      index: indexable,
-      follow: true,
-      googleBot: { index: indexable, follow: true },
-    },
-  };
+  return metadataPage({ locale, chemin, titre: t("title"), description: t("description") });
 }
 
 /**
@@ -103,3 +82,79 @@ export const OG_LOCALE: Record<Locale, string> = {
   da: "da_DK",
   pt: "pt_PT",
 };
+
+/* ── Longueur des titres et descriptions (S-4, 2 octobre 2026) ────────────
+   L'audit comptait 307 titres de plus de 60 caracteres et 183 descriptions de
+   plus de 160 : Google les coupe, souvent au milieu du mot qui comptait. */
+
+const SUFFIXE_MARQUE = " — Cartoonova";
+const TITRE_MAX = 60;
+const DESCRIPTION_MAX = 158;
+
+/**
+ * Titre de page : sans suffixe de marque deja present (« | Cartoonova »,
+ * « — Cartoonova »), puis avec « — Cartoonova » seulement s'il tient dans les
+ * 60 caracteres. La marque est utile ; le mot-cle de la page l'est plus.
+ */
+export function titreSeo(brut: string): string {
+  const titre = brut.replace(/\s*[|—–-]\s*Cartoonova\s*$/i, "").trim();
+  return titre.length + SUFFIXE_MARQUE.length <= TITRE_MAX ? `${titre}${SUFFIXE_MARQUE}` : titre;
+}
+
+/** Coupe un texte au dernier mot entier avant `max` caracteres, avec « … ». */
+export function couper(texte: string, max = DESCRIPTION_MAX): string {
+  const propre = texte.replace(/\s+/g, " ").trim();
+  if (propre.length <= max) return propre;
+  const coupe = propre.slice(0, max - 1);
+  const espace = coupe.lastIndexOf(" ");
+  return `${(espace > max * 0.6 ? coupe.slice(0, espace) : coupe).replace(/[\s,;:.\-–—]+$/, "")}…`;
+}
+
+/** Image de partage par defaut (1200x630), pour les pages sans visuel propre. */
+export const IMAGE_PARTAGE = `${SITE_URL}/og/cartoonova-1200x630.jpg`;
+
+/**
+ * Metadata complete d'une page simple : titre et description a la bonne
+ * longueur, alternances de langue, carte de partage avec image.
+ *
+ * Toute page qui definit `openGraph` remplace en entier celui du layout (fusion
+ * superficielle de Next) : 113 pages s'etaient ainsi retrouvees sans image de
+ * partage — un lien envoye sur WhatsApp n'affichait que du texte. Passer par
+ * cette fonction garantit le bloc complet.
+ */
+export function metadataPage({
+  locale,
+  chemin,
+  titre,
+  description,
+  image,
+  alternates,
+}: {
+  locale: string;
+  chemin: string;
+  titre: string;
+  description: string;
+  /** URL absolue ; par defaut l'image de la marque. */
+  image?: string;
+  /** Pour les pages dont le chemin change d'une langue a l'autre. */
+  alternates?: Metadata["alternates"];
+}): Metadata {
+  const title = titreSeo(titre);
+  const desc = couper(description);
+  const img = image ?? IMAGE_PARTAGE;
+  return {
+    title,
+    description: desc,
+    alternates: alternates ?? alternatesPour(locale, chemin),
+    openGraph: {
+      title,
+      description: desc,
+      url: urlAbsolue(locale, chemin),
+      siteName: "Cartoonova",
+      locale: OG_LOCALE[locale as Locale] ?? OG_LOCALE.fr,
+      type: "website",
+      images: [{ url: img, ...(img === IMAGE_PARTAGE ? { width: 1200, height: 630 } : {}) }],
+    },
+    twitter: { card: "summary_large_image", title, description: desc, images: [img] },
+  };
+}
