@@ -7,7 +7,7 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
 | Date | Points | État |
 |---|---|---|
 | 2 octobre 2026 | P0-3, P0-6, P1-1, P1-2, P1-3, P1-4, P1-5, P1-6, P1-10 | Faits, déployés et mesurés en production, voir ci-dessous |
-| 2 octobre 2026 (2ᵉ lot) | P1-8, P1-9, P1-11, P1-12, P1-13, P1-15, P1-17 | Faits et vérifiés en local, déployés ; P1-14 attend une action dans Stripe |
+| 2 octobre 2026 (2ᵉ lot) | P1-8, P1-9, P1-11, P1-12, P1-13, P1-15, P1-17 | Faits, déployés et revérifiés en production ; P1-14 attend une action dans Stripe |
 
 **Fait le 2 octobre 2026, deuxième lot :**
 - **P1-8 Suggestions d'adresse** à la caisse des impressions :
@@ -28,7 +28,7 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
   | Page | Avant | Après |
   |---|---|---|
   | Collections | 16,9 écrans | 6,3 écrans |
-  | Fiche | 16,1 écrans | 12,2 écrans |
+  | Fiche | 16,1 écrans | 10,9 écrans (production) |
   | Article de blog | 22,4 écrans | 20,3 écrans |
 
   - Fiche : texte de l'univers replié (toujours présent dans la page pour Google), contact fusionné dans les questions, FAQ fermée et sans illustration sur mobile, fiches similaires en rail, bannière finale retirée.
