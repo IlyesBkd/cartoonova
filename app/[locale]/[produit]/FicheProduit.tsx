@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type ReactNode } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -29,6 +29,14 @@ import type { Decor, LegendeVisuel } from "@/lib/visuels";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { tailleImpression } from "@/lib/supportCommande";
 import { useRetourFerme } from "@/lib/useRetourFerme";
+import { saisonCartesEtCalendrier } from "@/lib/evenements";
+import "@/app/styles/options.css";
+
+/* La saison des options carte de voeux / calendrier se lit dans le navigateur :
+   la fiche est generee statiquement, une valeur calculee au build resterait
+   figee jusqu'au deploiement suivant. Cote serveur, rien ne s'affiche. */
+const pasDAbonnement = () => () => {};
+const saisonServeur = () => false;
 
 /* Le prix barre « -40 % » a disparu le 1er octobre 2026 : il affichait un prix
    de reference jamais pratique (le total divise par 0,6), ce que le droit de
@@ -92,6 +100,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const tDecor = useTranslations("product");
   const tDbz = useTranslations("dbz");
   const tAlt = useTranslations("alt");
+  const tGarantie = useTranslations("garantie");
   const lien = useLien();
   const { formatRaw: formatPrix, currency } = useCurrency();
   const {
@@ -132,6 +141,12 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const [decorSup, setDecorSup] = useState(false);
   const [indexDecorSup, setIndexDecorSup] = useState(1);
   const [express, setExpress] = useState(false);
+  /* Options numeriques de saison (F-6/F-7) : PDF envoyes par e-mail. */
+  const [carteVoeux, setCarteVoeux] = useState(false);
+  const [calendrier, setCalendrier] = useState(false);
+  const enSaison = useSyncExternalStore(pasDAbonnement, saisonCartesEtCalendrier, saisonServeur);
+  const carteVoeuxChoisie = enSaison && carteVoeux;
+  const calendrierChoisi = enSaison && calendrier;
   const [prix, setPrix] = useState<Prices | null>(null);
   const [caisseOuverte, setCaisseOuverte] = useState(false);
 
@@ -223,6 +238,8 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     banner: banderole,
     extraDecor: decorSupChoisi,
     express,
+    carteVoeux: carteVoeuxChoisie,
+    calendrier: calendrierChoisi,
   } as const;
   /* Livraison des impressions : ajoutee au total affiche, comme le serveur
      l'ajoute au montant paye. Le numerique n'en a pas. */
@@ -272,6 +289,8 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     banderole ? tp("optBanner") : null,
     decorSupChoisi ? tp("optExtraDecorRecap", { decor: libelleDecor(donnees.decors[indexSup]) }) : null,
     express ? tp("optExpressRecap") : null,
+    carteVoeuxChoisie ? tp("optCarteVoeux") : null,
+    calendrierChoisi ? tp("optCalendrier") : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -860,6 +879,31 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     </span>
                     <span className="option-payante__prix">+{formatPrix(prix.express)}</span>
                   </label>
+
+                  {/* Carte de voeux et calendrier 2027 : fichiers a imprimer,
+                      envoyes par e-mail avec le portrait. Du 1er octobre au
+                      31 janvier seulement (`saisonCartesEtCalendrier`). */}
+                  {enSaison && (
+                    <div className="options-saison">
+                      <p className="options-saison__titre">{tp("optSaisonTitre")}</p>
+                      <label className="option-payante">
+                        <input type="checkbox" checked={carteVoeux} onChange={(e) => setCarteVoeux(e.target.checked)} />
+                        <span className="option-payante__texte">
+                          <b>{tp("optCarteVoeux")}</b>
+                          <small>{tp("optCarteVoeuxSub")}</small>
+                        </span>
+                        <span className="option-payante__prix">+{formatPrix(prix.carteVoeux)}</span>
+                      </label>
+                      <label className="option-payante">
+                        <input type="checkbox" checked={calendrier} onChange={(e) => setCalendrier(e.target.checked)} />
+                        <span className="option-payante__texte">
+                          <b>{tp("optCalendrier")}</b>
+                          <small>{tp("optCalendrierSub")}</small>
+                        </span>
+                        <span className="option-payante__prix">+{formatPrix(prix.calendrier)}</span>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </Etape>
             )}
@@ -1022,7 +1066,12 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 et se reprend par retouches. */}
             <div className="garantie">
               <IconesTuile nom="bouclier" />
-              {support === "digital" ? t("garantieNumerique") : t("garantieImprime")}
+              <span>
+                {support === "digital" ? t("garantieNumerique") : t("garantieImprime")}{" "}
+                <Link href={lien("/garantie")} className="garantie__lien">
+                  {tGarantie("lienPied")}
+                </Link>
+              </span>
             </div>
             {/* Les cadeaux offerts : generes a partir du portrait final, sur la
                 page /bonus liee depuis l'e-mail de livraison. */}
@@ -1275,6 +1324,8 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             extraDecor: decorSupChoisi,
             extraDecorKey: decorSupChoisi ? donnees.decors[indexSup].cle : null,
             express,
+            carteVoeux: carteVoeuxChoisie,
+            calendrier: calendrierChoisi,
             shipping: port,
             total,
             description: descriptionCommande + (noteComplete ? ` | ${noteComplete}` : ""),

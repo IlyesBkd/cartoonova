@@ -137,6 +137,10 @@ export async function POST(req: NextRequest) {
       extraDecorKey:
         optionsPayees.has("extraDecor") && typeof extraDecorKey === "string" ? extraDecorKey.slice(0, 80) : null,
       express: optionsPayees.has("express"),
+      /* Options numeriques de saison : les PDF sont envoyes depuis l'admin
+         une fois le portrait final pret (`/api/orders/extras`). */
+      carteVoeux: optionsPayees.has("carteVoeux"),
+      calendrier: optionsPayees.has("calendrier"),
       shippingAmount: shippingAmount > 0 ? shippingAmount : undefined,
       gift: estCadeau ? cadeau : null,
       style: style || null,

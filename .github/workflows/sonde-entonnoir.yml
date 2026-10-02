@@ -24,10 +24,12 @@ name: Sonde d'entonnoir
 # Variables du tunnel VPS : voir `docs/migration-postgresql-vps.md`.
 
 on:
-  schedule:
-    # Lundi matin : la semaine complete qui vient de s'achever est mesurable,
-    # et Search Console a rattrape son retard de trois jours.
-    - cron: "0 8 * * 1"
+  # Planning coupe le 02/10/2026 : la tache tourne desormais sur le VPS
+  # (vps/crontab). Le declenchement manuel reste comme filet de secours.
+  # schedule:
+  #   # Lundi matin : la semaine complete qui vient de s'achever est mesurable,
+  #   # et Search Console a rattrape son retard de trois jours.
+  #   - cron: "0 8 * * 1"
   workflow_dispatch:
 
 concurrency:

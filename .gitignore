@@ -50,3 +50,8 @@ gcp-*.json
 # Le site ne lit que galerie/ et decors/ (voir lib/visuels.ts) — ces fichiers
 # sont des artefacts de travail, regenerables, et pesaient 18,7 Mo.
 public/catalogue/*/galerie-detouree/
+
+# Dossier de secrets local : jamais dans le depot.
+/.secrets/
+# Marqueurs crees par les hooks Claude quand le chemin Windows est mal echappe.
+*claude-notify-signals*

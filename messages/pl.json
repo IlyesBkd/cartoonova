@@ -107,7 +107,7 @@
     "q2": "Czy wszystkie osoby muszą być na jednym zdjęciu?",
     "a2": "Wcale nie. Prześlij osobne zdjęcia, a połączymy wszystkich w jednym kadrze.",
     "q3": "Co jeśli nie będę zadowolony?",
-    "a3": "Poprawiamy bez ograniczeń i bez dopłat, aż będziesz w pełni zadowolony.",
+    "a3": "Poprawiamy bez ograniczeń i bez dopłat. A jeśli nadal nie będziesz zadowolony, zwrócimy ci całą kwotę na zwykłą prośbę.",
     "q4": "Czy mój zwierzak też może trafić na portret?",
     "a4": "Oczywiście. Psy, koty, ptaki — każdy pupil może stać się postacią z rysunku.",
     "q5": "Czy można dorysować przedmioty albo tło?",
@@ -236,7 +236,7 @@
     "faqQ2": "Czy wszystkie osoby muszą być na jednym zdjęciu?",
     "faqA2": "Wcale nie. Prześlij osobne zdjęcia, a połączymy wszystkich w jednym kadrze.",
     "faqQ3": "Co jeśli nie będę zadowolony?",
-    "faqA3": "Poprawiamy bez ograniczeń i bez dopłat, aż będziesz w pełni zadowolony. Twoje zadowolenie jest najważniejsze.",
+    "faqA3": "Poprawiamy bez ograniczeń i bez dopłat, aż będziesz w pełni zadowolony. Jeśli nadal nie będziesz, zwrócimy ci całą kwotę na prośbę (przy produkcie drukowanym przed zatwierdzeniem podglądu).",
     "faqQ4": "Czy mój zwierzak też może zostać żółtą postacią?",
     "faqA4": "Oczywiście. Psy, koty, ptaki — każdy pupil może stać się żółtą postacią z kreskówki.",
     "faqQ5": "Czy można dorysować przedmioty?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Portret w 24 godziny, także w weekend",
     "optExpressSubPrint": "Rysunek w 24 godziny, także w weekend, potem druk",
     "optExpressRecap": "Ekspres 24 h",
-    "shippingLine": "w tym dostawa: {montant}"
+    "shippingLine": "w tym dostawa: {montant}",
+    "optSaisonTitre": "Na święta",
+    "optCarteVoeux": "Kartka z życzeniami do druku",
+    "optCarteVoeuxSub": "Twój portret na kartce „Wesołych Świąt i szczęśliwego Nowego Roku”, PDF A5 wysłany e-mailem",
+    "optCalendrier": "Kalendarz 2027 do druku",
+    "optCalendrierSub": "Twój portret na wszystkich 12 miesiącach 2027 roku, PDF A4 wysłany e-mailem"
   },
   "checkout": {
     "orderConfirmed": "Zamówienie potwierdzone",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Zobacz całe portfolio →",
     "whyUsTitle": "Dlaczego Cartoonova?",
     "whyUs1Title": "Gwarancja satysfakcji",
-    "whyUs1Desc": "Nieograniczone darmowe poprawki, aż będziesz w pełni zadowolony.",
+    "whyUs1Desc": "Nieograniczone darmowe poprawki i zwrot pieniędzy, jeśli nie będziesz przekonany.",
     "whyUs2Title": "Na zamówienie",
     "whyUs2Desc": "Każdy portret powstaje z Twoich zdjęć, tylko dla Ciebie.",
     "whyUs3Title": "Dostawa w 2 dni",
@@ -686,7 +691,7 @@
     "faqQ2": "Czy wszystkie osoby muszą być na jednym zdjęciu?",
     "faqA2": "Wcale nie. Prześlij osobne zdjęcia, a połączymy wszystkich w jednym kadrze.",
     "faqQ3": "Co jeśli nie będę zadowolony?",
-    "faqA3": "Poprawiamy bez ograniczeń i bez dopłat, aż będziesz w pełni zadowolony.",
+    "faqA3": "Poprawiamy bez ograniczeń i bez dopłat. A jeśli nadal nie będziesz zadowolony, zwrócimy ci całą kwotę na zwykłą prośbę.",
     "faqQ4": "Czy mój zwierzak też może trafić na portret?",
     "faqA4": "Oczywiście. Psy, koty, ptaki — każdy pupil może stać się postacią z rysunku.",
     "faqQ5": "Czy można dorysować przedmioty albo tło?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Jakie zdjęcie wysłać do portretu cartoon? | Cartoonova",
       "description": "Jakie zdjęcie do portretu cartoon? Dobre i złe przykłady, kilka osób, zwierzęta: tak, by portret był naprawdę podobny."
+    },
+    "garantie": {
+      "title": "Nasza gwarancja: poprawki i zwrot pieniędzy",
+      "description": "Nieograniczone darmowe poprawki, pełny zwrot pieniędzy, jeśli portret cartoon ci nie odpowiada, wymiana uszkodzonego wydruku: to obejmuje nasza gwarancja."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Podaruj kartę",
     "universTitre": "Najczęściej wybierane style",
     "universSous": "Każdy styl ma swoją świąteczną stronę: pomysły, przykłady i odpowiedzi o terminach.",
-    "faqTitre": "Twoje pytania o święta"
+    "faqTitre": "Twoje pytania o święta",
+    "extrasTitre": "Twoja kartka z życzeniami i kalendarz 2027",
+    "extrasSous": "Dwie opcje do zaznaczenia na stronie Twojego portretu. To pliki do druku: bez terminu wysyłki, dostajesz je e-mailem razem z rysunkiem.",
+    "extrasCarteTitre": "Kartka z życzeniami",
+    "extrasCarteTexte": "Twój portret z przodu, a pod nim „Wesołych Świąt i szczęśliwego Nowego Roku 2027”. PDF A5 do wydrukowania tyle razy, ile chcesz.",
+    "extrasCalendrierTitre": "Kalendarz 2027",
+    "extrasCalendrierTexte": "Okładka i 12 miesięcy z Twoim portretem. PDF A4 do wydruku w domu lub w drukarni."
   },
   "contactForm": {
     "nom": "Twoje imię",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Podgląd w 2 dni, wydruki wykonane i dostarczone w 3–7 dni roboczych. Przesyłka ze śledzeniem na cały świat.",
     "v4Titre": "Na całym świecie",
     "v4Texte": "Dostawa do ponad 50 krajów i wsparcie, które naprawdę odpowiada."
+  },
+  "garantie": {
+    "lienPied": "Nasza gwarancja",
+    "surtitre": "Nasza gwarancja",
+    "titre": "Nie ryzykujesz",
+    "accent": "niczym",
+    "sous": "Twój portret powstaje na zamówienie, a płacisz, zanim go zobaczysz. Dlatego obiecujemy: poprawki bez ograniczeń, aż ci się spodoba, i pełny zwrot pieniędzy, jeśli nadal nie będziesz przekonany.",
+    "bloc1Titre": "Poprawki bez ograniczeń",
+    "bloc1Texte": "Podobieństwo, kolory, szczegóły: poprawiamy twój portret za darmo tyle razy, ile trzeba, aż ci się spodoba.",
+    "bloc2Titre": "Zwrot pieniędzy, jeśli nie jesteś przekonany",
+    "bloc2Texte": "Jeśli po poprawkach portret nadal ci nie odpowiada, zwracamy całą kwotę na zwykłą prośbę.",
+    "bloc3Titre": "Uszkodzony wydruk",
+    "bloc3Texte": "Wydrukowany produkt dotarł uszkodzony lub niezgodny z zamówieniem? Zgłoś to w ciągu 14 dni od otrzymania: wymiana lub zwrot pieniędzy, do wyboru.",
+    "bloc4Titre": "Jak zgłosić",
+    "bloc4Texte": "Napisz na support@cartoonova.com, podając numer zamówienia. Odpowiadamy w ciągu 24 godzin, od poniedziałku do piątku.",
+    "ctaTitre": "Gotowy, by zacząć?",
+    "ctaTexte": "Wybierz styl, wyślij zdjęcie: resztą zajmiemy się my, a gwarancja obejmuje każde zamówienie.",
+    "ctaBouton": "Zobacz style",
+    "lienCgv": "Przeczytaj pełne warunki w naszym regulaminie",
+    "faqTitre": "Pytania o gwarancję",
+    "faq1Q": "O ile poprawek mogę poprosić?",
+    "faq1R": "O tyle, ile potrzebujesz, za darmo. Poprawki obejmują rozsądne zmiany (podobieństwo, kolory, szczegóły), a nie całkowitą zmianę stylu czy kompozycji.",
+    "faq2Q": "A jeśli portret nadal mi się nie podoba?",
+    "faq2R": "Wtedy zwracamy całą zapłaconą kwotę, na zwykłą prośbę wysłaną na support@cartoonova.com. Zwrot trafia na metodę płatności użytą przy zamówieniu, w ciągu 14 dni od zaakceptowania prośby.",
+    "faq3Q": "Zamówiłem produkt drukowany: co się zmienia?",
+    "faq3R": "Jeśli chcesz zwrotu pieniędzy, poproś o niego przed zatwierdzeniem podglądu: po zatwierdzeniu ruszamy z drukiem. Jeśli wydruk dotrze uszkodzony lub niezgodny z zamówieniem, zgłoś to w ciągu 14 dni od otrzymania, a wymienimy go lub zwrócimy pieniądze.",
+    "faq4Q": "Czy mogę anulować zamówienie?",
+    "faq4R": "Twój portret to praca na zamówienie: prawo odstąpienia od umowy nie przysługuje po rozpoczęciu rysowania. Nadal chronią cię nieograniczone poprawki i gwarancja zwrotu pieniędzy.",
+    "faq5Q": "Jak złożyć prośbę i jak szybko odpowiadacie?",
+    "faq5R": "Napisz na support@cartoonova.com, podając numer zamówienia i krótki opis. Odpowiadamy w ciągu 24 godzin, od poniedziałku do piątku."
+  },
+  "portfolio": {
+    "intro": "Na każdym obrazku oryginalne zdjęcie obok portretu narysowanego na jego podstawie. Wybierz styl i wyobraź sobie swój.",
+    "filtresLabel": "Filtruj według rodziny stylów",
+    "alt": "Oryginalne zdjęcie i portret {univers} narysowany na jego podstawie",
+    "ceStyle": "Ten styl",
+    "voirStyle": "Zobacz styl {univers}"
   }
 }

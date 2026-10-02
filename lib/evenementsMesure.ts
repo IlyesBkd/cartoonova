@@ -73,12 +73,12 @@ export const MESURES = {
   /** Photos deposees APRES paiement, par le lien signe.
       Mesure serveur : c'est elle qui dira quelle part des clients revient
       deposer, et au bout de combien de temps — donc si la relance a J+1 est
-      trop tot, trop tard, ou inutile. */
+      trop tot, trop tard, ou inutile.
+      DOUBLE COMPTE VOULU : aussi emis par la page de depot cote navigateur
+      (`source: "page_depot"`). Pour compter les depots, filtrer sur
+      `$lib = posthog-node` (serveur, toujours present) ; la version
+      navigateur ne sert qu'a relier le depot a la session. */
   photosDeposees: "photos_submitted",
-  /** Clic sur « commander » alors qu'aucune photo n'a ete deposee. Le
-      formulaire refuse et renvoie a l'etape d'envoi — c'est un blocage, pas
-      une erreur du client. */
-  achatBloqueSansPhoto: "purchase_blocked_no_photo",
   /** Clic sur le bouton d'achat. `emplacement` distingue le bouton principal
       de la barre collante : les 5 000 px de sections qui suivent la fiche
       n'ont d'interet que si cette barre convertit. */
@@ -110,7 +110,11 @@ export const MESURES = {
   promoRefuse: "promo_code_rejected",
   /** Paiement lance — carte ou portefeuille. */
   paiementLance: "payment_initiated",
-  /** Paiement refuse par Stripe. */
+  /** Paiement refuse par Stripe.
+      DOUBLE COMPTE VOULU : emis par la caisse (navigateur, avec `method`) et
+      par le webhook Stripe (serveur, avec le code de refus de la banque). Le
+      second voit aussi les refus apres redirection 3-D Secure ; pour un
+      total, filtrer sur `$lib = posthog-node`. */
   paiementEchoue: "payment_error",
   /** Fermeture de la caisse sans avoir paye, avec l'etape atteinte. C'est le
       seul evenement qui distingue « parti a l'etape adresse » de « parti
@@ -122,8 +126,9 @@ export const MESURES = {
   /** Commande enregistree en PENDING, avant la confirmation du paiement.
       Emis cote serveur. */
   commandeCreee: "order_created",
-  /** Achat confirme. Emis cote serveur au passage en PAID, et cote client sur
-      la page de succes — voir `lib/analyticsServeur.ts` pour la raison. */
+  /** Achat confirme. Emis UNIQUEMENT cote serveur, au passage en PAID
+      (`lib/finaliserCommande.ts`). La page de succes ne l'envoie pas : une
+      seule source, donc pas de double compte a dedoublonner. */
   achatConfirme: "purchase_completed",
   /** Remboursement, total ou partiel. Emis par le webhook Stripe.
       Sans lui le chiffre d'affaires mesure reste brut a vie : un portrait

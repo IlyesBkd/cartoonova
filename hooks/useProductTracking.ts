@@ -122,15 +122,6 @@ export function useProductTracking(config: ProductConfig) {
     [base]
   );
 
-  /** Clic sur « commander » sans photo : le formulaire refuse et renvoie a
-      l'etape d'envoi. */
-  const trackPurchaseBlocked = useCallback(
-    (emplacement: "principal" | "barre_collante") => {
-      mesure(MESURES.achatBloqueSansPhoto, { ...base(), placement: emplacement });
-    },
-    [base]
-  );
-
   /** Clic sur le bouton d'achat. La barre collante est un ajout recent : sans
       cette distinction, rien ne dit si elle sert. */
   const trackBuyClicked = useCallback(
@@ -159,7 +150,6 @@ export function useProductTracking(config: ProductConfig) {
     trackPhotoUploadStarted,
     trackPhotoUploaded,
     trackPhotoUploadFailed,
-    trackPurchaseBlocked,
     trackBuyClicked,
     trackCheckoutStarted,
   };

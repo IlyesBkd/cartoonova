@@ -2090,6 +2090,29 @@
 .suivi__aide p { margin: 0; color: var(--encre-doux); }
 .suivi__aide a { color: var(--accent-texte-petit); font-weight: 700; }
 
+/* Ce que le client doit faire : encadre et teinte, pour qu'il le voie avant
+   la liste d'etapes. La retouche, purement informative, reste plus discrete. */
+.suivi__action {
+  border: 2px solid var(--soleil); border-radius: var(--rayon);
+  background: var(--soleil-pale); padding: 20px;
+}
+.suivi__action > p { color: var(--encre); }
+.suivi__action .bouton { justify-self: start; }
+.suivi__action--info { border-color: var(--encre-voile); background: var(--papier); }
+.suivi__action .suivi__message {
+  margin: 0; padding: 14px 16px; border-radius: var(--rayon);
+  background: var(--soleil-pale); font-size: 14.5px; line-height: 1.5;
+  white-space: pre-line; overflow-wrap: anywhere;
+}
+.suivi__action .suivi__message span {
+  display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--encre-doux); margin-bottom: 6px;
+}
+@media (max-width: 560px) {
+  .suivi__action { padding: 16px; }
+  .suivi__action .bouton { justify-self: stretch; text-align: center; }
+}
+
 /* ---------- contenu propre a la fiche produit ----------
    Le seul bloc que les trente-six fiches ne partagent pas. Colonne de lecture
    etroite : c'est du texte long, pas de la mise en avant. */

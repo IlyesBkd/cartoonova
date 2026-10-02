@@ -210,6 +210,9 @@ export interface OrderOptions {
   extraDecorKey?: string | null;
   /** Dessin promis sous 24 h, week-end compris. */
   express?: boolean;
+  /** Options numeriques de saison : carte de voeux et calendrier 2027 en PDF (F-6/F-7). */
+  carteVoeux?: boolean;
+  calendrier?: boolean;
   /** Livraison facturee (impressions), lue sur le PaymentIntent. Absente avant le 2 octobre 2026. */
   shippingAmount?: number;
 }
@@ -1058,6 +1061,8 @@ async function ensurePricesSchema(): Promise<void> {
       banner: DEFAULT_PRICE_SET.banner,
       extraDecor: DEFAULT_PRICE_SET.extraDecor,
       express: DEFAULT_PRICE_SET.express,
+      carteVoeux: DEFAULT_PRICE_SET.carteVoeux,
+      calendrier: DEFAULT_PRICE_SET.calendrier,
       shipping: DEFAULT_PRICE_SET.shipping,
     };
     const scale = (rate: number): PriceSet =>

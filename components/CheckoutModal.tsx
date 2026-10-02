@@ -41,6 +41,9 @@ interface OrderConfig {
   /** Cle du second decor, pour l'illustrateur (null sans l'option). */
   extraDecorKey: string | null;
   express: boolean;
+  /** Options numeriques de saison (carte de voeux, calendrier 2027). Facultatives : absentes = non choisies. */
+  carteVoeux?: boolean;
+  calendrier?: boolean;
   /** Livraison comprise dans `total` (impressions seulement), pour la montrer a part. */
   shipping: number;
   total: number;
@@ -73,6 +76,8 @@ const pricingPayload = (orderConfig: OrderConfig) => ({
   banner: orderConfig.banner,
   extraDecor: orderConfig.extraDecor,
   express: orderConfig.express,
+  carteVoeux: orderConfig.carteVoeux === true,
+  calendrier: orderConfig.calendrier === true,
 });
 
 /** Options cadeau saisies a l'etape 1. */

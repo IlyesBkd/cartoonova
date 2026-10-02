@@ -107,7 +107,7 @@
     "q2": "As pessoas têm de estar na mesma foto?",
     "a2": "Nada disso. Envia fotos separadas e juntamos toda a gente na mesma imagem.",
     "q3": "E se eu não ficar satisfeito?",
-    "a3": "Fazemos retoques ilimitados e grátis até ficares completamente satisfeito.",
+    "a3": "Fazemos retoques ilimitados e grátis. E se continuares sem ficar satisfeito, reembolsamos-te o valor total. Basta pedires.",
     "q4": "O meu animal também pode entrar?",
     "a4": "Claro. Cães, gatos, pássaros — qualquer animal pode virar personagem.",
     "q5": "Também podem desenhar objectos ou cenários?",
@@ -236,7 +236,7 @@
     "faqQ2": "As pessoas têm de estar na mesma foto?",
     "faqA2": "Nada disso. Envia fotos separadas e juntamos toda a gente na mesma imagem.",
     "faqQ3": "E se eu não ficar satisfeito?",
-    "faqA3": "Fazemos retoques ilimitados e grátis até ficares completamente satisfeito. A tua satisfação vem primeiro.",
+    "faqA3": "Fazemos retoques ilimitados e grátis até ficares completamente satisfeito. Se mesmo assim não ficares, reembolsamos-te o valor total a pedido (num produto impresso, antes de aprovares a pré-visualização).",
     "faqQ4": "O meu animal também pode virar personagem amarela?",
     "faqA4": "Claro. Cães, gatos, pássaros — qualquer animal pode virar personagem amarela.",
     "faqQ5": "Também podem desenhar objectos?",
@@ -353,7 +353,12 @@
     "optExpressSub": "O teu retrato em 24 horas, fins de semana incluídos",
     "optExpressSubPrint": "Desenho em 24 horas, fins de semana incluídos, depois a impressão",
     "optExpressRecap": "Expresso 24 h",
-    "shippingLine": "envio incluído: {montant}"
+    "shippingLine": "envio incluído: {montant}",
+    "optSaisonTitre": "Para as festas",
+    "optCarteVoeux": "Cartão de boas festas para imprimir",
+    "optCarteVoeuxSub": "O teu retrato num cartão «Feliz Natal e um feliz ano novo», PDF A5 enviado por e-mail",
+    "optCalendrier": "Calendário 2027 para imprimir",
+    "optCalendrierSub": "O teu retrato nos 12 meses de 2027, PDF A4 enviado por e-mail"
   },
   "checkout": {
     "orderConfirmed": "Encomenda confirmada",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Ver o portefólio completo →",
     "whyUsTitle": "Porquê a Cartoonova?",
     "whyUs1Title": "Satisfação garantida",
-    "whyUs1Desc": "Retoques ilimitados e grátis até ficares completamente satisfeito.",
+    "whyUs1Desc": "Retoques ilimitados e grátis, e reembolso se não ficares convencido.",
     "whyUs2Title": "Feito à medida",
     "whyUs2Desc": "Cada retrato é criado a partir das tuas fotos, só para ti.",
     "whyUs3Title": "Entrega em 2 dias",
@@ -686,7 +691,7 @@
     "faqQ2": "As pessoas têm de estar na mesma foto?",
     "faqA2": "Nada disso. Envia fotos separadas e juntamos toda a gente na mesma imagem.",
     "faqQ3": "E se eu não ficar satisfeito?",
-    "faqA3": "Fazemos retoques ilimitados e grátis até ficares completamente satisfeito.",
+    "faqA3": "Fazemos retoques ilimitados e grátis. E se continuares sem ficar satisfeito, reembolsamos-te o valor total. Basta pedires.",
     "faqQ4": "O meu animal também pode entrar?",
     "faqA4": "Claro. Cães, gatos, pássaros — qualquer animal pode virar personagem.",
     "faqQ5": "Também podem desenhar objectos ou cenários?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Que foto enviar para um retrato cartoon? | Cartoonova",
       "description": "Rosto visível, de frente, boa luz, foto nítida: as nossas dicas para escolher a foto do teu retrato cartoon personalizado, e os erros a evitar."
+    },
+    "garantie": {
+      "title": "A nossa garantia: retoques e reembolso",
+      "description": "Retoques ilimitados e grátis, reembolso total se o teu retrato cartoon não te convencer, troca de uma impressão danificada: tudo o que a garantia cobre."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Oferecer um vale",
     "universTitre": "Os estilos mais oferecidos",
     "universSous": "Cada estilo tem a sua página de Natal: ideias, exemplos e respostas sobre prazos.",
-    "faqTitre": "As tuas perguntas sobre o Natal"
+    "faqTitre": "As tuas perguntas sobre o Natal",
+    "extrasTitre": "O teu cartão de boas festas e o teu calendário 2027",
+    "extrasSous": "Duas opções para assinalar na página do teu retrato. São ficheiros para imprimir: sem prazo de envio, recebes-os por e-mail com o teu desenho.",
+    "extrasCarteTitre": "Cartão de boas festas",
+    "extrasCarteTexte": "O teu retrato à frente e «Feliz Natal e um feliz 2027» por baixo. Um PDF A5 para imprimir as vezes que quiseres.",
+    "extrasCalendrierTitre": "Calendário 2027",
+    "extrasCalendrierTexte": "Uma capa e 12 meses com o teu retrato. Um PDF A4 para imprimir em casa ou numa gráfica."
   },
   "contactForm": {
     "nom": "O teu nome",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Pré-visualização em 2 dias, impressões produzidas e entregues em 3 a 7 dias úteis. Envio com seguimento para todo o mundo.",
     "v4Titre": "Em todo o mundo",
     "v4Texte": "Entregamos em mais de 50 países, com um apoio que responde mesmo."
+  },
+  "garantie": {
+    "lienPied": "A nossa garantia",
+    "surtitre": "A nossa garantia",
+    "titre": "Não corres",
+    "accent": "qualquer risco",
+    "sous": "O teu retrato é feito por medida e pagas antes de o veres. Por isso comprometemo-nos: retoques ilimitados até gostares, e reembolso total se continuares sem estar convencido.",
+    "bloc1Titre": "Retoques ilimitados",
+    "bloc1Texte": "Semelhança, cores, detalhes: retocamos o teu retrato grátis quantas vezes for preciso, até gostares.",
+    "bloc2Titre": "Reembolsado se não ficares convencido",
+    "bloc2Texte": "Se, depois dos retoques, o retrato continuar a não te convencer, devolvemos-te o valor total. Basta pedires.",
+    "bloc3Titre": "Impressão danificada",
+    "bloc3Texte": "O teu produto impresso chegou danificado ou não conforme? Avisa-nos nos 14 dias seguintes à receção: troca ou reembolso, tu escolhes.",
+    "bloc4Titre": "Como pedir",
+    "bloc4Texte": "Envia um email para support@cartoonova.com com o teu número de encomenda. Respondemos em 24 h, de segunda a sexta.",
+    "ctaTitre": "Pronto para começar?",
+    "ctaTexte": "Escolhe o teu estilo, envia a tua foto: nós tratamos do resto, e a garantia cobre cada encomenda.",
+    "ctaBouton": "Ver os estilos",
+    "lienCgv": "Lê as condições completas nas nossas condições gerais de venda",
+    "faqTitre": "Perguntas sobre a garantia",
+    "faq1Q": "Quantos retoques posso pedir?",
+    "faq1R": "Todos os que precisares, grátis. Os retoques cobrem ajustes razoáveis (semelhança, cores, detalhes), não uma mudança completa de estilo ou de composição.",
+    "faq2Q": "E se continuar a não gostar do retrato?",
+    "faq2R": "Reembolsamos-te o preço total pago, basta pedires para support@cartoonova.com. O reembolso é feito no meio de pagamento usado, no prazo de 14 dias após o pedido validado.",
+    "faq3Q": "Encomendei um produto impresso: o que muda?",
+    "faq3R": "Se quiseres um reembolso, pede-o antes de aprovares a pré-visualização: depois de aprovada, a impressão arranca. Se a impressão chegar danificada ou não conforme, avisa-nos nos 14 dias seguintes à receção para uma troca ou um reembolso.",
+    "faq4Q": "Posso cancelar a minha encomenda?",
+    "faq4R": "O teu retrato é uma criação por medida: o direito de livre resolução deixa de se aplicar quando o desenho começa. Continuas coberto pelos retoques ilimitados e pela garantia de reembolso.",
+    "faq5Q": "Como faço um pedido e em quanto tempo respondem?",
+    "faq5R": "Envia um email para support@cartoonova.com com o teu número de encomenda e uma breve descrição. Respondemos em 24 h, de segunda a sexta."
+  },
+  "portfolio": {
+    "intro": "Em cada imagem, a foto original ao lado do retrato desenhado a partir dela. Escolhe um estilo e imagina o teu.",
+    "filtresLabel": "Filtrar por família de estilos",
+    "alt": "Foto original e o retrato {univers} desenhado a partir dela",
+    "ceStyle": "Este estilo",
+    "voirStyle": "Ver o estilo {univers}"
   }
 }

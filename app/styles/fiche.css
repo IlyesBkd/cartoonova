@@ -122,3 +122,7 @@
 
 /* Cases des options payantes : 24 px, la taille minimale d'une cible tactile. */
 .option-payante input { width: 24px; height: 24px; }
+
+/* Lien vers la page Garantie, sous le bouton d'achat : discret, mais
+   souligne pour qu'on le reconnaisse comme un lien. */
+.garantie__lien { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }

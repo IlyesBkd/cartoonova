@@ -67,6 +67,8 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
                 ${opts.banner ? `<li>${oc.banner}</li>` : ""}
                 ${opts.extraDecor ? `<li>${oc.extraDecor}</li>` : ""}
                 ${opts.express ? `<li>⚡ ${oc.express}</li>` : ""}
+                ${opts.carteVoeux ? `<li>${oc.carteVoeux}</li>` : ""}
+                ${opts.calendrier ? `<li>${oc.calendrier}</li>` : ""}
                 ${opts.shippingAmount ? `<li>${oc.shipping}: ${opts.shippingAmount} ${order.currency}</li>` : ""}
                 <li>${t.total}: ${order.total_price} ${order.currency}</li>
               </ul>
@@ -148,7 +150,7 @@ async function notifierEquipe(order: DbOrder): Promise<void> {
       },
       { name: "🖼️ Option", value: opts.printOption, inline: true },
       { name: "💰 Total", value: `${order.total_price} ${order.currency}`, inline: true },
-      ...(opts.banner || opts.extraDecor || opts.express
+      ...(opts.banner || opts.extraDecor || opts.express || opts.carteVoeux || opts.calendrier
         ? [
             {
               name: "➕ Options payées",
@@ -156,6 +158,8 @@ async function notifierEquipe(order: DbOrder): Promise<void> {
                 opts.express ? "⚡ Express 24 h (week-end compris)" : null,
                 opts.banner ? "🎀 Banderole / texte (voir la consigne)" : null,
                 opts.extraDecor ? `🏞️ Décor supplémentaire : ${opts.extraDecorKey ?? "?"}` : null,
+                opts.carteVoeux ? "💌 Carte de vœux PDF (bouton dans l'admin, après le portrait final)" : null,
+                opts.calendrier ? "📅 Calendrier 2027 PDF (bouton dans l'admin, après le portrait final)" : null,
               ]
                 .filter(Boolean)
                 .join("\n"),

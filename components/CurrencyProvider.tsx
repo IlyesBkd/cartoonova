@@ -51,6 +51,10 @@ export default function CurrencyProvider({
   useEffect(() => {
     const cookieCurrency = getCookie(CURRENCY_COOKIE);
     if (cookieCurrency && currencies.includes(cookieCurrency as Currency)) {
+      /* Voulu : les pages sont statiques, le cookie de devise ne se lit
+         qu'apres l'hydratation. Le lire pendant le rendu ferait diverger le
+         HTML serveur et le client. */
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrencyState(cookieCurrency as Currency);
     } else {
       setCurrencyState(defaultCurrency);

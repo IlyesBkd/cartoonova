@@ -109,6 +109,28 @@ const CLES_IDENTITE = [
   "alias",
 ];
 
+/** Cookie pose par `/api/admin/auth` sur le navigateur de l'admin. */
+export const COOKIE_INTERNE = "cn_interne";
+
+/**
+ * Trafic qui ne vient pas d'un client : robots d'audit (Playwright, Chrome
+ * sans tete, Lighthouse), developpement local, et le navigateur de l'admin.
+ * Au 30/09/2026, ces visites pesaient plus que les vraies dans les
+ * entonnoirs : avec 0 a 2 commandes par mois, quelques passages de test
+ * suffisaient a fausser chaque taux.
+ */
+function traficInterne(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (navigator.webdriver) return true;
+    if (/HeadlessChrome|Lighthouse|Chrome-Lighthouse|PTST/i.test(navigator.userAgent)) return true;
+    if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return true;
+    return document.cookie.split("; ").includes(`${COOKIE_INTERNE}=1`);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Dernier filet avant l'envoi. Il s'applique a TOUS les evenements, y compris
  * ceux que PostHog genere lui-meme — `$autocapture`, `$exception`,
@@ -120,6 +142,7 @@ const CLES_IDENTITE = [
    deux clients sous une meme identite. Elle ne merite pas de rester hors de
    portee d'une verification. */
 export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResult | null {
+  if (traficInterne()) return null;
   if (!evenement?.properties) return evenement;
 
   for (const [cle, valeur] of Object.entries(evenement.properties)) {

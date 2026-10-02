@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { PrintKey } from "./pricing";
+import { CATALOGUE_EN_LIGNE } from "./catalogue";
 import { VERSION_VISUELS } from "./versionVisuels";
 
 /**
@@ -33,9 +34,10 @@ export interface Decor {
  * Les visuels deposes viennent de montages dont le titre etait incruste en
  * francais. Le titre est detoure par `scripts/detoure-bandeaux.mjs` et rendu
  * ici en texte : il se traduit alors avec le reste du site, au lieu d'exiger
- * une image par langue. Le rang du fichier donne le role, le gabarit d'origine
- * etant constant : 1 transformation, 2 impression, 3 encadrement, puis les
- * portraits clients, qui n'ont pas de titre.
+ * une image par langue. Dans le gabarit complet, le rang du fichier donne le
+ * role : 1 transformation, 2 impression, 3 encadrement, puis les portraits
+ * clients, qui n'ont pas de titre. Toutes les galeries importees ne suivent pas
+ * ce gabarit : voir `AVANT_APRES_EN_TETE` plus bas.
  */
 export type LegendeVisuel = "transformation" | "impression" | "cadre";
 
@@ -282,6 +284,67 @@ function decorDepuisFichier(chemin: string, rang: number): Decor {
   return { src: chemin, cle: mots.charAt(0).toUpperCase() + mots.slice(1), numero: rang };
 }
 
+/**
+ * Les galeries importees ne suivent pas toutes le meme gabarit. Verifie a
+ * l'oeil, fichier par fichier, le 2 octobre 2026.
+ *
+ * Gabarit complet (`AVANT_APRES_EN_TETE`) : 01 montage photo d'origine + dessin
+ * encadre, 02 tirage papier en situation, 03 trois cadres en situation, puis
+ * des portraits clients. C'est le seul gabarit auquel `LEGENDES_PAR_RANG`
+ * s'applique.
+ *
+ * Gabarit court (`AVANT_APRES_EN_DEUXIEME`) : 01 portrait encadre, 02 montage
+ * « Photo -> Portrait » (ou « Avant / Apres »), puis d'autres portraits
+ * encadres. Il n'y a ni tirage papier ni mise en situation.
+ *
+ * Tout le reste (Aquaman, Black Panther, Superman, Stranger Things) : rien que
+ * des portraits finis, aucune photo d'origine.
+ *
+ * Avant cette distinction, le rang seul decidait : le premier visuel de CHAQUE
+ * galerie importee etait annonce « Transforme-toi en … » alors qu'il ne
+ * montrait souvent qu'un cadre, et un vrai avant/apres en deuxieme position
+ * etait annonce « Imprime en France, sur papier A3 ».
+ */
+const AVANT_APRES_EN_TETE = new Set([
+  "carte-pokemon-personnalisee",
+  "affiche-manga-style",
+  "portrait-attaque-des-titans-personnalise",
+  "portrait-bleach-personnalise",
+  "portrait-demon-slayer-personnalise",
+  "portrait-hunter-x-hunter-personnalise",
+  "portrait-jujutsu-kaisen-personnalise",
+  "portrait-naruto-personnalise",
+  "portrait-lego-personnalise",
+  "portrait-playmobil-personnalise",
+  "portrait-south-park-personnalise",
+  "portrait-spiderman-personnalise",
+  "portrait-tim-burton-personnalise",
+  "portrait-tintin-personnalise",
+]);
+
+const AVANT_APRES_EN_DEUXIEME = new Set([
+  "affiche-deadpool-personnalisee",
+  "affiche-joker-personnalisee",
+  "affiche-wonderwoman-personnalisee",
+  "portrait-adventure-time-personnalise",
+  "portrait-batman-personnalise",
+  "portrait-death-note-personnalise",
+  "portrait-family-guy-personnalise",
+  "portrait-futurama-personnalise",
+  "portrait-harry-potter-personnalise",
+  "portrait-indestructibles-personnalise",
+  "portrait-snoopy-personnalise",
+  "portrait-star-wars-personnalise",
+]);
+
+function legendesDeposees(slug: string, nombre: number): (LegendeVisuel | null)[] {
+  return Array.from({ length: nombre }, (_, i) => {
+    if (AVANT_APRES_EN_TETE.has(slug)) return LEGENDES_PAR_RANG[i] ?? null;
+    if (AVANT_APRES_EN_DEUXIEME.has(slug) && i === 1) return "transformation";
+    return null;
+  });
+}
+
 export function visuelsProduit(slug: string): VisuelsProduit {
   const livres = VISUELS_LIVRES[slug];
 
@@ -294,13 +357,10 @@ export function visuelsProduit(slug: string): VisuelsProduit {
   // Seuls les visuels deposes viennent des montages a titre incruste : les
   // photos produit de Cartoonova n'ont jamais eu de texte a detourer. Leur
   // montage avant/apres, quand il existe, prend le titre « transformation ».
-  const legendes = galerie.map((_, i) =>
-    deposee
-      ? LEGENDES_PAR_RANG[i] ?? null
-      : i === 0 && livres?.avantApres
-        ? ("transformation" as const)
-        : null
-  );
+  // Un visuel sans titre est compte parmi les photos de clients (FicheProduit).
+  const legendes = deposee
+    ? legendesDeposees(slug, galerie.length)
+    : galerie.map((_, i) => (i === 0 && livres?.avantApres ? ("transformation" as const) : null));
 
   const decors: Decor[] =
     decorsDeposes.length > 0
@@ -312,7 +372,46 @@ export function visuelsProduit(slug: string): VisuelsProduit {
     (src) => opaques.find((o) => nomSansExtension(o) === nomSansExtension(src)) ?? src
   );
 
-  return { galerie, partage, legendes, decors, supports: livres?.supports ?? SUPPORTS_DEFAUT };
+  return { galerie, partage, legendes, decors, supports: livres?.supports ?? supportsDeposes(slug, galerieDeposee) };
+}
+
+/**
+ * Vignettes des supports pour une fiche importee.
+ *
+ * Les visuels generiques (`/poster.png`, `/framed.jpg`) montrent un dessin
+ * Simpson : sur la fiche Naruto, le choix « poster » ou « encadre »
+ * illustrait donc un autre univers. Le gabarit complet contient deja le bon
+ * visuel — 02 tirage papier en situation, 03 cadres en situation — et on le
+ * reprend quand le fichier est la. Le fichier numerique et la toile n'ont pas
+ * d'equivalent dans ces galeries : ils gardent le visuel generique.
+ *
+ * Reserve au gabarit complet : dans le gabarit court, 02 est le montage
+ * avant/apres et non un tirage.
+ */
+function supportsDeposes(slug: string, galerie: string[]): Record<PrintKey, string> {
+  if (!AVANT_APRES_EN_TETE.has(slug)) return SUPPORTS_DEFAUT;
+  const rang = (nom: string) => galerie.find((src) => nomSansExtension(src) === nom);
+  return {
+    ...SUPPORTS_DEFAUT,
+    posterSimple: rang("02") ?? SUPPORTS_DEFAUT.posterSimple,
+    framed: rang("03") ?? SUPPORTS_DEFAUT.framed,
+  };
+}
+
+/**
+ * Montages avant/apres reels, un par univers, pour la page portfolio.
+ *
+ * Derive des legendes : un univers n'y figure que si un visuel de sa galerie
+ * est titre « transformation », c'est-a-dire un montage qui existe et montre
+ * la photo d'origine a cote du dessin. Aucun n'est fabrique. Ordre : celui du
+ * catalogue en ligne (produit phare en tete).
+ */
+export function galerieAvantApres(): { slug: string; image: string }[] {
+  return CATALOGUE_EN_LIGNE.flatMap(({ slug }) => {
+    const { galerie, legendes } = visuelsProduit(slug);
+    const i = legendes.indexOf("transformation");
+    return i >= 0 ? [{ slug, image: galerie[i] }] : [];
+  });
 }
 
 /** `/catalogue/x/galerie/01.webp?v=3` -> `01` */

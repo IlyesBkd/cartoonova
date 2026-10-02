@@ -107,7 +107,7 @@
     "q2": "Müssen die Personen auf dem gleichen Foto sein?",
     "a2": "Überhaupt nicht! Schick uns Einzelfotos, wir bringen alle in einem Bild zusammen.",
     "q3": "Was passiert, wenn ich nicht zufrieden bin?",
-    "a3": "Unbegrenzte kostenlose Korrekturen, bis du rundum zufrieden bist!",
+    "a3": "Unbegrenzte kostenlose Korrekturen. Und bist du dann immer noch nicht zufrieden, erstatten wir dir den vollen Betrag, auf einfache Anfrage!",
     "q4": "Kann mein Haustier auch ein Cartoon werden?",
     "a4": "Absolut! Hunde, Katzen, Vögel — wir können jedes geliebte Haustier in eine Cartoon-Figur verwandeln.",
     "q5": "Können auch Objekte oder Szenen gezeichnet werden?",
@@ -236,7 +236,7 @@
     "faqQ2": "Müssen alle Personen auf demselben Foto sein?",
     "faqA2": "Überhaupt nicht! Schick uns Einzelfotos, wir bringen alle in einem Bild zusammen.",
     "faqQ3": "Was passiert, wenn ich nicht zufrieden bin?",
-    "faqA3": "Unbegrenzte kostenlose Korrekturen, bis du rundum zufrieden bist. Dein Glück ist unsere Priorität!",
+    "faqA3": "Unbegrenzte kostenlose Korrekturen, bis du rundum zufrieden bist. Passt es trotzdem nicht, erstatten wir dir auf Anfrage den vollen Betrag (bei Druckprodukten vor Freigabe der Vorschau).",
     "faqQ4": "Kann mein Haustier auch gelb werden?",
     "faqA4": "Absolut! Hunde, Katzen, Vögel — wir können jedes geliebte Haustier in eine gelbe Cartoon-Figur verwandeln.",
     "faqQ5": "Kann ich auch Objekte zeichnen lassen?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Dein Porträt in 24 Stunden, auch am Wochenende",
     "optExpressSubPrint": "Zeichnung in 24 Stunden, auch am Wochenende, danach der Druck",
     "optExpressRecap": "Express 24 Std.",
-    "shippingLine": "inkl. Versand: {montant}"
+    "shippingLine": "inkl. Versand: {montant}",
+    "optSaisonTitre": "Für die Feiertage",
+    "optCarteVoeux": "Grußkarte zum Ausdrucken",
+    "optCarteVoeuxSub": "Dein Porträt als Karte „Frohe Weihnachten und ein gutes neues Jahr“, A5-PDF per E-Mail",
+    "optCalendrier": "Kalender 2027 zum Ausdrucken",
+    "optCalendrierSub": "Dein Porträt auf allen 12 Monaten 2027, A4-PDF per E-Mail"
   },
   "checkout": {
     "orderConfirmed": "Bestellung bestätigt",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Ganzes Portfolio ansehen →",
     "whyUsTitle": "Warum Cartoonova?",
     "whyUs1Title": "Zufriedenheitsgarantie",
-    "whyUs1Desc": "Unbegrenzte kostenlose Korrekturen, bis du rundum zufrieden bist!",
+    "whyUs1Desc": "Unbegrenzte kostenlose Korrekturen, und Geld zurück, wenn du nicht überzeugt bist!",
     "whyUs2Title": "Maßgeschneidert",
     "whyUs2Desc": "Jedes Porträt entsteht nach deinen Fotos, nur für dich.",
     "whyUs3Title": "Lieferung in 2 Tagen",
@@ -686,7 +691,7 @@
     "faqQ2": "Müssen die Personen auf dem gleichen Foto sein?",
     "faqA2": "Überhaupt nicht! Schick uns Einzelfotos, wir bringen alle zusammen.",
     "faqQ3": "Was passiert, wenn ich nicht zufrieden bin?",
-    "faqA3": "Unbegrenzte kostenlose Korrekturen, bis du rundum zufrieden bist!",
+    "faqA3": "Unbegrenzte kostenlose Korrekturen. Und bist du dann immer noch nicht zufrieden, erstatten wir dir den vollen Betrag, auf einfache Anfrage!",
     "faqQ4": "Kann mein Haustier auch ein Cartoon werden?",
     "faqA4": "Absolut! Hunde, Katzen, Vögel — wir verwandeln jedes Haustier in eine Cartoon-Figur.",
     "faqQ5": "Können Objekte oder Hintergründe gezeichnet werden?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Welches Foto für ein Cartoon-Porträt schicken? | Cartoonova",
       "description": "Welches Foto für ein Cartoon-Porträt? Gute und schlechte Beispiele, mehrere Personen, Haustiere: so wird dein Porträt dir wirklich ähnlich."
+    },
+    "garantie": {
+      "title": "Unsere Garantie: Korrekturen und Erstattung",
+      "description": "Unbegrenzte kostenlose Korrekturen, volle Erstattung, wenn dein Cartoon-Porträt nicht passt, Umtausch bei beschädigtem Druck: das deckt unsere Garantie ab."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Gutschein verschenken",
     "universTitre": "Die beliebtesten Stile",
     "universSous": "Jeder Stil hat seine Weihnachtsseite: Ideen, Beispiele und Antworten zu den Fristen.",
-    "faqTitre": "Deine Fragen zu Weihnachten"
+    "faqTitre": "Deine Fragen zu Weihnachten",
+    "extrasTitre": "Deine Grußkarte und dein Kalender 2027",
+    "extrasSous": "Zwei Optionen, die du auf der Seite deines Porträts ankreuzen kannst. Es sind Dateien zum Ausdrucken: keine Versandfrist, du bekommst sie per E-Mail mit deiner Zeichnung.",
+    "extrasCarteTitre": "Grußkarte",
+    "extrasCarteTexte": "Vorne dein Porträt, darunter „Frohe Weihnachten und ein gutes neues Jahr 2027“. Ein A5-PDF, das du so oft drucken kannst, wie du willst.",
+    "extrasCalendrierTitre": "Kalender 2027",
+    "extrasCalendrierTexte": "Ein Deckblatt und 12 Monate mit deinem Porträt. Ein A4-PDF zum Drucken zu Hause oder in der Druckerei."
   },
   "contactForm": {
     "nom": "Dein Name",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Vorschau in 2 Tagen, Drucke in 3 bis 7 Werktagen hergestellt und geliefert. Versand mit Sendungsverfolgung weltweit.",
     "v4Titre": "Weltweit",
     "v4Texte": "Lieferung in mehr als 50 Länder, und ein Support, der wirklich antwortet."
+  },
+  "garantie": {
+    "lienPied": "Unsere Garantie",
+    "surtitre": "Unsere Garantie",
+    "titre": "Du gehst",
+    "accent": "kein Risiko ein",
+    "sous": "Dein Porträt wird individuell gezeichnet, und du bezahlst, bevor du es gesehen hast. Deshalb versprechen wir: unbegrenzte Korrekturen, bis es dir gefällt, und volle Erstattung, wenn du trotzdem nicht überzeugt bist.",
+    "bloc1Titre": "Unbegrenzte Korrekturen",
+    "bloc1Texte": "Ähnlichkeit, Farben, Details: Wir überarbeiten dein Porträt kostenlos, so oft es nötig ist, bis es dir gefällt.",
+    "bloc2Titre": "Geld zurück, wenn du nicht überzeugt bist",
+    "bloc2Texte": "Passt das Porträt nach den Korrekturen immer noch nicht, erstatten wir dir den vollen Betrag, auf einfache Anfrage.",
+    "bloc3Titre": "Beschädigter Druck",
+    "bloc3Texte": "Dein Druckprodukt kam beschädigt oder fehlerhaft an? Melde es innerhalb von 14 Tagen nach Erhalt: Umtausch oder Erstattung, du entscheidest.",
+    "bloc4Titre": "So stellst du eine Anfrage",
+    "bloc4Texte": "Eine E-Mail an support@cartoonova.com mit deiner Bestellnummer. Wir antworten innerhalb von 24 Stunden, Montag bis Freitag.",
+    "ctaTitre": "Bereit loszulegen?",
+    "ctaTexte": "Wähle deinen Stil, schick uns dein Foto: Um den Rest kümmern wir uns, und die Garantie gilt für jede Bestellung.",
+    "ctaBouton": "Stile ansehen",
+    "lienCgv": "Alle Bedingungen in unseren AGB lesen",
+    "faqTitre": "Fragen zur Garantie",
+    "faq1Q": "Wie viele Korrekturen kann ich anfragen?",
+    "faq1R": "So viele du brauchst, kostenlos. Korrekturen umfassen angemessene Anpassungen (Ähnlichkeit, Farben, Details), aber keinen kompletten Wechsel von Stil oder Komposition.",
+    "faq2Q": "Und wenn mir das Porträt immer noch nicht gefällt?",
+    "faq2R": "Dann erstatten wir dir den vollen Kaufpreis, auf einfache Anfrage an support@cartoonova.com. Die Erstattung erfolgt über dein ursprüngliches Zahlungsmittel, innerhalb von 14 Tagen nach bestätigter Anfrage.",
+    "faq3Q": "Ich habe ein Druckprodukt bestellt: Was ändert sich?",
+    "faq3R": "Wenn du eine Erstattung möchtest, fordere sie an, bevor du die Vorschau freigibst: Nach der Freigabe geht der Druck los. Kommt der Druck beschädigt oder fehlerhaft an, melde dich innerhalb von 14 Tagen nach Erhalt für Umtausch oder Erstattung.",
+    "faq4Q": "Kann ich meine Bestellung stornieren?",
+    "faq4R": "Dein Porträt ist eine Maßanfertigung: Das Widerrufsrecht gilt nicht mehr, sobald die Zeichnung begonnen hat. Du bist aber weiterhin durch die unbegrenzten Korrekturen und die Erstattungsgarantie abgesichert.",
+    "faq5Q": "Wie stelle ich eine Anfrage, und wie schnell antwortet ihr?",
+    "faq5R": "Schreib an support@cartoonova.com mit deiner Bestellnummer und einer kurzen Beschreibung. Wir antworten innerhalb von 24 Stunden, Montag bis Freitag."
+  },
+  "portfolio": {
+    "intro": "Jedes Bild zeigt das Originalfoto neben dem Porträt, das danach gezeichnet wurde. Wähl einen Stil und stell dir deins vor.",
+    "filtresLabel": "Nach Stilfamilie filtern",
+    "alt": "Originalfoto und das danach gezeichnete {univers}-Porträt",
+    "ceStyle": "Dieser Stil",
+    "voirStyle": "Den {univers}-Stil ansehen"
   }
 }

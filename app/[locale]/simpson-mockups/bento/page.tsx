@@ -131,6 +131,8 @@ export default function Page() {
 
   useEffect(() => {
     if (prevTotalRef.current !== null && prevTotalRef.current !== total) {
+      // Maquette : animation declenchee par le changement de prix, voulue ici.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPricePulse(true);
       const t = setTimeout(() => setPricePulse(false), 380);
       return () => clearTimeout(t);

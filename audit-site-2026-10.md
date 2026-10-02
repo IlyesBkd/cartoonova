@@ -9,6 +9,40 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
 | 2 octobre 2026 | P0-3, P0-6, P1-1, P1-2, P1-3, P1-4, P1-5, P1-6, P1-10 | Faits, déployés et mesurés en production, voir ci-dessous |
 | 2 octobre 2026 (2ᵉ lot) | P1-8, P1-9, P1-11, P1-12, P1-13, P1-15, P1-17 | Faits, déployés et revérifiés en production ; P1-14 attend une action dans Stripe |
 | 2 octobre 2026 (lot SEO) | S-1 à S-8 | Faits, vérifiés sur un build de production local ; L-1 à L-4 à faire relire |
+| 2 octobre 2026 (lot exploitation et contenu) | O-1 à O-4, P2-2, P2-3, C-4, C-12, G-4, G-5, F-6, F-7, H-1 | Faits, vérifiés sur un build de production local (Playwright) ; restes à ta charge listés ci-dessous |
+
+**Fait le 2 octobre 2026, lot exploitation et contenu :**
+- **O-1 En-têtes de sécurité** sur toutes les pages : nosniff, Referrer-Policy, X-Frame-Options, HSTS, Permissions-Policy (paiement autorisé pour Stripe).
+  - CSP en **Report-Only** : elle ne bloque rien et envoie ce qu'elle aurait bloqué à `/api/csp` (journaux Vercel + un résumé Discord par heure au plus).
+  - Parcours testé jusqu'au formulaire de carte Stripe : une seule violation trouvée (`ad.doubleclick.net`, Google Ads), origine ajoutée.
+  - **À faire dans 1 à 2 semaines :** si Discord ne signale plus rien de légitime, passer l'en-tête en `Content-Security-Policy` (bloquant) dans `next.config.ts`.
+- **O-2 Bascule vers le VPS faite.** Nuit du 01 au 02/10 complète dans `ge_job_runs` ; seuls échecs : crédits OpenAI et Perplexity épuisés (P0-7), qui touchaient GitHub pareil. Plannings GitHub commentés (fiches, moteur de contenu, sonde entonnoir), déclenchement manuel gardé en secours. Voir `vps/README.md`.
+  - **Nouveau : disque du VPS plein à 96 %** (92 Go sur 96). À libérer avant qu'une tâche ou PostgreSQL ne tombe.
+  - Note : `blog-seo` journalise une erreur PostgreSQL `index_create` mais sort en code 0, à regarder.
+- **O-3** Fichiers morts retirés (mis de côté hors du dépôt), `.secrets/` et les marqueurs des hooks Claude ignorés par git.
+- **O-4** Vérification à chaque push sur main (`.github/workflows/verification.yml`) : types (`next typegen` + `tsc`) et lint (erreurs seulement) sur le code du site. 4 erreurs de lint existantes corrigées ; `portable-content-publisher` (outil à part, configuration pm2 en CommonJS) reste hors du lint.
+- **P2-2 / P2-3 Page de suivi :** une carte « Ce qu'il te reste à faire » en tête : envoyer ses photos, valider son aperçu, ou « Retouche demandée le …, nouvel aperçu sous 24 h » avec la note du client. L'étape « Commande reçue » ne parle plus de photos reçues quand il n'y en a pas. 10 langues.
+- **C-12 / G-4 Portfolio avant/après :** 31 paires photo d'origine → portrait (6 univers d'origine + 25 fiches importées vérifiées image par image), filtre par famille, lien « Ce style » vers chaque fiche.
+  - Bug de légende corrigé : 12 fiches légendaient « Transforme-toi » une image qui n'était pas l'avant/après (et l'avant/après « Imprimé en France »), 4 autres portaient des légendes sans rapport avec leurs images.
+- **C-4** Fiches importées complètes (14) : les vignettes « poster » et « encadré » montrent leurs propres photos en situation au lieu des vignettes Simpson.
+- **G-5 Page « Garantie »** (`/garantie`, 10 langues) : retouches illimitées, remboursement intégral sur demande (avant validation de l'aperçu pour un imprimé), impression abîmée sous 14 jours, délai de remboursement, FAQ. Liens depuis le pied de page et sous le bouton d'achat. Les réponses de FAQ qui oubliaient le remboursement sont corrigées.
+- **F-6 / F-7 Carte de vœux (+4 €) et calendrier 2027 (+9 €)**, en fichiers PDF à imprimer :
+  - options visibles sur la fiche du 1er octobre au 31 janvier (le serveur les ignore hors saison), présentées sur la page Noël ; prix modifiables dans l'admin ;
+  - livraison : dans l'admin, bouton « Envoyer carte / calendrier » sur la commande, une fois le portrait final déposé. Il génère les PDF (carte A5 recto verso, calendrier A4 de 13 pages) dans la langue du client et les lui envoie par e-mail. Chaque clic renvoie un e-mail : ne cliquer qu'une fois.
+  - **Bug corrigé au passage :** le forfait de livraison saisi dans l'admin n'était jamais enregistré.
+- **H-1 PostHog :**
+  - code : événement mort retiré, doubles comptes documentés (`photos_submitted`, `payment_error` : filtrer sur `$lib = posthog-node` pour un total) ; robots, localhost et navigateur de l'admin (cookie posé à la connexion admin) ne sont plus mesurés ;
+  - compte : 8 anciens événements masqués (réversible) ; filtre « trafic interne » complété (robots sans tête) et coché par défaut.
+
+**Restes à ta charge (pas de code) :**
+- **P2-4** une vraie commande test par mois ; **C-7** vraies réactions de clients ; **H-2** regarder les enregistrements des sessions qui ouvrent la caisse.
+- **F-5 / F-8** objets et vraie carte Pokémon : il faut d'abord un fournisseur (l'imprimeur réel n'est pas clair non plus : « Optimal Print » dans l'admin, Gelato dans le script de coûts).
+- **C-4 suite** : vraies photos de toile et de cadre en situation pour les 6 univers d'origine.
+- **Images importées :** l'agent qui a refait le portfolio signale que les galeries importées viendraient du catalogue cartoontoi.fr, et que certaines photos « avant » ressemblent à des photos de banque d'images. Si ce ne sont pas tes images, c'est un risque de droits d'auteur, désormais plus visible sur le portfolio. Le texte du portfolio ne parle donc pas de « vrais clients ».
+- **CSP bloquante** dans 1 à 2 semaines (voir O-1).
+- **Hooks Claude** : dans `~/.claude/settings.json` (lignes 66, 85, 127), écrire le chemin du `touch` avec des `/` (`C:/Users/ilyee/.claude/claude-notify-signals/...`) ; avec des `\`, il crée des fichiers au nom cassé dans le projet.
+- **Clé SSH** de ce PC sur le VPS : à retirer quand tu ne veux plus que j'y accède (`ssh ubuntu@57.129.155.13` puis supprimer la ligne correspondante dans `~/.ssh/authorized_keys`).
+- **Disque du VPS à 96 %** (voir O-2).
 
 **Fait le 2 octobre 2026, deuxième lot :**
 - **P1-8 Suggestions d'adresse** à la caisse des impressions :

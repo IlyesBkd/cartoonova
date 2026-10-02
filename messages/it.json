@@ -107,7 +107,7 @@
     "q2": "Le persone devono essere nella stessa foto?",
     "a2": "Assolutamente no! Inviaci foto individuali e riuniremo tutti in un'unica immagine.",
     "q3": "Cosa succede se non sono soddisfatto/a?",
-    "a3": "Offriamo revisioni illimitate e gratuite fino alla tua completa soddisfazione!",
+    "a3": "Offriamo revisioni illimitate e gratuite. E se il ritratto non ti convince ancora, ti rimborsiamo per intero, basta chiederlo!",
     "q4": "Il mio animale domestico può diventare un cartoon?",
     "a4": "Assolutamente! Cani, gatti, uccelli — possiamo trasformare qualsiasi animale in un personaggio cartoon.",
     "q5": "Posso anche far disegnare oggetti o scenari?",
@@ -236,7 +236,7 @@
     "faqQ2": "Le persone devono essere tutte nella stessa foto?",
     "faqA2": "Assolutamente no! Inviaci foto individuali e riuniremo tutti in un'unica immagine.",
     "faqQ3": "Cosa succede se non sono soddisfatto/a?",
-    "faqA3": "Offriamo revisioni illimitate e gratuite fino alla tua completa soddisfazione. La tua felicità è la nostra priorità!",
+    "faqA3": "Offriamo revisioni illimitate e gratuite fino alla tua completa soddisfazione. Se non ti convince ancora, ti rimborsiamo per intero su richiesta (per un prodotto stampato, prima di approvare l'anteprima).",
     "faqQ4": "Il mio animale domestico può diventare giallo?",
     "faqA4": "Assolutamente! Cani, gatti, uccelli — possiamo trasformare qualsiasi animale in un personaggio cartoon giallo.",
     "faqQ5": "Posso anche far disegnare degli oggetti?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Il tuo ritratto entro 24 ore, weekend compreso",
     "optExpressSubPrint": "Disegno entro 24 ore, weekend compreso, poi la stampa",
     "optExpressRecap": "Express 24 h",
-    "shippingLine": "spedizione inclusa: {montant}"
+    "shippingLine": "spedizione inclusa: {montant}",
+    "optSaisonTitre": "Per le feste",
+    "optCarteVoeux": "Biglietto di auguri da stampare",
+    "optCarteVoeuxSub": "Il tuo ritratto su un biglietto «Buon Natale e felice anno nuovo», PDF A5 inviato via e-mail",
+    "optCalendrier": "Calendario 2027 da stampare",
+    "optCalendrierSub": "Il tuo ritratto su tutti i 12 mesi del 2027, PDF A4 inviato via e-mail"
   },
   "checkout": {
     "orderConfirmed": "Ordine confermato",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Vedi tutto il portfolio →",
     "whyUsTitle": "Perché Cartoonova?",
     "whyUs1Title": "Soddisfazione garantita",
-    "whyUs1Desc": "Revisioni illimitate e gratuite fino alla tua completa soddisfazione!",
+    "whyUs1Desc": "Revisioni illimitate e gratuite, e rimborso se non sei convinto/a!",
     "whyUs2Title": "Su misura",
     "whyUs2Desc": "Ogni ritratto nasce dalle tue foto, solo per te.",
     "whyUs3Title": "Consegna in 2 giorni",
@@ -686,7 +691,7 @@
     "faqQ2": "Le persone devono essere nella stessa foto?",
     "faqA2": "Per niente! Inviaci foto individuali e riuniremo tutti insieme.",
     "faqQ3": "Cosa succede se non sono soddisfatto/a?",
-    "faqA3": "Offriamo revisioni illimitate e gratuite fino alla tua completa soddisfazione!",
+    "faqA3": "Offriamo revisioni illimitate e gratuite. E se non sei ancora soddisfatto/a, ti rimborsiamo per intero, basta chiederlo!",
     "faqQ4": "Il mio animale può diventare un cartoon?",
     "faqA4": "Assolutamente! Cani, gatti, uccelli — trasformiamo qualsiasi animale in personaggio cartoon.",
     "faqQ5": "Si possono disegnare oggetti o sfondi?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Quale foto inviare per un ritratto cartoon? | Cartoonova",
       "description": "Viso visibile, di fronte, buona luce, foto nitida: i nostri consigli per scegliere la foto del tuo ritratto cartoon personalizzato, e gli errori da evitare."
+    },
+    "garantie": {
+      "title": "La nostra garanzia: revisioni e rimborso",
+      "description": "Revisioni illimitate e gratuite, rimborso completo se il tuo ritratto cartoon non ti convince, sostituzione di una stampa danneggiata: la nostra garanzia."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Regala una carta regalo",
     "universTitre": "Gli stili più regalati",
     "universSous": "Ogni stile ha la sua pagina di Natale: idee, esempi e risposte sui tempi.",
-    "faqTitre": "Le tue domande sul Natale"
+    "faqTitre": "Le tue domande sul Natale",
+    "extrasTitre": "Il tuo biglietto di auguri e il tuo calendario 2027",
+    "extrasSous": "Due opzioni da spuntare nella pagina del tuo ritratto. Sono file da stampare: nessun limite di spedizione, li ricevi via e-mail insieme al disegno.",
+    "extrasCarteTitre": "Biglietto di auguri",
+    "extrasCarteTexte": "Il tuo ritratto davanti e «Buon Natale e felice 2027» sotto. Un PDF A5 da stampare tutte le volte che vuoi.",
+    "extrasCalendrierTitre": "Calendario 2027",
+    "extrasCalendrierTexte": "Una copertina e 12 mesi con il tuo ritratto. Un PDF A4 da stampare a casa o in copisteria."
   },
   "contactForm": {
     "nom": "Il tuo nome",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Anteprima in 2 giorni, stampe prodotte e consegnate in 3-7 giorni lavorativi. Spedizione tracciata in tutto il mondo.",
     "v4Titre": "In tutto il mondo",
     "v4Texte": "Consegniamo in più di 50 paesi, con un supporto che risponde davvero."
+  },
+  "garantie": {
+    "lienPied": "La nostra garanzia",
+    "surtitre": "La nostra garanzia",
+    "titre": "Non corri",
+    "accent": "nessun rischio",
+    "sous": "Il tuo ritratto è fatto su misura e lo paghi prima di vederlo. Per questo ci impegniamo: revisioni illimitate finché non ti piace, e rimborso completo se non sei ancora convinto/a.",
+    "bloc1Titre": "Revisioni illimitate",
+    "bloc1Texte": "Somiglianza, colori, dettagli: ritocchiamo il tuo ritratto gratis tutte le volte che serve, finché non ti piace.",
+    "bloc2Titre": "Rimborsato se non sei convinto/a",
+    "bloc2Texte": "Se dopo le revisioni il ritratto non ti convince ancora, ti rimborsiamo l'intero importo, su semplice richiesta.",
+    "bloc3Titre": "Stampa danneggiata",
+    "bloc3Texte": "Il tuo prodotto stampato è arrivato danneggiato o non conforme? Segnalacelo entro 14 giorni dalla ricezione: sostituzione o rimborso, scegli tu.",
+    "bloc4Titre": "Come fare richiesta",
+    "bloc4Texte": "Scrivi a support@cartoonova.com con il tuo numero d'ordine. Ti rispondiamo entro 24 ore, dal lunedì al venerdì.",
+    "ctaTitre": "Pronto/a a iniziare?",
+    "ctaTexte": "Scegli il tuo stile, invia la tua foto: al resto pensiamo noi, e la garanzia vale per ogni ordine.",
+    "ctaBouton": "Scopri gli stili",
+    "lienCgv": "Leggi le condizioni complete nelle nostre condizioni generali",
+    "faqTitre": "Domande sulla garanzia",
+    "faq1Q": "Quante revisioni posso chiedere?",
+    "faq1R": "Tutte quelle che ti servono, gratis. Le revisioni riguardano modifiche ragionevoli (somiglianza, colori, dettagli), non un cambio completo di stile o di composizione.",
+    "faq2Q": "E se il ritratto continua a non piacermi?",
+    "faq2R": "Ti rimborsiamo l'intero prezzo pagato, su semplice richiesta a support@cartoonova.com. Il rimborso avviene sul metodo di pagamento usato, entro 14 giorni dalla richiesta convalidata.",
+    "faq3Q": "Ho ordinato un prodotto stampato: cosa cambia?",
+    "faq3R": "Se vuoi un rimborso, chiedilo prima di approvare l'anteprima: una volta approvata, parte la stampa. Se la stampa arriva danneggiata o non conforme, segnalacelo entro 14 giorni dalla ricezione per una sostituzione o un rimborso.",
+    "faq4Q": "Posso annullare il mio ordine?",
+    "faq4R": "Il tuo ritratto è una creazione su misura: il diritto di recesso non si applica più una volta iniziato il disegno. Resti comunque coperto/a dalle revisioni illimitate e dalla garanzia di rimborso.",
+    "faq5Q": "Come faccio una richiesta e in quanto tempo rispondete?",
+    "faq5R": "Scrivi a support@cartoonova.com con il tuo numero d'ordine e una breve descrizione. Ti rispondiamo entro 24 ore, dal lunedì al venerdì."
+  },
+  "portfolio": {
+    "intro": "In ogni immagine, la foto di partenza accanto al ritratto disegnato a partire da essa. Scegli uno stile e immagina il tuo.",
+    "filtresLabel": "Filtra per famiglia di stili",
+    "alt": "Foto originale e il ritratto {univers} disegnato a partire da essa",
+    "ceStyle": "Questo stile",
+    "voirStyle": "Vedi lo stile {univers}"
   }
 }

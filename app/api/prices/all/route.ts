@@ -10,7 +10,10 @@ export const dynamic = "force-dynamic";
 const PRICE_FIELDS: (keyof PriceSet)[] = [
   "base", "fullbodyExtra", "extraPerson", "extraAnimal",
   "digital", "canvas", "poster", "posterSimple",
-  "banner", "extraDecor", "express",
+  "banner", "extraDecor", "express", "carteVoeux", "calendrier",
+  /* La livraison manquait ici : la valeur saisie dans l'admin etait ecartee a
+     la validation, et la grille enregistree ne la contenait jamais. */
+  "shipping",
 ];
 
 function checkAuth(req: Request): NextResponse | null {

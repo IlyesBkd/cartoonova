@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { bonusLiens, getLangFromCountry, orderTrackingPage } from "@/lib/email-i18n";
-import { etapeAtteinte, etapesDeLaCommande } from "@/lib/etapesSuivi";
+import { etapeAtteinte, etapesDeLaCommande, prochaineAction } from "@/lib/etapesSuivi";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 
@@ -57,7 +57,14 @@ export default async function SuiviPage({
   const ordre = etapesDeLaCommande(order);
   const indexCourant = ordre.indexOf(courante);
   const photos = Array.isArray(order.photo_urls) ? order.photo_urls.length : 0;
-  const date = new Date(order.created_at).toLocaleDateString(lang, {
+  const action = prochaineAction(order);
+  const dateRetouche =
+    action?.type === "retouche" && action.le
+      ? new Intl.DateTimeFormat(lang, { dateStyle: "long", timeZone: "Europe/Paris" }).format(
+          new Date(action.le)
+        )
+      : null;
+  const date =new Date(order.created_at).toLocaleDateString(lang, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -88,6 +95,38 @@ export default async function SuiviPage({
           <p>{t.passedOn(date)}</p>
         </header>
 
+        {/* ─── Ce qui attend le client ───
+            En tete, avant les etapes : c'est la seule chose de la page qui
+            depend de lui. Le jeton de suivi ouvre aussi la page de depot. */}
+        {action && action.type !== "retouche" && (
+          <section className="suivi__bloc suivi__action">
+            <h2>{t.actionTitre}</h2>
+            <p>{action.type === "photos" ? t.actionPhotosTexte : t.actionApercuTexte}</p>
+            <a
+              href={
+                action.type === "photos"
+                  ? `/depot/${encodeURIComponent(token)}`
+                  : `/confirm-poster/${encodeURIComponent(order.poster_confirmation_token ?? "")}`
+              }
+              className="bouton bouton--primaire"
+            >
+              {action.type === "photos" ? t.actionPhotosBouton : t.actionApercuBouton}
+            </a>
+          </section>
+        )}
+        {action?.type === "retouche" && (
+          <section className="suivi__bloc suivi__action suivi__action--info">
+            <h2>{t.retoucheTitre(dateRetouche)}</h2>
+            <p>{t.retoucheTexte}</p>
+            {action.note && (
+              <blockquote className="suivi__message">
+                <span>{t.retoucheNote}</span>
+                {action.note}
+              </blockquote>
+            )}
+          </section>
+        )}
+
         {/* ─── Avancement ─── */}
         <ol className="suivi__etapes">
           {ordre.map((cle, i) => {
@@ -97,7 +136,7 @@ export default async function SuiviPage({
                 <span className="suivi__puce" aria-hidden="true" />
                 <div>
                   <b>{t.steps[cle].title}</b>
-                  <p>{t.steps[cle].body}</p>
+                  <p>{cle === "recue" && action?.type === "photos" ? t.recueSansPhotos : t.steps[cle].body}</p>
                   {cle === "expediee" && courante === "expediee" && order.suivi_url && order.suivi_url.startsWith("http") && (
                     <a href={order.suivi_url} className="bouton bouton--primaire" target="_blank" rel="noopener noreferrer">
                       {t.trackParcel}

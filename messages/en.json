@@ -107,7 +107,7 @@
     "q2": "Do people need to be in the same photo?",
     "a2": "Not at all! Send us individual photos and we'll bring everyone together in one image.",
     "q3": "What happens if I'm not satisfied?",
-    "a3": "We offer unlimited free revisions until you are completely satisfied!",
+    "a3": "We offer unlimited free revisions. And if the portrait still isn't right, we refund you in full. Just ask!",
     "q4": "Can my pet also become a cartoon?",
     "a4": "Absolutely! Dogs, cats, birds — we can transform any beloved pet into a cartoon character.",
     "q5": "Can I also have objects or settings drawn?",
@@ -236,7 +236,7 @@
     "faqQ2": "Do all people need to be in the same photo?",
     "faqA2": "Not at all! Send us individual photos and we'll bring everyone together in one image.",
     "faqQ3": "What happens if I'm not satisfied?",
-    "faqA3": "We offer unlimited free revisions until your complete satisfaction. Your happiness is our priority!",
+    "faqA3": "We offer unlimited free revisions until your complete satisfaction. If it's still not right, we refund you in full on request (for printed products, before you approve the preview).",
     "faqQ4": "Can my pet also become a yellow cartoon?",
     "faqA4": "Absolutely! Dogs, cats, birds — we can transform any beloved pet into a yellow cartoon character.",
     "faqQ5": "Can I also have objects drawn?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Your portrait delivered within 24 hours, weekends included",
     "optExpressSubPrint": "Drawing delivered within 24 hours, weekends included, then printing",
     "optExpressRecap": "24-hour express",
-    "shippingLine": "incl. shipping: {montant}"
+    "shippingLine": "incl. shipping: {montant}",
+    "optSaisonTitre": "For the holidays",
+    "optCarteVoeux": "Printable greeting card",
+    "optCarteVoeuxSub": "Your portrait as a \"Merry Christmas and Happy New Year\" card, A5 PDF sent by email",
+    "optCalendrier": "Printable 2027 calendar",
+    "optCalendrierSub": "Your portrait on all 12 months of 2027, A4 PDF sent by email"
   },
   "checkout": {
     "orderConfirmed": "Order confirmed",
@@ -659,7 +664,7 @@
     "viewPortfolio": "View full portfolio →",
     "whyUsTitle": "Why Cartoonova?",
     "whyUs1Title": "Satisfaction guaranteed",
-    "whyUs1Desc": "Unlimited free revisions until you're completely satisfied!",
+    "whyUs1Desc": "Unlimited free revisions, and a full refund if you're not convinced!",
     "whyUs2Title": "Made to order",
     "whyUs2Desc": "Every portrait is made from your photos, for you alone.",
     "whyUs3Title": "2-day delivery",
@@ -686,7 +691,7 @@
     "faqQ2": "Do the people need to be in the same photo?",
     "faqA2": "Not at all! Send us individual photos and we'll bring everyone together.",
     "faqQ3": "What happens if I'm not satisfied?",
-    "faqA3": "We offer unlimited free revisions until you're completely satisfied!",
+    "faqA3": "We offer unlimited free revisions. And if you're still not happy, we refund you in full. Just ask!",
     "faqQ4": "Can my pet also become a cartoon?",
     "faqA4": "Absolutely! Dogs, cats, birds — we transform any pet into a cartoon character.",
     "faqQ5": "Can I have objects or backgrounds drawn?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Which photo should I send for a cartoon portrait? | Cartoonova",
       "description": "Visible face, front-facing, good light, sharp photo: our tips for choosing the photo for your custom cartoon portrait, plus the mistakes to avoid."
+    },
+    "garantie": {
+      "title": "Our guarantee: revisions and refunds",
+      "description": "Unlimited free revisions, a full refund if your cartoon portrait isn't right, a replacement for a damaged print: everything our guarantee covers."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Give a gift card",
     "universTitre": "The most gifted styles",
     "universSous": "Each style has its own Christmas page: ideas, examples and answers about timing.",
-    "faqTitre": "Your Christmas questions"
+    "faqTitre": "Your Christmas questions",
+    "extrasTitre": "Your greeting card and 2027 calendar",
+    "extrasSous": "Two options to tick on your portrait's page. They're printable files: no shipping deadline, you get them by email with your drawing.",
+    "extrasCarteTitre": "Greeting card",
+    "extrasCarteTexte": "Your portrait on the front, \"Merry Christmas and Happy New Year 2027\" below it. An A5 PDF to print as many times as you like.",
+    "extrasCalendrierTitre": "2027 calendar",
+    "extrasCalendrierTexte": "A cover and 12 months featuring your portrait. An A4 PDF to print at home or at a print shop."
   },
   "contactForm": {
     "nom": "Your name",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Preview in 2 days, prints made and delivered in 3 to 7 business days. Tracked shipping worldwide.",
     "v4Titre": "Worldwide",
     "v4Texte": "Delivered to more than 50 countries, with support that actually answers."
+  },
+  "garantie": {
+    "lienPied": "Our guarantee",
+    "surtitre": "Our guarantee",
+    "titre": "You take",
+    "accent": "zero risk",
+    "sous": "Your portrait is made to measure, and you pay before you've seen it. So here's our promise: unlimited revisions until you love it, and a full refund if you're still not convinced.",
+    "bloc1Titre": "Unlimited revisions",
+    "bloc1Texte": "Likeness, colours, details: we retouch your portrait for free as many times as it takes, until you love it.",
+    "bloc2Titre": "Refunded if you're not convinced",
+    "bloc2Texte": "If the portrait still isn't right after the revisions, we refund the full price. Just ask.",
+    "bloc3Titre": "Damaged print",
+    "bloc3Texte": "Did your printed product arrive damaged or not as ordered? Tell us within 14 days of delivery: replacement or refund, your choice.",
+    "bloc4Titre": "How to ask",
+    "bloc4Texte": "Email support@cartoonova.com with your order number. We reply within 24 hours, Monday to Friday.",
+    "ctaTitre": "Ready to get started?",
+    "ctaTexte": "Pick your style, send your photo: we handle the rest, and the guarantee covers every order.",
+    "ctaBouton": "See the styles",
+    "lienCgv": "Read the full terms in our T&Cs",
+    "faqTitre": "Questions about the guarantee",
+    "faq1Q": "How many revisions can I ask for?",
+    "faq1R": "As many as you need, free of charge. Revisions cover reasonable adjustments (likeness, colours, details), not a complete change of style or composition.",
+    "faq2Q": "What if I still don't like the portrait?",
+    "faq2R": "Then we refund the full price you paid, on simple request to support@cartoonova.com. The money goes back to your original payment method within 14 days of the validated request.",
+    "faq3Q": "I ordered a printed product: what changes?",
+    "faq3R": "If you want a refund, ask before approving the preview: once it's approved, printing starts. If the print arrives damaged or not as ordered, tell us within 14 days of delivery for a replacement or a refund.",
+    "faq4Q": "Can I cancel my order?",
+    "faq4R": "Your portrait is a custom creation, so the right of withdrawal no longer applies once the drawing has started. You're still covered by unlimited revisions and the refund guarantee.",
+    "faq5Q": "How do I make a request, and how fast do you reply?",
+    "faq5R": "Email support@cartoonova.com with your order number and a short description. We reply within 24 hours, Monday to Friday."
+  },
+  "portfolio": {
+    "intro": "Each image shows the original photo next to the portrait drawn from it. Pick a style and picture yours.",
+    "filtresLabel": "Filter by style family",
+    "alt": "Original photo and the {univers} portrait drawn from it",
+    "ceStyle": "This style",
+    "voirStyle": "See the {univers} style"
   }
 }

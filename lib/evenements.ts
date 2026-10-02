@@ -381,3 +381,16 @@ export function evenementAffiche(
     phase: actif.phase,
   };
 }
+
+/**
+ * Saison de la carte de voeux et du calendrier (options F-6/F-7) : du
+ * 1er octobre au 31 janvier inclus, a l'heure de Paris. Le mois est lu dans
+ * le fuseau de Paris plutot que dans celui du navigateur : un client a
+ * Montreal ou a Sydney voit la meme fenetre que la boutique.
+ */
+export function saisonCartesEtCalendrier(date: Date = new Date()): boolean {
+  const mois = Number(
+    new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Paris", month: "numeric" }).format(date)
+  );
+  return mois >= 10 || mois === 1;
+}

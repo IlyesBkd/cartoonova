@@ -11,6 +11,7 @@ import { vignetteProduit } from "@/lib/visuels";
 import { metadataPage, urlAbsolue } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 import { filAriane } from "@/lib/donneesStructurees";
+import "@/app/styles/options.css";
 
 /* La page Noel : les trois dates limites, le bon cadeau, et les univers les
    plus offerts, chacun vers sa page « portrait X pour Noel » deja existante.
@@ -106,6 +107,24 @@ export default async function NoelPage({ params }: { params: Promise<{ locale: s
                 )}
               </article>
             ))}
+          </div>
+
+          {/* Les deux options de saison (F-6/F-7), proposees sur chaque fiche
+              du 1er octobre au 31 janvier : des fichiers a imprimer, donc
+              aucune date limite d'expedition a tenir. */}
+          <div className="noel-extras">
+            <h2>{t("extrasTitre")}</h2>
+            <p className="noel-extras__sous">{t("extrasSous")}</p>
+            <div className="noel-extras__grille">
+              <article className="noel-extras__carte">
+                <h3>{t("extrasCarteTitre")}</h3>
+                <p>{t("extrasCarteTexte")}</p>
+              </article>
+              <article className="noel-extras__carte">
+                <h3>{t("extrasCalendrierTitre")}</h3>
+                <p>{t("extrasCalendrierTexte")}</p>
+              </article>
+            </div>
           </div>
         </div>
       </section>

@@ -1,0 +1,35 @@
+name: Verification
+
+# Vercel deploie chaque push sur main : une erreur de type ou de lint n'y est
+# vue qu'au build, apres coup. Ce controle la signale sur le commit lui-meme.
+# Pas de `next build` ici : il demanderait les secrets et la base.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # typegen ecrit next-env.d.ts et les types de routes (PageProps…), que
+      # le depot ne versionne pas : sans eux, tsc echoue sur un poste neuf.
+      - name: Types
+        run: npx next typegen && npx tsc --noEmit
+      # Le code du site seulement : portable-content-publisher est un outil a
+      # part, avec sa propre configuration pm2 en CommonJS.
+      - name: Lint (erreurs seulement)
+        run: npx eslint --quiet app components lib hooks actions i18n proxy.ts next.config.ts

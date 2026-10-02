@@ -107,7 +107,7 @@
     "q2": "Moeten alle personen op dezelfde foto staan?",
     "a2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in één beeld.",
     "q3": "Wat als ik niet tevreden ben?",
-    "a3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent.",
+    "a3": "Je krijgt onbeperkt gratis aanpassingen. En ben je dan nog steeds niet tevreden, dan krijg je je geld volledig terug, op eenvoudig verzoek.",
     "q4": "Kan mijn huisdier er ook op?",
     "a4": "Zeker. Honden, katten, vogels — elk huisdier kan mee als cartoonfiguur.",
     "q5": "Kunnen er ook voorwerpen of decors bij?",
@@ -236,7 +236,7 @@
     "faqQ2": "Moeten alle personen op dezelfde foto staan?",
     "faqA2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in één beeld.",
     "faqQ3": "Wat als ik niet tevreden ben?",
-    "faqA3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent. Jouw tevredenheid gaat voor.",
+    "faqA3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent. Lukt dat niet, dan krijg je op verzoek je geld volledig terug (bij een geprint product vóór je de preview goedkeurt).",
     "faqQ4": "Kan mijn huisdier ook een gele cartoonfiguur worden?",
     "faqA4": "Zeker. Honden, katten, vogels — elk huisdier kan mee als gele cartoonfiguur.",
     "faqQ5": "Kunnen er ook voorwerpen bij getekend worden?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Je portret binnen 24 uur, ook in het weekend",
     "optExpressSubPrint": "Tekening binnen 24 uur, ook in het weekend, daarna het drukken",
     "optExpressRecap": "Express 24 uur",
-    "shippingLine": "incl. verzending: {montant}"
+    "shippingLine": "incl. verzending: {montant}",
+    "optSaisonTitre": "Voor de feestdagen",
+    "optCarteVoeux": "Wenskaart om te printen",
+    "optCarteVoeuxSub": "Je portret als kaart „Vrolijk kerstfeest en een gelukkig nieuwjaar”, A5-pdf per e-mail",
+    "optCalendrier": "Kalender 2027 om te printen",
+    "optCalendrierSub": "Je portret op alle 12 maanden van 2027, A4-pdf per e-mail"
   },
   "checkout": {
     "orderConfirmed": "Bestelling bevestigd",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Bekijk het hele portfolio →",
     "whyUsTitle": "Waarom Cartoonova?",
     "whyUs1Title": "Tevredenheid gegarandeerd",
-    "whyUs1Desc": "Onbeperkt gratis aanpassen tot je helemaal tevreden bent.",
+    "whyUs1Desc": "Onbeperkt gratis aanpassen, en geld terug als je niet overtuigd bent.",
     "whyUs2Title": "Op maat",
     "whyUs2Desc": "Elk portret wordt gemaakt naar jouw foto's, alleen voor jou.",
     "whyUs3Title": "Levering in 2 dagen",
@@ -686,7 +691,7 @@
     "faqQ2": "Moeten alle personen op dezelfde foto staan?",
     "faqA2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in beeld.",
     "faqQ3": "Wat als ik niet tevreden ben?",
-    "faqA3": "Je krijgt onbeperkt gratis aanpassingen tot je helemaal tevreden bent.",
+    "faqA3": "Je krijgt onbeperkt gratis aanpassingen. En ben je dan nog steeds niet tevreden, dan krijg je je geld volledig terug, op eenvoudig verzoek.",
     "faqQ4": "Kan mijn huisdier er ook op?",
     "faqA4": "Zeker. Honden, katten, vogels — elk huisdier kan mee als cartoonfiguur.",
     "faqQ5": "Kunnen er ook voorwerpen of decors bij?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Welke foto stuur je voor een cartoonportret? | Cartoonova",
       "description": "Welke foto voor een cartoonportret? Goede en slechte voorbeelden, meerdere personen, huisdieren: zo lijkt je portret echt op jou."
+    },
+    "garantie": {
+      "title": "Onze garantie: aanpassingen en geld terug",
+      "description": "Onbeperkt gratis aanpassingen, je geld volledig terug als je cartoonportret niet goed is, omruilen bij een beschadigde print: dit dekt onze garantie."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Een cadeaubon geven",
     "universTitre": "De meest gegeven stijlen",
     "universSous": "Elke stijl heeft een eigen kerstpagina: ideeën, voorbeelden en antwoorden over levertijden.",
-    "faqTitre": "Je vragen over kerst"
+    "faqTitre": "Je vragen over kerst",
+    "extrasTitre": "Je wenskaart en je kalender 2027",
+    "extrasSous": "Twee opties die je aanvinkt op de pagina van je portret. Het zijn bestanden om te printen: geen verzenddeadline, je krijgt ze per e-mail bij je tekening.",
+    "extrasCarteTitre": "Wenskaart",
+    "extrasCarteTexte": "Je portret op de voorkant, „Vrolijk kerstfeest en een gelukkig 2027” eronder. Een A5-pdf om zo vaak te printen als je wilt.",
+    "extrasCalendrierTitre": "Kalender 2027",
+    "extrasCalendrierTexte": "Een omslag en 12 maanden met je portret. Een A4-pdf om thuis of bij een drukkerij te printen."
   },
   "contactForm": {
     "nom": "Je naam",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Voorbeeld in 2 dagen, prints gemaakt en geleverd in 3 tot 7 werkdagen. Verzending met track & trace wereldwijd.",
     "v4Titre": "Wereldwijd",
     "v4Texte": "Geleverd in meer dan 50 landen, met support die echt antwoordt."
+  },
+  "garantie": {
+    "lienPied": "Onze garantie",
+    "surtitre": "Onze garantie",
+    "titre": "Je loopt",
+    "accent": "geen risico",
+    "sous": "Je portret wordt op maat gemaakt en je betaalt voordat je het hebt gezien. Daarom beloven we: onbeperkt aanpassen tot je het mooi vindt, en je geld volledig terug als je nog steeds niet overtuigd bent.",
+    "bloc1Titre": "Onbeperkt aanpassen",
+    "bloc1Texte": "Gelijkenis, kleuren, details: we passen je portret gratis aan, zo vaak als nodig, tot je het mooi vindt.",
+    "bloc2Titre": "Geld terug als je niet overtuigd bent",
+    "bloc2Texte": "Is het portret na de aanpassingen nog steeds niet goed? Dan krijg je het volledige bedrag terug, op eenvoudig verzoek.",
+    "bloc3Titre": "Beschadigde print",
+    "bloc3Texte": "Is je geprinte product beschadigd of niet volgens bestelling aangekomen? Meld het binnen 14 dagen na ontvangst: omruilen of geld terug, jij kiest.",
+    "bloc4Titre": "Zo vraag je het aan",
+    "bloc4Texte": "Mail support@cartoonova.com met je bestelnummer. We antwoorden binnen 24 uur, van maandag tot vrijdag.",
+    "ctaTitre": "Klaar om te beginnen?",
+    "ctaTexte": "Kies je stijl, stuur je foto: wij doen de rest, en de garantie geldt voor elke bestelling.",
+    "ctaBouton": "Bekijk de stijlen",
+    "lienCgv": "Lees de volledige voorwaarden in onze algemene voorwaarden",
+    "faqTitre": "Vragen over de garantie",
+    "faq1Q": "Hoeveel aanpassingen kan ik vragen?",
+    "faq1R": "Zoveel als je nodig hebt, gratis. Aanpassingen gaan over redelijke wijzigingen (gelijkenis, kleuren, details), niet over een volledig andere stijl of compositie.",
+    "faq2Q": "En als ik het portret nog steeds niet mooi vind?",
+    "faq2R": "Dan betalen we de volledige aankoopprijs terug, op eenvoudig verzoek via support@cartoonova.com. Het geld gaat terug naar je oorspronkelijke betaalmethode, binnen 14 dagen na het goedgekeurde verzoek.",
+    "faq3Q": "Ik heb een geprint product besteld: wat verandert er?",
+    "faq3R": "Wil je je geld terug, vraag het dan aan voordat je de preview goedkeurt: na goedkeuring gaat de print in productie. Komt de print beschadigd of niet volgens bestelling aan, meld het dan binnen 14 dagen na ontvangst voor omruilen of terugbetaling.",
+    "faq4Q": "Kan ik mijn bestelling annuleren?",
+    "faq4R": "Je portret is maatwerk: het herroepingsrecht geldt niet meer zodra de tekening is begonnen. Je blijft wel gedekt door de onbeperkte aanpassingen en de terugbetalingsgarantie.",
+    "faq5Q": "Hoe dien ik een verzoek in, en hoe snel antwoorden jullie?",
+    "faq5R": "Mail support@cartoonova.com met je bestelnummer en een korte beschrijving. We antwoorden binnen 24 uur, van maandag tot vrijdag."
+  },
+  "portfolio": {
+    "intro": "Op elke afbeelding staat de originele foto naast het portret dat ervan getekend is. Kies een stijl en stel je de jouwe voor.",
+    "filtresLabel": "Filter op stijlfamilie",
+    "alt": "Originele foto en het {univers}-portret dat ervan getekend is",
+    "ceStyle": "Deze stijl",
+    "voirStyle": "Bekijk de {univers}-stijl"
   }
 }

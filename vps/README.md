@@ -92,13 +92,20 @@ deux ont continue d'afficher un succes pendant une semaine. Une tache qui echoue
 bruyamment est un incident ; une tache qui reussit sans rien faire est un
 mensonge, et il coute plus cher parce qu'on cherche le probleme ailleurs.
 
-## Bascule : ne pas tout couper d'un coup
+## Bascule : faite le 02/10/2026
 
-Les cinq workflows GitHub tournent encore et restent la source de verite tant
-que le VPS n'a pas fait ses preuves. Les couper avant l'installation laisserait
-le site sans aucune automatisation.
+Les plannings GitHub de `contenu-fiches.yml`, `contenu.yml` et
+`sonde-entonnoir.yml` sont commentes ; `sonde-indexation.yml` et
+`sonde-citations.yml` s'enchainaient derriere les fiches et ne partent donc
+plus seuls. Tout tourne depuis la crontab d'ici. Verification faite avant de
+couper : la nuit du 01 au 02/10 complete dans `ge_job_runs` (fiches, quatre
+sondes, retouches, SEO, support, relances), seuls echecs dus aux credits
+OpenAI et Perplexity epuises, qui touchaient GitHub de la meme facon.
 
-L'ordre a suivre :
+Si le VPS tombe : relancer a la main depuis l'onglet Actions de GitHub
+(`workflow_dispatch` est garde sur chaque workflow).
+
+L'ordre suivi, pour memoire :
 
 1. Installer le VPS et laisser les deux dispositifs tourner **en parallele
    pendant trois nuits**. Les taches sont idempotentes — les sondes ecrivent en

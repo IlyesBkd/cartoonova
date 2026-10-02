@@ -42,8 +42,10 @@ name: Contenu des fiches produit
 # l'ordre.
 
 on:
-  schedule:
-    - cron: "10 2 * * *"
+  # Planning coupe le 02/10/2026 : la tache tourne desormais sur le VPS
+  # (vps/crontab). Le declenchement manuel reste comme filet de secours.
+  # schedule:
+  #   - cron: "10 2 * * *"
   workflow_dispatch:
     inputs:
       langues:

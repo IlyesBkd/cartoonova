@@ -1488,6 +1488,19 @@ export const orderTrackingPage: Record<Lang, {
   giftDeliverAfter: string;
   giftMessage: string;
   steps: Record<EtapeSuivi, { title: string; body: string }>;
+  /** Texte de l'etape « recue » quand le client n'a pas encore depose ses photos. */
+  recueSansPhotos: string;
+  /** Encart en tete de page : ce que le client doit faire pour que ca avance. */
+  actionTitre: string;
+  actionPhotosTexte: string;
+  actionPhotosBouton: string;
+  actionApercuTexte: string;
+  actionApercuBouton: string;
+  /** Retouche demandee : rien a faire, mais la demande est bien arrivee.
+   *  `date` vaut `null` si la date de reponse manque : on ne l'invente pas. */
+  retoucheTitre: (date: string | null) => string;
+  retoucheTexte: string;
+  retoucheNote: string;
   /** Bouton sous l'etape « expediee », quand un lien de suivi du colis existe. */
   trackParcel: string;
   finalTitle: string;
@@ -1520,6 +1533,15 @@ export const orderTrackingPage: Record<Lang, {
       acceptee: { title: "Portrait accepté, en fabrication", body: "Merci d’avoir validé ! Ton portrait part en impression : compte 3 à 7 jours ouvrés de fabrication et de livraison." },
       expediee: { title: "Colis expédié", body: "Ton portrait est en route vers chez toi." },
     },
+    recueSansPhotos: "Ton paiement est bien arrivé. Il ne manque plus que tes photos pour qu’on commence.",
+    actionTitre: "À toi de jouer",
+    actionPhotosTexte: "On attend tes photos pour commencer ton portrait. Ajoute-les ici, ça prend une minute.",
+    actionPhotosBouton: "Envoyer mes photos",
+    actionApercuTexte: "Ton aperçu est prêt. Regarde-le et dis-nous s’il te plaît ou ce qu’on doit retoucher.",
+    actionApercuBouton: "Voir mon aperçu",
+    retoucheTitre: (date) => (date ? `Retouche demandée le ${date}` : "Retouche demandée"),
+    retoucheTexte: "C’est noté, on s’en occupe : ton nouvel aperçu arrive sous 24 h.",
+    retoucheNote: "Ta demande",
     trackParcel: "Suivre mon colis",
     finalTitle: "Ton portrait",
     finalBody: "Le voici tel qu’il t’a été envoyé.",
@@ -1551,6 +1573,15 @@ export const orderTrackingPage: Record<Lang, {
       acceptee: { title: "Portrait approved, in production", body: "Thanks for approving it! Your portrait is going to print: allow 3 to 7 business days for production and delivery." },
       expediee: { title: "Parcel shipped", body: "Your portrait is on its way to you." },
     },
+    recueSansPhotos: "Your payment came through. We just need your photos to get started.",
+    actionTitre: "Over to you",
+    actionPhotosTexte: "We’re waiting for your photos to start your portrait. Add them here, it only takes a minute.",
+    actionPhotosBouton: "Send my photos",
+    actionApercuTexte: "Your preview is ready. Take a look and tell us if you love it or what to change.",
+    actionApercuBouton: "See my preview",
+    retoucheTitre: (date) => (date ? `Change requested on ${date}` : "Change requested"),
+    retoucheTexte: "Got it, we’re on it: your new preview will arrive within 24 hours.",
+    retoucheNote: "Your request",
     trackParcel: "Track my parcel",
     finalTitle: "Your portrait",
     finalBody: "Here it is, exactly as it was sent to you.",
@@ -1582,6 +1613,15 @@ export const orderTrackingPage: Record<Lang, {
       acceptee: { title: "Retrato aceptado, en fabricación", body: "¡Gracias por validarlo! Tu retrato pasa a impresión: cuenta de 3 a 7 días hábiles de fabricación y envío." },
       expediee: { title: "Paquete enviado", body: "Tu retrato va de camino a tu casa." },
     },
+    recueSansPhotos: "Hemos recibido tu pago. Solo nos faltan tus fotos para empezar.",
+    actionTitre: "Te toca a ti",
+    actionPhotosTexte: "Esperamos tus fotos para empezar tu retrato. Súbelas aquí, es cosa de un minuto.",
+    actionPhotosBouton: "Enviar mis fotos",
+    actionApercuTexte: "Tu vista previa está lista. Échale un vistazo y dinos si te gusta o qué cambiamos.",
+    actionApercuBouton: "Ver mi vista previa",
+    retoucheTitre: (date) => (date ? `Cambio solicitado el ${date}` : "Cambio solicitado"),
+    retoucheTexte: "Recibido, nos ponemos con ello: tu nueva vista previa llegará en menos de 24 h.",
+    retoucheNote: "Tu petición",
     trackParcel: "Seguir mi paquete",
     finalTitle: "Tu retrato",
     finalBody: "Aquí está, tal como te lo enviamos.",
@@ -1613,6 +1653,15 @@ export const orderTrackingPage: Record<Lang, {
       acceptee: { title: "Porträt freigegeben, in Herstellung", body: "Danke für die Freigabe! Dein Porträt geht in den Druck: Rechne mit 3 bis 7 Werktagen für Herstellung und Lieferung." },
       expediee: { title: "Paket versendet", body: "Dein Porträt ist auf dem Weg zu dir." },
     },
+    recueSansPhotos: "Deine Zahlung ist da. Uns fehlen nur noch deine Fotos, dann legen wir los.",
+    actionTitre: "Du bist dran",
+    actionPhotosTexte: "Wir warten auf deine Fotos, um mit deinem Porträt zu beginnen. Lade sie hier hoch – das dauert nur eine Minute.",
+    actionPhotosBouton: "Fotos hochladen",
+    actionApercuTexte: "Deine Vorschau ist fertig. Schau sie dir an und sag uns, ob sie dir gefällt oder was wir ändern sollen.",
+    actionApercuBouton: "Vorschau ansehen",
+    retoucheTitre: (date) => (date ? `Änderung angefragt am ${date}` : "Änderung angefragt"),
+    retoucheTexte: "Ist angekommen, wir sind dran: Deine neue Vorschau kommt innerhalb von 24 Stunden.",
+    retoucheNote: "Deine Anfrage",
     trackParcel: "Paket verfolgen",
     finalTitle: "Dein Porträt",
     finalBody: "Hier ist es, genau so wie versendet.",
@@ -1644,6 +1693,15 @@ export const orderTrackingPage: Record<Lang, {
       acceptee: { title: "Ritratto approvato, in produzione", body: "Grazie per l’approvazione! Il tuo ritratto va in stampa: calcola 3-7 giorni lavorativi per produzione e consegna." },
       expediee: { title: "Pacco spedito", body: "Il tuo ritratto è in viaggio verso casa tua." },
     },
+    recueSansPhotos: "Abbiamo ricevuto il pagamento. Ci mancano solo le tue foto per iniziare.",
+    actionTitre: "Tocca a te",
+    actionPhotosTexte: "Aspettiamo le tue foto per iniziare il ritratto. Caricale qui, ci vuole un minuto.",
+    actionPhotosBouton: "Invia le mie foto",
+    actionApercuTexte: "La tua anteprima è pronta. Dacci un’occhiata e dicci se ti piace o cosa ritoccare.",
+    actionApercuBouton: "Vedi l’anteprima",
+    retoucheTitre: (date) => (date ? `Modifica richiesta il ${date}` : "Modifica richiesta"),
+    retoucheTexte: "Ricevuto, ci stiamo lavorando: la nuova anteprima arriva entro 24 ore.",
+    retoucheNote: "La tua richiesta",
     trackParcel: "Traccia il mio pacco",
     finalTitle: "Il tuo ritratto",
     finalBody: "Eccolo, esattamente come te l’abbiamo inviato.",
@@ -1675,6 +1733,15 @@ export const orderTrackingPage: Record<Lang, {
     acceptee: { title: "Portret goedgekeurd, in productie", body: "Bedankt voor je goedkeuring! Je portret gaat in druk: reken op 3 tot 7 werkdagen voor productie en levering." },
     expediee: { title: "Pakket verzonden", body: "Je portret is onderweg naar je toe." },
   },
+  recueSansPhotos: "Je betaling is binnen. We wachten alleen nog op je foto’s om te beginnen.",
+  actionTitre: "Jouw beurt",
+  actionPhotosTexte: "We wachten op je foto’s om aan je portret te beginnen. Voeg ze hier toe, het duurt maar een minuutje.",
+  actionPhotosBouton: "Mijn foto’s sturen",
+  actionApercuTexte: "Je voorbeeld is klaar. Bekijk het en laat ons weten of je het mooi vindt of wat we moeten aanpassen.",
+  actionApercuBouton: "Mijn voorbeeld bekijken",
+  retoucheTitre: (date) => (date ? `Aanpassing gevraagd op ${date}` : "Aanpassing gevraagd"),
+  retoucheTexte: "Genoteerd, we gaan ermee aan de slag: je nieuwe voorbeeld komt binnen 24 uur.",
+  retoucheNote: "Je verzoek",
   trackParcel: "Mijn pakket volgen",
   finalTitle: "Je portret",
   finalBody: "Hier is het, precies zoals het naar je is gestuurd.",
@@ -1706,6 +1773,15 @@ export const orderTrackingPage: Record<Lang, {
     acceptee: { title: "Portret zaakceptowany, w produkcji", body: "Dziękujemy za akceptację! Twój portret idzie do druku: na produkcję i dostawę potrzeba 3–7 dni roboczych." },
     expediee: { title: "Paczka wysłana", body: "Twój portret jest w drodze do Ciebie." },
   },
+  recueSansPhotos: "Twoja płatność dotarła. Brakuje nam tylko Twoich zdjęć, żeby zacząć.",
+  actionTitre: "Twoja kolej",
+  actionPhotosTexte: "Czekamy na Twoje zdjęcia, żeby zacząć portret. Dodaj je tutaj, to zajmie chwilę.",
+  actionPhotosBouton: "Wyślij zdjęcia",
+  actionApercuTexte: "Twój podgląd jest gotowy. Zobacz go i daj znać, czy Ci się podoba albo co poprawić.",
+  actionApercuBouton: "Zobacz podgląd",
+  retoucheTitre: (date) => (date ? `Poprawka zgłoszona ${date}` : "Poprawka zgłoszona"),
+  retoucheTexte: "Mamy to, już działamy: nowy podgląd dostaniesz w ciągu 24 godzin.",
+  retoucheNote: "Twoja prośba",
   trackParcel: "Śledź moją paczkę",
   finalTitle: "Twój portret",
   finalBody: "Oto on, dokładnie taki, jaki został wysłany.",
@@ -1737,6 +1813,15 @@ export const orderTrackingPage: Record<Lang, {
     acceptee: { title: "Porträttet godkänt, i tillverkning", body: "Tack för godkännandet! Ditt porträtt går till tryck: räkna med 3 till 7 arbetsdagar för tillverkning och leverans." },
     expediee: { title: "Paketet skickat", body: "Ditt porträtt är på väg till dig." },
   },
+  recueSansPhotos: "Din betalning har kommit fram. Vi behöver bara dina foton för att börja.",
+  actionTitre: "Din tur",
+  actionPhotosTexte: "Vi väntar på dina foton för att börja på ditt porträtt. Lägg till dem här, det tar bara en minut.",
+  actionPhotosBouton: "Skicka mina foton",
+  actionApercuTexte: "Din förhandsvisning är klar. Titta på den och säg om du gillar den eller vad vi ska ändra.",
+  actionApercuBouton: "Se min förhandsvisning",
+  retoucheTitre: (date) => (date ? `Ändring begärd den ${date}` : "Ändring begärd"),
+  retoucheTexte: "Uppfattat, vi fixar det: din nya förhandsvisning kommer inom 24 timmar.",
+  retoucheNote: "Din förfrågan",
   trackParcel: "Spåra mitt paket",
   finalTitle: "Ditt porträtt",
   finalBody: "Här är det, precis som det skickades till dig.",
@@ -1768,6 +1853,15 @@ export const orderTrackingPage: Record<Lang, {
     acceptee: { title: "Portræt godkendt, i produktion", body: "Tak for godkendelsen! Dit portræt går i trykken: regn med 3 til 7 hverdage til produktion og levering." },
     expediee: { title: "Pakke afsendt", body: "Dit portræt er på vej til dig." },
   },
+  recueSansPhotos: "Din betaling er kommet igennem. Vi mangler kun dine fotos for at gå i gang.",
+  actionTitre: "Din tur",
+  actionPhotosTexte: "Vi venter på dine fotos for at gå i gang med dit portræt. Tilføj dem her, det tager kun et minut.",
+  actionPhotosBouton: "Send mine fotos",
+  actionApercuTexte: "Din forhåndsvisning er klar. Se den, og fortæl os, om du kan lide den, eller hvad vi skal ændre.",
+  actionApercuBouton: "Se min forhåndsvisning",
+  retoucheTitre: (date) => (date ? `Ændring ønsket den ${date}` : "Ændring ønsket"),
+  retoucheTexte: "Modtaget, vi er i gang: din nye forhåndsvisning kommer inden for 24 timer.",
+  retoucheNote: "Dit ønske",
   trackParcel: "Følg min pakke",
   finalTitle: "Dit portræt",
   finalBody: "Her er det, præcis som det blev sendt til dig.",
@@ -1799,6 +1893,15 @@ export const orderTrackingPage: Record<Lang, {
     acceptee: { title: "Retrato aprovado, em produção", body: "Obrigado por aprovar! O teu retrato vai para impressão: conta com 3 a 7 dias úteis de produção e entrega." },
     expediee: { title: "Encomenda expedida", body: "O teu retrato está a caminho de ti." },
   },
+  recueSansPhotos: "Recebemos o teu pagamento. Só faltam as tuas fotos para começarmos.",
+  actionTitre: "É a tua vez",
+  actionPhotosTexte: "Estamos à espera das tuas fotos para começar o teu retrato. Adiciona-as aqui, demora um minuto.",
+  actionPhotosBouton: "Enviar as minhas fotos",
+  actionApercuTexte: "A tua pré-visualização está pronta. Vê-a e diz-nos se gostas ou o que devemos retocar.",
+  actionApercuBouton: "Ver a minha pré-visualização",
+  retoucheTitre: (date) => (date ? `Alteração pedida a ${date}` : "Alteração pedida"),
+  retoucheTexte: "Recebido, estamos a tratar disso: a nova pré-visualização chega em menos de 24 h.",
+  retoucheNote: "O teu pedido",
   trackParcel: "Seguir a minha encomenda",
   finalTitle: "O teu retrato",
   finalBody: "Aqui está, exactamente como te foi enviado.",
@@ -3008,17 +3111,27 @@ export const optionsCommande: Record<Lang, {
   shipping: string;
   /** Remplace `confirmationEmail.deliveryTime` quand l'express est paye. */
   deliveryExpress: string;
+  /** Options numeriques de saison (F-6/F-7). */
+  carteVoeux: string;
+  calendrier: string;
+  /** E-mail d'envoi des PDF (`/api/orders/extras`). */
+  extrasSujet: string;
+  extrasTitre: string;
+  extrasIntro: string;
+  extrasCarte: string;
+  extrasCalendrier: string;
+  extrasConseil: string;
 }> = {
-  fr: { banner: "Banderole / texte personnalisé", extraDecor: "Décor supplémentaire", express: "Express 24 h", shipping: "Livraison", deliveryExpress: "Option express : ton dessin est livré sous 24 heures, week-end compris. Pour une impression, compte ensuite 1 jour pour valider l'aperçu, puis 3 à 7 jours ouvrés de fabrication et de livraison." },
-  en: { banner: "Custom banner / text", extraDecor: "Extra background", express: "24-hour express", shipping: "Shipping", deliveryExpress: "Express option: your drawing is delivered within 24 hours, weekends included. For a print, then allow 1 day to approve the preview and 3 to 7 business days for production and delivery." },
-  es: { banner: "Pancarta / texto personalizado", extraDecor: "Fondo adicional", express: "Exprés 24 h", shipping: "Envío", deliveryExpress: "Opción exprés: tu dibujo se entrega en 24 horas, fines de semana incluidos. Para una impresión, cuenta después 1 día para validar la vista previa y 3 a 7 días hábiles de fabricación y envío." },
-  de: { banner: "Banner / eigener Text", extraDecor: "Zusätzlicher Hintergrund", express: "Express 24 Std.", shipping: "Versand", deliveryExpress: "Express-Option: Deine Zeichnung kommt innerhalb von 24 Stunden, auch am Wochenende. Bei einem Druck folgen 1 Tag für die Freigabe der Vorschau und 3 bis 7 Werktage für Herstellung und Lieferung." },
-  it: { banner: "Striscione / testo personalizzato", extraDecor: "Sfondo aggiuntivo", express: "Express 24 h", shipping: "Spedizione", deliveryExpress: "Opzione express: il disegno arriva entro 24 ore, weekend compreso. Per una stampa, calcola poi 1 giorno per approvare l'anteprima e 3-7 giorni lavorativi per produzione e consegna." },
-  nl: { banner: "Banner / eigen tekst", extraDecor: "Extra achtergrond", express: "Express 24 uur", shipping: "Verzending", deliveryExpress: "Expressoptie: je tekening wordt binnen 24 uur geleverd, ook in het weekend. Bij een print volgen daarna 1 dag om goed te keuren en 3 tot 7 werkdagen voor productie en levering." },
-  pl: { banner: "Baner / własny tekst", extraDecor: "Dodatkowe tło", express: "Ekspres 24 h", shipping: "Dostawa", deliveryExpress: "Opcja ekspres: rysunek dostarczamy w 24 godziny, także w weekend. Przy wydruku dochodzi potem 1 dzień na akceptację podglądu i 3–7 dni roboczych na produkcję i dostawę." },
-  sv: { banner: "Banderoll / egen text", extraDecor: "Extra bakgrund", express: "Express 24 h", shipping: "Frakt", deliveryExpress: "Expressalternativ: teckningen levereras inom 24 timmar, även på helger. För ett tryck tillkommer sedan 1 dag för godkännande och 3 till 7 arbetsdagar för tillverkning och leverans." },
-  da: { banner: "Banner / egen tekst", extraDecor: "Ekstra baggrund", express: "Ekspres 24 t", shipping: "Levering", deliveryExpress: "Ekspres-option: din tegning leveres inden for 24 timer, også i weekenden. For et tryk kommer derefter 1 dag til godkendelse og 3 til 7 hverdage til produktion og levering." },
-  pt: { banner: "Faixa / texto personalizado", extraDecor: "Fundo adicional", express: "Expresso 24 h", shipping: "Envio", deliveryExpress: "Opção expresso: o teu desenho é entregue em 24 horas, fins de semana incluídos. Para uma impressão, conta depois 1 dia para aprovar a pré-visualização e 3 a 7 dias úteis de produção e entrega." },
+  fr: { carteVoeux: "Carte de vœux à imprimer (PDF)", calendrier: "Calendrier 2027 à imprimer (PDF)", extrasSujet: "Ta carte de vœux et ton calendrier sont prêts", extrasTitre: "Tes fichiers à imprimer", extrasIntro: "Voici les fichiers PDF créés avec ton portrait. Tu peux les imprimer chez toi ou chez un imprimeur.", extrasCarte: "Télécharger la carte de vœux", extrasCalendrier: "Télécharger le calendrier 2027", extrasConseil: "Conseil : imprime sur un papier épais (200 g ou plus), en « taille réelle », sans mise à l'échelle.", banner: "Banderole / texte personnalisé", extraDecor: "Décor supplémentaire", express: "Express 24 h", shipping: "Livraison", deliveryExpress: "Option express : ton dessin est livré sous 24 heures, week-end compris. Pour une impression, compte ensuite 1 jour pour valider l'aperçu, puis 3 à 7 jours ouvrés de fabrication et de livraison." },
+  en: { carteVoeux: "Printable greeting card (PDF)", calendrier: "Printable 2027 calendar (PDF)", extrasSujet: "Your greeting card and calendar are ready", extrasTitre: "Your printable files", extrasIntro: "Here are the PDF files made with your portrait. You can print them at home or at a print shop.", extrasCarte: "Download the greeting card", extrasCalendrier: "Download the 2027 calendar", extrasConseil: "Tip: print on thick paper (200 gsm or more), at \"actual size\", without scaling.", banner: "Custom banner / text", extraDecor: "Extra background", express: "24-hour express", shipping: "Shipping", deliveryExpress: "Express option: your drawing is delivered within 24 hours, weekends included. For a print, then allow 1 day to approve the preview and 3 to 7 business days for production and delivery." },
+  es: { carteVoeux: "Tarjeta de felicitación para imprimir (PDF)", calendrier: "Calendario 2027 para imprimir (PDF)", extrasSujet: "Tu tarjeta de felicitación y tu calendario están listos", extrasTitre: "Tus archivos para imprimir", extrasIntro: "Aquí tienes los archivos PDF creados con tu retrato. Puedes imprimirlos en casa o en una imprenta.", extrasCarte: "Descargar la tarjeta", extrasCalendrier: "Descargar el calendario 2027", extrasConseil: "Consejo: imprime en papel grueso (200 g o más), a «tamaño real», sin ajustar a la página.", banner: "Pancarta / texto personalizado", extraDecor: "Fondo adicional", express: "Exprés 24 h", shipping: "Envío", deliveryExpress: "Opción exprés: tu dibujo se entrega en 24 horas, fines de semana incluidos. Para una impresión, cuenta después 1 día para validar la vista previa y 3 a 7 días hábiles de fabricación y envío." },
+  de: { carteVoeux: "Grußkarte zum Ausdrucken (PDF)", calendrier: "Kalender 2027 zum Ausdrucken (PDF)", extrasSujet: "Deine Grußkarte und dein Kalender sind fertig", extrasTitre: "Deine Dateien zum Ausdrucken", extrasIntro: "Hier sind die PDF-Dateien mit deinem Porträt. Du kannst sie zu Hause oder in einer Druckerei drucken.", extrasCarte: "Grußkarte herunterladen", extrasCalendrier: "Kalender 2027 herunterladen", extrasConseil: "Tipp: Drucke auf dickem Papier (200 g oder mehr) in „tatsächlicher Größe“, ohne Skalierung.", banner: "Banner / eigener Text", extraDecor: "Zusätzlicher Hintergrund", express: "Express 24 Std.", shipping: "Versand", deliveryExpress: "Express-Option: Deine Zeichnung kommt innerhalb von 24 Stunden, auch am Wochenende. Bei einem Druck folgen 1 Tag für die Freigabe der Vorschau und 3 bis 7 Werktage für Herstellung und Lieferung." },
+  it: { carteVoeux: "Biglietto di auguri da stampare (PDF)", calendrier: "Calendario 2027 da stampare (PDF)", extrasSujet: "Il tuo biglietto di auguri e il tuo calendario sono pronti", extrasTitre: "I tuoi file da stampare", extrasIntro: "Ecco i file PDF creati con il tuo ritratto. Puoi stamparli a casa o in copisteria.", extrasCarte: "Scarica il biglietto di auguri", extrasCalendrier: "Scarica il calendario 2027", extrasConseil: "Consiglio: stampa su carta spessa (200 g o più), a «dimensioni reali», senza adattare alla pagina.", banner: "Striscione / testo personalizzato", extraDecor: "Sfondo aggiuntivo", express: "Express 24 h", shipping: "Spedizione", deliveryExpress: "Opzione express: il disegno arriva entro 24 ore, weekend compreso. Per una stampa, calcola poi 1 giorno per approvare l'anteprima e 3-7 giorni lavorativi per produzione e consegna." },
+  nl: { carteVoeux: "Wenskaart om te printen (PDF)", calendrier: "Kalender 2027 om te printen (PDF)", extrasSujet: "Je wenskaart en kalender zijn klaar", extrasTitre: "Je bestanden om te printen", extrasIntro: "Hier zijn de pdf-bestanden met je portret. Je kunt ze thuis of bij een drukkerij printen.", extrasCarte: "Wenskaart downloaden", extrasCalendrier: "Kalender 2027 downloaden", extrasConseil: "Tip: print op dik papier (200 g of meer), op „werkelijke grootte”, zonder schalen.", banner: "Banner / eigen tekst", extraDecor: "Extra achtergrond", express: "Express 24 uur", shipping: "Verzending", deliveryExpress: "Expressoptie: je tekening wordt binnen 24 uur geleverd, ook in het weekend. Bij een print volgen daarna 1 dag om goed te keuren en 3 tot 7 werkdagen voor productie en levering." },
+  pl: { carteVoeux: "Kartka z życzeniami do druku (PDF)", calendrier: "Kalendarz 2027 do druku (PDF)", extrasSujet: "Twoja kartka z życzeniami i kalendarz są gotowe", extrasTitre: "Twoje pliki do druku", extrasIntro: "Oto pliki PDF z Twoim portretem. Możesz je wydrukować w domu lub w drukarni.", extrasCarte: "Pobierz kartkę z życzeniami", extrasCalendrier: "Pobierz kalendarz 2027", extrasConseil: "Wskazówka: drukuj na grubym papierze (200 g lub więcej), w „rzeczywistym rozmiarze”, bez skalowania.", banner: "Baner / własny tekst", extraDecor: "Dodatkowe tło", express: "Ekspres 24 h", shipping: "Dostawa", deliveryExpress: "Opcja ekspres: rysunek dostarczamy w 24 godziny, także w weekend. Przy wydruku dochodzi potem 1 dzień na akceptację podglądu i 3–7 dni roboczych na produkcję i dostawę." },
+  sv: { carteVoeux: "Julkort att skriva ut (PDF)", calendrier: "Kalender 2027 att skriva ut (PDF)", extrasSujet: "Ditt julkort och din kalender är klara", extrasTitre: "Dina filer att skriva ut", extrasIntro: "Här är PDF-filerna med ditt porträtt. Du kan skriva ut dem hemma eller på ett tryckeri.", extrasCarte: "Ladda ner julkortet", extrasCalendrier: "Ladda ner kalendern 2027", extrasConseil: "Tips: skriv ut på tjockt papper (200 g eller mer), i ”faktisk storlek”, utan skalning.", banner: "Banderoll / egen text", extraDecor: "Extra bakgrund", express: "Express 24 h", shipping: "Frakt", deliveryExpress: "Expressalternativ: teckningen levereras inom 24 timmar, även på helger. För ett tryck tillkommer sedan 1 dag för godkännande och 3 till 7 arbetsdagar för tillverkning och leverans." },
+  da: { carteVoeux: "Julekort til udskrift (PDF)", calendrier: "Kalender 2027 til udskrift (PDF)", extrasSujet: "Dit julekort og din kalender er klar", extrasTitre: "Dine filer til udskrift", extrasIntro: "Her er PDF-filerne med dit portræt. Du kan printe dem derhjemme eller hos et trykkeri.", extrasCarte: "Download julekortet", extrasCalendrier: "Download kalenderen 2027", extrasConseil: "Tip: print på tykt papir (200 g eller mere), i „faktisk størrelse“, uden skalering.", banner: "Banner / egen tekst", extraDecor: "Ekstra baggrund", express: "Ekspres 24 t", shipping: "Levering", deliveryExpress: "Ekspres-option: din tegning leveres inden for 24 timer, også i weekenden. For et tryk kommer derefter 1 dag til godkendelse og 3 til 7 hverdage til produktion og levering." },
+  pt: { carteVoeux: "Cartão de boas festas para imprimir (PDF)", calendrier: "Calendário 2027 para imprimir (PDF)", extrasSujet: "O teu cartão de boas festas e o teu calendário estão prontos", extrasTitre: "Os teus ficheiros para imprimir", extrasIntro: "Aqui estão os ficheiros PDF criados com o teu retrato. Podes imprimi-los em casa ou numa gráfica.", extrasCarte: "Descarregar o cartão", extrasCalendrier: "Descarregar o calendário 2027", extrasConseil: "Dica: imprime em papel grosso (200 g ou mais), em «tamanho real», sem ajustar à página.", banner: "Faixa / texto personalizado", extraDecor: "Fundo adicional", express: "Expresso 24 h", shipping: "Envio", deliveryExpress: "Opção expresso: o teu desenho é entregue em 24 horas, fins de semana incluídos. Para uma impressão, conta depois 1 dia para aprovar a pré-visualização e 3 a 7 dias úteis de produção e entrega." },
 };
 
 /* ─── Bon cadeau : e-mail, version imprimable, page de succès ─────────── */

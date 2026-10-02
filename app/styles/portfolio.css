@@ -1,0 +1,46 @@
+/* Portfolio : montages avant/apres (app/[locale]/portfolio/PortfolioClient.tsx).
+   Mobile d'abord : une colonne, puis deux, puis trois. Les puces de filtre
+   reprennent `.filtres` / `.filtre` du catalogue (toonjaune-app.css). */
+
+.portfolio-filtres { margin-bottom: 28px; }
+
+.portfolio-grille {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: 1fr; gap: 20px;
+}
+
+.portfolio-carte {
+  display: flex; flex-direction: column;
+  background: var(--papier); border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre); overflow: hidden;
+}
+
+/* Carre, image en entier : les montages n'ont pas tous le meme format
+   (1:1, 4:3, 6:5) et aucun ne doit etre rogne. */
+.portfolio-carte__visuel { position: relative; aspect-ratio: 1 / 1; background: var(--papier); }
+.portfolio-carte__visuel img { object-fit: contain; }
+
+.portfolio-carte__pied {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 18px 16px; border-top: 1px solid var(--encre-voile);
+}
+.portfolio-carte__univers {
+  font-family: var(--titre); font-size: var(--t-carte); color: var(--encre);
+  min-width: 0; overflow-wrap: anywhere;
+}
+.portfolio-carte__lien {
+  flex: none; font-family: var(--texte); font-weight: 700; font-size: 15px;
+  color: var(--encre); text-decoration: underline; text-underline-offset: 3px;
+  padding: 8px 0; /* cible tactile de 40px environ */
+}
+.portfolio-carte__lien:hover { color: var(--encre-doux); }
+.portfolio-carte__lien:focus-visible { outline: 3px solid var(--encre); outline-offset: 2px; border-radius: 4px; }
+
+.portfolio-cta { text-align: center; margin-top: 44px; }
+
+@media (min-width: 600px) {
+  .portfolio-grille { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+}
+@media (min-width: 1000px) {
+  .portfolio-grille { grid-template-columns: repeat(3, 1fr); gap: 28px; }
+}

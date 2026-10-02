@@ -12,6 +12,7 @@
 @import "./styles/caisse.css";
 @import "./styles/fiche.css";
 @import "./styles/pages.css";
+@import "./styles/portfolio.css";
 
 html {
   scroll-behavior: smooth;

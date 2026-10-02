@@ -107,7 +107,7 @@
     "q2": "Les personnes doivent-elles être sur la même photo ?",
     "a2": "Pas du tout ! Envoie-nous des photos individuelles, on réunira tout le monde sur une seule image.",
     "q3": "Que se passe-t-il si je ne suis pas satisfait(e) ?",
-    "a3": "Les retouches sont illimitées et gratuites, jusqu'à ce que tu sois entièrement satisfait !",
+    "a3": "Les retouches sont illimitées et gratuites. Et si le portrait ne te convient toujours pas, on te rembourse intégralement, sur simple demande !",
     "q4": "Mon animal peut-il aussi devenir un cartoon ?",
     "a4": "Absolument ! Chiens, chats, oiseaux — nous transformons n'importe quel animal en personnage cartoon.",
     "q5": "Puis-je faire dessiner des objets ou décors ?",
@@ -236,7 +236,7 @@
     "faqQ2": "Les personnes doivent-elles toutes être sur la même photo ?",
     "faqA2": "Pas du tout ! Envoie-nous des photos individuelles, on réunira tout le monde sur une seule image.",
     "faqQ3": "Que se passe-t-il si je ne suis pas satisfait(e) ?",
-    "faqA3": "Les retouches sont illimitées et gratuites, jusqu'à ce que tu sois entièrement satisfait. Ton bonheur est notre priorité !",
+    "faqA3": "Les retouches sont illimitées et gratuites, jusqu'à ce que tu sois entièrement satisfait. Sinon, on te rembourse intégralement sur simple demande (pour un produit imprimé, avant de valider l'aperçu).",
     "faqQ4": "Mon animal de compagnie peut-il aussi devenir jaune ?",
     "faqA4": "Absolument ! Chiens, chats, oiseaux — nous pouvons transformer n'importe quel animal adoré en personnage cartoon jaune.",
     "faqQ5": "Puis-je aussi faire dessiner des objets ?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Ton portrait livré sous 24 h, week-end compris",
     "optExpressSubPrint": "Dessin livré sous 24 h, week-end compris, puis l'impression",
     "optExpressRecap": "Express 24 h",
-    "shippingLine": "dont livraison : {montant}"
+    "shippingLine": "dont livraison : {montant}",
+    "optSaisonTitre": "Pour les fêtes",
+    "optCarteVoeux": "Carte de vœux à imprimer",
+    "optCarteVoeuxSub": "Ton portrait en carte « Joyeux Noël et bonne année », PDF A5 envoyé par e-mail",
+    "optCalendrier": "Calendrier 2027 à imprimer",
+    "optCalendrierSub": "Ton portrait sur les 12 mois de 2027, PDF A4 envoyé par e-mail"
   },
   "checkout": {
     "orderConfirmed": "Commande confirmée",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Voir tout le portfolio →",
     "whyUsTitle": "Pourquoi Cartoonova ?",
     "whyUs1Title": "Satisfaction garantie",
-    "whyUs1Desc": "Retouches illimitées et gratuites, jusqu'à ce que tu sois entièrement satisfait !",
+    "whyUs1Desc": "Retouches illimitées et gratuites, et remboursé si tu n'es pas convaincu !",
     "whyUs2Title": "Sur mesure",
     "whyUs2Desc": "Chaque portrait est créé d'après tes photos, rien que pour toi.",
     "whyUs3Title": "Livraison 2 jours",
@@ -686,7 +691,7 @@
     "faqQ2": "Les personnes doivent-elles être sur la même photo ?",
     "faqA2": "Pas du tout ! Envoie-nous des photos individuelles, on réunira tout le monde ensemble.",
     "faqQ3": "Que se passe-t-il si je ne suis pas satisfait(e) ?",
-    "faqA3": "Les retouches sont illimitées et gratuites, jusqu'à ce que tu sois entièrement satisfait !",
+    "faqA3": "Les retouches sont illimitées et gratuites. Et si le portrait ne te convient toujours pas, on te rembourse intégralement, sur simple demande !",
     "faqQ4": "Mon animal peut-il aussi devenir un cartoon ?",
     "faqA4": "Absolument ! Chiens, chats, oiseaux — nous transformons n'importe quel animal en personnage cartoon.",
     "faqQ5": "Puis-je faire dessiner des objets ou décors ?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Quelle photo envoyer pour un portrait cartoon ? | Cartoonova",
       "description": "Visage visible, de face, bonne lumière, photo nette : nos conseils pour choisir la photo de ton portrait cartoon personnalisé, et les erreurs à éviter."
+    },
+    "garantie": {
+      "title": "Notre garantie : retouches et remboursement",
+      "description": "Retouches illimitées et gratuites, remboursement intégral si ton portrait cartoon ne te convient pas, échange d'une impression abîmée : notre garantie."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Offrir un bon cadeau",
     "universTitre": "Les univers les plus offerts",
     "universSous": "Chaque univers a sa page Noël : idées, exemples et réponses aux questions de délai.",
-    "faqTitre": "Tes questions sur Noël"
+    "faqTitre": "Tes questions sur Noël",
+    "extrasTitre": "Ta carte de vœux et ton calendrier 2027",
+    "extrasSous": "Deux options à cocher sur la fiche de ton portrait. Ce sont des fichiers à imprimer : pas de délai d'expédition, tu les reçois par e-mail avec ton dessin.",
+    "extrasCarteTitre": "Carte de vœux",
+    "extrasCarteTexte": "Ton portrait au recto, « Joyeux Noël et bonne année 2027 » en dessous. Un PDF A5 à imprimer autant de fois que tu veux.",
+    "extrasCalendrierTitre": "Calendrier 2027",
+    "extrasCalendrierTexte": "Une couverture et 12 mois avec ton portrait. Un PDF A4 à imprimer chez toi ou chez un imprimeur."
   },
   "contactForm": {
     "nom": "Ton nom",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Aperçu en 2 jours, impressions fabriquées et livrées en 3 à 7 jours ouvrés. Envoi suivi partout dans le monde.",
     "v4Titre": "Partout dans le monde",
     "v4Texte": "Plus de 50 pays livrés, et un support qui répond vraiment."
+  },
+  "garantie": {
+    "lienPied": "Notre garantie",
+    "surtitre": "Notre garantie",
+    "titre": "Tu ne prends",
+    "accent": "aucun risque",
+    "sous": "Ton portrait est fait sur mesure, et tu le paies avant de l'avoir vu. Alors on s'engage : retouches illimitées jusqu'à ce qu'il te plaise, et remboursement intégral si tu n'es toujours pas convaincu.",
+    "bloc1Titre": "Retouches illimitées",
+    "bloc1Texte": "Ressemblance, couleurs, détails : on retouche ton portrait gratuitement autant de fois qu'il le faut, jusqu'à ce qu'il te plaise.",
+    "bloc2Titre": "Remboursé si tu n'es pas convaincu",
+    "bloc2Texte": "Si, après les retouches, le portrait ne te convient toujours pas, on te rembourse l'intégralité du prix, sur simple demande.",
+    "bloc3Titre": "Impression abîmée",
+    "bloc3Texte": "Ton produit imprimé est arrivé abîmé ou non conforme ? Signale-le dans les 14 jours suivant la réception : échange ou remboursement, au choix.",
+    "bloc4Titre": "Comment demander",
+    "bloc4Texte": "Un email à support@cartoonova.com avec ton numéro de commande. On te répond sous 24 h, du lundi au vendredi.",
+    "ctaTitre": "Prêt à te lancer ?",
+    "ctaTexte": "Choisis ton style, envoie ta photo : on s'occupe du reste, et la garantie s'applique à chaque commande.",
+    "ctaBouton": "Voir les styles",
+    "lienCgv": "Lire les conditions complètes dans nos CGV",
+    "faqTitre": "Questions sur la garantie",
+    "faq1Q": "Combien de retouches puis-je demander ?",
+    "faq1R": "Autant qu'il t'en faut, gratuitement. Les retouches portent sur des ajustements raisonnables (ressemblance, couleurs, détails), pas sur un changement complet de style ou de composition.",
+    "faq2Q": "Et si le portrait ne me plaît toujours pas ?",
+    "faq2R": "On te rembourse l'intégralité du prix payé, sur simple demande à support@cartoonova.com. Le remboursement est versé sur le moyen de paiement utilisé, sous 14 jours après validation de la demande.",
+    "faq3Q": "J'ai commandé un produit imprimé : qu'est-ce qui change ?",
+    "faq3R": "Si tu veux être remboursé, fais-en la demande avant de valider l'aperçu : une fois l'aperçu validé, l'impression est lancée. Si l'impression arrive abîmée ou non conforme, signale-le dans les 14 jours suivant la réception pour un échange ou un remboursement.",
+    "faq4Q": "Puis-je annuler ma commande ?",
+    "faq4R": "Ton portrait est une création sur mesure : le droit de rétractation ne s'applique plus une fois le dessin commencé. Tu restes couvert par les retouches illimitées et la garantie de remboursement.",
+    "faq5Q": "Comment faire une demande, et sous quel délai répondez-vous ?",
+    "faq5R": "Écris à support@cartoonova.com avec ton numéro de commande et une courte description. On te répond sous 24 h, du lundi au vendredi."
+  },
+  "portfolio": {
+    "intro": "Sur chaque image, la photo de départ à côté du portrait dessiné à partir d'elle. Choisis un univers et imagine le tien.",
+    "filtresLabel": "Filtrer par famille de styles",
+    "alt": "Photo d'origine et portrait {univers} dessiné à partir d'elle",
+    "ceStyle": "Ce style",
+    "voirStyle": "Voir le style {univers}"
   }
 }

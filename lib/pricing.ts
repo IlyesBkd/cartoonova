@@ -1,4 +1,5 @@
 import type { PriceSet } from "./types";
+import { saisonCartesEtCalendrier } from "./evenements";
 
 export const PRINT_KEYS = ["digital", "posterSimple", "canvas", "framed"] as const;
 export type PrintKey = (typeof PRINT_KEYS)[number];
@@ -23,10 +24,13 @@ export interface OrderPricingInput {
   banner?: boolean;
   extraDecor?: boolean;
   express?: boolean;
+  /** Options numeriques de saison (F-6/F-7), livrees en PDF par e-mail. */
+  carteVoeux?: boolean;
+  calendrier?: boolean;
 }
 
 /** Les options payantes, dans l'ordre d'affichage. */
-export const OPTIONS_PAYANTES = ["banner", "extraDecor", "express"] as const;
+export const OPTIONS_PAYANTES = ["banner", "extraDecor", "express", "carteVoeux", "calendrier"] as const;
 export type OptionPayante = (typeof OPTIONS_PAYANTES)[number];
 
 /**
@@ -58,6 +62,10 @@ export function parseOrderPricingInput(raw: unknown): OrderPricingInput | null {
     banner: cfg.banner === true,
     extraDecor: cfg.extraDecor === true,
     express: cfg.express === true,
+    /* Hors saison, la fiche cache ces options ; le serveur les ignore aussi,
+       pour qu'une requete forgee ou une page restee ouverte ne les facture pas. */
+    carteVoeux: cfg.carteVoeux === true && saisonCartesEtCalendrier(),
+    calendrier: cfg.calendrier === true && saisonCartesEtCalendrier(),
   };
 }
 
@@ -86,7 +94,9 @@ export function computeOrderSubtotal(prices: PriceSet, input: OrderPricingInput)
     prices[PRINT_PRICE_FIELD[input.printKey]] +
     (input.banner ? prices.banner : 0) +
     (input.extraDecor ? prices.extraDecor : 0) +
-    (input.express ? prices.express : 0);
+    (input.express ? prices.express : 0) +
+    (input.carteVoeux ? prices.carteVoeux : 0) +
+    (input.calendrier ? prices.calendrier : 0);
 
   return Math.round(total * 100) / 100;
 }

@@ -673,6 +673,32 @@ export default function AdminPage() {
     setUploadingImage(false);
   };
 
+  /* ─── Carte de voeux / calendrier (options F-6/F-7) ────────────────
+     Les PDF sont generes a partir du portrait final et envoyes au client.
+     A la main seulement : rien ne part tant que ce bouton n'est pas clique. */
+  const [envoiExtrasEnCours, setEnvoiExtrasEnCours] = useState(false);
+  const envoyerExtras = async (orderId: string) => {
+    if (!confirm("Générer la carte / le calendrier et les envoyer au client par e-mail ?")) return;
+    setEnvoiExtrasEnCours(true);
+    try {
+      const r = await fetch("/api/orders/extras", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({ orderId }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        alert(`Erreur : ${data.error ?? r.status}`);
+      } else {
+        const liens = (data.fichiers ?? []).map((f: { url: string }) => f.url).join("\n");
+        alert(`Envoyé au client.\n${liens}`);
+      }
+    } catch (err) {
+      alert(`Erreur : ${err instanceof Error ? err.message : "inconnue"}`);
+    }
+    setEnvoiExtrasEnCours(false);
+  };
+
   /* ─── Envoi differe de l'illustration ──────────────────────────────
 
      Livrer un portrait deux heures apres la commande ne se lit pas comme un
@@ -1278,13 +1304,33 @@ export default function AdminPage() {
                             banderole est dans la consigne du client. */}
                         {(() => {
                           const opts = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options;
-                          if (!opts?.banner && !opts?.extraDecor && !opts?.express) return null;
+                          if (!opts?.banner && !opts?.extraDecor && !opts?.express && !opts?.carteVoeux && !opts?.calendrier) return null;
                           return (
                             <div className="col-span-2">
                               <span className="text-gray-500">Options:</span>{" "}
                               {opts.express && <span className="font-bold text-red-700">⚡ EXPRESS 24 h (week-end compris) · </span>}
                               {opts.banner && <span className="font-semibold">🎀 Banderole · </span>}
-                              {opts.extraDecor && <span className="font-semibold">🏞️ 2ᵉ décor : {opts.extraDecorKey ?? "?"}</span>}
+                              {opts.extraDecor && <span className="font-semibold">🏞️ 2ᵉ décor : {opts.extraDecorKey ?? "?"} · </span>}
+                              {opts.carteVoeux && <span className="font-semibold">💌 Carte de vœux PDF · </span>}
+                              {opts.calendrier && <span className="font-semibold">📅 Calendrier 2027 PDF</span>}
+                              {(opts.carteVoeux || opts.calendrier) && (
+                                <div className="mt-2">
+                                  {selectedOrder.final_image_url ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => envoyerExtras(selectedOrder.id)}
+                                      disabled={envoiExtrasEnCours}
+                                      className="px-3 py-1.5 rounded-lg bg-black text-white text-xs font-bold disabled:opacity-50"
+                                    >
+                                      {envoiExtrasEnCours ? "Génération…" : "Envoyer carte / calendrier"}
+                                    </button>
+                                  ) : (
+                                    <span className="text-xs text-gray-500">
+                                      Carte / calendrier : dépose d&apos;abord le portrait final.
+                                    </span>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           );
                         })()}
@@ -2240,6 +2286,8 @@ export default function AdminPage() {
                   { key: "banner" as const, label: "Option Banderole / texte", icon: "🎀" },
                   { key: "extraDecor" as const, label: "Option Décor supplémentaire", icon: "🏞️" },
                   { key: "express" as const, label: "Option Express 24 h", icon: "⚡" },
+                  { key: "carteVoeux" as const, label: "Option Carte de vœux (PDF)", icon: "💌" },
+                  { key: "calendrier" as const, label: "Option Calendrier 2027 (PDF)", icon: "📅" },
                   { key: "shipping" as const, label: "Livraison (impressions)", icon: "📦" },
                 ].map((item) => (
                   <div key={item.key}>

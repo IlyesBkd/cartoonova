@@ -107,7 +107,7 @@
     "q2": "Måste alla vara med på samma foto?",
     "a2": "Nej då. Skicka separata foton så sätter vi ihop alla i samma bild.",
     "q3": "Vad händer om jag inte är nöjd?",
-    "a3": "Vi ändrar hur många gånger som helst, utan extra kostnad, tills du är helt nöjd.",
+    "a3": "Vi ändrar hur många gånger som helst, utan extra kostnad. Och är du ändå inte nöjd får du hela beloppet tillbaka. Det räcker att du frågar.",
     "q4": "Kan mitt husdjur också vara med?",
     "a4": "Absolut. Hundar, katter, fåglar — alla husdjur kan bli en tecknad figur.",
     "q5": "Kan ni rita in föremål eller bakgrunder?",
@@ -236,7 +236,7 @@
     "faqQ2": "Måste alla vara med på samma foto?",
     "faqA2": "Nej då. Skicka separata foton så sätter vi ihop alla i samma bild.",
     "faqQ3": "Vad händer om jag inte är nöjd?",
-    "faqA3": "Vi ändrar hur många gånger som helst, utan extra kostnad, tills du är helt nöjd. Din nöjdhet går först.",
+    "faqA3": "Vi ändrar hur många gånger som helst, utan extra kostnad, tills du är helt nöjd. Annars får du hela beloppet tillbaka på begäran (för tryckta produkter innan du godkänner förhandsvisningen).",
     "faqQ4": "Kan mitt husdjur också bli en gul figur?",
     "faqA4": "Absolut. Hundar, katter, fåglar — alla husdjur kan bli en gul tecknad figur.",
     "faqQ5": "Kan ni rita in föremål?",
@@ -353,7 +353,12 @@
     "optExpressSub": "Ditt porträtt inom 24 timmar, även på helger",
     "optExpressSubPrint": "Teckningen inom 24 timmar, även på helger, sedan trycket",
     "optExpressRecap": "Express 24 h",
-    "shippingLine": "varav frakt: {montant}"
+    "shippingLine": "varav frakt: {montant}",
+    "optSaisonTitre": "Till högtiderna",
+    "optCarteVoeux": "Julkort att skriva ut",
+    "optCarteVoeuxSub": "Ditt porträtt som kort med ”God jul och gott nytt år”, A5-PDF via e-post",
+    "optCalendrier": "Kalender 2027 att skriva ut",
+    "optCalendrierSub": "Ditt porträtt på alla 12 månader 2027, A4-PDF via e-post"
   },
   "checkout": {
     "orderConfirmed": "Beställning bekräftad",
@@ -659,7 +664,7 @@
     "viewPortfolio": "Se hela portfolion →",
     "whyUsTitle": "Varför Cartoonova?",
     "whyUs1Title": "Nöjdhetsgaranti",
-    "whyUs1Desc": "Obegränsat med gratis ändringar tills du är helt nöjd.",
+    "whyUs1Desc": "Obegränsat med gratis ändringar, och pengarna tillbaka om du inte är nöjd.",
     "whyUs2Title": "Efter ditt foto",
     "whyUs2Desc": "Varje porträtt görs utifrån dina foton, bara för dig.",
     "whyUs3Title": "Leverans på 2 dagar",
@@ -686,7 +691,7 @@
     "faqQ2": "Måste alla vara med på samma foto?",
     "faqA2": "Nej då. Skicka separata foton så sätter vi ihop alla i samma bild.",
     "faqQ3": "Vad händer om jag inte är nöjd?",
-    "faqA3": "Vi ändrar hur många gånger som helst, utan extra kostnad, tills du är helt nöjd.",
+    "faqA3": "Vi ändrar hur många gånger som helst, utan extra kostnad. Och är du ändå inte nöjd får du hela beloppet tillbaka. Det räcker att du frågar.",
     "faqQ4": "Kan mitt husdjur också vara med?",
     "faqA4": "Absolut. Hundar, katter, fåglar — alla husdjur kan bli en tecknad figur.",
     "faqQ5": "Kan ni rita in föremål eller bakgrunder?",
@@ -872,6 +877,10 @@
     "guidePhoto": {
       "title": "Vilket foto ska jag skicka för ett cartoonporträtt? | Cartoonova",
       "description": "Synligt ansikte, framifrån, bra ljus, skarpt foto: våra tips för att välja fotot till ditt personliga cartoonporträtt, och misstagen du bör undvika."
+    },
+    "garantie": {
+      "title": "Vår garanti: ändringar och återbetalning",
+      "description": "Obegränsat med gratis ändringar, full återbetalning om ditt cartoonporträtt inte blir rätt, byte av skadat tryck: allt som vår garanti täcker."
     }
   },
   "alt": {
@@ -915,7 +924,13 @@
     "bonCta": "Ge bort ett presentkort",
     "universTitre": "De mest givna stilarna",
     "universSous": "Varje stil har sin egen julsida: idéer, exempel och svar om leveranstider.",
-    "faqTitre": "Dina frågor om julen"
+    "faqTitre": "Dina frågor om julen",
+    "extrasTitre": "Ditt julkort och din kalender 2027",
+    "extrasSous": "Två alternativ som du kryssar i på sidan för ditt porträtt. Det är filer att skriva ut: ingen leveransfrist, du får dem via e-post med din teckning.",
+    "extrasCarteTitre": "Julkort",
+    "extrasCarteTexte": "Ditt porträtt på framsidan och ”God jul och gott nytt år 2027” under. En A5-PDF att skriva ut så många gånger du vill.",
+    "extrasCalendrierTitre": "Kalender 2027",
+    "extrasCalendrierTexte": "Ett omslag och 12 månader med ditt porträtt. En A4-PDF att skriva ut hemma eller på ett tryckeri."
   },
   "contactForm": {
     "nom": "Ditt namn",
@@ -1083,5 +1098,42 @@
     "v3Texte": "Förhandsvisning på 2 dagar, tryck tillverkade och levererade på 3 till 7 arbetsdagar. Spårbar frakt över hela världen.",
     "v4Titre": "Över hela världen",
     "v4Texte": "Leverans till fler än 50 länder, och en support som faktiskt svarar."
+  },
+  "garantie": {
+    "lienPied": "Vår garanti",
+    "surtitre": "Vår garanti",
+    "titre": "Du tar",
+    "accent": "ingen risk",
+    "sous": "Ditt porträtt görs på beställning, och du betalar innan du har sett det. Därför lovar vi: obegränsat med ändringar tills du gillar det, och full återbetalning om du ändå inte är övertygad.",
+    "bloc1Titre": "Obegränsat med ändringar",
+    "bloc1Texte": "Likhet, färger, detaljer: vi ändrar ditt porträtt gratis så många gånger som behövs, tills du gillar det.",
+    "bloc2Titre": "Pengarna tillbaka om du inte är övertygad",
+    "bloc2Texte": "Om porträttet fortfarande inte känns rätt efter ändringarna får du hela beloppet tillbaka. Det räcker att du frågar.",
+    "bloc3Titre": "Skadat tryck",
+    "bloc3Texte": "Kom din tryckta produkt skadad eller fel? Hör av dig inom 14 dagar efter mottagandet: byte eller återbetalning, du väljer.",
+    "bloc4Titre": "Så gör du",
+    "bloc4Texte": "Mejla support@cartoonova.com med ditt ordernummer. Vi svarar inom 24 timmar, måndag till fredag.",
+    "ctaTitre": "Redo att sätta igång?",
+    "ctaTexte": "Välj din stil, skicka ditt foto: vi tar hand om resten, och garantin gäller varje beställning.",
+    "ctaBouton": "Se stilarna",
+    "lienCgv": "Läs de fullständiga villkoren i våra köpvillkor",
+    "faqTitre": "Frågor om garantin",
+    "faq1Q": "Hur många ändringar kan jag be om?",
+    "faq1R": "Så många du behöver, utan kostnad. Ändringarna gäller rimliga justeringar (likhet, färger, detaljer), inte ett helt byte av stil eller komposition.",
+    "faq2Q": "Och om jag fortfarande inte gillar porträttet?",
+    "faq2R": "Då betalar vi tillbaka hela beloppet. Det räcker att du mejlar support@cartoonova.com. Pengarna går tillbaka till betalsättet du använde, inom 14 dagar efter godkänd begäran.",
+    "faq3Q": "Jag har beställt en tryckt produkt: vad skiljer sig?",
+    "faq3R": "Vill du ha pengarna tillbaka, be om det innan du godkänner förhandsvisningen: när den är godkänd går tryckningen i gång. Kommer trycket skadat eller fel, hör av dig inom 14 dagar efter mottagandet för byte eller återbetalning.",
+    "faq4Q": "Kan jag avbryta min beställning?",
+    "faq4R": "Ditt porträtt är beställningsarbete: ångerrätten gäller inte längre när teckningen har påbörjats. Du skyddas ändå av de obegränsade ändringarna och återbetalningsgarantin.",
+    "faq5Q": "Hur gör jag en förfrågan, och hur snabbt svarar ni?",
+    "faq5R": "Mejla support@cartoonova.com med ditt ordernummer och en kort beskrivning. Vi svarar inom 24 timmar, måndag till fredag."
+  },
+  "portfolio": {
+    "intro": "Varje bild visar originalfotot bredvid porträttet som ritats efter det. Välj en stil och föreställ dig ditt.",
+    "filtresLabel": "Filtrera efter stilfamilj",
+    "alt": "Originalfoto och {univers}-porträttet som ritats efter det",
+    "ceStyle": "Den här stilen",
+    "voirStyle": "Se {univers}-stilen"
   }
 }

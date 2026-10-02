@@ -1,0 +1,57 @@
+/* Options numeriques de saison : carte de voeux et calendrier (F-6/F-7).
+   Fiche produit (bloc sous les options payantes) et page Noel. */
+
+.options-saison {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 2px dashed var(--soleil-fonce, #e9ba3b);
+}
+.options-saison__titre {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--encre, #2a2552);
+}
+
+.noel-extras {
+  margin-top: 40px;
+  text-align: center;
+}
+.noel-extras h2 {
+  font-size: var(--t-section, 28px);
+  margin-bottom: 8px;
+}
+.noel-extras__sous {
+  max-width: 620px;
+  margin: 0 auto 20px;
+  color: var(--encre-doux, #5c5780);
+}
+.noel-extras__grille {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  text-align: left;
+}
+.noel-extras__carte {
+  background: var(--soleil-pale, #fdf3d4);
+  border: 2px solid var(--encre, #2a2552);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.noel-extras__carte h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  color: var(--encre, #2a2552);
+}
+.noel-extras__carte p {
+  margin: 0;
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  .noel-extras__grille {
+    grid-template-columns: 1fr;
+  }
+}

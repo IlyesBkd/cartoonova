@@ -50,6 +50,7 @@ const pages: PageDef[] = [
   { path: "/noel", changeFrequency: "weekly", priority: 0.85 },
   { path: "/bon-cadeau", changeFrequency: "monthly", priority: 0.75 },
   { path: "/quelle-photo", changeFrequency: "yearly", priority: 0.6 },
+  { path: "/garantie", changeFrequency: "yearly", priority: 0.5 },
   { path: "/portfolio", changeFrequency: "monthly", priority: 0.7 },
   { path: "/avis", changeFrequency: "monthly", priority: 0.7 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
