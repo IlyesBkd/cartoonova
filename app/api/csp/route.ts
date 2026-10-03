@@ -17,6 +17,8 @@ interface Violation {
   directive: string;
   bloque: string;
   page: string;
+  /** Script fautif et ligne, quand le navigateur les donne. */
+  source: string;
 }
 
 function normaliser(brut: unknown): Violation[] {
@@ -29,15 +31,30 @@ function normaliser(brut: unknown): Violation[] {
     const directive = String(r["effective-directive"] ?? r.effectiveDirective ?? r["violated-directive"] ?? "");
     const bloque = String(r["blocked-uri"] ?? r.blockedURL ?? "");
     const page = String(r["document-uri"] ?? r.documentURL ?? "");
-    if (directive) sortie.push({ directive, bloque, page });
+    const fichier = String(r["source-file"] ?? r.sourceFile ?? "");
+    const ligne = r["line-number"] ?? r.lineNumber;
+    const source = fichier ? `${fichier}${ligne ? `:${ligne}` : ""}` : "";
+    if (directive) sortie.push({ directive, bloque, page, source });
   }
   return sortie;
 }
 
+const EXTENSION = /^(chrome|moz|safari|ms-browser)-extension:/;
+
 /* Les extensions du navigateur injectent leurs propres scripts : ce bruit ne
    dit rien du site et noierait les vrais oublis. */
 function estDuBruit(v: Violation): boolean {
-  return /^(chrome|moz|safari|ms-browser)-extension:/.test(v.bloque) || v.bloque === "about";
+  return EXTENSION.test(v.bloque) || EXTENSION.test(v.source) || v.bloque === "about";
+}
+
+/* Chemin de la page sans sa requete, et sans le jeton des pages apres-vente :
+   un rapport ne doit pas faire sortir un lien d'acces a une commande. */
+function cheminPropre(page: string): string {
+  try {
+    return new URL(page).pathname.replace(/\/(suivi|depot|bonus|bon|confirm-poster)\/[^/]+/, "/$1/<jeton>");
+  } catch {
+    return page ? "?" : "";
+  }
 }
 
 /* Une alerte Discord par heure et par instance au plus : une page mal
@@ -56,18 +73,22 @@ export async function POST(req: Request) {
 
   const violations = normaliser(corps).filter((v) => !estDuBruit(v));
   for (const v of violations) {
-    console.warn("[csp]", v.directive, v.bloque, v.page);
-    recents.add(`${v.directive} ← ${v.bloque || "(inline)"}`);
+    console.warn("[csp]", v.directive, v.bloque, cheminPropre(v.page), v.source);
+    /* Page et script fautif : sans eux, une alerte ne disait pas ou chercher
+       (rapport « wasm-eval » du 3 octobre 2026, introuvable). */
+    const lignes = [`${v.directive} ← ${v.bloque || "(inline)"}`, `   page : ${cheminPropre(v.page) || "?"}`];
+    if (v.source) lignes.push(`   script : ${v.source.slice(0, 150)}`);
+    recents.add(lignes.join("\n"));
   }
 
   if (recents.size > 0 && Date.now() - derniereAlerte > 3600_000) {
     derniereAlerte = Date.now();
-    const resume = [...recents].slice(0, 15).join("\n");
+    const resume = [...recents].slice(0, 8).join("\n");
     recents.clear();
     await alerteDiscord({
       titre: "CSP : ressources qui seraient bloquees",
       couleur: COULEUR_ATTENTION,
-      champs: [{ name: "Directive ← origine", value: resume.slice(0, 1000) }],
+      champs: [{ name: "Directive ← origine, page, script", value: resume.slice(0, 1000) }],
       piedDePage: "Report-Only — rien n'est bloque pour l'instant",
     });
   }
