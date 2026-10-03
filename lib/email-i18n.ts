@@ -2425,8 +2425,8 @@ export const shippingEmail: Record<Lang, {
 /* ─── Page de succès (après paiement) ─────────────────────────────────
    Elle etait en francais code en dur, alors que la moitie des clients de
    septembre 2026 etaient italiens, anglais ou americains. Elle vit hors de
-   [locale] : la langue arrive par `?lang=` (pose par la caisse), le cookie
-   NEXT_LOCALE, puis le pays de la commande.
+   [locale] : la langue arrive par `?lang=` (pose par la caisse), puis le
+   pays de la commande.
 
    Les etats d'attente et d'echec y sont aussi. `processing` n'est pas un
    echec : PayPal et Revolut Pay y passent souvent avant d'aboutir, et le

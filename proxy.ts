@@ -1,7 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "./i18n/routing";
-import { locales, defaultLocale } from "./i18n/config";
+import { locales, defaultLocale, COOKIE_LANGUE_CHOISIE } from "./i18n/config";
 import { getCurrencyFromCountry } from "./lib/currency";
 
 const intlMiddleware = createMiddleware(routing);
@@ -66,9 +66,11 @@ export function proxy(request: NextRequest) {
   }
 
   // Root-path geo-redirect: send the user to the locale matching their country
-  // before next-intl falls back to the default. Respect existing NEXT_LOCALE cookie.
+  // before next-intl falls back to the default. Une langue choisie dans le
+  // selecteur passe avant le pays (COOKIE_LANGUE_CHOISIE) ; une simple visite
+  // d'une page dans une autre langue, non.
   if (pathname === "/") {
-    const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+    const cookieLocale = request.cookies.get(COOKIE_LANGUE_CHOISIE)?.value;
     const validCookie = cookieLocale && (locales as readonly string[]).includes(cookieLocale) ? cookieLocale : null;
     const fromCountry = country ? countryLocaleMap[country.toUpperCase()] : null;
     const target = validCookie ?? fromCountry ?? "en";

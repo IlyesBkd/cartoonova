@@ -3,11 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "next/navigation";
-import { locales, localeNames, type Locale } from "@/i18n/config";
+import { locales, localeNames, COOKIE_LANGUE_CHOISIE, type Locale } from "@/i18n/config";
 import { currencies, currencySymbols, currencyNames, type Currency } from "@/lib/currency";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
+
+/** Choix explicite : retenu un an pour la redirection de la page d'accueil. */
+function retenirLangue(langue: Locale) {
+  document.cookie = `${COOKIE_LANGUE_CHOISIE}=${langue}; path=/; max-age=31536000; SameSite=Lax`;
+}
 
 export default function LanguageAndCurrencySwitcher({ pleineLargeur = false }: { pleineLargeur?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -51,6 +56,7 @@ export default function LanguageAndCurrencySwitcher({ pleineLargeur = false }: {
     // localePrefix: "always" — chaque langue a son préfixe.
     const newPath = `/${newLocale}${cleanPath === "/" ? "" : cleanPath}`;
 
+    retenirLangue(newLocale);
     router.replace(newPath);
     setOpen(false);
   };
