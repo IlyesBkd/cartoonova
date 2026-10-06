@@ -364,7 +364,11 @@
     "wantedNom": "Nom sur l'affiche",
     "wantedNomExemple": "Ex : Maureen la Terrible",
     "wantedPrime": "Prime",
-    "wantedPrimeExemple": "Ex : 1 000 000 000 ฿"
+    "wantedPrimeExemple": "Ex : 1 000 000 000 ฿",
+    "titreEtape": "Le texte de ton affiche",
+    "titreAide": "Le nom ou le titre écrit sur l'affiche, comme sur les exemples. Laisse vide : l'illustrateur s'en charge (souvent avec vos prénoms).",
+    "titreChamp": "Texte sur l'affiche",
+    "titreExemple": "Ex : Famille Martin · Nico & Léna · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Commande confirmée",

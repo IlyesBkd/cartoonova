@@ -364,7 +364,11 @@
     "wantedNom": "Namn på affischen",
     "wantedNomExemple": "T.ex. Maureen den Orädda",
     "wantedPrime": "Belöning",
-    "wantedPrimeExemple": "T.ex. 1 000 000 000 ฿"
+    "wantedPrimeExemple": "T.ex. 1 000 000 000 ฿",
+    "titreEtape": "Texten på din affisch",
+    "titreAide": "Namnet eller titeln på affischen, som i exemplen. Lämna tomt så fixar illustratören det (oftast med era förnamn).",
+    "titreChamp": "Text på affischen",
+    "titreExemple": "T.ex. Familjen Andersson · Nico & Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Beställning bekräftad",

@@ -364,7 +364,11 @@
     "wantedNom": "Nombre en el cartel",
     "wantedNomExemple": "Ej.: Maureen la Temible",
     "wantedPrime": "Recompensa",
-    "wantedPrimeExemple": "Ej.: 1.000.000.000 ฿"
+    "wantedPrimeExemple": "Ej.: 1.000.000.000 ฿",
+    "titreEtape": "El texto de tu cartel",
+    "titreAide": "El nombre o título escrito en el cartel, como en los ejemplos. Déjalo en blanco y el ilustrador se encarga (normalmente con vuestros nombres).",
+    "titreChamp": "Texto en el cartel",
+    "titreExemple": "Ej.: Familia Martín · Nico y Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Pedido confirmado",

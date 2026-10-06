@@ -364,7 +364,11 @@
     "wantedNom": "Nome no cartaz",
     "wantedNomExemple": "Ex.: Maureen a Destemida",
     "wantedPrime": "Recompensa",
-    "wantedPrimeExemple": "Ex.: 1.000.000.000 ฿"
+    "wantedPrimeExemple": "Ex.: 1.000.000.000 ฿",
+    "titreEtape": "O texto do teu cartaz",
+    "titreAide": "O nome ou título escrito no cartaz, como nos exemplos. Deixa em branco e o ilustrador trata disso (normalmente com os vossos nomes).",
+    "titreChamp": "Texto no cartaz",
+    "titreExemple": "Ex.: Família Silva · Nico e Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Encomenda confirmada",

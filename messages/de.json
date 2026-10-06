@@ -364,7 +364,11 @@
     "wantedNom": "Name auf dem Steckbrief",
     "wantedNomExemple": "Z. B. Maureen die Furchtlose",
     "wantedPrime": "Kopfgeld",
-    "wantedPrimeExemple": "Z. B. 1.000.000.000 ฿"
+    "wantedPrimeExemple": "Z. B. 1.000.000.000 ฿",
+    "titreEtape": "Der Text deines Posters",
+    "titreAide": "Der Name oder Titel auf dem Poster, wie in den Beispielen. Leer lassen: Der Illustrator übernimmt das (meist mit euren Vornamen).",
+    "titreChamp": "Text auf dem Poster",
+    "titreExemple": "Z. B. Familie Müller · Nico & Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Bestellung bestätigt",

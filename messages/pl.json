@@ -364,7 +364,11 @@
     "wantedNom": "Imię na liście gończym",
     "wantedNomExemple": "Np. Maureen Nieustraszona",
     "wantedPrime": "Nagroda",
-    "wantedPrimeExemple": "Np. 1 000 000 000 ฿"
+    "wantedPrimeExemple": "Np. 1 000 000 000 ฿",
+    "titreEtape": "Tekst na twoim plakacie",
+    "titreAide": "Imię lub tytuł na plakacie, jak w przykładach. Zostaw puste, a ilustrator się tym zajmie (zwykle z waszymi imionami).",
+    "titreChamp": "Tekst na plakacie",
+    "titreExemple": "Np. Rodzina Nowaków · Nico i Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Zamówienie potwierdzone",

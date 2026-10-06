@@ -364,7 +364,11 @@
     "wantedNom": "Nome sul manifesto",
     "wantedNomExemple": "Es.: Maureen la Terribile",
     "wantedPrime": "Taglia",
-    "wantedPrimeExemple": "Es.: 1.000.000.000 ฿"
+    "wantedPrimeExemple": "Es.: 1.000.000.000 ฿",
+    "titreEtape": "Il testo del tuo poster",
+    "titreAide": "Il nome o il titolo scritto sul poster, come negli esempi. Lascia vuoto e ci pensa l'illustratore (di solito con i vostri nomi).",
+    "titreChamp": "Testo sul poster",
+    "titreExemple": "Es.: Famiglia Rossi · Nico & Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Ordine confermato",

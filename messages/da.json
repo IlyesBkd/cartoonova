@@ -364,7 +364,11 @@
     "wantedNom": "Navn på plakaten",
     "wantedNomExemple": "F.eks. Maureen den Frygtløse",
     "wantedPrime": "Dusør",
-    "wantedPrimeExemple": "F.eks. 1.000.000.000 ฿"
+    "wantedPrimeExemple": "F.eks. 1.000.000.000 ฿",
+    "titreEtape": "Teksten på din plakat",
+    "titreAide": "Navnet eller titlen på plakaten, som i eksemplerne. Lad feltet stå tomt, så klarer illustratoren det (som regel med jeres fornavne).",
+    "titreChamp": "Tekst på plakaten",
+    "titreExemple": "F.eks. Familien Jensen · Nico & Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Bestilling bekræftet",

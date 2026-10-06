@@ -364,7 +364,11 @@
     "wantedNom": "Naam op de poster",
     "wantedNomExemple": "Bijv. Maureen de Onverschrokkene",
     "wantedPrime": "Premie",
-    "wantedPrimeExemple": "Bijv. 1.000.000.000 ฿"
+    "wantedPrimeExemple": "Bijv. 1.000.000.000 ฿",
+    "titreEtape": "De tekst van je poster",
+    "titreAide": "De naam of titel op de poster, zoals in de voorbeelden. Laat leeg en de illustrator regelt het (meestal met jullie voornamen).",
+    "titreChamp": "Tekst op de poster",
+    "titreExemple": "Bijv. Familie Jansen · Nico & Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Bestelling bevestigd",

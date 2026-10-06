@@ -364,7 +364,11 @@
     "wantedNom": "Name on the poster",
     "wantedNomExemple": "E.g. Maureen the Fearless",
     "wantedPrime": "Bounty",
-    "wantedPrimeExemple": "E.g. 1,000,000,000 ฿"
+    "wantedPrimeExemple": "E.g. 1,000,000,000 ฿",
+    "titreEtape": "Your poster's text",
+    "titreAide": "The name or title written on the poster, like in the examples. Leave it blank and the illustrator will handle it (usually with your first names).",
+    "titreChamp": "Text on the poster",
+    "titreExemple": "E.g. The Martins · Nico & Lena · Jedi Alex"
   },
   "checkout": {
     "orderConfirmed": "Order confirmed",

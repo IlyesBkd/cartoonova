@@ -139,8 +139,12 @@ export interface Produit {
    * L'affiche Wanted de One Piece a les siens (nom et prime) depuis le
    * 7 octobre 2026 : sans eux, une cliente a paye l'option banderole pour
    * faire ecrire son nom sur l'affiche.
+   * « titre-affiche » : les fiches dont le dessin porte un nom ou un titre
+   * (« Wonder Romane », « Les aventures de Quentin », « Famille Perrin »…),
+   * releves sur leurs visuels le 7 octobre 2026. Aucune ne permettait de le
+   * saisir ; un client Batman l'a demande dans sa note.
    */
-  champsPersonnalises?: "carte-pokemon" | "affiche-wanted";
+  champsPersonnalises?: "carte-pokemon" | "affiche-wanted" | "titre-affiche";
 }
 
 /* ─── gabarits de titre et de description ──────────────────────────────── */
@@ -259,6 +263,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "manga",
     idProduit: "cartoonova-deathnote-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -395,6 +400,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cartoon",
     idProduit: "cartoonova-adventuretime-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -438,6 +444,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cartoon",
     idProduit: "cartoonova-futurama-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -451,6 +458,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cartoon",
     idProduit: "cartoonova-lego-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -464,6 +472,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cartoon",
     idProduit: "cartoonova-playmobil-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -550,6 +559,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cartoon",
     idProduit: "cartoonova-tintin-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -565,6 +575,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-aquaman-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -578,6 +589,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-batman-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -591,6 +603,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-blackpanther-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -604,6 +617,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-deadpool-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -617,6 +631,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-joker-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -630,6 +645,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-spiderman-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -643,6 +659,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-superman-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -656,6 +673,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "comics",
     idProduit: "cartoonova-wonderwoman-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -694,6 +712,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cinema",
     idProduit: "cartoonova-indestructibles-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -707,6 +726,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cinema",
     idProduit: "cartoonova-starwars-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
@@ -720,6 +740,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "cinema",
     idProduit: "cartoonova-strangerthings-portrait",
     enLigne: true,
+    champsPersonnalises: "titre-affiche",
     personnages: true,
     decorsAttendus: 0,
     description: {
