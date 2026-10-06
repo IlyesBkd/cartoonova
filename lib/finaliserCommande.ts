@@ -1,4 +1,3 @@
-import { Resend } from "resend";
 import { marquerPayee } from "@/lib/db";
 import type { DbOrder } from "@/lib/db";
 import { confirmationEmail, depotPhotosPage, optionsCommande, langueCommande } from "@/lib/email-i18n";
@@ -15,6 +14,8 @@ import { formatPrix } from "@/lib/i18n/relances";
 import { debiterBonCadeau } from "./promoCodes";
 import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
+import { envoyerEmail } from "@/lib/envoiEmail";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -33,8 +34,6 @@ import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
  * l'autre a chaque commande.
  */
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 async function envoyerConfirmation(order: DbOrder): Promise<void> {
   try {
     const opts = order.options;
@@ -44,7 +43,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
     const oc = optionsCommande[lang];
     const ref = order.id.slice(0, 8);
 
-    await resend.emails.send({
+    await envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
@@ -115,7 +114,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
   } catch (erreur) {
     /* Une commande payee ne se perd pas parce que Resend est en panne : on
        journalise et on laisse le reste se faire. */
-    console.error("[finaliser] envoi de l'e-mail de confirmation impossible:", erreur);
+    await signalerPanne("e-mail de confirmation de commande", erreur, { commande: String(order.id).slice(0, 8) });
   }
 }
 

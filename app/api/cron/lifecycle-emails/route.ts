@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import Stripe from "stripe";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -35,8 +34,8 @@ import { SITE_URL } from "@/lib/site";
 import { finaliserCommande } from "@/lib/finaliserCommande";
 import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { envoyerEmail } from "@/lib/envoiEmail";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 // Delai apres l'envoi de l'illustration finale. La demande d'avis attend que
 // l'impression soit arrivee (2j de dessin + 3j ouvres de fabrication/envoi).
@@ -97,7 +96,7 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
     const t = reviewRequestEmail[lang];
 
     try {
-      await resend.emails.send({
+      await envoyerEmail({
         from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
@@ -149,7 +148,7 @@ async function sendReorderEmails(): Promise<{ sent: number; failed: number }> {
       `&t=${signEmail(order.customer_email)}&lang=${lang}`;
 
     try {
-      await resend.emails.send({
+      await envoyerEmail({
         from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
@@ -261,7 +260,7 @@ async function sendAbandonedCartEmails(): Promise<{
         `?email=${encodeURIComponent(order.customer_email)}` +
         `&t=${signEmail(order.customer_email)}&lang=${lang}`;
 
-      await resend.emails.send({
+      await envoyerEmail({
         from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
@@ -336,7 +335,7 @@ async function sendLeadReminders(): Promise<{ sent: number; failed: number }> {
       `&t=${signEmail(lead.email)}&lang=${lang}`;
 
     try {
-      await resend.emails.send({
+      await envoyerEmail({
         from: EXPEDITEUR,
         to: [lead.email],
         replyTo: SUPPORT_EMAIL,
@@ -493,7 +492,7 @@ async function sendPrintUpsell(): Promise<{ sent: number; failed: number }> {
       }
       const taille = tailleImpression(devise);
 
-      await resend.emails.send({
+      await envoyerEmail({
         from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
@@ -623,7 +622,7 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
     if (palierFranchi === 0) continue;
 
     try {
-      await resend.emails.send({
+      await envoyerEmail({
         from: EXPEDITEUR,
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
@@ -736,10 +735,22 @@ export async function GET(req: NextRequest) {
     const photos = await relancerPhotosManquantes();
     const result = { imagesFinales, welcome, reviewRequests, reorders, abandoned, leads, printUpsell, photos };
     console.log("[CRON lifecycle-emails]", JSON.stringify(result));
+    /* Un seul signalement pour tout le passage : des e-mails clients qui ne
+       partent pas (Resend en panne, quota, adresse refusee) doivent se voir. */
+    const echecs = Object.entries(result)
+      .map(([tache, r]) => [tache, (r as { failed?: number }).failed ?? 0] as const)
+      .filter(([, n]) => n > 0);
+    if (echecs.length) {
+      await signalerPanne(
+        "relances e-mail (cron)",
+        new Error(`${echecs.reduce((t, [, n]) => t + n, 0)} envoi(s) en echec`),
+        Object.fromEntries(echecs)
+      );
+    }
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[CRON lifecycle-emails] Error:", message);
+    await signalerPanne("relances e-mail (cron)", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

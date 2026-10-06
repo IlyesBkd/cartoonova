@@ -211,6 +211,15 @@ export const MESURES = {
   bonusUtilise: "bonus_used",
   /** Page introuvable (404). Une annonce ou un lien casse se voit ici. */
   pageIntrouvable: "page_not_found",
+  /** Panne serveur sur un chemin critique (`lib/alerteServeur.ts`), doublee
+      d'une alerte Discord. Porte le contexte et le message. */
+  panneServeur: "server_error",
+  /** Retours de Resend sur un e-mail : distribue, refuse (adresse invalide),
+      signale comme spam, retarde. Emis par `/api/resend/webhook`. */
+  emailDistribue: "email_delivered",
+  emailRefuse: "email_bounced",
+  emailSpam: "email_complained",
+  emailRetarde: "email_delayed",
 } as const;
 
 /** Tous les noms acceptes par `mesure()`. */

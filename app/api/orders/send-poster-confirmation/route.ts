@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { Resend } from "resend";
 import { getOrderById, setPosterConfirmationToken, setOrderLastOutboundMessageId } from "@/lib/db";
 import { langueCommande, posterConfirmationEmail } from "@/lib/email-i18n";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 export async function POST(req: NextRequest) {
   const refus = refuserSiPasAdmin(req);
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest) {
     const ref = (orderRef || orderId).slice(0, 8);
     const confirmUrl = `${new URL(req.url).origin}/confirm-poster/${token}`;
 
-    const result = await resend.emails.send({
+    const result = await envoyerEmail({
       from: EXPEDITEUR,
       to: [customerEmail],
       replyTo: SUPPORT_EMAIL,

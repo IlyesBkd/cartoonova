@@ -9,6 +9,7 @@ import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
 import { emailValide } from "@/lib/email";
 import { LANGS } from "@/lib/email-i18n";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -224,7 +225,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ orderId });
   } catch (error) {
-    console.error("DB insert error:", error);
+    await signalerPanne("creation de la commande", error);
     return NextResponse.json({ error: "Erreur création commande." }, { status: 500 });
   }
 }

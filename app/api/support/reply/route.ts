@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import {
   getSupportMessageById,
   getOrderById,
@@ -10,8 +9,7 @@ import {
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { emailValide } from "@/lib/email";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 
 /**
@@ -117,7 +115,7 @@ export async function POST(req: NextRequest) {
         : `<${message.message_id}>`
       : null;
 
-    const envoi = await resend.emails.send({
+    const envoi = await envoyerEmail({
       from: EXPEDITEUR,
       to: [destinataire],
       replyTo: SUPPORT_EMAIL,

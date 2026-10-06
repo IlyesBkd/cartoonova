@@ -5,6 +5,7 @@ import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { alerteDiscord, COULEUR_SOLEIL } from "@/lib/discord";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 /**
  * Depot des photos apres paiement.
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, photos: photos.length });
   } catch (erreur) {
-    console.error("[orders/photos] échec:", erreur);
+    await signalerPanne("depot de photos apres paiement", erreur);
     return NextResponse.json({ error: "Erreur technique." }, { status: 500 });
   }
 }

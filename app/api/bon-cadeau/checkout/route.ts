@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { deviseValide, montantsBon } from "@/lib/bonCadeauMontants";
 import { LANGS } from "@/lib/email-i18n";
 import { emailValide } from "@/lib/email";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 /* Prepare le paiement d'un bon cadeau.
 
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ clientSecret: paymentIntent.client_secret });
   } catch (erreur) {
-    console.error("[bon-cadeau/checkout] erreur:", erreur);
+    await signalerPanne("creation du paiement (bon cadeau)", erreur);
     return NextResponse.json({ error: "Erreur Stripe." }, { status: 500 });
   }
 }

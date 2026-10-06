@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { Resend } from "resend";
 import { getOrderById, type OrderOptions } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { optionsCommande, langueCommande } from "@/lib/email-i18n";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { genererCarteVoeux } from "@/lib/extras/carteVoeux";
 import { genererCalendrier } from "@/lib/extras/calendrier";
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 /**
  * Carte de voeux et calendrier (options F-6/F-7) : genere les PDF a partir du
@@ -19,8 +19,6 @@ import { genererCalendrier } from "@/lib/extras/calendrier";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 /** `options` revient parfois en texte de la base selon le chemin de lecture. */
 function lireOptions(brut: unknown): Partial<OrderOptions> {
@@ -99,7 +97,7 @@ export async function POST(req: NextRequest) {
       )
       .join("");
 
-    const envoi = await resend.emails.send({
+    const envoi = await envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,

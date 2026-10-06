@@ -1,4 +1,3 @@
-import { Resend } from "resend";
 import { markWelcomeStepSent, type NewsletterSubscriber } from "./db";
 import { welcomeSequence, LANGS, type Lang } from "./email-i18n";
 import { signEmail } from "./emailToken";
@@ -7,8 +6,7 @@ import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
 import { lienEmail } from "./utmEmail";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 /* La liste etait recopiee ici, figee a cinq langues, alors que `email-i18n`
    en sert dix et que le site en propose autant : un inscrit neerlandais,
@@ -44,7 +42,7 @@ export async function sendWelcomeStep(
     .map((p) => `<p style="font-size:16px;margin:0 0 16px;color:#333;">${p}</p>`)
     .join("");
 
-  await resend.emails.send({
+  await envoyerEmail({
     from: EXPEDITEUR,
     to: [subscriber.email],
     replyTo: SUPPORT_EMAIL,

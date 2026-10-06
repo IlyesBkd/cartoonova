@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { libelleSupportCourt } from "@/lib/supportCommande";
 import { enregistrerRetouche, nombreRetouches } from "@/lib/retouches";
@@ -7,8 +6,8 @@ import { recordPosterConfirmationResponse, setOrderLastOutboundMessageId, type D
 import { langueCommande } from "@/lib/email-i18n";
 import { accuseRetoucheEmail } from "@/lib/i18n/serveur";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { envoyerEmail } from "@/lib/envoiEmail";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 function echapper(texte: string): string {
   return texte
@@ -44,7 +43,7 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
           </div>`
       : "";
 
-    const result = await resend.emails.send({
+    const result = await envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
@@ -243,7 +242,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/orders/confirm-poster] Error:", message);
+    await signalerPanne("validation ou retouche de l'aperçu", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

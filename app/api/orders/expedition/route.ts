@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import {
   getOrderById,
   enregistrerExpedition,
@@ -10,6 +9,7 @@ import { shippingEmail, langueCommande } from "@/lib/email-i18n";
 import { estPhysique } from "@/lib/supportCommande";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 /**
  * Le dossier d'expedition d'une commande physique.
@@ -39,8 +39,6 @@ import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
  * au client, et un client qui la lit n'a rien a en faire sinon deviner chez
  * qui nous imprimons.
  */
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 /** Ce que le tableau de bord poste, dans les deux verbes. */
 interface CorpsExpedition {
   orderId?: string;
@@ -171,7 +169,7 @@ export async function POST(req: NextRequest) {
     const ref = order.id.slice(0, 8);
     const lienHtml = echapper(lien);
 
-    const resultat = await resend.emails.send({
+    const resultat = await envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,

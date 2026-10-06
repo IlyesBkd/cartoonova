@@ -7,6 +7,7 @@ import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
 import { alerteDiscord, COULEUR_ALERTE, COULEUR_ATTENTION } from "@/lib/discord";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 /**
  * Webhook Stripe.
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest) {
     /* 500 volontaire : Stripe reessaiera avec un delai croissant pendant
        trois jours. C'est ce qui rattrape une panne passagere de la base ou de
        Resend sans perdre la commande. */
-    console.error(`[stripe/webhook] échec du traitement de ${evenement.type}:`, erreur);
+    await signalerPanne("webhook Stripe", erreur, { evenement: evenement.type });
     return NextResponse.json({ error: "Traitement impossible." }, { status: 500 });
   }
 }

@@ -1,5 +1,4 @@
 import { randomInt } from "crypto";
-import { Resend } from "resend";
 import type Stripe from "stripe";
 import { sql } from "./db";
 import { type Currency } from "./currency";
@@ -13,6 +12,8 @@ import { alerteDiscord, COULEUR_SOLEIL } from "./discord";
 import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
 import { toEUR } from "./currency";
+import { envoyerEmail } from "@/lib/envoiEmail";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 /**
  * Le bon cadeau.
@@ -232,8 +233,6 @@ export function formatDate(iso: string, lang: Lang): string {
   return iso ? new Intl.DateTimeFormat(lang, { day: "numeric", month: "long", year: "numeric" }).format(new Date(iso)) : "";
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 /** Textes qui remplacent ceux de l'achat quand le bon est offert (parrainage...). */
 interface TextesBonOffert {
   sujet: string;
@@ -245,7 +244,7 @@ async function envoyerBon(email: string, bon: BonCadeau, offert?: TextesBonOffer
   const t = bonCadeauTextes[bon.lang];
   const valeur = formatMontant(bon.montant, bon.devise, bon.lang);
   try {
-    await resend.emails.send({
+    await envoyerEmail({
       from: EXPEDITEUR,
       to: [email],
       replyTo: SUPPORT_EMAIL,
@@ -271,6 +270,6 @@ async function envoyerBon(email: string, bon: BonCadeau, offert?: TextesBonOffer
     });
   } catch (erreur) {
     // Le bon existe et s'affiche sur la page de succes : un e-mail perdu ne le perd pas.
-    console.error("[bonCadeau] envoi de l'e-mail impossible:", erreur);
+    await signalerPanne("e-mail du bon cadeau", erreur);
   }
 }

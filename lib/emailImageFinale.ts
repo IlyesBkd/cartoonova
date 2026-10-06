@@ -1,4 +1,3 @@
-import { Resend } from "resend";
 import { markFinalImageSent, setOrderLastOutboundMessageId } from "./db";
 import { finalImageEmail, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
@@ -8,6 +7,7 @@ import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
 import { infosParrainage } from "./parrainage";
 import { parrainageTextes } from "./i18n/relances";
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -18,8 +18,6 @@ import { parrainageTextes } from "./i18n/relances";
  * seule qui compte etant celle qu'on ne relit plus, c'est la copie du cron qui
  * serait restee en arriere.
  */
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export interface DestinataireImageFinale {
   id: string;
@@ -58,7 +56,7 @@ export async function envoyerImageFinale(
   }
   const tp = parrainageTextes[lang];
 
-  const result = await resend.emails.send({
+  const result = await envoyerEmail({
     from: EXPEDITEUR,
     to: [order.customer_email],
     replyTo: SUPPORT_EMAIL,

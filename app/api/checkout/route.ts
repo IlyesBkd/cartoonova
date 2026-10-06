@@ -4,6 +4,7 @@ import { quoteOrder } from "@/lib/orderQuote";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { OPTIONS_PAYANTES, parseOrderPricingInput } from "@/lib/pricing";
 import { LANGS } from "@/lib/email-i18n";
+import { signalerPanne } from "@/lib/alerteServeur";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
       promoRejected: quote.promoRejected,
     });
   } catch (error) {
-    console.error("Stripe error:", error);
+    await signalerPanne("creation du paiement (caisse)", error);
     return NextResponse.json({ error: "Erreur Stripe." }, { status: 500 });
   }
 }

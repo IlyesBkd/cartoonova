@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
 import { getOrderById, markReviewRequestSent } from "@/lib/db";
 import { reviewRequestEmail, langueCommande } from "@/lib/email-i18n";
 import { orderTrackingToken } from "@/lib/emailToken";
@@ -7,6 +6,7 @@ import { avisExistePourCommande } from "@/lib/reviewsDb";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { SITE_URL } from "@/lib/site";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
+import { envoyerEmail } from "@/lib/envoiEmail";
 
 /**
  * Demande d'avis envoyee a la main depuis le tableau de bord.
@@ -27,8 +27,6 @@ import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
  * l'identifiant de commande — c'est ce qui rend l'avis verifiable, et c'est
  * exactement ce qui distingue un avis d'un temoignage inventé.
  */
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 export async function POST(req: NextRequest) {
   const refus = refuserSiPasAdmin(req);
   if (refus) return refus;
@@ -57,7 +55,7 @@ export async function POST(req: NextRequest) {
     const t = reviewRequestEmail[lang];
     const lien = `${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`;
 
-    await resend.emails.send({
+    await envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
