@@ -101,6 +101,9 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const tDbz = useTranslations("dbz");
   const tAlt = useTranslations("alt");
   const tGarantie = useTranslations("garantie");
+  /** Ramene a une etape du configurateur (recapitulatif, tuiles). */
+  const allerA = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const lien = useLien();
   const { formatRaw: formatPrix, currency } = useCurrency();
   const {
@@ -563,20 +566,23 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
           </div>
 
           {/* ---------- TUILES ---------- */}
+          {/* Des liens et non des etiquettes : 13 clics sans effet en 30 jours
+              sur ces tuiles (releve PostHog du 6 octobre 2026). Chacune mene a
+              ce qu'elle promet. */}
           <div className="tuiles">
-            <div className="tuile">
+            <Link className="tuile" href={lien("/quelle-photo")} data-cta="tuile_photo">
               <IconesTuile nom="main" />
               <b>{tp("handDrawn")}</b>
-            </div>
-            <div className="tuile">
+            </Link>
+            <button type="button" className="tuile" data-cta="tuile_perso" onClick={() => allerA("configurateur")}>
               <IconesTuile nom="reglages" />
               <b>{t("tuilePerso")}</b>
-            </div>
-            <div className="tuile">
+            </button>
+            <Link className="tuile" href={lien("/garantie")} data-cta="tuile_retouches">
               <IconesTuile nom="coche" />
               <b>{t("tuileRetouches")}</b>
-            </div>
-            <div className="tuile tuile--fort">
+            </Link>
+            <Link className="tuile tuile--fort" href={lien("/garantie")} data-cta="tuile_delai">
               {/* Meme promesse que partout ailleurs : un aperçu en 2 jours. « 48H »
                   se lisait a cote de « aperçu sous 2 jours », deux formulations
                   pour une seule promesse. */}
@@ -584,7 +590,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <b style={{ fontFamily: "var(--texte)", fontSize: "12.5px", color: "#fff" }}>
                 {t("tuileApercu")}
               </b>
-            </div>
+            </Link>
           </div>
 
           {/* ---------- PANNEAU D'ACHAT ---------- */}
@@ -627,6 +633,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                 d'une marge et d'un filet. */}
             <Etape
               numero
+              ancre="etape-qui"
               titre={tf("etapeQui")}
               precision={`: ${personnes} ${personnes > 1 ? tp("peoplePlural") : tp("peopleSingular")}${
                 animaux > 0 ? ` · ${animaux} ${animaux > 1 ? tp("animalsPlural") : tp("animalsSingular")}` : ""
@@ -671,6 +678,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
             <Etape
               numero
+              ancre="etape-cadrage"
               titre={tp("framingStep")}
               precision={`: ${cadrage === "portrait" ? tp("portrait") : tp("fullbody")}`}
             >
@@ -696,7 +704,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             </Etape>
 
             {aDesDecors && (
-              <Etape numero titre={tp("decorStep")} precision={`: ${libelleDecor(donnees.decors[decor])}`}>
+              <Etape numero ancre="etape-decor" titre={tp("decorStep")} precision={`: ${libelleDecor(donnees.decors[decor])}`}>
                 <div className="vignettes vignettes--decors" role="group" aria-label={tp("decorStep")}>
                   {donnees.decors.map((d, i) => (
                     <button
@@ -777,6 +785,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
             <Etape
               numero
+              ancre="etape-support"
               titre={tp("printSupportStep")}
               precision={
                 supportChoisi
@@ -1035,23 +1044,51 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               </button>
             )}
 
+            {/* Chaque element ramene a son etape. Ils etaient de simples
+                etiquettes, et les visiteurs cliquaient dessus pour modifier
+                leur choix : 11 clics sans effet en 30 jours (releve PostHog du
+                6 octobre 2026), dont « 1 Person » chez la cliente du 6. */}
             <div className="recap">
-              <span>{cadrage === "fullbody" ? tp("fullbody") : tp("portrait")}</span>
-              <span>
+              <button type="button" data-cta="recap_cadrage" onClick={() => allerA("etape-cadrage")}>
+                {cadrage === "fullbody" ? tp("fullbody") : tp("portrait")}
+              </button>
+              <button type="button" data-cta="recap_personnes" onClick={() => allerA("etape-qui")}>
                 {personnes} {personnes > 1 ? tp("peoplePlural") : tp("peopleSingular")}
-              </span>
+              </button>
               {animaux > 0 && (
-                <span>
+                <button type="button" data-cta="recap_animaux" onClick={() => allerA("etape-qui")}>
                   {animaux} {animaux > 1 ? tp("animalsPlural") : tp("animalsSingular")}
-                </span>
+                </button>
               )}
-              {aDesDecors && <span>{libelleDecor(donnees.decors[decor])}</span>}
-              <span>{supportChoisi?.libelle}</span>
+              {aDesDecors && (
+                <button type="button" data-cta="recap_decor" onClick={() => allerA("etape-decor")}>
+                  {libelleDecor(donnees.decors[decor])}
+                </button>
+              )}
+              <button type="button" data-cta="recap_support" onClick={() => allerA("etape-support")}>
+                {supportChoisi?.libelle}
+              </button>
             </div>
 
             <div className="total">
               <span className="total__prix">{prix ? formatPrix(total) : "—"}</span>
               {port > 0 && <small className="total__port">{tp("shippingLine", { montant: formatPrix(port) })}</small>}
+            </div>
+
+            {/* La garantie dit ce qui se passe vraiment : seul l'imprime passe
+                par une validation avant tirage. Le numerique part directement,
+                et se reprend par retouches.
+                Placee AU-DESSUS du bouton depuis le 6 octobre 2026 : « Et si ça
+                ne ressemble pas ? » est la premiere question ouverte par les
+                deux clientes de la semaine, juste avant de commander. */}
+            <div className="garantie garantie--avant">
+              <IconesTuile nom="bouclier" />
+              <span>
+                {support === "digital" ? t("garantieNumerique") : t("garantieImprime")}{" "}
+                <Link href={lien("/garantie")} className="garantie__lien">
+                  {tGarantie("lienPied")}
+                </Link>
+              </span>
             </div>
 
             <button
@@ -1063,19 +1100,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             >
               {tp("addToCart")}
             </button>
-
-            {/* La garantie dit ce qui se passe vraiment : seul l'imprime passe
-                par une validation avant tirage. Le numerique part directement,
-                et se reprend par retouches. */}
-            <div className="garantie">
-              <IconesTuile nom="bouclier" />
-              <span>
-                {support === "digital" ? t("garantieNumerique") : t("garantieImprime")}{" "}
-                <Link href={lien("/garantie")} className="garantie__lien">
-                  {tGarantie("lienPied")}
-                </Link>
-              </span>
-            </div>
             {/* Les cadeaux offerts : generes a partir du portrait final, sur la
                 page /bonus liee depuis l'e-mail de livraison. */}
             <p className="offerts">🎁 {t("offerts")}</p>
@@ -1357,9 +1381,12 @@ function Etape({
   precision,
   pour,
   ref,
+  ancre,
   children,
 }: {
   numero?: boolean;
+  /** id de l'etape : le recapitulatif y ramene au clic. */
+  ancre?: string;
   titre: string;
   precision?: string;
   /** id du champ que ce titre nomme : le titre devient alors un vrai <label>. */
@@ -1375,7 +1402,7 @@ function Etape({
     </>
   );
   return (
-    <div className="etape-conf" ref={ref}>
+    <div className="etape-conf" ref={ref} id={ancre}>
       {pour ? (
         <label className="etape-conf__titre" htmlFor={pour}>
           {contenu}

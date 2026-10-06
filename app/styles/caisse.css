@@ -14,14 +14,16 @@
 }
 
 /* Lien « J'ai un code promo » : discret, aligne a gauche comme un champ. */
+/* Discret depuis le 6 octobre 2026 : en gras souligne, il invitait a chercher
+   une reduction. Une cliente a essaye 4 codes avant de payer quand meme. */
 .caisse-lien-promo {
   align-self: flex-start;
   background: none; border: 0; padding: 4px 0; cursor: pointer;
-  font-family: var(--texte); font-weight: 700; font-size: 14px;
-  color: var(--encre-doux);
-  text-decoration: underline; text-underline-offset: 3px;
+  font-family: var(--texte); font-weight: 500; font-size: 12.5px;
+  color: var(--encre-doux); opacity: .8;
+  text-decoration: none;
 }
-.caisse-lien-promo:hover { color: var(--encre); }
+.caisse-lien-promo:hover { color: var(--encre); opacity: 1; text-decoration: underline; text-underline-offset: 3px; }
 .caisse-lien-promo:focus-visible { outline: 2px solid var(--soleil); outline-offset: 2px; border-radius: 4px; }
 
 /* Mention RGPD sous le champ e-mail. */

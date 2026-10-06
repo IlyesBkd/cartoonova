@@ -126,3 +126,23 @@
 /* Lien vers la page Garantie, sous le bouton d'achat : discret, mais
    souligne pour qu'on le reconnaisse comme un lien. */
 .garantie__lien { color: inherit; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+
+/* Recapitulatif cliquable (6 octobre 2026) : chaque element ramene a son
+   etape. Meme aspect que les anciennes etiquettes, plus un crayon discret pour
+   dire qu'on peut modifier. */
+.recap button {
+  background: var(--cendre); border-radius: 999px; padding: 7px 15px; border: 0;
+  font-family: inherit; font-size: 13.5px; font-weight: 600; color: var(--encre);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.recap button::after { content: "✎"; font-size: .85em; opacity: .55; }
+.recap button:hover::after, .recap button:focus-visible::after { opacity: 1; }
+/* Le titre d'etape ne doit pas finir sous l'en-tete collant apres le defilement. */
+.etape-conf, #configurateur { scroll-margin-top: 96px; }
+
+/* Tuiles devenues liens : meme aspect, curseur de lien. */
+a.tuile, button.tuile { color: var(--papier); text-decoration: none; cursor: pointer; font-family: inherit; border: 0; }
+a.tuile:hover, button.tuile:hover { transform: translateY(-1px); }
+
+/* Garantie au-dessus du bouton : l'espace passe dessous. */
+.garantie--avant { margin: 0 0 12px; }
