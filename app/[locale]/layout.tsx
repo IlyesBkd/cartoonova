@@ -13,7 +13,7 @@ import { vignetteProduit } from "@/lib/visuels";
 import { evenementAffiche } from "@/lib/evenements";
 import { SITE_URL } from "@/lib/site";
 import { IMAGE_PARTAGE, OG_LOCALE, alternatesPour } from "@/lib/seo";
-import { GOOGLE_ADS_ID } from "@/lib/googleAds";
+import { GOOGLE_ADS_ACTIF, GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 import "../globals.css";
 
@@ -141,16 +141,20 @@ export default async function LocaleLayout({
         <link rel="preload" href="/polices/atma-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
-        {/* Google Ads — gtag.js */}
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`} strategy="afterInteractive" />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GOOGLE_ADS_ID}');
-          `}
-        </Script>
+        {/* Google Ads — gtag.js, coupe tant qu'aucune campagne ne tourne (lib/googleAds.ts) */}
+        {GOOGLE_ADS_ACTIF && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`} strategy="afterInteractive" />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GOOGLE_ADS_ID}');
+              `}
+            </Script>
+          </>
+        )}
 
         {/* Meta Pixel — inactif tant que NEXT_PUBLIC_META_PIXEL_ID n'est pas defini */}
         {META_PIXEL_ID && (

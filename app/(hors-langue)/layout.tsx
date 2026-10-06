@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { headers } from "next/headers";
-import { GOOGLE_ADS_ID } from "@/lib/googleAds";
+import { GOOGLE_ADS_ACTIF, GOOGLE_ADS_ID } from "@/lib/googleAds";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 import { locales, defaultLocale } from "@/i18n/config";
 import PostHogProvider from "@/components/PostHogProvider";
@@ -71,19 +71,23 @@ export default async function RootLayout({
         <link rel="preload" href="/polices/atma-700.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
-        {/* Google Ads — gtag.js */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GOOGLE_ADS_ID}');
-          `}
-        </Script>
+        {/* Google Ads — gtag.js, coupe tant qu'aucune campagne ne tourne (lib/googleAds.ts) */}
+        {GOOGLE_ADS_ACTIF && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="gtag-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GOOGLE_ADS_ID}');
+              `}
+            </Script>
+          </>
+        )}
 
         {/* Meta Pixel — inactive until NEXT_PUBLIC_META_PIXEL_ID is set (see notesmanuel.md) */}
         {META_PIXEL_ID && (

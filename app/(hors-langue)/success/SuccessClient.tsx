@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { identifier } from "@/lib/analytics";
 import Icone from "@/components/tj/Icone";
-import { GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
+import { GOOGLE_ADS_ACTIF, GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
 import { successPage, type Lang } from "@/lib/email-i18n";
 import { depotSucces } from "@/lib/i18n/caisse";
 import { formatPrix } from "@/lib/i18n/relances";
@@ -77,17 +77,20 @@ export default function SuccessClient({
        l'achat resterait detache de la commande. */
     identifier(order.customer_email);
 
-    const gtag = window.gtag ?? ((...args: unknown[]) => {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(args);
-    });
+    // Conversion Google Ads : seulement si la balise est active (lib/googleAds.ts).
+    if (GOOGLE_ADS_ACTIF) {
+      const gtag = window.gtag ?? ((...args: unknown[]) => {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push(args);
+      });
 
-    gtag("event", "conversion", {
-      send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
-      value: order.total_price,
-      currency: order.currency,
-      transaction_id: order.payment_intent_id,
-    });
+      gtag("event", "conversion", {
+        send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
+        value: order.total_price,
+        currency: order.currency,
+        transaction_id: order.payment_intent_id,
+      });
+    }
 
     // Meta Pixel purchase event — no-op until NEXT_PUBLIC_META_PIXEL_ID is set (see notesmanuel.md)
     if (typeof window !== "undefined" && window.fbq) {
