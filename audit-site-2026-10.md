@@ -206,6 +206,11 @@ Les commandes de test ont été supprimées de la base de dev (vérifié : 0 res
 - **Attribution :** le dernier clic publicitaire (`oppref`, `gclid`, `fbclid`) est gardé dans l'origine de la commande.
 - **Pollution par les tests :** la mesure serveur ne tourne qu'en production, et les adresses `@resend.dev` / `@example.*` sont ignorées partout. Les 4 faux achats du 2 octobre sont exclus par le filtre « trafic interne » de PostHog (les 3 vraies ventes de septembre restent comptées).
 
+**Alertes (6 octobre 2026), vérifiées de bout en bout :**
+- **Pannes serveur → Discord + PostHog (`server_error`)** : paiement, commande, webhook Stripe, e-mails de confirmation et de bon cadeau, dépôt de photos, aperçu, relances. Une alerte par type toutes les 10 minutes au plus (`lib/alerteServeur.ts`).
+- **Bug corrigé :** un e-mail refusé par Resend ne levait aucune erreur et était compté comme envoyé. Tous les envois passent par `envoyerEmail()` (`lib/envoiEmail.ts`), qui échoue vraiment.
+- **Retours de Resend** (`/api/resend/webhook`, branché dans Resend par l'utilisateur) : distribué, refusé, spam, retardé. Un refus déclenche une alerte Discord avec la commande et le motif. Testé le 6 octobre avec `bounced@resend.dev` : alerte reçue.
+
 ### A. Bloquant pour la pub
 
 **AD-1. Marques et personnages sous licence.** 👤 décision → 🤖
