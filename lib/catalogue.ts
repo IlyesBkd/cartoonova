@@ -135,9 +135,12 @@ export interface Produit {
    * « carte-pokemon » : nom sur la carte, PV et deux attaques. La vignette du
    * catalogue promettait « choisis ton nom, tes attaques », et la fiche — page
    * d'entree n°1, beaucoup de trafic venu de ChatGPT — n'offrait que la note
-   * libre. Le type reste ouvert pour l'affiche Wanted de One Piece.
+   * libre.
+   * L'affiche Wanted de One Piece a les siens (nom et prime) depuis le
+   * 7 octobre 2026 : sans eux, une cliente a paye l'option banderole pour
+   * faire ecrire son nom sur l'affiche.
    */
-  champsPersonnalises?: "carte-pokemon";
+  champsPersonnalises?: "carte-pokemon" | "affiche-wanted";
 }
 
 /* ─── gabarits de titre et de description ──────────────────────────────── */
@@ -204,6 +207,7 @@ export const CATALOGUE: Produit[] = [
     categorie: "manga",
     idProduit: "cartoonova-onepiece-wanted",
     enLigne: true,
+    champsPersonnalises: "affiche-wanted",
     personnages: true,
     decorsAttendus: 3,
     titre: {

@@ -358,7 +358,13 @@
     "optCarteVoeux": "Julkort att skriva ut",
     "optCarteVoeuxSub": "Ditt porträtt som kort med ”God jul och gott nytt år”, A5-PDF via e-post",
     "optCalendrier": "Kalender 2027 att skriva ut",
-    "optCalendrierSub": "Ditt porträtt på alla 12 månader 2027, A4-PDF via e-post"
+    "optCalendrierSub": "Ditt porträtt på alla 12 månader 2027, A4-PDF via e-post",
+    "wantedEtape": "Din affisch",
+    "wantedAide": "Lämna tomt det du vill: illustratören väljer åt dig.",
+    "wantedNom": "Namn på affischen",
+    "wantedNomExemple": "T.ex. Maureen den Orädda",
+    "wantedPrime": "Belöning",
+    "wantedPrimeExemple": "T.ex. 1 000 000 000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Beställning bekräftad",

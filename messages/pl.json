@@ -358,7 +358,13 @@
     "optCarteVoeux": "Kartka z życzeniami do druku",
     "optCarteVoeuxSub": "Twój portret na kartce „Wesołych Świąt i szczęśliwego Nowego Roku”, PDF A5 wysłany e-mailem",
     "optCalendrier": "Kalendarz 2027 do druku",
-    "optCalendrierSub": "Twój portret na wszystkich 12 miesiącach 2027 roku, PDF A4 wysłany e-mailem"
+    "optCalendrierSub": "Twój portret na wszystkich 12 miesiącach 2027 roku, PDF A4 wysłany e-mailem",
+    "wantedEtape": "Twój list gończy",
+    "wantedAide": "Zostaw puste, co chcesz: ilustrator wybierze za ciebie.",
+    "wantedNom": "Imię na liście gończym",
+    "wantedNomExemple": "Np. Maureen Nieustraszona",
+    "wantedPrime": "Nagroda",
+    "wantedPrimeExemple": "Np. 1 000 000 000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Zamówienie potwierdzone",

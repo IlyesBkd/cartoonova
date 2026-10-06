@@ -358,7 +358,13 @@
     "optCarteVoeux": "Wenskaart om te printen",
     "optCarteVoeuxSub": "Je portret als kaart „Vrolijk kerstfeest en een gelukkig nieuwjaar”, A5-pdf per e-mail",
     "optCalendrier": "Kalender 2027 om te printen",
-    "optCalendrierSub": "Je portret op alle 12 maanden van 2027, A4-pdf per e-mail"
+    "optCalendrierSub": "Je portret op alle 12 maanden van 2027, A4-pdf per e-mail",
+    "wantedEtape": "Je poster",
+    "wantedAide": "Laat leeg wat je wilt: de illustrator kiest voor je.",
+    "wantedNom": "Naam op de poster",
+    "wantedNomExemple": "Bijv. Maureen de Onverschrokkene",
+    "wantedPrime": "Premie",
+    "wantedPrimeExemple": "Bijv. 1.000.000.000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Bestelling bevestigd",

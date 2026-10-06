@@ -358,7 +358,13 @@
     "optCarteVoeux": "Carte de vœux à imprimer",
     "optCarteVoeuxSub": "Ton portrait en carte « Joyeux Noël et bonne année », PDF A5 envoyé par e-mail",
     "optCalendrier": "Calendrier 2027 à imprimer",
-    "optCalendrierSub": "Ton portrait sur les 12 mois de 2027, PDF A4 envoyé par e-mail"
+    "optCalendrierSub": "Ton portrait sur les 12 mois de 2027, PDF A4 envoyé par e-mail",
+    "wantedEtape": "Ton affiche",
+    "wantedAide": "Laisse vide ce que tu veux : l'illustrateur choisira pour toi.",
+    "wantedNom": "Nom sur l'affiche",
+    "wantedNomExemple": "Ex : Maureen la Terrible",
+    "wantedPrime": "Prime",
+    "wantedPrimeExemple": "Ex : 1 000 000 000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Commande confirmée",

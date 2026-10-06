@@ -358,7 +358,13 @@
     "optCarteVoeux": "Grußkarte zum Ausdrucken",
     "optCarteVoeuxSub": "Dein Porträt als Karte „Frohe Weihnachten und ein gutes neues Jahr“, A5-PDF per E-Mail",
     "optCalendrier": "Kalender 2027 zum Ausdrucken",
-    "optCalendrierSub": "Dein Porträt auf allen 12 Monaten 2027, A4-PDF per E-Mail"
+    "optCalendrierSub": "Dein Porträt auf allen 12 Monaten 2027, A4-PDF per E-Mail",
+    "wantedEtape": "Dein Steckbrief",
+    "wantedAide": "Lass leer, was du willst: Der Illustrator entscheidet für dich.",
+    "wantedNom": "Name auf dem Steckbrief",
+    "wantedNomExemple": "Z. B. Maureen die Furchtlose",
+    "wantedPrime": "Kopfgeld",
+    "wantedPrimeExemple": "Z. B. 1.000.000.000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Bestellung bestätigt",

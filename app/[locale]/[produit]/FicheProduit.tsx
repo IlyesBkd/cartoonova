@@ -68,7 +68,7 @@ export interface DonneesFiche {
   categorieCle: string;
   personnages: boolean;
   /** Champs propres au produit (voir `Produit.champsPersonnalises`). */
-  champsPersonnalises?: "carte-pokemon" | null;
+  champsPersonnalises?: "carte-pokemon" | "affiche-wanted" | null;
   galerie: string[];
   legendes: (LegendeVisuel | null)[];
   decors: Decor[];
@@ -137,6 +137,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
      remplir — sur une page que le mobile mesurait a 17 ecrans de haut. */
   const [noteOuverte, setNoteOuverte] = useState(false);
   const [carte, setCarte] = useState({ nom: "", pv: "", attaque1: "", attaque2: "" });
+  const [wanted, setWanted] = useState({ nom: "", prime: "" });
   /* Options payantes (1er octobre 2026). Le second decor est un INDEX dans
      `donnees.decors`, distinct du decor principal. */
   const [banderole, setBanderole] = useState(false);
@@ -315,11 +316,24 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
           .filter(Boolean)
           .join(" · ")}`
       : "";
+  /* Affiche Wanted : meme chemin que la carte Pokemon (note pour
+     l'illustrateur, libelles fixes en francais). */
+  const avecWanted = donnees.champsPersonnalises === "affiche-wanted";
+  const texteWanted =
+    avecWanted && (wanted.nom.trim() || wanted.prime.trim())
+      ? `Affiche Wanted : ${[
+          wanted.nom.trim() && `nom « ${wanted.nom.trim()} »`,
+          wanted.prime.trim() && `prime « ${wanted.prime.trim()} »`,
+        ]
+          .filter(Boolean)
+          .join(" · ")}`
+      : "";
   /* Le texte de la banderole suit le meme chemin que la carte : dans la note,
-     avec un libelle fixe en francais pour l'illustrateur. */
+     avec un libelle fixe en francais pour l'illustrateur. Pas de banderole sur
+     l'affiche Wanted : le nom y figure deja, gratuitement. */
   const texteBanderoleNote =
-    banderole && texteBanderole.trim() ? `Banderole : « ${texteBanderole.trim()} »` : "";
-  const noteComplete = [texteCarte, texteBanderoleNote, note.trim()].filter(Boolean).join(" — ");
+    !avecWanted && banderole && texteBanderole.trim() ? `Banderole : « ${texteBanderole.trim()} »` : "";
+  const noteComplete = [texteCarte, texteWanted, texteBanderoleNote, note.trim()].filter(Boolean).join(" — ");
 
   /* Une commande sans photo est impossible a honorer : l'illustrateur n'a rien
      a dessiner. On bloquait nulle part — ni ici, ni cote serveur — et le
@@ -729,6 +743,35 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               </Etape>
             )}
 
+            {avecWanted && (
+              <Etape numero titre={tp("wantedEtape")} precision={tp("optional")}>
+                <p className="depot__note" style={{ marginTop: 0 }}>{tp("wantedAide")}</p>
+                <div className="champ-groupe">
+                  <label className="champ-etiquette" htmlFor="wanted-nom">{tp("wantedNom")}</label>
+                  <input
+                    id="wanted-nom"
+                    className="champ-ligne"
+                    maxLength={40}
+                    value={wanted.nom}
+                    onChange={(e) => setWanted((w) => ({ ...w, nom: e.target.value }))}
+                    placeholder={tp("wantedNomExemple")}
+                  />
+                </div>
+                <div className="champ-groupe">
+                  <label className="champ-etiquette" htmlFor="wanted-prime">{tp("wantedPrime")}</label>
+                  <input
+                    id="wanted-prime"
+                    className="champ-ligne"
+                    maxLength={20}
+                    value={wanted.prime}
+                    onChange={(e) => setWanted((w) => ({ ...w, prime: e.target.value }))}
+                    placeholder={tp("wantedPrimeExemple")}
+                    style={{ maxWidth: 260 }}
+                  />
+                </div>
+              </Etape>
+            )}
+
             {avecCarte && (
               <Etape numero titre={tp("carteEtape")} precision={tp("optional")}>
                 <p className="depot__note" style={{ marginTop: 0 }}>{tp("carteAide")}</p>
@@ -835,6 +878,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             {prix && (
               <Etape numero titre={tp("optStep")} precision={tp("optional")}>
                 <div className="options-payantes">
+                  {!avecWanted && (
                   <label className="option-payante">
                     <input type="checkbox" checked={banderole} onChange={(e) => { setBanderole(e.target.checked); trackOptionSelected("addon", `banner:${e.target.checked ? "on" : "off"}`, prix?.banner ?? 0); }} />
                     <span className="option-payante__texte">
@@ -843,7 +887,8 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     </span>
                     <span className="option-payante__prix">+{formatPrix(prix.banner)}</span>
                   </label>
-                  {banderole && (
+                  )}
+                  {banderole && !avecWanted && (
                     <input
                       className="champ-ligne option-payante__champ"
                       maxLength={40}

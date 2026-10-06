@@ -358,7 +358,13 @@
     "optCarteVoeux": "Tarjeta de felicitación para imprimir",
     "optCarteVoeuxSub": "Tu retrato en una tarjeta «Feliz Navidad y próspero año nuevo», PDF A5 enviado por e-mail",
     "optCalendrier": "Calendario 2027 para imprimir",
-    "optCalendrierSub": "Tu retrato en los 12 meses de 2027, PDF A4 enviado por e-mail"
+    "optCalendrierSub": "Tu retrato en los 12 meses de 2027, PDF A4 enviado por e-mail",
+    "wantedEtape": "Tu cartel",
+    "wantedAide": "Deja en blanco lo que quieras: el ilustrador elegirá por ti.",
+    "wantedNom": "Nombre en el cartel",
+    "wantedNomExemple": "Ej.: Maureen la Temible",
+    "wantedPrime": "Recompensa",
+    "wantedPrimeExemple": "Ej.: 1.000.000.000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Pedido confirmado",

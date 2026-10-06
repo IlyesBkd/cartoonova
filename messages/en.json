@@ -358,7 +358,13 @@
     "optCarteVoeux": "Printable greeting card",
     "optCarteVoeuxSub": "Your portrait as a \"Merry Christmas and Happy New Year\" card, A5 PDF sent by email",
     "optCalendrier": "Printable 2027 calendar",
-    "optCalendrierSub": "Your portrait on all 12 months of 2027, A4 PDF sent by email"
+    "optCalendrierSub": "Your portrait on all 12 months of 2027, A4 PDF sent by email",
+    "wantedEtape": "Your poster",
+    "wantedAide": "Leave anything blank: the illustrator will choose for you.",
+    "wantedNom": "Name on the poster",
+    "wantedNomExemple": "E.g. Maureen the Fearless",
+    "wantedPrime": "Bounty",
+    "wantedPrimeExemple": "E.g. 1,000,000,000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Order confirmed",

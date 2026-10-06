@@ -358,7 +358,13 @@
     "optCarteVoeux": "Biglietto di auguri da stampare",
     "optCarteVoeuxSub": "Il tuo ritratto su un biglietto «Buon Natale e felice anno nuovo», PDF A5 inviato via e-mail",
     "optCalendrier": "Calendario 2027 da stampare",
-    "optCalendrierSub": "Il tuo ritratto su tutti i 12 mesi del 2027, PDF A4 inviato via e-mail"
+    "optCalendrierSub": "Il tuo ritratto su tutti i 12 mesi del 2027, PDF A4 inviato via e-mail",
+    "wantedEtape": "Il tuo manifesto",
+    "wantedAide": "Lascia vuoto ciò che vuoi: sceglierà l'illustratore per te.",
+    "wantedNom": "Nome sul manifesto",
+    "wantedNomExemple": "Es.: Maureen la Terribile",
+    "wantedPrime": "Taglia",
+    "wantedPrimeExemple": "Es.: 1.000.000.000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Ordine confermato",

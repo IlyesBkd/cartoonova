@@ -358,7 +358,13 @@
     "optCarteVoeux": "Cartão de boas festas para imprimir",
     "optCarteVoeuxSub": "O teu retrato num cartão «Feliz Natal e um feliz ano novo», PDF A5 enviado por e-mail",
     "optCalendrier": "Calendário 2027 para imprimir",
-    "optCalendrierSub": "O teu retrato nos 12 meses de 2027, PDF A4 enviado por e-mail"
+    "optCalendrierSub": "O teu retrato nos 12 meses de 2027, PDF A4 enviado por e-mail",
+    "wantedEtape": "O teu cartaz",
+    "wantedAide": "Deixa em branco o que quiseres: o ilustrador escolhe por ti.",
+    "wantedNom": "Nome no cartaz",
+    "wantedNomExemple": "Ex.: Maureen a Destemida",
+    "wantedPrime": "Recompensa",
+    "wantedPrimeExemple": "Ex.: 1.000.000.000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Encomenda confirmada",

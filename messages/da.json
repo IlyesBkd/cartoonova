@@ -358,7 +358,13 @@
     "optCarteVoeux": "Julekort til udskrift",
     "optCarteVoeuxSub": "Dit portræt som kort med „Glædelig jul og godt nytår“, A5-PDF sendt på e-mail",
     "optCalendrier": "Kalender 2027 til udskrift",
-    "optCalendrierSub": "Dit portræt på alle 12 måneder i 2027, A4-PDF sendt på e-mail"
+    "optCalendrierSub": "Dit portræt på alle 12 måneder i 2027, A4-PDF sendt på e-mail",
+    "wantedEtape": "Din plakat",
+    "wantedAide": "Lad det stå tomt, du vil: illustratoren vælger for dig.",
+    "wantedNom": "Navn på plakaten",
+    "wantedNomExemple": "F.eks. Maureen den Frygtløse",
+    "wantedPrime": "Dusør",
+    "wantedPrimeExemple": "F.eks. 1.000.000.000 ฿"
   },
   "checkout": {
     "orderConfirmed": "Bestilling bekræftet",
