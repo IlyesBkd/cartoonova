@@ -12,6 +12,19 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
    legitime. Origines : Stripe (paiement, Apple Pay, Google Pay), Google Ads,
    Meta, PostHog, Vercel Blob (televersement des photos), API Adresse et
    Photon (suggestions d'adresse), Google Fonts (maquettes). */
+
+/* Domaines Google nationaux. Une conversion Google Ads part vers
+   doubleclick.net, puis est redirigee vers le Google du pays du client
+   (www.google.de pour un Allemand) : signale le 6 octobre 2026 sur une vraie
+   vente. La CSP n'accepte pas de joker sur l'extension (google.*) : chaque
+   pays doit etre liste, ici ceux des marches du site et de leurs voisins. */
+const GOOGLE_PAYS = [
+  "com", "fr", "de", "es", "it", "nl", "pl", "se", "dk", "pt", "co.uk", "ch", "be",
+  "at", "ie", "lu", "no", "fi", "ca", "com.au", "co.nz", "com.br", "com.mx",
+]
+  .map((tld) => `https://www.google.${tld}`)
+  .join(" ");
+
 const CSP = [
   "default-src 'self'",
   // 'unsafe-eval' seulement en developpement : le rechargement a chaud en a besoin.
@@ -22,7 +35,7 @@ const CSP = [
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https://*.blob.vercel-storage.com",
-  "connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://www.google.com https://*.doubleclick.net https://www.googleadservices.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://vercel.live wss://ws-us3.pusher.com",
+  `connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com ${GOOGLE_PAYS} https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://vercel.live wss://ws-us3.pusher.com`,
   "frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://pay.google.com https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com https://vercel.live",
   "worker-src 'self' blob:",
   "object-src 'none'",
