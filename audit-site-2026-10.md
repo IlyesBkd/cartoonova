@@ -9,6 +9,7 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
 | 2 octobre 2026 | P0-3, P0-6, P1-1, P1-2, P1-3, P1-4, P1-5, P1-6, P1-10 | Faits, déployés et mesurés en production, voir ci-dessous |
 | 2 octobre 2026 (2ᵉ lot) | P1-8, P1-9, P1-11, P1-12, P1-13, P1-15, P1-17 | Faits, déployés et revérifiés en production ; P1-14 attend une action dans Stripe |
 | 2 octobre 2026 (lot SEO) | S-1 à S-8 | Faits, vérifiés sur un build de production local ; L-1 à L-4 à faire relire |
+| 8 octobre 2026 | Backlog remis à jour | Les points faits sont marqués ✅ dans le corps ; « Ordre proposé » ne liste plus que ce qui reste |
 | 2 octobre 2026 (lot exploitation et contenu) | O-1 à O-4, P2-2, P2-3, C-4, C-12, G-4, G-5, F-6, F-7, H-1 | Faits, vérifiés sur un build de production local (Playwright) ; restes à ta charge listés ci-dessous |
 
 **Fait le 2 octobre 2026, lot exploitation et contenu :**
@@ -226,7 +227,7 @@ Les commandes de test ont été supprimées de la base de dev (vérifié : 0 res
   - mention de non-affiliation dans le pied de page et sur les fiches (« style inspiré de…, sans lien avec les ayants droit »).
 - Le risque juridique de fond (vendre des portraits « style Simpson/Disney ») existe indépendamment de la pub. C'est à faire valider par toi.
 
-**AD-2. Les paramètres de pub sont perdus sur la page d'accueil.** 🤖 S
+**AD-2. Les paramètres de pub sont perdus sur la page d'accueil.** 🤖 S ✅ Fait le 2 octobre (voir plus haut)
 - `https://www.cartoonova.com/?oppref=…&utm_source=…` redirige vers `/fr` **sans les paramètres** (`proxy.ts:81`, `new URL("/fr", request.url)` ne recopie pas la requête). Vérifié en production.
 - ChatGPT Ads attribue les ventes grâce au paramètre `oppref` de l'URL d'arrivée : avec une annonce pointant sur le domaine nu, **aucune vente ne serait attribuée**, et l'origine `utm_*` serait perdue aussi.
 - Les autres redirections (apex vers www, http vers https, sans langue vers `/fr/...`) gardent bien les paramètres.
@@ -265,36 +266,36 @@ Les commandes de test ont été supprimées de la base de dev (vérifié : 0 res
 
 ### B. Coûte des ventes
 
-**V-1. La langue des e-mails et des pages après-vente vient de l'IP, pas du client.** 🤖 S
+**V-1. La langue des e-mails et des pages après-vente vient de l'IP, pas du client.** 🤖 S ✅ Fait le 2 octobre (voir plus haut)
 - Partout (`getLangFromCountry(order.detected_country)`) : confirmation, suivi, dépôt, aperçu, relances, livraison, options.
 - Vérifié : une commande passée sur le site **français**, livraison France, a un suivi en **anglais**, parce que le pays n'était pas détecté. Un Belge néerlandophone, un Suisse alémanique ou un expatrié reçoit la langue de son IP. Un pays absent de la table donne l'anglais.
 - **Correction :** enregistrer la langue du site au moment de la commande et l'utiliser partout ; garder le pays seulement en secours.
 
-**V-2. `next` 16.2.1 a des failles critiques** (déni de service des Server Components, contournement du middleware…). `sharp`, `undici`, `nodemailer` et `postcss` sont en « haut ». 🤖 S
+**V-2. ✅ `next` 16.2.1 a des failles critiques** (déni de service des Server Components, contournement du middleware…). `sharp`, `undici`, `nodemailer` et `postcss` sont en « haut ». 🤖 S
 - Monter `next` au dernier correctif 16.x, puis relancer build et parcours.
 
-**V-3. Amazon Pay (P1-14) toujours actif dans Stripe.** 👤 S
+**V-3. Amazon Pay (P1-14) toujours actif dans Stripe.** 👤 S ✅ Fait le 2 octobre (voir plus haut)
 - Erreurs « merchantId=undefined » à chaque ouverture de la caisse, des cookies Amazon posés sans consentement, et Amazon Pay proposé dans le formulaire du bon cadeau.
 - À désactiver dans Stripe (Paramètres → Moyens de paiement), en test **et** en live.
 
-**V-4. Le formulaire de paiement du bon cadeau.** 🤖 S + 👤 test
+**V-4. Le formulaire de paiement du bon cadeau.** 🤖 S + 👤 test ✅ Fait le 2 octobre (voir plus haut)
 - Il s'affiche après plusieurs secondes de zone blanche (12 à 25 s mesurés en local), en accordéon avec Klarna, Bancontact, Amazon Pay et EPS. C'est différent de la caisse des portraits.
 - L'automatisation n'a pas pu y saisir la carte : **l'achat d'un bon cadeau n'a pas pu être testé jusqu'au bout**. À tester à la main (P2-4), et à aligner sur la caisse des portraits.
 - Le texte « Il reste au moins 1 à payer sur chaque commande » (L-3) est affiché aux clients tel quel : incompréhensible.
 
-**V-5. Récapitulatif de commande** (caisse, page de succès) : 🤖 S
+**V-5. Récapitulatif de commande** (caisse, page de succès) : 🤖 S ✅ Fait le 2 octobre (voir plus haut)
 - le support s'affiche « Digital » en anglais dans la version française ;
 - le total s'affiche « 9.00 EUR » au lieu de « 9 € » ;
 - les options choisies (carte de vœux…) n'apparaissent pas ;
 - la livraison n'est pas détaillée sur la page de succès d'un tirage.
 
-**V-6. Textes des fiches au vouvoiement** (P1-18), visibles sur la fiche Simpson : « Choisissez le format souhaité, téléchargez votre photo ». Le site tutoie partout ailleurs. 🤖 S, après P0-7.
+**V-6. ✅ Textes des fiches au vouvoiement** (P1-18), visibles sur la fiche Simpson : « Choisissez le format souhaité, téléchargez votre photo ». Le site tutoie partout ailleurs. 🤖 S, après P0-7.
 
-**V-7. Promesse de délai incohérente sur la fiche :** le badge « 48H Aperçu » à côté d'« aperçu sous 2 jours » ; « Livré en 2 jours » (`product.delivered48h`, `collections.badgeDelivery24h`), alors que l'impression prend 3 à 7 jours ouvrés de plus. Pour une pub, la promesse doit être la même partout : « fichier en 2 jours ». 🤖 S
+**V-7. Promesse de délai incohérente sur la fiche :** le badge « 48H Aperçu » à côté d'« aperçu sous 2 jours » ; « Livré en 2 jours » (`product.delivered48h`, `collections.badgeDelivery24h`), alors que l'impression prend 3 à 7 jours ouvrés de plus. Pour une pub, la promesse doit être la même partout : « fichier en 2 jours ». 🤖 S ✅ Fait le 2 octobre (voir plus haut)
 
 **V-8. Bascule du prix de lancement (P1-16) toujours manuelle.** La fin du 5 € est annoncée pour le 15 novembre, mais rien ne change seul. Avec de la pub en cours, un oubli affiche une promesse fausse, et un retard fait vendre à perte. 🤖 S
 
-**V-9. Routes publiques sans limite de débit :** 🤖 S
+**V-9. Routes publiques sans limite de débit :** 🤖 S ✅ Fait le 2 octobre (voir plus haut)
 - `newsletter` envoie un e-mail de bienvenue à n'importe quelle adresse : on peut s'en servir pour bombarder des tiers, ce qui abîme la réputation d'envoi. Il faudrait une limite et un double opt-in.
 - `upload` permet à n'importe qui de remplir le stockage Blob (10 Mo par fichier, images seulement).
 - `chat` relaie vers Discord.
@@ -323,14 +324,14 @@ Les commandes de test ont été supprimées de la base de dev (vérifié : 0 res
 ### Feu vert pub : la checklist
 
 1. [ ] Décision sur les marques (AD-1) : annonces génériques, pages d'atterrissage neutres, mention de non-affiliation.
-2. [ ] Paramètres gardés sur la page d'accueil (AD-2).
+2. [x] Paramètres gardés sur la page d'accueil (AD-2).
 3. [ ] Pixel ChatGPT et API de conversions branchés, testés en mode debug (AD-3).
 4. [ ] Bandeau de consentement actif, et cookies seulement après accord (AD-4).
 5. [ ] Chiffres et avis inventés retirés (P0-1).
 6. [ ] Vraie identité légale (P0-2) et politique de confidentialité à jour (L-2).
 7. [ ] Sauvegarde automatique de la base (P0-4).
 8. [ ] « Made in France » prouvé ou retiré, origine des images confirmée.
-9. [ ] Langue des e-mails = langue du client (V-1), `next` à jour (V-2), Amazon Pay coupé (V-3).
+9. [x] Langue des e-mails = langue du client (V-1), `next` à jour (V-2), Amazon Pay coupé (V-3).
 10. [ ] Une vraie commande test en production, y compris un bon cadeau (P2-4).
 
 ## Comment l'audit a été fait
@@ -386,7 +387,7 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 - Sans elles, les CGV ne sont pas opposables, et Stripe ou Google peuvent bloquer le compte.
 - *Reprend A-3.*
 
-**P0-3. Les pages mettent 7 à 18 secondes à s'afficher pour le premier visiteur.** 🤖 M
+**P0-3. Les pages mettent 7 à 18 secondes à s'afficher pour le premier visiteur.** 🤖 M ✅ Fait le 2 octobre (voir Suivi)
 - **Mesure :**
   - Les fiches, collections, idées cadeaux et blog répondent en 7 à 16 s quand personne ne les a vues depuis quelques minutes, puis en 0,6 à 2 s.
   - LCP mobile : médiane 2,5 s, et 91 pages sur 185 au-dessus de 2,5 s (le seuil « bon » de Google). Jusqu'à 18 s sur /it/avis, /pl/spersonalizowany-portret-naruto et /sv/blog/….
@@ -406,7 +407,7 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
   - `pg_dump` chaque nuit dans la crontab, avec une rotation sur 14 jours.
   - Une copie hors du VPS (bucket S3/Backblaze, environ 1 €/mois, ou Google Drive). 👤 Il faut créer le compte de stockage.
 
-**P0-5. Le disque du VPS est plein à 96 %.** 👤 décision → 🤖 S
+**P0-5. Le disque du VPS est plein à 96 %.** 👤 décision → 🤖 S ✅ Plus urgent : disque à 70 % (30 Go libres) le 8 octobre ; garder l'alerte à 85 % dans la veille
 - Il reste 4,5 Go. Si le disque se remplit, Postgres s'arrête et **le site ne peut plus prendre de commande**.
 - `/home/hermes` occupe 65 Go et `/home/ubuntu` 17 Go. La base ne fait que 116 Mo.
 - **À faire :**
@@ -414,7 +415,7 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
   - Regarder ce que contient `/home/hermes`.
   - Ajouter à la veille une alerte Discord au-dessus de 85 %.
 
-**P0-6. Le bouton « retour » du téléphone, caisse ouverte, fait quitter la fiche.** 🤖 S
+**P0-6. Le bouton « retour » du téléphone, caisse ouverte, fait quitter la fiche.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Sur mobile, c'est le geste naturel pour fermer une fenêtre. Le client perd alors toute sa configuration et ses photos.
 - **Correction :** ajouter une entrée d'historique à l'ouverture de la caisse, et fermer la caisse au retour.
 
@@ -425,29 +426,29 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 
 ## Priorité 1 — Conversion et qualité perçue
 
-**P1-1. Le widget de support est en français sur les 10 langues.** 🤖 S
+**P1-1. Le widget de support est en français sur les 10 langues.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Sur /en, /de, /pl… la bulle affiche « Une question sur votre portrait ? On est là », « Où en est ma commande ? », « Modifier ma commande ».
 - Pour un visiteur étranger, c'est le signe d'un site bricolé.
 
-**P1-2. La page « À propos » n'est traduite dans aucune langue.** 🤖 S
+**P1-2. La page « À propos » n'est traduite dans aucune langue.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Tout son texte est en français sur les 10 versions.
 - Elle dit aussi « impressions livrées en 5 jours ouvrés », ce qui contredit les 3 à 7 jours annoncés ailleurs, et « 85 000 portraits » (voir P0-1).
 
-**P1-3. « Tu » et « vous » mélangés.** 👤 choix → 🤖 M
+**P1-3. « Tu » et « vous » mélangés.** 👤 choix → 🤖 M ✅ Fait le 2 octobre (voir Suivi)
 - Dans le même écran d'accueil, on lit « **Votre** photo transformée » puis « **Ton** portrait sous 2 jours ».
 - Même mélange dans la caisse : « **Vos** informations » puis « On peut **te** rappeler **ton** panier ».
 - Il faut choisir une forme et l'appliquer partout : textes, e-mails, assistant. Le tutoiement colle mieux au ton cartoon.
 - *Reprend B-10.*
 
-**P1-4. Les promesses de l'accueil sont devenues ambiguës avec la livraison payante.** 🤖 S
+**P1-4. Les promesses de l'accueil sont devenues ambiguës avec la livraison payante.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - « 5 € par personnage — une famille de 4 : 20 €. **Sans frais cachés** » et le bandeau bureau « **livraison 2 jours** » ne sont vrais que pour le fichier numérique.
 - Formulation proposée : « Fichier en 2 jours » et « Impressions : + livraison 4,90 € ».
 
-**P1-5. Accueil mobile : le premier écran n'a aucune image.** 🤖 S
+**P1-5. Accueil mobile : le premier écran n'a aucune image.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Sur iPhone, on voit un titre, un prix et un bandeau, mais aucun portrait avant de défiler. Sur bureau, la photo de famille est bien là.
 - *Reprend C-10.*
 
-**P1-6. La caisse accepte les e-mails sans domaine.** 🤖 S
+**P1-6. La caisse accepte les e-mails sans domaine.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - « test@exemple » passe. Une faute de frappe (gmail.con, hotmial.fr) fait perdre l'e-mail de confirmation, l'aperçu et le fichier final.
 - **Correction :**
   - Vérifier qu'il y a un domaine et une extension.
@@ -457,38 +458,38 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 - « ABC » est accepté pour la France, donc un colis peut partir vers une adresse invalide.
 - **Correction :** valider le format pour les principaux pays (FR et DE : 5 chiffres ; GB, CA et NL : formats propres).
 
-**P1-8. Saisie d'adresse assistée.** 🤖 M
+**P1-8. Saisie d'adresse assistée.** 🤖 M ✅ Fait le 2 octobre (voir Suivi)
 - Une adresse imprimée se tape aujourd'hui en 7 champs sur mobile.
 - **Correction :** suggestions d'adresse, via Google Places ou l'API Adresse (gratuite pour la France).
 - *Reprend D-4.*
 
-**P1-9. Erreur d'hydratation React sur /depot, /confirm-poster et /success.** 🤖 S
+**P1-9. Erreur d'hydratation React sur /depot, /confirm-poster et /success.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Le HTML du serveur et celui du navigateur diffèrent. Le contenu peut clignoter, et React abandonne la correction.
 - Ce sont précisément les pages après paiement.
 
-**P1-10. Mauvaise adresse de support sur la page de confirmation d'aperçu.** 🤖 S
+**P1-10. Mauvaise adresse de support sur la page de confirmation d'aperçu.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - `/confirm-poster` avec un lien expiré, ainsi que `lib/email-i18n.ts`, indiquent **info.cartoonova@gmail.com**, en 7 occurrences.
 - Partout ailleurs, c'est support@cartoonova.com.
 
-**P1-11. La page de dépôt de photo, lien expiré, ne parle qu'anglais.** 🤖 S
+**P1-11. La page de dépôt de photo, lien expiré, ne parle qu'anglais.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Un client français y lit « Invalid or expired link ».
 - Les autres pages après-vente (suivi, bonus, bon) sont bilingues.
 
-**P1-12. Saut de mise en page sur certaines fiches.** 🤖 S
+**P1-12. Saut de mise en page sur certaines fiches.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - CLS de 0,53 sur /de/personalisierte-pokemon-karte, 0,17 sur /sv/cadeau/simpson-fodelsedag et 0,14 sur /pt/retrato-naruto-personalizado. Le seuil est de 0,1.
 - Le bouton bouge pendant le chargement, ce qui fait cliquer à côté.
 
-**P1-13. Accessibilité de la caisse.** 🤖 S
+**P1-13. Accessibilité de la caisse.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - À l'ouverture de la caisse, le focus clavier reste derrière la fenêtre.
 - **Correction :** placer le focus dans la caisse et l'y garder tant qu'elle est ouverte.
 - Il y a aussi 7 cibles tactiles de moins de 24 px sur chaque fiche (pastilles et liens de la galerie).
 
-**P1-14. Amazon Pay activé dans Stripe mais pas configuré.** 👤 S
+**P1-14. Amazon Pay activé dans Stripe mais pas configuré.** 👤 S ✅ Réglé le 2 octobre par V-3 : Amazon Pay exclu des paiements dans le code
 - Chaque ouverture de la caisse produit des erreurs « merchantId=undefined » vers payments-eu.amazon.com.
 - Constaté en mode test ; probablement le même réglage en production.
 - **Correction :** désactiver Amazon Pay dans le tableau de bord Stripe (Paramètres → Moyens de paiement), ou finir sa configuration.
 
-**P1-15. L'adresse e-mail du client part dans la console du navigateur.** 🤖 S
+**P1-15. L'adresse e-mail du client part dans la console du navigateur.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - On voit `[CHECKOUT] INSERT PENDING | email: …` et une douzaine de journaux `[CARD]` à chaque paiement.
 - *Reprend D-5.*
 
@@ -497,7 +498,7 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 - En cas d'oubli, le site affiche une promesse fausse. En cas de retard, il vend à perte.
 - **Correction :** basculer automatiquement la grille à la date prévue, avec une alerte Discord la veille.
 
-**P1-17. Fiches et collections encore très longues sur mobile.** 🤖 M
+**P1-17. Fiches et collections encore très longues sur mobile.** 🤖 M ✅ Fait le 2 octobre (voir Suivi)
 - 15 à 17 écrans pour les fiches et les collections, 20 à 23 pour les articles de blog.
 - Le bouton « Commander » reste haut, mais tout ce qui suit la garantie pourrait être replié ou remonté en onglets.
 - *Suite de C-9.*
@@ -506,36 +507,36 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 
 ## Priorité 1 — Référencement (SEO)
 
-**S-1. Données structurées produit incomplètes.** 🤖 S
+**S-1. Données structurées produit incomplètes.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Le JSON-LD `Product` n'a ni `shippingDetails` ni `hasMerchantReturnPolicy`.
 - Depuis que la livraison est payante, Google l'exige pour les fiches marchandes, et Search Console affichera des avertissements.
 
-**S-2. 113 pages sans image de partage (og:image).** 🤖 S
+**S-2. 113 pages sans image de partage (og:image).** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Concerne l'accueil, collections, blog, idées cadeaux, Noël, bon cadeau, quelle photo, portfolio, avis, contact et à propos, dans les 10 langues.
 - Un lien partagé sur WhatsApp ou Facebook s'affiche sans visuel.
 
-**S-3. 73 pages sans données structurées.** 🤖 S
+**S-3. 73 pages sans données structurées.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Blog (liste), cadeau, bon cadeau, portfolio, avis, contact, à propos et pages légales.
 - À ajouter : `CollectionPage`, `ItemList`, `Organization` et `ContactPage`.
 
-**S-4. Titres et descriptions trop longs.** 🤖 M
+**S-4. Titres et descriptions trop longs.** 🤖 M ✅ Fait le 2 octobre (voir Suivi)
 - 307 titres dépassent 60 caractères et 183 descriptions dépassent 160 caractères. Google les coupe.
 - À raccourcir automatiquement par gabarit (le « — Cartoonova » final peut sauter sur les fiches).
 
-**S-5. Descriptions en double.** 🤖 S
+**S-5. Descriptions en double.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - 70 doublons : l'accueil et /cadeau partagent la même description dans les 10 langues, et d'autres pages suivent le même schéma.
 - 27 titres sont identiques entre l'espagnol et le portugais (« Retrato Bleach Personalizado »). Ce n'est pas bloquant, mais un mot propre à chaque langue les distinguerait.
 
-**S-6. Pages légales en français seulement.** 🤖 M
+**S-6. Pages légales en français seulement.** 🤖 M ✅ Fait le 2 octobre (voir Suivi)
 - CGV, mentions légales et confidentialité n'existent qu'en /fr. Un visiteur allemand qui paie accepte des CGV qu'il ne peut pas lire.
 - Le lien /politique-de-confidentialite (sans langue), depuis les CGV, passe par une redirection.
 - Le minimum : traduire les CGV en anglais et lier la bonne version depuis la caisse.
 
-**S-7. Google Merchant.** 🤖 S
+**S-7. Google Merchant.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Le flux déclare une livraison à 0 € pour le prix de départ (le numérique), ce qui reste juste.
 - À vérifier après déploiement : aucun avertissement « prix ou livraison incohérents » dans Merchant Center.
 
-**S-8. Pré-générer les articles de blog récents.** 🤖 S
+**S-8. Pré-générer les articles de blog récents.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Un article n'est généré qu'à sa première visite : jusqu'à 18 s pour ce premier visiteur, souvent Googlebot.
 - **Correction :** `generateStaticParams` renvoie les 30 articles les plus récents de chaque langue.
 
@@ -543,23 +544,23 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 
 ## Priorité 1 — Exploitation et sécurité
 
-**O-1. En-têtes de sécurité absents.** 🤖 S
+**O-1. En-têtes de sécurité absents.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Seul HSTS est présent. Il manque `X-Frame-Options` (la caisse peut être encadrée par un autre site), `X-Content-Type-Options`, `Referrer-Policy` et une politique de contenu (CSP).
 - Se règle dans `next.config` en quelques lignes.
 
-**O-2. Bascule des tâches GitHub vers le VPS.** 🤖 S
+**O-2. Bascule des tâches GitHub vers le VPS.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Les deux systèmes tournent en parallèle depuis le 1ᵉʳ octobre.
 - **Le 4 octobre :**
   - vérifier le journal des tâches (`ge_job_runs`) ;
   - couper les plannings GitHub ;
   - supprimer l'ancienne clé SSH de cette machine dans `authorized_keys`.
 
-**O-3. Fichiers non versionnés à trier.** 🤖 S
+**O-3. Fichiers non versionnés à trier.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - `lib/emailNouvelleCommande.ts` est cassé et inutilisé (erreur TypeScript permanente).
 - `.github/workflows/veille-taches.yml` est devenu inutile.
 - Il reste trois fichiers « C:Users…notify-signals » créés par erreur, et `portable-content-publisher/src/core/journal.ts` qui n'est pas branché.
 
-**O-4. Erreur TypeScript permanente.** 🤖 S
+**O-4. Erreur TypeScript permanente.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Elle disparaît avec O-3. Ensuite, il faudra ajouter une vérification `tsc` à chaque push, pour qu'une erreur ne s'installe plus en silence.
 
 ---
@@ -574,12 +575,12 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
   - un bon de 3 € contre un avis avec photo (autorisé s'il est accordé quel que soit l'avis, positif ou négatif).
 - *Reprend E-1.*
 
-**P2-2. Page de suivi : afficher la prochaine action du client.** 🤖 S
+**P2-2. Page de suivi : afficher la prochaine action du client.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Les étapes imprimées sont en ligne depuis aujourd'hui.
 - Il reste à mettre en avant le bouton « Valider mon aperçu » quand un aperçu attend, et « Envoyer mes photos » quand il en manque.
 - *Suite de E-2.*
 
-**P2-3. Retouche demandée : la montrer dans le suivi.** 🤖 S
+**P2-3. Retouche demandée : la montrer dans le suivi.** 🤖 S ✅ Fait le 2 octobre (voir Suivi)
 - Après une demande de retouche, le suivi affiche « Aperçu envoyé » comme si de rien n'était.
 - Ajouter la mention « Retouche demandée, nouvel aperçu sous 24 h ».
 
@@ -595,29 +596,38 @@ Tests sans aucun paiement ni écriture en base : PostHog bloqué, envoi du lead 
 
 | Point | Quoi | Effort |
 |---|---|---|
-| C-4 | Des visuels de support qui montrent la différence (toile, cadre, poster en situation) | 👤 photos ou 🤖 maquettes M |
+| C-4 | ✅ Des visuels de support qui montrent la différence (toile, cadre, poster en situation) | 👤 photos ou 🤖 maquettes M |
 | C-7 | De vraies réactions de clients (vidéo de déballage, photo du cadeau offert) | 👤 |
-| C-12 | Portfolio : seulement du Simpson, sans la photo d'origine → avant/après dans tous les univers | 🤖 M |
+| C-12 | ✅ Portfolio : seulement du Simpson, sans la photo d'origine → avant/après dans tous les univers | 🤖 M |
 | F-5 | Le portrait sur d'autres objets (tasse, coussin, puzzle) | 👤 fournisseur + 🤖 L |
-| F-6 | Cartes de vœux de Noël personnalisées | 🤖 M, **avant le 15 novembre** |
-| F-7 | Calendrier 2027 | 🤖 M, **avant le 1ᵉʳ décembre** |
+| F-6 | ✅ Cartes de vœux de Noël personnalisées | 🤖 M, **avant le 15 novembre** |
+| F-7 | ✅ Calendrier 2027 | 🤖 M, **avant le 1ᵉʳ décembre** |
 | F-8 | La carte Pokémon au vrai format carte | 👤 fournisseur + 🤖 M |
-| G-4 | Galerie avant/après | 🤖 S |
-| G-5 | Page « Garantie » | 🤖 S |
-| H-1 | Nettoyer PostHog (événements morts, doublons) | 🤖 S |
+| G-4 | ✅ Galerie avant/après | 🤖 S |
+| G-5 | ✅ Page « Garantie » | 🤖 S |
+| H-1 | ✅ Nettoyer PostHog (événements morts, doublons) | 🤖 S |
 | H-2 | Regarder les enregistrements des visiteurs qui ont ouvert la caisse | 👤 30 min |
 
 *C-6 (« montrer qui dessine ») et G-3 sont retirés : ils contredisent la règle de ne jamais décrire comment les portraits sont réalisés.*
 
 ---
 
-## Ordre proposé
+## Ordre proposé (mis à jour le 8 octobre 2026)
 
-1. **Cette semaine :**
-   - 👤 P0-1 (chiffres), P0-2 (SIRET), P0-7 (OpenAI), P1-14 (Amazon Pay), P1-3 (tu/vous) ;
-   - 🤖 P0-3 (vitesse), P0-4 (sauvegardes), P0-5 (disque), P0-6 (bouton retour).
-2. **Ensuite, un lot « finitions »** 🤖 : P1-1, P1-2, P1-4 à P1-13, P1-15, P1-16, S-1 à S-5, O-1, O-3, O-4. Environ une journée en tout.
-3. **Avant le 15 novembre :** P1-16 (bascule des prix), F-6 (cartes de vœux) et S-6 (CGV en anglais).
-4. **En continu :** P2-1 (avis), P2-4 (commande test mensuelle), O-2.
+Tout ce qui est marqué ✅ est fait et en ligne. Il reste :
+
+1. **À ta charge 👤 :**
+   - P0-1 / P1-21 : chiffres et avis inventés (« 2 540 avis », « 85 000+ », « 4,9/5 », avis « Achat vérifié ») ;
+   - P0-2 : SIRET, raison sociale et adresse réels ;
+   - P0-7 : recharger les crédits OpenAI (et Perplexity) ;
+   - AD-1 : décision sur les marques sous licence pour la pub ;
+   - L-1 à L-4 : faire relire les pages légales.
+2. **De mon côté 🤖, à faire maintenant :**
+   - P0-4 : sauvegarde automatique de la base (`pg_dump` chaque nuit + copie hors du VPS, il faudra un compte de stockage) ;
+   - P1-7 : refuser les codes postaux invalides ;
+   - P1-16 / V-8 : bascule automatique du prix de lancement le 15 novembre ;
+   - AD-3 / AD-4 : suivi des conversions ChatGPT et bandeau de consentement aux cookies.
+3. **Avant le 15 novembre :** P1-16 (bascule des prix).
+4. **En continu :** P2-1 (avis), P2-4 (commande test mensuelle, y compris un bon cadeau).
 
 Le site ne sera jamais « fini » au sens où plus rien ne bougera : les prix, les fêtes, les nouveaux univers et les avis demandent une petite intervention régulière. Mais une fois les priorités 0 et 1 faites, il n'y aura plus de défaut connu. Il ne restera que des améliorations au choix.
