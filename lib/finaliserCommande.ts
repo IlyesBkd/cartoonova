@@ -16,6 +16,7 @@ import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
+import { envoyerConversionChatgpt } from "@/lib/conversionsChatgpt";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -279,6 +280,8 @@ export async function finaliserCommande(
     /* Attendu explicitement : sur Vercel l'execution est coupee des que la
        reponse part, et un envoi non attendu est simplement perdu. */
     mesurerAchat(order, source),
+    // Vente envoyee a ChatGPT Ads de serveur a serveur (ne leve jamais).
+    envoyerConversionChatgpt(order),
     /* Parrainage : si le code utilise est un code AMI-, le parrain recoit
        son bon maintenant que l'ami a paye. `recompenserParrain` ne leve
        jamais ; le `catch` est une seconde ceinture, parce qu'un bonus ne doit
