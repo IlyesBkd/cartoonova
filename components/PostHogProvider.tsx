@@ -7,6 +7,7 @@ import { contexte, mesure, bandeauConsentementActif } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import { locales } from "@/i18n/config";
 import SuiviGlobal from "@/components/SuiviGlobal";
+import { chargerPixelChatgpt, mesurerPixelChatgpt } from "@/lib/pixelChatgpt";
 
 /* Le fournisseur de contexte `posthog-js/react` a ete retire : son seul role
    etait d'alimenter `usePostHog()`, qui n'etait appele que par ce fichier.
@@ -58,6 +59,14 @@ function VueDePage() {
     const recherche = parametres?.toString();
     mesure(MESURES.vueDePage, {
       $current_url: window.origin + chemin + (recherche ? `?${recherche}` : ""),
+    });
+    /* Pixel ChatGPT Ads (inactif sans NEXT_PUBLIC_OPENAI_PIXEL_ID). Le jeton
+       des pages apres-vente est un lien d'acces : il ne part pas chez un
+       tiers. */
+    chargerPixelChatgpt();
+    mesurerPixelChatgpt("page_viewed", {
+      type: "contents",
+      contents: [{ id: chemin.replace(/\/(suivi|depot|bonus|bon|confirm-poster)\/[^/]+/, "/$1"), content_type: "page" }],
     });
   }, [chemin, parametres]);
 

@@ -30,12 +30,12 @@ const CSP = [
   // 'unsafe-eval' seulement en developpement : le rechargement a chaud en a besoin.
   // 'wasm-unsafe-eval' : autorise le WebAssembly (et lui seul, pas eval). Signale
   // le 3 octobre 2026 par un rapport, sans doute Stripe ou une extension.
-  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://js.stripe.com https://*.js.stripe.com https://www.googletagmanager.com https://www.googleadservices.com https://*.doubleclick.net https://www.google.com https://connect.facebook.net https://vercel.live`,
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://js.stripe.com https://*.js.stripe.com https://www.googletagmanager.com https://www.googleadservices.com https://*.doubleclick.net https://www.google.com https://connect.facebook.net https://bzrcdn.openai.com https://vercel.live`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https://*.blob.vercel-storage.com",
-  `connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com ${GOOGLE_PAYS} https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://vercel.live wss://ws-us3.pusher.com`,
+  `connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com ${GOOGLE_PAYS} https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://bzr.openai.com https://bzrcdn.openai.com https://vercel.live wss://ws-us3.pusher.com`,
   "frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://pay.google.com https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com https://vercel.live",
   "worker-src 'self' blob:",
   "object-src 'none'",

@@ -12,6 +12,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { useLocale, useTranslations } from "next-intl";
 import { mesure, identifier } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
+import { enCentimes, mesurerPixelChatgpt } from "@/lib/pixelChatgpt";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
 import type { PrintKey } from "@/lib/pricing";
 import Icone from "@/components/tj/Icone";
@@ -715,6 +716,9 @@ export default function CheckoutModal({
      e-mail. `printKey` est stable quelle que soit la langue. */
   const isDigital = orderConfig.printKey === "digital";
   const { currency, formatRaw: formatPrice } = useCurrency();
+  /* Lue dans l'effet d'ouverture sans en devenir une dependance, comme la configuration. */
+  const deviseCourante = useRef(currency);
+  deviseCourante.current = currency;
 
   const configCourante = useRef(orderConfig);
   configCourante.current = orderConfig;
@@ -758,6 +762,12 @@ export default function CheckoutModal({
       print_option: config.printOption,
       people: config.people,
       animals: config.animals,
+    });
+    mesurerPixelChatgpt("checkout_started", {
+      type: "contents",
+      amount: enCentimes(config.total),
+      currency: deviseCourante.current,
+      contents: [{ id: config.style, content_type: "product", quantity: 1 }],
     });
   }, [open]);
 

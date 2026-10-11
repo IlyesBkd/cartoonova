@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { identifier } from "@/lib/analytics";
 import Icone from "@/components/tj/Icone";
 import { GOOGLE_ADS_ACTIF, GOOGLE_ADS_PURCHASE_SEND_TO } from "@/lib/googleAds";
+import { enCentimes, mesurerPixelChatgpt } from "@/lib/pixelChatgpt";
 import { successPage, type Lang } from "@/lib/email-i18n";
 import { depotSucces } from "@/lib/i18n/caisse";
 import { formatPrix } from "@/lib/i18n/relances";
@@ -92,6 +93,20 @@ export default function SuccessClient({
       });
     }
 
+    /* Pixel ChatGPT Ads : l'identifiant de commande sert d'event_id, ce qui
+       dedoublonne un rechargement depuis un autre appareil et une future
+       Conversions API cote serveur. */
+    mesurerPixelChatgpt(
+      "order_created",
+      {
+        type: "contents",
+        amount: enCentimes(Number(order.total_price)),
+        currency: order.currency,
+        contents: [{ id: "portrait", name: "Portrait cartoon personnalisé", content_type: "product", quantity: 1 }],
+      },
+      order.id,
+    );
+
     // Meta Pixel purchase event — no-op until NEXT_PUBLIC_META_PIXEL_ID is set (see notesmanuel.md)
     if (typeof window !== "undefined" && window.fbq) {
       window.fbq("track", "Purchase", {
@@ -102,7 +117,7 @@ export default function SuccessClient({
 
     sessionStorage.setItem(storageKey, "1");
     conversionSent.current = true;
-  }, [order.customer_email, order.total_price, order.currency, order.payment_intent_id]);
+  }, [order.customer_email, order.total_price, order.currency, order.payment_intent_id, order.id]);
 
   // Décoder options JSONB (PostgreSQL renvoie JSONB comme un objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
