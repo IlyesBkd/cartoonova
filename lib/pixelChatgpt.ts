@@ -3,8 +3,9 @@
  *
  * ── Quand il tourne ──────────────────────────────────────────────────────
  *
- * Des que `NEXT_PUBLIC_OPENAI_PIXEL_ID` est renseigne dans Vercel (Ads
- * Manager → Conversions), sur toutes les pages, sans bandeau de
+ * Sur toutes les pages, avec le pixel du compte Ads Manager Cartoonova
+ * (identifiant public, visible dans le code de toute page qui le charge ;
+ * `NEXT_PUBLIC_OPENAI_PIXEL_ID` le remplace si besoin), sans bandeau de
  * consentement : choix du proprietaire le 11 octobre 2026, en connaissance
  * du risque (la CNIL exige un accord avant tout cookie publicitaire, et le
  * pixel pose `__oppref`). Pour le soumettre a un accord plus tard, il suffit
@@ -24,7 +25,7 @@
  * cote serveur. On y met l'identifiant de la commande.
  */
 
-export const PIXEL_CHATGPT_ID = process.env.NEXT_PUBLIC_OPENAI_PIXEL_ID || "";
+export const PIXEL_CHATGPT_ID = process.env.NEXT_PUBLIC_OPENAI_PIXEL_ID || "CF7ccMxDL9Zr9yqjGSsRpb";
 const ACTIF = Boolean(PIXEL_CHATGPT_ID);
 const SCRIPT = "https://bzrcdn.openai.com/sdk/oaiq.min.js";
 
@@ -60,7 +61,10 @@ export function chargerPixelChatgpt(): void {
     js.src = SCRIPT;
     document.head.appendChild(js);
   }
-  appeler(["init", { pixelId: PIXEL_CHATGPT_ID }]);
+  /* Journal du SDK dans la console avec ?oaiq_debug=1 dans l URL, pour
+     verifier les envois sans encombrer la console de chaque visiteur. */
+  const debug = new URLSearchParams(window.location.search).has("oaiq_debug");
+  appeler(["init", { pixelId: PIXEL_CHATGPT_ID, debug }]);
   while (enAttente.length) appeler(enAttente.shift()!);
 }
 
