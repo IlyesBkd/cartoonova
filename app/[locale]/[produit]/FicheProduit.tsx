@@ -12,10 +12,6 @@ import dynamic from "next/dynamic";
    celui qui decide du LCP. */
 const CheckoutModal = dynamic(() => import("@/components/CheckoutModal"), { ssr: false });
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
-import BandeauLancement from "@/components/BandeauLancement";
-import Etoiles from "@/components/tj/Etoiles";
-import BadgeVerifie from "@/components/tj/BadgeVerifie";
-import BulleQueue from "@/components/tj/BulleQueue";
 import DateApercu from "@/components/DateApercu";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
@@ -40,8 +36,10 @@ const saisonServeur = () => false;
 
 /* Le prix barre « -40 % » a disparu le 1er octobre 2026 : il affichait un prix
    de reference jamais pratique (le total divise par 0,6), ce que le droit de
-   la consommation interdit. A la place, l'annonce honnete du prix de
-   lancement — voir `lib/lancement.ts`. */
+   la consommation interdit. Le prix de lancement qui l'a remplace (jusqu'au
+   15 novembre, puis 19 EUR) a ete retire le 11 octobre 2026 : le prix bas
+   reste le prix normal, et annoncer une fin qui n'arrive pas serait une
+   fausse urgence. */
 
 /* Format compact pour la vignette de support ("Poster • 30x40cm").
    Cette fonction decoupait auparavant la chaine traduite pour y retrouver la
@@ -458,20 +456,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   /* Titre du visuel courant. Il était incrusté en français dans le montage
      d'origine ; détouré, il redevient du texte — traduit, indexable, lisible
      par un lecteur d'écran, et sans une image par langue. */
-  /* Photos de clients : les visuels sans titre. Sur les fiches importées, ce
-     sont les portraits envoyés par les clients ; sur les six univers d'origine,
-     toute la galerie. Les montages « impression » et « encadrement » en sont
-     exclus — ce ne sont pas des photos de clients, et les présenter comme
-     telles sous un avis signé serait faux. */
-  const portraitsClients = donnees.galerie.filter((_, i) => donnees.legendes[i] === null);
-
-  /* Autant de cartes d'avis que de photos disponibles, sans repetition — une
-     meme photo sous deux avis signes differemment se remarque. Quatre au plus,
-     c'est ce que la grille du systeme accueille sur une rangee. Sans aucune
-     photo, la section entiere est masquee plus bas — un avis illustre par un
-     substitut generique ferait plus de tort que son absence. */
-  const nbAvis = Math.min(4, portraitsClients.length);
-
   const legende = donnees.legendes[vue];
   const titreVisuel = legende
     ? {
@@ -614,13 +598,15 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
 
           {/* ---------- PANNEAU D'ACHAT ---------- */}
           <div className="panneau" id="configurateur">
+            {/* « 2 540 avis vérifiés · 85 000+ portraits livrés » vivait ici,
+                sans aucune donnee derriere (0 avis en base). Remplace par les
+                deux promesses que le site tient vraiment. */}
             <div className="panneau__preuve">
-              <span className="etoiles" style={{ lineHeight: 0 }}>
-                <Etoiles largeur={92} />
-              </span>
-              <span>2 540 {tp("verifiedReviews")}</span>
+              <span>{t("garantieTexte")}</span>
               <i>·</i>
-              <span>85 000+ {tp("portraitsDelivered")}</span>
+              <span>
+                {t("tuileApercu")} {t("tuileDelai")}
+              </span>
             </div>
 
             <h1>{donnees.titre}</h1>
@@ -636,7 +622,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <span>{tp("totalLabel")}</span>
               {port > 0 && <small className="panneau__port">{tp("shippingLine", { montant: formatPrix(port) })}</small>}
             </div>
-            <BandeauLancement />
             <DateApercu physique={support !== "digital"} express={express} />
 
             <p className="panneau__accroche">{donnees.description}</p>
@@ -1211,50 +1196,9 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             (section .hiw), dont celle-ci n'était qu'un résumé en trois cartes. */}
 
         {/* ---------- AVIS ----------
-             Masquée sans photo client : un avis illustré par un substitut
-             générique ferait plus de tort que son absence. */}
-        {nbAvis > 0 && (
-        <section className="section" id="avis" style={{ background: "var(--creme)" }}>
-          <div className="enveloppe">
-            <div className="chapeau" style={{ marginBottom: 34 }}>
-              <h2>
-                {t("avisTitre")} <span className="accent">{t("avisAccent")}</span>
-              </h2>
-            </div>
-            {/* Le rail etait cale sur quatre cartes en dur : une fiche qui n'a
-                que trois photos client — la carte Pokemon, par exemple — les
-                posait a gauche et laissait un quart de la largeur en blanc.
-                Le nombre reel pilote la largeur des cartes. */}
-            <div className="avis-rail" style={{ "--cartes": nbAvis } as React.CSSProperties}>
-              {Array.from({ length: nbAvis }, (_, i) => i + 1).map((n, i) => (
-                <article className="avis-carte" key={n}>
-                  <Image
-                    src={portraitsClients[i]}
-                    alt={tAlt("realisationClient")}
-                    width={1000}
-                    height={750}
-                    sizes="24vw"
-                  />
-                  <div className="avis-bulle">
-                    <div className="svg-stars">
-                      <Etoiles />
-                    </div>
-                    <h3>{tProduit(`review${n}Name` as "review1Name")}</h3>
-                    <p>{tProduit(`review${n}Text` as "review1Text")}</p>
-                    <p className="avis-signe">
-                      {tProduit(`review${n}Name` as "review1Name")} <BadgeVerifie />
-                      <span className="verifie">{t("achatVerifie")}</span>
-                    </p>
-                  </div>
-                  <div className="avis-queue">
-                    <BulleQueue />
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-        )}
+             Retiree le 11 octobre 2026 : les textes etaient rediges et signes
+             « achat vérifié » sans aucune commande derriere. Les vrais avis
+             (table des avis, page /avis) la remplaceront quand il y en aura. */}
 
         {/* Les sections « Comparatif » et « Atouts » vivaient ici. Retirees
             de la fiche le 1er octobre 2026 : elles repetaient l'accueil, qui

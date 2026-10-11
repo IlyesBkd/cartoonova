@@ -30,7 +30,7 @@ export const LEGAL_DA: PagesLegales = {
               "Tryk på Alu-Dibond",
             ],
           },
-          "De fotografier og illustrationer, der vises på Webstedet, er så tro mod virkeligheden som muligt. Der kan dog forekomme mindre variationer mellem det bestilte og det modtagne produkt, da hver karikatur er en unik og håndværksmæssigt fremstillet kreation.",
+          "De fotografier og illustrationer, der vises på Webstedet, er så tro mod virkeligheden som muligt. Der kan dog forekomme mindre variationer mellem det bestilte og det modtagne produkt, da hvert portræt fremstilles efter mål på grundlag af Kundens fotos.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_DA: PagesLegales = {
       {
         titre: "Artikel 6 — Fremstillings- og leveringstider",
         blocs: [
-          "Fremstillingstiden for en karikatur er normalt **2 hverdage** regnet fra modtagelsen af betalingen og fotoene. Denne frist kan variere afhængigt af bestillingens kompleksitet og kunstnernes arbejdsbyrde.",
+          "Fremstillingstiden for en karikatur er normalt **2 hverdage** regnet fra modtagelsen af betalingen og fotoene. Denne frist kan variere afhængigt af bestillingens kompleksitet og antallet af bestillinger.",
           "**Digitale produkter:** Filen i høj opløsning sendes pr. e-mail til Kunden, så snart karikaturen er færdig. Kunden kan derefter anmode om rettelser (artikel 7).",
           "**Trykte produkter:** Et udkast forelægges Kunden, som godkender det før tryk. Tryk og forsendelse tager derefter 3 til 7 hverdage afhængigt af destinationen. Leveringsomkostninger og leveringstider oplyses ved bestillingen.",
           "**Ekspresmulighed:** når Kunden har valgt den, leveres karikaturen inden for 24 timer, også i weekenden, regnet fra modtagelsen af betalingen og fotoene. For et trykt produkt gælder denne frist tegningen; tryk og forsendelse følger derefter ovenstående frister.",

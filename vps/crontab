@@ -28,6 +28,9 @@ CARTOONOVA=/srv/cartoonova
 # ── Nuit : redaction des fiches, puis les quatre sondes, dans cet ordre ──
 10 2 * * *  $CARTOONOVA/vps/executer.sh nuit
 
+# ── Sauvegarde de la base : avant la chaine nocturne ─────────────────────
+40 1 * * *  $CARTOONOVA/vps/executer.sh sauvegarde
+
 # ── Moteur de blog : cinq passages, la cadence reelle venant de
 #    `config/project.json` (fenetres horaires et cibles par langue) ────────
 0 6,9,12,15,18 * * *  $CARTOONOVA/vps/executer.sh blog

@@ -19,7 +19,6 @@ export default function AProposPage() {
   const t = useTranslations("tj");
   const ta = useTranslations("aPropos");
   const tn = useTranslations("nav");
-  const tp = useTranslations("product");
   const lien = useLien();
 
   return (
@@ -52,31 +51,13 @@ export default function AProposPage() {
               {t("recitTitre")} <span className="accent">{t("recitAccent")}</span>
             </h2>
             <p>{t("recitP1")}</p>
-            <p>{ta.rich("communaute", { nombre: t("preuveNombre"), b: (c) => <strong>{c}</strong> })}</p>
             <p>{t("recitP2")}</p>
           </div>
         </div>
       </section>
 
-      {/* Chiffres */}
-      <section className="section preuve">
-        <div className="enveloppe">
-          <div className="preuve__grille">
-            <div>
-              <strong>{t("preuveNombre")}</strong>
-              <span>{tp("portraitsCount")}</span>
-            </div>
-            <div>
-              <strong>{ta("avisNombre")}</strong>
-              <span>{tp("verifiedReviews")}</span>
-            </div>
-            <div>
-              <strong>{ta("paysNombre")}</strong>
-              <span>{ta("paysLabel")}</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Chiffres : « 85 000+ portraits », « 3 000+ avis » et « 50+ pays »
+          vivaient ici, sans aucune donnee derriere. Retires le 11 octobre 2026. */}
 
       {/* Valeurs */}
       <section className="section atouts-sec">

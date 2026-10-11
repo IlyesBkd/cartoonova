@@ -1412,6 +1412,7 @@
   width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--encre);
 }
 .footer__copyright p { margin: 0; font-size: 14px; color: rgba(255, 255, 255, .7); }
+.footer__copyright .footer__mention { margin-top: 8px; font-size: 12px; line-height: 1.5; color: rgba(255, 255, 255, .55); }
 
 @media (max-width: 999px) {
   .footer { display: flex; flex-direction: column; align-items: center; padding: 12px; overflow-x: hidden; }
@@ -1722,14 +1723,6 @@
   font-size: 13px; font-weight: 600; letter-spacing: .04em;
   text-transform: uppercase; color: var(--encre-doux);
 }
-/* Annonce du prix de lancement (voir lib/lancement.ts). Elle remplace le prix
-   barre, qui affichait une reduction fictive. */
-.lancement {
-  display: inline-block; margin: 8px 0 0; padding: 5px 12px;
-  border-radius: 999px; background: var(--soleil-pale); color: var(--encre);
-  font-size: 13.5px; font-weight: 700; line-height: 1.35;
-}
-.lancement--hero { margin-top: 12px; }
 /* ---------- options payantes du configurateur ---------- */
 .options-payantes { display: grid; gap: 10px; }
 .option-payante {

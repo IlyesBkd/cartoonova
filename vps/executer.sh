@@ -117,6 +117,7 @@ executer() {
     vitesse)    cd "$RACINE" && suivre sonde-vitesse npx tsx scripts/sonde-vitesse.mts ;;
     citations)  cd "$RACINE" && suivre sonde-citations node scripts/sonde-citations.mjs ;;
     entonnoir)  cd "$RACINE" && suivre sonde-entonnoir npx tsx scripts/sonde-entonnoir.mts ;;
+    sauvegarde) cd "$RACINE" && suivre sauvegarde-base bash vps/sauvegarde-base.sh ;;
     # La veille se journalise elle-meme (`avecJournal`).
     veille)     cd "$RACINE" && npx tsx scripts/veille-taches.mts ;;
 

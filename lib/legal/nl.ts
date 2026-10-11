@@ -30,7 +30,7 @@ export const LEGAL_NL: PagesLegales = {
               "Afdrukken op Alu-Dibond",
             ],
           },
-          "De op de Site getoonde foto's en illustraties zijn zo getrouw mogelijk. Er kunnen echter lichte verschillen bestaan tussen het bestelde en het ontvangen product, aangezien elke karikatuur een unieke en ambachtelijke creatie is.",
+          "De op de Site getoonde foto's en illustraties zijn zo getrouw mogelijk. Er kunnen echter lichte verschillen bestaan tussen het bestelde en het ontvangen product, aangezien elk portret op maat wordt gemaakt op basis van de foto's van de Klant.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_NL: PagesLegales = {
       {
         titre: "Artikel 6 — Vervaardigings- en levertermijnen",
         blocs: [
-          "De vervaardigingstermijn van een karikatuur bedraagt doorgaans **2 werkdagen** vanaf ontvangst van de betaling en de foto's. Deze termijn kan variëren afhankelijk van de complexiteit van de bestelling en de werklast van de artiesten.",
+          "De vervaardigingstermijn van een karikatuur bedraagt doorgaans **2 werkdagen** vanaf ontvangst van de betaling en de foto's. Deze termijn kan variëren afhankelijk van de complexiteit van de bestelling en het aantal bestellingen.",
           "**Digitale producten:** Het bestand in hoge resolutie wordt per e-mail naar de Klant gestuurd zodra de karikatuur klaar is. De Klant kan vervolgens aanpassingen aanvragen (artikel 7).",
           "**Afgedrukte producten:** Er wordt een voorbeeld aan de Klant voorgelegd, die dit vóór het afdrukken goedkeurt. Het afdrukken en verzenden nemen vervolgens 3 tot 7 werkdagen in beslag, afhankelijk van de bestemming. De verzendkosten en levertermijnen worden bij de bestelling vermeld.",
           "**Expresoptie:** wanneer de Klant hiervoor heeft gekozen, wordt de karikatuur binnen 24 uur geleverd, ook in het weekend, vanaf ontvangst van de betaling en de foto's. Voor een afgedrukt product heeft deze termijn betrekking op de tekening; het afdrukken en verzenden volgen de hierboven vermelde termijnen.",

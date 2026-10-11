@@ -61,9 +61,9 @@ export type PricesByCurrency = Record<Currency, PriceSet>;
    chaque revision de tarif — c'est le seul endroit ou les prix sont ecrits en
    dur. */
 export const DEFAULT_PRICE_SET: PriceSet = {
-  base: 5,
+  base: 4.99,
   fullbodyExtra: 5,
-  extraPerson: 5,
+  extraPerson: 4.99,
   extraAnimal: 5,
   digital: 0,
   canvas: 39,

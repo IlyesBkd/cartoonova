@@ -30,7 +30,7 @@ export const LEGAL_EN: PagesLegales = {
               "Alu-Dibond prints",
             ],
           },
-          "The photographs and illustrations shown on the Site are as faithful as possible. However, slight variations may exist between the product ordered and the product received, as each caricature is a unique, handmade creation.",
+          "The photographs and illustrations shown on the Site are as faithful as possible. However, slight variations may exist between the product ordered and the product received, as each portrait is made to order from the Customer’s photos.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_EN: PagesLegales = {
       {
         titre: "Article 6 — Production times and delivery",
         blocs: [
-          "A caricature is generally produced within **2 working days** of receipt of payment and photos. This time may vary depending on the complexity of the order and the artists’ workload.",
+          "A caricature is generally produced within **2 working days** of receipt of payment and photos. This time may vary depending on the complexity of the order and the volume of orders.",
           "**Digital products:** The high-definition file is sent to the Customer by e-mail as soon as the caricature is finished. The Customer may then request revisions (Article 7).",
           "**Printed products:** A preview is submitted to the Customer, who approves it before printing. Printing and shipping then take 3 to 7 working days depending on the destination. Delivery charges and times are indicated when ordering.",
           "**Express option:** where the Customer has chosen it, the caricature is delivered within 24 hours, including at weekends, from receipt of payment and photos. For a printed product, this time applies to the drawing; printing and shipping then follow the times set out above.",

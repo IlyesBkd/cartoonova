@@ -7,13 +7,10 @@ import { useTranslations, useLocale } from "next-intl";
 import type { Locale } from "@/i18n/config";
 import { useLien } from "@/components/useLien";
 import { useCurrency } from "@/components/CurrencyProvider";
-import BandeauLancement from "@/components/BandeauLancement";
 import { CATEGORIES_AFFICHAGE, NOMS_CATEGORIE, produitPhare, type Categorie } from "@/lib/catalogue";
 import type { EvenementAffiche } from "@/lib/evenements";
 import Etoiles from "@/components/tj/Etoiles";
 import Icone from "@/components/tj/Icone";
-import BulleQueue from "@/components/tj/BulleQueue";
-import BadgeVerifie from "@/components/tj/BadgeVerifie";
 import Comparatif from "@/components/tj/Comparatif";
 import IconesCta from "@/components/tj/IconesCta";
 import IconesAtouts from "@/components/tj/IconesAtouts";
@@ -78,13 +75,11 @@ export interface TextesHero {
 }
 
 export default function Accueil({
-  photosAvis,
   photoHero,
   prixDepart,
   evenement = null,
   textesHero = null,
 }: {
-  photosAvis: string[];
   photoHero: string;
   prixDepart: number;
   /** Temps fort du moment : il prend la main sur le titre et l'accroche. */
@@ -95,7 +90,6 @@ export default function Accueil({
   const t = useTranslations("tj");
   const th = useTranslations("home");
   const tp = useTranslations("product");
-  const tAlt = useTranslations("alt");
   const tEvt = useTranslations("evenements");
   const lien = useLien();
   const locale = useLocale() as Locale;
@@ -105,14 +99,6 @@ export default function Accueil({
     q: th(`faqQ${n}` as "faqQ1"),
     a: th(`faqA${n}` as "faqA1"),
   }));
-
-  const avis = [1, 2, 3, 4].map((n) => ({
-    titre: th(`review${n}Name` as "review1Name"),
-    texte: th(`review${n}Text` as "review1Text"),
-    nom: th(`review${n}Name` as "review1Name"),
-    photo: photosAvis[n - 1] ?? photosAvis[0],
-  }));
-
 
   /* Tous les appels a l'action de l'accueil menaient a `/collections`, la
      grille des 36 fiches. Avec un univers attendu a 70 % des ventes, c'etait
@@ -211,7 +197,6 @@ export default function Accueil({
                   </span>
                 </span>
               </p>
-              <BandeauLancement className="lancement lancement--hero" />
 
               {/* Le second bouton pointait sur « Comment ça marche », qui a
                   sa place dans la barre utilitaire depuis qu'elle existe.
@@ -408,19 +393,6 @@ export default function Accueil({
                   />
                 </div>
                 <div className="carte-style__info">
-                  <div className="carte-style__avis">
-                    <span className="carte-style__etoiles">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <svg key={i} width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                          <path
-                            d="M7.5 0L9.58587 5.2731L15 5.72949L10.875 9.44483L12.1353 15L7.5 12.0231L2.86475 15L4.125 9.44483L0 5.72949L5.41414 5.2731L7.5 0Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      ))}
-                    </span>
-                    <span className="carte-style__nb-avis">(1125 {t("avisSuffix")})</span>
-                  </div>
                   <h3>{NOMS_CATEGORIE[c.categorie][locale]}</h3>
                   <p>{t(c.sloganKey)}</p>
                   <span className="carte-style__prix">
@@ -444,37 +416,10 @@ export default function Accueil({
           d'un achat vérifié. Deux carrousels de portraits d'affilée disaient
           la même chose, le second en mieux. */}
 
-      {/* ═══ AVIS ILLUSTRÉS ═══ */}
-      <section className="section" id="avis" style={{ background: "var(--creme)" }}>
-        <div className="enveloppe">
-          <div className="chapeau" style={{ marginBottom: 34 }}>
-            <h2>
-              {t("avisTitre")} <span className="accent">{t("avisAccent")}</span>
-            </h2>
-          </div>
-          <div className="avis-rail">
-            {avis.map((a, i) => (
-              <article className="avis-carte" key={i}>
-                <Image src={a.photo} alt={tAlt("realisationClient")} width={1000} height={750} sizes="(max-width: 620px) 80vw, 24vw" />
-                <div className="avis-bulle">
-                  <div className="svg-stars">
-                    <Etoiles />
-                  </div>
-                  <h3>{a.titre}</h3>
-                  <p>{a.texte}</p>
-                  <p className="avis-signe">
-                    {a.nom} <BadgeVerifie />
-                    <span className="verifie">{t("achatVerifie")}</span>
-                  </p>
-                </div>
-                <div className="avis-queue">
-                  <BulleQueue />
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ═══ AVIS ILLUSTRÉS ═══
+          Retirée le 11 octobre 2026 : quatre témoignages rédigés, signés
+          « achat vérifié » sans commande derrière. À remettre avec les vrais
+          avis quand il y en aura. */}
 
       {/* ═══ ATOUTS (fond soleil) ═══ */}
       <section className="section atouts-sec">
@@ -498,11 +443,6 @@ export default function Accueil({
                 <p>{t(`atout${n}D` as "atout1D")}</p>
               </article>
             ))}
-          </div>
-          <div className="preuve-ligne">
-            <p>
-              <strong>{t("preuveNombre")}</strong> {t("preuveTexte")}
-            </p>
           </div>
           <div style={{ textAlign: "center", marginTop: 30 }}>
             <Link className="bouton bouton--clair" href={lienPhare}>

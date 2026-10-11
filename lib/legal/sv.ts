@@ -30,7 +30,7 @@ export const LEGAL_SV: PagesLegales = {
               "Tryck på Alu-Dibond",
             ],
           },
-          "De fotografier och illustrationer som visas på Webbplatsen är så trogna som möjligt. Smärre variationer kan dock förekomma mellan den beställda och den mottagna produkten, eftersom varje karikatyr är ett unikt och hantverksmässigt skapat verk.",
+          "De fotografier och illustrationer som visas på Webbplatsen är så trogna som möjligt. Smärre variationer kan dock förekomma mellan den beställda och den mottagna produkten, eftersom varje porträtt skapas på beställning utifrån Kundens foton.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_SV: PagesLegales = {
       {
         titre: "Artikel 6 — Framställnings- och leveranstider",
         blocs: [
-          "Framställningstiden för en karikatyr är i regel **2 arbetsdagar** räknat från mottagandet av betalningen och fotona. Tiden kan variera beroende på beställningens komplexitet och konstnärernas arbetsbelastning.",
+          "Framställningstiden för en karikatyr är i regel **2 arbetsdagar** räknat från mottagandet av betalningen och fotona. Tiden kan variera beroende på beställningens komplexitet och antalet beställningar.",
           "**Digitala produkter:** Filen i hög upplösning skickas via e-post till Kunden så snart karikatyren är klar. Kunden kan därefter begära ändringar (artikel 7).",
           "**Tryckta produkter:** En förhandsvisning skickas till Kunden, som godkänner den före tryck. Tryck och leverans tar därefter 3 till 7 arbetsdagar beroende på destination. Leveransavgifter och leveranstider anges vid beställningen.",
           "**Expressalternativ:** när Kunden har valt det levereras karikatyren inom 24 timmar, även på helger, räknat från mottagandet av betalningen och fotona. För en tryckt produkt avser denna tid teckningen; tryck och leverans följer därefter ovanstående tider.",

@@ -10,6 +10,7 @@ Ce backlog fait suite à `audit-parcours-client-2026-09.md`. Les points encore o
 | 2 octobre 2026 (2ᵉ lot) | P1-8, P1-9, P1-11, P1-12, P1-13, P1-15, P1-17 | Faits, déployés et revérifiés en production ; P1-14 attend une action dans Stripe |
 | 2 octobre 2026 (lot SEO) | S-1 à S-8 | Faits, vérifiés sur un build de production local ; L-1 à L-4 à faire relire |
 | 8 octobre 2026 | Backlog remis à jour | Les points faits sont marqués ✅ dans le corps ; « Ordre proposé » ne liste plus que ce qui reste |
+| 11 octobre 2026 (préparation ChatGPT Ads) | P0-1, P1-21, AD-1 (mention), « Imprimé en France », P1-16, P0-4 (script), origine dans `purchase_completed` | Fait en local, pas encore déployé ; plan complet : `~/.claude/plans/j-ai-envie-de-commencer-twinkly-catmull.md` |
 | 2 octobre 2026 (lot exploitation et contenu) | O-1 à O-4, P2-2, P2-3, C-4, C-12, G-4, G-5, F-6, F-7, H-1 | Faits, vérifiés sur un build de production local (Playwright) ; restes à ta charge listés ci-dessous |
 
 **Fait le 2 octobre 2026, lot exploitation et contenu :**
@@ -323,14 +324,14 @@ Les commandes de test ont été supprimées de la base de dev (vérifié : 0 res
 
 ### Feu vert pub : la checklist
 
-1. [ ] Décision sur les marques (AD-1) : annonces génériques, pages d'atterrissage neutres, mention de non-affiliation.
+1. [ ] Décision sur les marques (AD-1) : annonces génériques, pages d'atterrissage neutres. ✅ Mention de non-affiliation dans le pied de page (10 langues), le 11 octobre.
 2. [x] Paramètres gardés sur la page d'accueil (AD-2).
 3. [ ] Pixel ChatGPT et API de conversions branchés, testés en mode debug (AD-3).
 4. [ ] Bandeau de consentement actif, et cookies seulement après accord (AD-4).
-5. [ ] Chiffres et avis inventés retirés (P0-1).
+5. [x] Chiffres et avis inventés retirés (P0-1), le 11 octobre : fiche, accueil, /avis, /a-propos, et les clés de traduction.
 6. [ ] Vraie identité légale (P0-2) et politique de confidentialité à jour (L-2).
-7. [ ] Sauvegarde automatique de la base (P0-4).
-8. [ ] « Made in France » prouvé ou retiré, origine des images confirmée.
+7. [ ] Sauvegarde automatique de la base (P0-4) : `vps/sauvegarde-base.sh` écrit, à installer (`crontab vps/crontab`) ; copie hors VPS dès que `SAUVEGARDE_DISTANTE` est renseignée.
+8. [ ] « Imprimé en France » remplacé par « Imprimé sur commande » (10 langues) ✅ ; origine des images importées encore à confirmer.
 9. [x] Langue des e-mails = langue du client (V-1), `next` à jour (V-2), Amazon Pay coupé (V-3).
 10. [ ] Une vraie commande test en production, y compris un bon cadeau (P2-4).
 

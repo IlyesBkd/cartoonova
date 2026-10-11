@@ -49,9 +49,11 @@ export default function AvisPage({
     <>
       <section className="entete-page">
         <div className="enveloppe">
-          <div className="hero__oeil" style={{ justifyContent: "center" }}>
-            <Etoiles /> {stats.nombre > 0 ? `${stats.moyenne.toLocaleString("fr-FR")}/5` : "4,9/5"}
-          </div>
+          {stats.nombre > 0 && (
+            <div className="hero__oeil" style={{ justifyContent: "center" }}>
+              <Etoiles /> {`${stats.moyenne.toLocaleString("fr-FR")}/5`}
+            </div>
+          )}
           <h1>
             {t("avisTitre")} <span className="accent">{t("avisAccent")}</span>
           </h1>
@@ -59,29 +61,26 @@ export default function AvisPage({
         </div>
       </section>
 
-      <section className="section preuve">
-        <div className="enveloppe">
-          <div className="preuve__grille">
-            <div>
-              <strong>85 000+</strong>
-              <span>{tp("portraitsCount")}</span>
-            </div>
-            {/* Chiffre reel des qu'il en existe un : la valeur ecrite en dur
-                ne repose sur aucune donnee, et c'est precisement ce que le
-                balisage `aggregateRating` declarerait a Google. */}
-            <div>
-              <strong>
-                {stats.nombre > 0 ? `${stats.moyenne.toLocaleString("fr-FR")}/5` : "4,9/5"}
-              </strong>
-              <span>{tp("verifiedReviews")}</span>
-            </div>
-            <div>
-              <strong>48 H</strong>
-              <span>{t("tuileApercu")}</span>
+      {/* Chiffres : seulement les vrais. « 85 000+ » et un « 4,9/5 » de repli
+          s'affichaient ici sans aucune donnee derriere. */}
+      {stats.nombre > 0 && (
+        <section className="section preuve">
+          <div className="enveloppe">
+            <div className="preuve__grille">
+              <div>
+                <strong>{`${stats.moyenne.toLocaleString("fr-FR")}/5`}</strong>
+                <span>
+                  {stats.nombre} {tp("verifiedReviews")}
+                </span>
+              </div>
+              <div>
+                <strong>{t("tuileDelai")}</strong>
+                <span>{t("tuileApercu")}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="section">
         <div className="enveloppe">
@@ -117,7 +116,7 @@ export default function AvisPage({
                     </div>
                   </article>
                 ))
-              : PHOTOS.map((photo, i) => (
+              : PHOTOS.map((photo) => (
                   <article className="avis-carte" key={photo} style={{ flex: "unset" }}>
                     <Image
                       src={photo}
@@ -126,19 +125,6 @@ export default function AvisPage({
                       height={750}
                       sizes="(max-width: 520px) 92vw, 24vw"
                     />
-                    <div className="avis-bulle">
-                      <div className="svg-stars">
-                        <Etoiles />
-                      </div>
-                      <p>{tp(`review${i + 1}Text`)}</p>
-                      <p className="avis-signe">
-                        {tp(`review${i + 1}Name`)} <BadgeVerifie />
-                        <span className="verifie">{t("achatVerifie")}</span>
-                      </p>
-                    </div>
-                    <div className="avis-queue">
-                      <BulleQueue />
-                    </div>
                   </article>
                 ))}
           </div>

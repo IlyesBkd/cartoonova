@@ -185,6 +185,9 @@ export default function FooterCartoon() {
               <div className="footer__aside-bottom">
                 <div className="footer__copyright">
                   <p>© 2026 Cartoonova — {tf("rights")}</p>
+                  {/* Exigee par les regles publicitaires (ChatGPT Ads, Google) : les
+                      fiches portent des noms de marques sans lien avec nous. */}
+                  <p className="footer__mention">{tf("nonAffiliation")}</p>
                 </div>
               </div>
             </div>

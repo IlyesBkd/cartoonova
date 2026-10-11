@@ -144,16 +144,16 @@ export function anneeDesVoeux(date: Date = new Date()): number {
    La carte est envoyee PAR le client a ses proches : le verso s'adresse a
    eux, sans tutoiement ni vouvoiement marques. */
 const TEXTES: Record<Lang, { voeux: string; annee: (a: number) => string; message: string; credit: string }> = {
-  fr: { voeux: "Joyeux Noël", annee: (a) => `et bonne année ${a} !`, message: "Plein de bonheur et de douceur pour la nouvelle année.", credit: "Portrait dessiné à la main par Cartoonova" },
-  en: { voeux: "Merry Christmas", annee: (a) => `and a Happy New Year ${a}!`, message: "Wishing you joy and warmth all through the new year.", credit: "Portrait hand-drawn by Cartoonova" },
-  es: { voeux: "Feliz Navidad", annee: (a) => `¡y próspero año ${a}!`, message: "Mucha alegría y cariño para el nuevo año.", credit: "Retrato dibujado a mano por Cartoonova" },
-  de: { voeux: "Frohe Weihnachten", annee: (a) => `und ein gutes neues Jahr ${a}!`, message: "Viel Freude und Herzlichkeit im neuen Jahr.", credit: "Porträt von Hand gezeichnet von Cartoonova" },
-  it: { voeux: "Buon Natale", annee: (a) => `e felice ${a}!`, message: "Tanta gioia e serenità per il nuovo anno.", credit: "Ritratto disegnato a mano da Cartoonova" },
-  nl: { voeux: "Vrolijk kerstfeest", annee: (a) => `en een gelukkig ${a}!`, message: "Veel geluk en warmte in het nieuwe jaar.", credit: "Portret met de hand getekend door Cartoonova" },
-  pl: { voeux: "Wesołych Świąt", annee: (a) => `i szczęśliwego Nowego Roku ${a}!`, message: "Dużo radości i ciepła w nowym roku.", credit: "Portret narysowany ręcznie przez Cartoonova" },
-  sv: { voeux: "God jul", annee: (a) => `och gott nytt år ${a}!`, message: "Massor av glädje och värme under det nya året.", credit: "Porträtt handritat av Cartoonova" },
-  da: { voeux: "Glædelig jul", annee: (a) => `og godt nytår ${a}!`, message: "Masser af glæde og varme i det nye år.", credit: "Portræt håndtegnet af Cartoonova" },
-  pt: { voeux: "Feliz Natal", annee: (a) => `e um feliz ${a}!`, message: "Muita alegria e carinho no novo ano.", credit: "Retrato desenhado à mão pela Cartoonova" },
+  fr: { voeux: "Joyeux Noël", annee: (a) => `et bonne année ${a} !`, message: "Plein de bonheur et de douceur pour la nouvelle année.", credit: "Portrait créé par Cartoonova" },
+  en: { voeux: "Merry Christmas", annee: (a) => `and a Happy New Year ${a}!`, message: "Wishing you joy and warmth all through the new year.", credit: "Portrait by Cartoonova" },
+  es: { voeux: "Feliz Navidad", annee: (a) => `¡y próspero año ${a}!`, message: "Mucha alegría y cariño para el nuevo año.", credit: "Retrato de Cartoonova" },
+  de: { voeux: "Frohe Weihnachten", annee: (a) => `und ein gutes neues Jahr ${a}!`, message: "Viel Freude und Herzlichkeit im neuen Jahr.", credit: "Porträt von Cartoonova" },
+  it: { voeux: "Buon Natale", annee: (a) => `e felice ${a}!`, message: "Tanta gioia e serenità per il nuovo anno.", credit: "Ritratto di Cartoonova" },
+  nl: { voeux: "Vrolijk kerstfeest", annee: (a) => `en een gelukkig ${a}!`, message: "Veel geluk en warmte in het nieuwe jaar.", credit: "Portret door Cartoonova" },
+  pl: { voeux: "Wesołych Świąt", annee: (a) => `i szczęśliwego Nowego Roku ${a}!`, message: "Dużo radości i ciepła w nowym roku.", credit: "Portret od Cartoonova" },
+  sv: { voeux: "God jul", annee: (a) => `och gott nytt år ${a}!`, message: "Massor av glädje och värme under det nya året.", credit: "Porträtt av Cartoonova" },
+  da: { voeux: "Glædelig jul", annee: (a) => `og godt nytår ${a}!`, message: "Masser af glæde og varme i det nye år.", credit: "Portræt fra Cartoonova" },
+  pt: { voeux: "Feliz Natal", annee: (a) => `e um feliz ${a}!`, message: "Muita alegria e carinho no novo ano.", credit: "Retrato da Cartoonova" },
 };
 
 /** Petites etoiles decoratives, dessinees (aucune police n'est sure d'avoir le glyphe). */

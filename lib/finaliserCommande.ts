@@ -224,6 +224,15 @@ async function mesurerAchat(order: DbOrder, source: "webhook" | "page_succes"): 
       promo_code: order.promo_code ?? null,
       discount_amount: order.discount_amount ?? null,
       detected_country: order.detected_country ?? null,
+      /* Origine de la commande (premier contact + dernier clic publicitaire).
+         Sans elle, PostHog ne pouvait pas dire quelle source rapporte quoi :
+         l'evenement serveur n'herite ni du referent ni des utm du navigateur. */
+      origine_referent: order.origine?.referent ?? null,
+      utm_source: order.origine?.utm_source ?? null,
+      utm_medium: order.origine?.utm_medium ?? null,
+      utm_campaign: order.origine?.utm_campaign ?? null,
+      landing_path: order.origine?.arrivee ?? null,
+      ad_platform: order.origine?.pub?.plateforme ?? null,
       /* Qui des deux a gagne la course. Utile a surveiller les premiers
          jours : si la page de succes gagne systematiquement, le webhook ne
          fonctionne pas et personne ne s'en apercevrait autrement. */

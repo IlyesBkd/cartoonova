@@ -30,7 +30,7 @@ export const LEGAL_DE: PagesLegales = {
               "Drucke auf Alu-Dibond",
             ],
           },
-          "Die auf der Website gezeigten Fotografien und Abbildungen sind so originalgetreu wie möglich. Dennoch können geringfügige Abweichungen zwischen dem bestellten und dem erhaltenen Produkt bestehen, da jede Karikatur ein einzigartiges, handgefertigtes Werk ist.",
+          "Die auf der Website gezeigten Fotografien und Abbildungen sind so originalgetreu wie möglich. Dennoch können geringfügige Abweichungen zwischen dem bestellten und dem erhaltenen Produkt bestehen, da jedes Porträt individuell nach den Fotos des Kunden angefertigt wird.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_DE: PagesLegales = {
       {
         titre: "Artikel 6 — Anfertigungsfristen und Lieferung",
         blocs: [
-          "Die Anfertigung einer Karikatur dauert in der Regel **2 Werktage** ab Eingang der Zahlung und der Fotos. Diese Frist kann je nach Komplexität der Bestellung und Auslastung der Künstler variieren.",
+          "Die Anfertigung einer Karikatur dauert in der Regel **2 Werktage** ab Eingang der Zahlung und der Fotos. Diese Frist kann je nach Komplexität der Bestellung und dem Auftragsvolumen variieren.",
           "**Digitale Produkte:** Die hochauflösende Datei wird dem Kunden per E-Mail zugesandt, sobald die Karikatur fertiggestellt ist. Der Kunde kann anschließend Überarbeitungen anfordern (Artikel 7).",
           "**Gedruckte Produkte:** Dem Kunden wird eine Vorschau vorgelegt, die er vor dem Druck freigibt. Druck und Versand dauern anschließend je nach Zielort 3 bis 7 Werktage. Versandkosten und Lieferfristen werden bei der Bestellung angegeben.",
           "**Express-Option:** Hat der Kunde sie gewählt, wird die Karikatur innerhalb von 24 Stunden, auch am Wochenende, ab Eingang der Zahlung und der Fotos geliefert. Bei einem gedruckten Produkt bezieht sich diese Frist auf die Zeichnung; Druck und Versand erfolgen anschließend innerhalb der oben genannten Fristen.",

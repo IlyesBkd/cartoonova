@@ -30,7 +30,7 @@ export const LEGAL_ES: PagesLegales = {
               "Impresiones en Alu-Dibond",
             ],
           },
-          "Las fotografías e ilustraciones presentadas en el Sitio son lo más fieles posible. No obstante, pueden existir ligeras variaciones entre el producto pedido y el producto recibido, ya que cada caricatura es una creación única y artesanal.",
+          "Las fotografías e ilustraciones presentadas en el Sitio son lo más fieles posible. No obstante, pueden existir ligeras variaciones entre el producto pedido y el producto recibido, ya que cada retrato se crea a medida a partir de las fotos del Cliente.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_ES: PagesLegales = {
       {
         titre: "Artículo 6 — Plazos de realización y entrega",
         blocs: [
-          "El plazo de realización de una caricatura es generalmente de **2 días hábiles** a partir de la recepción del pago y de las fotos. Este plazo puede variar en función de la complejidad del pedido y de la carga de trabajo de los artistas.",
+          "El plazo de realización de una caricatura es generalmente de **2 días hábiles** a partir de la recepción del pago y de las fotos. Este plazo puede variar en función de la complejidad del pedido y del volumen de pedidos.",
           "**Productos digitales:** El archivo de alta definición se envía al Cliente por correo electrónico en cuanto la caricatura está terminada. A continuación, el Cliente puede solicitar retoques (artículo 7).",
           "**Productos impresos:** Se somete al Cliente una vista previa, que este valida antes de la impresión. La impresión y el envío requieren después un plazo de 3 a 7 días hábiles según el destino. Los gastos y plazos de entrega se indican al realizar el pedido.",
           "**Opción exprés:** cuando el Cliente la haya elegido, la caricatura se entrega en un plazo de 24 horas, incluido el fin de semana, a partir de la recepción del pago y de las fotos. Para un producto impreso, este plazo se refiere al dibujo; la impresión y el envío siguen los plazos indicados anteriormente.",

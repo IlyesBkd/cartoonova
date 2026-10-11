@@ -2,7 +2,6 @@ import { SITE_URL } from "./site";
 import { locales } from "../i18n/config";
 import { COUNTRIES } from "./countries";
 import { PRINT_KEYS, computeShipping, type PrintKey } from "./pricing";
-import { FIN_LANCEMENT, lancementEnCours } from "./lancement";
 import type { PriceSet } from "./types";
 
 /* Blocs schema.org partages par les pages (2 octobre 2026).
@@ -17,13 +16,8 @@ import type { PriceSet } from "./types";
 /** Pays livres, au format ISO, pour `shippingDestination` et la politique de retour. */
 const PAYS_LIVRES = COUNTRIES.map((c) => c.code);
 
-/**
- * Date de fin de validite des prix annonces. Pendant le prix de lancement,
- * c'est sa date de fin : annoncer plus loin serait faux. Ensuite, la fin de
- * l'annee suivante.
- */
+/** Date de fin de validite des prix annonces : la fin de l'annee suivante. */
 export function prixValideJusqua(maintenant: Date = new Date()): string {
-  if (lancementEnCours(maintenant)) return FIN_LANCEMENT.toISOString().slice(0, 10);
   return `${maintenant.getUTCFullYear() + 1}-12-31`;
 }
 

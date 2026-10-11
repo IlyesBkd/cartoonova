@@ -30,7 +30,7 @@ export const LEGAL_PT: PagesLegales = {
               "Impressões em Alu-Dibond",
             ],
           },
-          "As fotografias e ilustrações apresentadas no Sítio são tão fiéis quanto possível. Contudo, podem existir ligeiras variações entre o produto encomendado e o produto recebido, sendo cada caricatura uma criação única e artesanal.",
+          "As fotografias e ilustrações apresentadas no Sítio são tão fiéis quanto possível. Contudo, podem existir ligeiras variações entre o produto encomendado e o produto recebido, sendo cada retrato criado por medida a partir das fotografias do Cliente.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_PT: PagesLegales = {
       {
         titre: "Artigo 6 — Prazos de realização e entrega",
         blocs: [
-          "O prazo de realização de uma caricatura é, em geral, de **2 dias úteis** a contar da receção do pagamento e das fotografias. Este prazo pode variar em função da complexidade da encomenda e da carga de trabalho dos artistas.",
+          "O prazo de realização de uma caricatura é, em geral, de **2 dias úteis** a contar da receção do pagamento e das fotografias. Este prazo pode variar em função da complexidade da encomenda e do volume de encomendas.",
           "**Produtos digitais:** O ficheiro em alta definição é enviado por e-mail ao Cliente assim que a caricatura estiver concluída. O Cliente pode depois solicitar retoques (artigo 7).",
           "**Produtos impressos:** É submetida ao Cliente uma pré-visualização, que este valida antes da impressão. A impressão e o envio demoram depois de 3 a 7 dias úteis, consoante o destino. Os custos e prazos de entrega são indicados no momento da encomenda.",
           "**Opção expresso:** quando escolhida pelo Cliente, a caricatura é entregue no prazo de 24 horas, incluindo ao fim de semana, a contar da receção do pagamento e das fotografias. Para um produto impresso, este prazo diz respeito ao desenho; a impressão e o envio seguem os prazos acima indicados.",

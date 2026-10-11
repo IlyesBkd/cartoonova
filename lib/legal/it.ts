@@ -30,7 +30,7 @@ export const LEGAL_IT: PagesLegales = {
               "Stampe su Alu-Dibond",
             ],
           },
-          "Le fotografie e le illustrazioni presentate sul Sito sono il più fedeli possibile. Tuttavia, possono sussistere lievi differenze tra il prodotto ordinato e il prodotto ricevuto, essendo ogni caricatura una creazione unica e artigianale.",
+          "Le fotografie e le illustrazioni presentate sul Sito sono il più fedeli possibile. Tuttavia, possono sussistere lievi differenze tra il prodotto ordinato e il prodotto ricevuto, essendo ogni ritratto creato su misura a partire dalle foto del Cliente.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_IT: PagesLegales = {
       {
         titre: "Articolo 6 — Tempi di realizzazione e consegna",
         blocs: [
-          "I tempi di realizzazione di una caricatura sono generalmente di **2 giorni lavorativi** a decorrere dalla ricezione del pagamento e delle foto. Tale termine può variare in funzione della complessità dell'ordine e del carico di lavoro degli artisti.",
+          "I tempi di realizzazione di una caricatura sono generalmente di **2 giorni lavorativi** a decorrere dalla ricezione del pagamento e delle foto. Tale termine può variare in funzione della complessità dell'ordine e del volume degli ordini.",
           "**Prodotti digitali:** Il file ad alta definizione viene inviato via e-mail al Cliente non appena la caricatura è terminata. Il Cliente può successivamente richiedere delle modifiche (articolo 7).",
           "**Prodotti stampati:** Un'anteprima viene sottoposta al Cliente, che la convalida prima della stampa. La stampa e la spedizione richiedono successivamente un termine da 3 a 7 giorni lavorativi a seconda della destinazione. Le spese e i tempi di consegna sono indicati al momento dell'ordine.",
           "**Opzione express:** qualora il Cliente l'abbia scelta, la caricatura viene consegnata entro 24 ore, fine settimana compreso, a decorrere dalla ricezione del pagamento e delle foto. Per un prodotto stampato, tale termine riguarda il disegno; la stampa e la spedizione seguono i termini sopra indicati.",

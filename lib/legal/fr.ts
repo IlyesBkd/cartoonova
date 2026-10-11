@@ -34,7 +34,7 @@ export const LEGAL_FR: PagesLegales = {
               "Impressions sur Alu-Dibond",
             ],
           },
-          "Les photographies et illustrations présentées sur le Site sont aussi fidèles que possible. Toutefois, de légères variations peuvent exister entre le produit commandé et le produit reçu, chaque caricature étant une création unique et artisanale.",
+          "Les photographies et illustrations présentées sur le Site sont aussi fidèles que possible. Toutefois, de légères variations peuvent exister entre le produit commandé et le produit reçu, chaque portrait étant créé sur mesure à partir des photos du Client.",
         ],
       },
       {
@@ -62,7 +62,7 @@ export const LEGAL_FR: PagesLegales = {
       {
         titre: "Article 6 — Délais de réalisation et livraison",
         blocs: [
-          "Les délais de réalisation d'une caricature sont généralement de **2 jours ouvrés** à compter de la réception du paiement et des photos. Ce délai peut varier en fonction de la complexité de la commande et de la charge de travail des artistes.",
+          "Les délais de réalisation d'une caricature sont généralement de **2 jours ouvrés** à compter de la réception du paiement et des photos. Ce délai peut varier en fonction de la complexité de la commande et du volume de commandes.",
           "**Produits numériques :** Le fichier haute définition est envoyé par email au Client dès que la caricature est terminée. Le Client peut ensuite demander des retouches (article 7).",
           "**Produits imprimés :** Un aperçu est soumis au Client, qui le valide avant l'impression. L'impression et l'expédition prennent ensuite un délai de 3 à 7 jours ouvrés selon la destination. Les frais et délais de livraison sont indiqués lors de la commande.",
           "**Option express :** lorsque le Client l'a choisie, la caricature est livrée sous 24 heures, y compris le week-end, à compter de la réception du paiement et des photos. Pour un produit imprimé, ce délai porte sur le dessin ; l'impression et l'expédition suivent les délais ci-dessus.",

@@ -30,7 +30,7 @@ export const LEGAL_PL: PagesLegales = {
               "Wydruki na Alu-Dibond",
             ],
           },
-          "Fotografie i ilustracje prezentowane w Serwisie są możliwie najwierniejsze. Mogą jednak występować niewielkie różnice między zamówionym a otrzymanym produktem, ponieważ każda karykatura jest unikatowym dziełem wykonanym ręcznie.",
+          "Fotografie i ilustracje prezentowane w Serwisie są możliwie najwierniejsze. Mogą jednak występować niewielkie różnice między zamówionym a otrzymanym produktem, ponieważ każdy portret jest tworzony na zamówienie na podstawie zdjęć Klienta.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const LEGAL_PL: PagesLegales = {
       {
         titre: "Artykuł 6 — Terminy realizacji i dostawy",
         blocs: [
-          "Czas wykonania karykatury wynosi zazwyczaj **2 dni robocze** od otrzymania płatności i zdjęć. Termin ten może się różnić w zależności od złożoności zamówienia i obciążenia pracą artystów.",
+          "Czas wykonania karykatury wynosi zazwyczaj **2 dni robocze** od otrzymania płatności i zdjęć. Termin ten może się różnić w zależności od złożoności zamówienia i liczby zamówień.",
           "**Produkty cyfrowe:** Plik w wysokiej rozdzielczości jest wysyłany Klientowi e-mailem niezwłocznie po ukończeniu karykatury. Klient może następnie zażądać poprawek (artykuł 7).",
           "**Produkty drukowane:** Klientowi przedstawiany jest podgląd, który zatwierdza on przed drukiem. Druk i wysyłka trwają następnie od 3 do 7 dni roboczych w zależności od miejsca przeznaczenia. Koszty i terminy dostawy są podawane podczas składania zamówienia.",
           "**Opcja ekspresowa:** jeżeli Klient ją wybrał, karykatura jest dostarczana w ciągu 24 godzin, również w weekend, od otrzymania płatności i zdjęć. W przypadku produktu drukowanego termin ten dotyczy rysunku; druk i wysyłka następują w terminach wskazanych powyżej.",

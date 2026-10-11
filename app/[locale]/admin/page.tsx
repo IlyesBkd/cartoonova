@@ -13,7 +13,6 @@ import { CATALOGUE } from "@/lib/catalogue";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 import TraductionFr from "@/components/admin/TraductionFr";
-import { PRIX_APRES_LANCEMENT_EUR, lancementEnCours } from "@/lib/lancement";
 
 type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
@@ -2242,19 +2241,6 @@ export default function AdminPage() {
               <h2 className="text-2xl font-bold text-gray-900">💰 Gestion des Prix</h2>
               <p className="text-sm text-gray-500">Modifiez les prix de chaque option, indépendamment pour chaque devise.</p>
             </div>
-
-            {/* Le site annonce « prix de lancement jusqu'au 15 novembre, puis
-                19 € » (lib/lancement.ts). L'annonce disparait seule ; la hausse,
-                elle, se fait ici, a la main. Ce rappel l'empeche d'etre oubliee. */}
-            {!lancementEnCours() && pricesByCurrency.EUR.base < PRIX_APRES_LANCEMENT_EUR.base && (
-              <div className="max-w-2xl mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-                <b>Le prix de lancement est terminé.</b> Le site a annoncé {PRIX_APRES_LANCEMENT_EUR.base} € après le
-                15 novembre : mets la grille à jour (base {PRIX_APRES_LANCEMENT_EUR.base} €, personne supplémentaire
-                +{PRIX_APRES_LANCEMENT_EUR.extraPerson} €, toile +{PRIX_APRES_LANCEMENT_EUR.canvas} €), puis les autres
-                devises. Pense aussi au bloc « par personnage » de l&apos;accueil, qui suppose base = personne
-                supplémentaire.
-              </div>
-            )}
 
             <div className="max-w-2xl bg-white border border-gray-200 rounded-xl p-6">
               <div className="flex gap-2 mb-6 border-b border-gray-100 pb-4 flex-wrap">

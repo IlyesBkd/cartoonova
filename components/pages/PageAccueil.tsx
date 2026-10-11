@@ -1,5 +1,4 @@
 import Accueil, { type TextesHero } from "@/components/pages/Accueil";
-import { visuelsProduit } from "@/lib/visuels";
 import { getPricesForCurrency } from "@/lib/db";
 import { unstable_cache } from "next/cache";
 import { DEFAULT_PRICE_SET } from "@/lib/types";
@@ -99,11 +98,9 @@ export default async function PageAccueil({
   /** Hero propre a la route. Null = celui de l'accueil. */
   textesHero?: TextesHero | null;
 }) {
-  const simpson = visuelsProduit("simpson").galerie;
   // Meme photo que la banniere finale (cta-fond.webp) : famille + resultat
   // cartoon sur le telephone, recadree en carre pour le format du hero.
   const photoHero = "/toonjaune/hero-famille-cartoon.webp";
-  const photosAvis = simpson.slice(1, 9);
 
   let prixDepart = DEFAULT_PRICE_SET.base;
   try {
@@ -119,7 +116,6 @@ export default async function PageAccueil({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(baliseIdentite(locale)) }}
       />
       <Accueil
-        photosAvis={photosAvis}
         photoHero={photoHero}
         prixDepart={prixDepart}
         evenement={evenementAffiche(locale as Locale)}

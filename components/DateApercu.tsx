@@ -13,7 +13,7 @@ import {
    compter, et a deviner ce qu'est un jour ouvre ; « jeudi 8 octobre » se lit
    d'un coup d'oeil, et c'est la question qu'il se pose quand il offre.
 
-   Rendu cote client seulement, comme BandeauLancement : la date depend du
+   Rendu cote client seulement : la date depend du
    jour ou la page est lue, pas de celui ou elle a ete mise en cache. Un rendu
    serveur afficherait la date de la construction, et l'hydratation
    divergerait le lendemain. Cote serveur, rien.
