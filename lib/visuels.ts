@@ -382,8 +382,10 @@ export function visuelsProduit(slug: string): VisuelsProduit {
  * Simpson : sur la fiche Naruto, le choix « poster » ou « encadre »
  * illustrait donc un autre univers. Le gabarit complet contient deja le bon
  * visuel — 02 tirage papier en situation, 03 cadres en situation — et on le
- * reprend quand le fichier est la. Le fichier numerique et la toile n'ont pas
- * d'equivalent dans ces galeries : ils gardent le visuel generique.
+ * reprend quand le fichier est la. Le fichier numerique reprend 01, le
+ * montage photo d'origine → dessin : la vignette generique montrait une
+ * famille Simpson sur la fiche de la carte Pokemon (vu le 15 octobre 2026).
+ * La toile n'a pas d'equivalent dans ces galeries : elle garde le visuel generique.
  *
  * Reserve au gabarit complet : dans le gabarit court, 02 est le montage
  * avant/apres et non un tirage.
@@ -393,6 +395,7 @@ function supportsDeposes(slug: string, galerie: string[]): Record<PrintKey, stri
   const rang = (nom: string) => galerie.find((src) => nomSansExtension(src) === nom);
   return {
     ...SUPPORTS_DEFAUT,
+    digital: rang("01") ?? SUPPORTS_DEFAUT.digital,
     posterSimple: rang("02") ?? SUPPORTS_DEFAUT.posterSimple,
     framed: rang("03") ?? SUPPORTS_DEFAUT.framed,
   };

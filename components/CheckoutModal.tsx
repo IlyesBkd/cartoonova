@@ -1205,61 +1205,6 @@ export default function CheckoutModal({
                 </div>
               </div>
 
-              {/* Case « ajoute le poster » : pour qui a choisi le numerique.
-                  Cochee, elle change le support sur la fiche ; le total, les
-                  champs d'adresse et le paiement suivent d'eux-memes. */}
-              {onChangerSupport && supplementPoster !== undefined && (isDigital || posterAjoute) && (
-                <label className="ajout-poster">
-                  <input
-                    type="checkbox"
-                    checked={posterAjoute}
-                    onChange={(e) => {
-                      const ajoute = e.target.checked;
-                      setPosterAjoute(ajoute);
-                      onChangerSupport(ajoute ? "posterSimple" : "digital");
-                      mesure(MESURES.posterAjouteCaisse, {
-                        ajoute,
-                        style: orderConfig.style,
-                        value: supplementPoster,
-                      });
-                    }}
-                  />
-                  <span>
-                    <b>{t("addPoster", { prix: formatPrice(supplementPoster) })}</b>
-                    <small>{t("addPosterSub")}</small>
-                  </span>
-                </label>
-              )}
-
-              {/* Apres le recapitulatif et la case poster (qui changent le
-                  montant), avant tout champ a remplir. La cle remonte un
-                  <Elements> neuf a chaque nouveau secret : Stripe n'accepte
-                  pas qu'on change le clientSecret d'une instance montee. */}
-              {secretAJour && (
-                <Elements
-                  key={clientSecret}
-                  stripe={stripePromise}
-                  options={{ clientSecret, appearance: apparenceStripe }}
-                >
-                  <ExpressEtape1
-                    clientSecret={clientSecret}
-                    orderConfig={orderConfig}
-                    estPhysique={!isDigital}
-                    emailSaisi={email}
-                    cadeau={cadeau}
-                    occasion={occasion}
-                    nomPays={(code) => (COUNTRIES.some((c) => c.code === code) ? tCountry(code) : code)}
-                  />
-                </Elements>
-              )}
-
-              {!isDigital && (
-                <p className="modale__rassurance">
-                  <Icone nom="cadeau" taille={13} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }} />
-                  {t("orderByGuidance")}
-                </p>
-              )}
-
               <div className="champ-groupe">
                 <label className={labelClass} htmlFor="checkout-email">{t("emailAddress")}</label>
                 <input
@@ -1290,6 +1235,65 @@ export default function CheckoutModal({
                     unique du panier (voir goToPayment). */}
                 <p className="caisse-mention">{t("cartReminderNotice")}</p>
               </div>
+
+              {/* Apres l'e-mail, avant la case poster : sur mobile, le seul champ
+                  obligatoire d'un fichier etait coupe par la barre du bas, sous
+                  un grand encadre « ajoute le poster » (sessions du 12 octobre
+                  2026 : caisses fermees en 2 secondes). Le paiement express
+                  apparait apres quelques secondes ; sous l'e-mail, il ne
+                  deplace plus le champ que le client est en train de lire. La cle remonte un
+                  <Elements> neuf a chaque nouveau secret : Stripe n'accepte
+                  pas qu'on change le clientSecret d'une instance montee. */}
+              {secretAJour && (
+                <Elements
+                  key={clientSecret}
+                  stripe={stripePromise}
+                  options={{ clientSecret, appearance: apparenceStripe }}
+                >
+                  <ExpressEtape1
+                    clientSecret={clientSecret}
+                    orderConfig={orderConfig}
+                    estPhysique={!isDigital}
+                    emailSaisi={email}
+                    cadeau={cadeau}
+                    occasion={occasion}
+                    nomPays={(code) => (COUNTRIES.some((c) => c.code === code) ? tCountry(code) : code)}
+                  />
+                </Elements>
+              )}
+
+              {/* Case « ajoute le poster » : pour qui a choisi le numerique.
+                  Cochee, elle change le support sur la fiche ; le total, les
+                  champs d'adresse et le paiement suivent d'eux-memes. */}
+              {onChangerSupport && supplementPoster !== undefined && (isDigital || posterAjoute) && (
+                <label className="ajout-poster">
+                  <input
+                    type="checkbox"
+                    checked={posterAjoute}
+                    onChange={(e) => {
+                      const ajoute = e.target.checked;
+                      setPosterAjoute(ajoute);
+                      onChangerSupport(ajoute ? "posterSimple" : "digital");
+                      mesure(MESURES.posterAjouteCaisse, {
+                        ajoute,
+                        style: orderConfig.style,
+                        value: supplementPoster,
+                      });
+                    }}
+                  />
+                  <span>
+                    <b>{t("addPoster", { prix: formatPrice(supplementPoster) })}</b>
+                    <small>{t("addPosterSub")}</small>
+                  </span>
+                </label>
+              )}
+
+              {!isDigital && (
+                <p className="modale__rassurance">
+                  <Icone nom="cadeau" taille={13} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 6 }} />
+                  {t("orderByGuidance")}
+                </p>
+              )}
 
               {/* Physical-only fields */}
               {!isDigital && (
@@ -1593,6 +1597,10 @@ export default function CheckoutModal({
                   {formatPrice(amountDue)}
                 </b>
               </div>
+              {/* La crainte « et si ca ne ressemble pas ? » revenait juste avant
+                  les departs (FAQ ouverte, guide photo relu). La garantie
+                  repond, mais elle n'etait pas visible au moment de payer. */}
+              <p className="modale__garantie">{t("guaranteeLine")}</p>
               <button type="button" onClick={goToPayment} className="bouton bouton--primaire">
                 {t("continueToPayment")}
               </button>

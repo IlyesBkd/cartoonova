@@ -799,6 +799,11 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             {avecCarte && (
               <Etape numero titre={tp("carteEtape")} precision={tp("optional")}>
                 <p className="depot__note" style={{ marginTop: 0 }}>{tp("carteAide")}</p>
+                {/* Replie par defaut : sur mobile, une cliente a passe pres de
+                    deux minutes sur ces quatre champs facultatifs avant de
+                    deposer sa photo (session du 7 octobre 2026). */}
+                <details className="carte-texte">
+                <summary>{tp("carteOuvrir")}</summary>
                 <div className="champ-groupe">
                   <label className="champ-etiquette" htmlFor="carte-nom">{tp("carteNom")}</label>
                   <input
@@ -847,6 +852,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     style={{ maxWidth: 140 }}
                   />
                 </div>
+                </details>
               </Etape>
             )}
 

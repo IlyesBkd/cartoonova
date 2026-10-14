@@ -2169,3 +2169,15 @@
 @media (prefers-reduced-motion: reduce) {
   .agrandissement { animation: none; }
 }
+
+/* Garantie juste au-dessus du bouton de paiement (caisse, etape 1). */
+.modale__garantie {
+  margin: 0 0 10px; text-align: center;
+  font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--encre);
+}
+
+/* Texte de la carte Pokemon, replie par defaut (fiche produit). */
+.carte-texte > summary { cursor: pointer; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; margin: 4px 0 12px; list-style: none; }
+.carte-texte > summary::-webkit-details-marker { display: none; }
+.carte-texte > summary::after { content: " +"; }
+.carte-texte[open] > summary::after { content: " −"; }
