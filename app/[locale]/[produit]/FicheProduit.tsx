@@ -90,6 +90,9 @@ export interface DonneesFiche {
    personnes, animaux, decor, support, photos, note — pour que le calcul du
    prix cote serveur reste inchange. */
 
+/** Abonnement sans source : la valeur lue ne change pas pendant la visite. */
+const abonnementVide = () => () => {};
+
 export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const t = useTranslations("tj");
   const tp = useTranslations("product");
@@ -103,7 +106,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const allerA = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const lien = useLien();
-  const { formatRaw: formatPrix, currency } = useCurrency();
+  const { formatRaw: formatPrix, currency, pret: devisePrete } = useCurrency();
   const {
     trackOptionSelected,
     trackGalleryBrowsed,
@@ -159,11 +162,14 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const [boutonHorsEcran, setBoutonHorsEcran] = useState(false);
 
   useEffect(() => {
+    // Avant la lecture du cookie, la devise est celle par defaut : la
+    // demander ferait une requete pour rien, suivie de la bonne.
+    if (!devisePrete) return;
     fetch(`/api/prices?currency=${currency}`)
       .then((r) => r.json())
       .then(setPrix)
       .catch(() => setPrix(null));
-  }, [currency]);
+  }, [currency, devisePrete]);
 
   /* Barre d'achat collante. Le bouton reel se trouve a 1808px du haut sur
      bureau et a 2749px sur mobile : passe ce point, plus rien ne permettait
@@ -453,6 +459,17 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     allerAuVisuel(vue + (dx < 0 ? 1 : -1), "balayage");
   };
 
+  /* « Imprimé en France » : vrai pour une livraison en France (l'imprimeur
+     imprime au plus pres du client), invérifiable ailleurs. Le pays vient du
+     cookie pose par proxy.ts, lu apres l'hydratation : la page est statique,
+     le serveur affiche la legende neutre, et elle ne change que pour un
+     visiteur situe en France. */
+  const visiteurEnFrance = useSyncExternalStore(
+    abonnementVide,
+    () => /(?:^|; )cartoonova_country=FR(?:;|$)/.test(document.cookie),
+    () => false,
+  );
+
   /* Titre du visuel courant. Il était incrusté en français dans le montage
      d'origine ; détouré, il redevient du texte — traduit, indexable, lisible
      par un lecteur d'écran, et sans une image par langue. */
@@ -460,7 +477,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const titreVisuel = legende
     ? {
         transformation: [t("legTransfo"), t("legTransfoAcc", { univers: donnees.univers })],
-        impression: [t("legImpression"), t("legImpressionAcc")],
+        impression: [visiteurEnFrance ? t("legImpressionFR") : t("legImpression"), t("legImpressionAcc")],
         cadre: [t("legCadre"), t("legCadreAcc")],
       }[legende]
     : null;

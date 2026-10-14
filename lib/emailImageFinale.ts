@@ -1,5 +1,5 @@
 import { markFinalImageSent, setOrderLastOutboundMessageId } from "./db";
-import { finalImageEmail, bonusLiens, langueCommande } from "./email-i18n";
+import { finalImageEmail, avisLiens, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
 import { SITE_URL } from "./site";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
@@ -88,6 +88,10 @@ export async function envoyerImageFinale(
                 🎁 ${bonusLiens[lang].email}
               </a>
             </div>
+            <p style="font-size: 14px; margin: 14px 0 0; color: #333;">
+              ${avisLiens[lang].texte}
+              <a href="${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}" target="_blank" style="color: #000; font-weight: bold;">${avisLiens[lang].bouton} →</a>
+            </p>
           </div>
           <!-- L'invitation a la retouche etait en gris, 14px, sous le bouton :
                la place qu'on donne aux mentions legales. Elle porte pourtant la

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { bonusPage, type Lang, type OccasionCarte } from "@/lib/email-i18n";
+import { avisLiens, bonusPage, type Lang, type OccasionCarte } from "@/lib/email-i18n";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 
@@ -275,7 +275,20 @@ export default function BonusClient({
         <p className="bonus__aide">{t.printHint}</p>
       </section>
 
-      {/* En dernier : les cadeaux promis d'abord, la demande ensuite. */}
+      {/* En dernier : les cadeaux promis d'abord, les demandes ensuite. Le
+          site n'avait aucun avis client : cette page est vue par des clients
+          livres, au meilleur moment pour en demander un. */}
+      <section className="suivi__carte bonus__bloc">
+        <h2>{avisLiens[lang].titre}</h2>
+        <p>{avisLiens[lang].texte}</p>
+        <a
+          className="bouton bouton--primaire"
+          href={`/${lang}/avis/nouveau?c=${encodeURIComponent(token)}`}
+          onClick={() => mesure(MESURES.bonusUtilise, { gift: "avis", action: "open" })}
+        >
+          {avisLiens[lang].bouton}
+        </a>
+      </section>
       {parrainage && <CarteParrainage p={parrainage} />}
     </main>
   );

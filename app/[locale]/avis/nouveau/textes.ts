@@ -31,7 +31,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   fr: {
     titre: "Ton avis",
     intro: "Raconte ton expérience en quelques lignes. Elle aidera les personnes qui hésitent.",
-    introVerifie: "Ta commande est reconnue : ton avis sera publié directement.",
+    introVerifie: "Ta commande est reconnue : ton avis sera publié directement. En remerciement, tu recevras un bon par e-mail, quelle que soit ta note.",
     nom: "Ton prénom",
     nomAide: "Affiché à côté de ton avis.",
     note: "Ta note",
@@ -48,7 +48,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   en: {
     titre: "Your review",
     intro: "Tell us about your experience in a few lines. It helps people who are hesitating.",
-    introVerifie: "We recognise your order — your review will be published straight away.",
+    introVerifie: "We recognise your order — your review will be published straight away. As a thank-you, you'll receive a voucher by email, whatever your rating.",
     nom: "Your first name",
     nomAide: "Shown next to your review.",
     note: "Your rating",
@@ -65,7 +65,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   es: {
     titre: "Tu opinion",
     intro: "Cuentanos tu experiencia en unas lineas. Ayudara a quienes dudan.",
-    introVerifie: "Reconocemos tu pedido: tu opinion se publicara directamente.",
+    introVerifie: "Reconocemos tu pedido: tu opinion se publicara directamente. Como agradecimiento, recibirás un vale por email, sea cual sea tu nota.",
     nom: "Tu nombre",
     nomAide: "Se muestra junto a tu opinion.",
     note: "Tu valoracion",
@@ -82,7 +82,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   de: {
     titre: "Deine Bewertung",
     intro: "Erzähl in wenigen Zeilen von deiner Erfahrung. Das hilft Unentschlossenen.",
-    introVerifie: "Deine Bestellung ist erkannt — deine Bewertung wird direkt veröffentlicht.",
+    introVerifie: "Deine Bestellung ist erkannt — deine Bewertung wird direkt veröffentlicht. Als Dankeschön bekommst du einen Gutschein per E-Mail, egal wie deine Bewertung ausfällt.",
     nom: "Dein Vorname",
     nomAide: "Wird neben deiner Bewertung angezeigt.",
     note: "Deine Wertung",
@@ -99,7 +99,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   it: {
     titre: "La tua recensione",
     intro: "Raccontaci la tua esperienza in poche righe. Aiutera chi e indeciso.",
-    introVerifie: "Riconosciamo il tuo ordine: la recensione sara pubblicata subito.",
+    introVerifie: "Riconosciamo il tuo ordine: la recensione sara pubblicata subito. Come ringraziamento, riceverai un buono via email, qualunque sia il tuo voto.",
     nom: "Il tuo nome",
     nomAide: "Mostrato accanto alla recensione.",
     note: "Il tuo voto",
@@ -116,7 +116,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   nl: {
     titre: "Jouw review",
     intro: "Vertel in een paar regels over je ervaring. Dat helpt twijfelaars.",
-    introVerifie: "We herkennen je bestelling — je review wordt meteen geplaatst.",
+    introVerifie: "We herkennen je bestelling — je review wordt meteen geplaatst. Als bedankje krijg je een tegoedbon per e-mail, welk cijfer je ook geeft.",
     nom: "Je voornaam",
     nomAide: "Wordt naast je review getoond.",
     note: "Je beoordeling",
@@ -133,7 +133,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   pl: {
     titre: "Twoja opinia",
     intro: "Opisz swoje doswiadczenie w kilku zdaniach. Pomozesz osobom, ktore sie wahaja.",
-    introVerifie: "Rozpoznajemy Twoje zamowienie — opinia zostanie opublikowana od razu.",
+    introVerifie: "Rozpoznajemy Twoje zamowienie — opinia zostanie opublikowana od razu. W podziękowaniu otrzymasz bon e-mailem, niezależnie od oceny.",
     nom: "Twoje imie",
     nomAide: "Wyswietlane obok opinii.",
     note: "Twoja ocena",
@@ -150,7 +150,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   sv: {
     titre: "Ditt omdome",
     intro: "Berätta om din upplevelse pa nagra rader. Det hjalper den som tvekar.",
-    introVerifie: "Vi kanner igen din bestallning — ditt omdome publiceras direkt.",
+    introVerifie: "Vi kanner igen din bestallning — ditt omdome publiceras direkt. Som tack får du ett presentkort via e-post, oavsett betyg.",
     nom: "Ditt fornamn",
     nomAide: "Visas bredvid ditt omdome.",
     note: "Ditt betyg",
@@ -167,7 +167,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   da: {
     titre: "Din anmeldelse",
     intro: "Fortael om din oplevelse pa et par linjer. Det hjaelper dem, der er i tvivl.",
-    introVerifie: "Vi genkender din ordre — din anmeldelse bliver udgivet med det samme.",
+    introVerifie: "Vi genkender din ordre — din anmeldelse bliver udgivet med det samme. Som tak får du et gavekort på e-mail, uanset karakter.",
     nom: "Dit fornavn",
     nomAide: "Vises ved siden af din anmeldelse.",
     note: "Din vurdering",
@@ -184,7 +184,7 @@ export const TEXTES_AVIS: Record<Locale, TextesAvis> = {
   pt: {
     titre: "A tua opiniao",
     intro: "Conta a tua experiencia em poucas linhas. Vai ajudar quem esta indeciso.",
-    introVerifie: "Reconhecemos a tua encomenda: a opiniao sera publicada de imediato.",
+    introVerifie: "Reconhecemos a tua encomenda: a opiniao sera publicada de imediato. Como agradecimento, recebes um vale por email, seja qual for a tua nota.",
     nom: "O teu nome",
     nomAide: "Mostrado ao lado da tua opiniao.",
     note: "A tua nota",

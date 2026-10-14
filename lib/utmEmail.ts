@@ -35,6 +35,7 @@ export type CampagneEmail =
   | "rappel_photos"
   | "suivi"
   | "demande_avis"
+  | "relance_avis"
   | "rachat"
   | "panier_abandonne"
   | "bienvenue"

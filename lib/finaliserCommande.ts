@@ -17,6 +17,7 @@ import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
 import { envoyerConversionChatgpt } from "@/lib/conversionsChatgpt";
+import { OCCASION_FR, estOccasion } from "@/lib/occasions";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -181,6 +182,9 @@ async function notifierEquipe(order: DbOrder): Promise<void> {
         : []),
       // Les consignes cadeau doivent sauter aux yeux : elles changent a qui et
       // quand le portrait doit partir.
+      ...(estOccasion(opts.occasion)
+        ? [{ name: "🎉 Occasion", value: OCCASION_FR[opts.occasion], inline: true }]
+        : []),
       ...(opts.gift
         ? [
             {
@@ -222,6 +226,7 @@ async function mesurerAchat(order: DbOrder, source: "webhook" | "page_succes"): 
       animals: opts.animals ?? 0,
       print_option: opts.printOption ?? "unknown",
       is_gift: Boolean(opts.gift),
+      occasion: opts.occasion ?? null,
       promo_code: order.promo_code ?? null,
       discount_amount: order.discount_amount ?? null,
       detected_country: order.detected_country ?? null,

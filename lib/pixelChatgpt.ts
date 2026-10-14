@@ -61,7 +61,7 @@ export function chargerPixelChatgpt(): void {
     js.src = SCRIPT;
     document.head.appendChild(js);
   }
-  /* Journal du SDK dans la console avec ?oaiq_debug=1 dans l URL, pour
+  /* Journal du SDK dans la console avec ?oaiq_debug=1 dans l'URL, pour
      verifier les envois sans encombrer la console de chaque visiteur. */
   const debug = new URLSearchParams(window.location.search).has("oaiq_debug");
   appeler(["init", { pixelId: PIXEL_CHATGPT_ID, debug }]);

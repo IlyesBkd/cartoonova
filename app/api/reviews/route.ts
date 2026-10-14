@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
+import { recompenserAvis } from "@/lib/recompenseAvis";
 import {
   deposerAvis,
   tousLesAvis,
@@ -125,6 +126,10 @@ export async function POST(req: NextRequest) {
     }
     // Un avis verifie est publie d'office : les pages qui l'affichent sont en cache.
     if (resultat.statut === "publie") revalidateTag("avis", { expire: 0 });
+
+    /* Bon de remerciement, quelle que soit la note : seulement pour un avis
+       rattache a une vraie commande (lien signe), une fois par commande. */
+    if (orderId) await recompenserAvis(orderId);
 
     if (note <= NOTE_ALERTE) {
       await alerterDiscord(

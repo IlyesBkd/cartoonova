@@ -103,7 +103,7 @@ export default function AvisPage({
                     )}
                     <div className="avis-bulle">
                       <div className="svg-stars">
-                        <Etoiles />
+                        <Etoiles note={a.note} />
                       </div>
                       <p>{a.texte}</p>
                       <p className="avis-signe">

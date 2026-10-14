@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrderById, markReviewRequestSent } from "@/lib/db";
 import { reviewRequestEmail, langueCommande } from "@/lib/email-i18n";
+import { recompenseAvisFormatee } from "@/lib/recompenseAvis";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { avisExistePourCommande } from "@/lib/reviewsDb";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
@@ -66,7 +67,8 @@ export async function POST(req: NextRequest) {
             <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
             <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
             <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
-            <p style="font-size: 16px; margin: 0 0 24px; color: #333;">${t.ask}</p>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.ask}</p>
+            <p style="font-size: 16px; margin: 0 0 24px; color: #000; font-weight: bold;">${t.reward(recompenseAvisFormatee(order.currency, lang))}</p>
             <div style="text-align: center;">
               <a href="${lien}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">${t.cta}</a>
             </div>

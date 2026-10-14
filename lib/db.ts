@@ -196,6 +196,8 @@ export interface OrderOptions {
   background: string;
   printOption: string;
   gift?: GiftOptions | null;
+  /** « Pour quelle occasion ? », cle de lib/occasions.ts (facultatif, 14 octobre 2026). */
+  occasion?: string | null;
   style?: string;
   description?: string;
   phone?: string;
@@ -1260,6 +1262,8 @@ export interface LifecycleOrder {
   detected_country: string | null;
   langue?: string | null;
   final_image_sent_at: string;
+  /** Devise de la commande ; lue seulement par les demandes d'avis (montant du bon). */
+  currency?: string | null;
 }
 
 let lifecycleSchemaReady: Promise<void> | null = null;
@@ -1270,6 +1274,7 @@ async function ensureLifecycleSchema(): Promise<void> {
   lifecycleSchemaReady = (async () => {
     await ensureNewsletterSchema();
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS review_request_sent_at TIMESTAMPTZ`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS review_reminder_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS reorder_email_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS abandoned_email_sent_at TIMESTAMPTZ`;
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS langue TEXT`;
@@ -1284,7 +1289,7 @@ async function ensureLifecycleSchema(): Promise<void> {
 export async function getOrdersDueForReviewRequest(days: number): Promise<LifecycleOrder[]> {
   await ensureLifecycleSchema();
   const rows = await sql`
-    SELECT id, customer_email, customer_name, detected_country, langue, final_image_sent_at
+    SELECT id, customer_email, customer_name, detected_country, langue, final_image_sent_at, currency
     FROM orders o
     WHERE o.final_image_sent_at IS NOT NULL
       AND o.final_image_sent_at < NOW() - (${days} * INTERVAL '1 day')
@@ -1297,6 +1302,35 @@ export async function getOrdersDueForReviewRequest(days: number): Promise<Lifecy
     ORDER BY o.final_image_sent_at ASC
   `;
   return rows as unknown as LifecycleOrder[];
+}
+
+/**
+ * Relance unique de la demande d'avis : demande envoyee depuis au moins
+ * `days` jours, toujours sans avis, jamais relancee. Colonne ajoutee par
+ * migrations/2026-10-avis-relance.sql.
+ */
+export async function getOrdersDueForReviewReminder(days: number): Promise<LifecycleOrder[]> {
+  await ensureLifecycleSchema();
+  const rows = await sql`
+    SELECT id, customer_email, customer_name, detected_country, langue, final_image_sent_at, currency
+    FROM orders o
+    WHERE o.review_request_sent_at IS NOT NULL
+      AND o.review_request_sent_at < NOW() - (${days} * INTERVAL '1 day')
+      AND o.review_reminder_sent_at IS NULL
+      AND o.customer_email IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.order_id = o.id)
+      AND NOT EXISTS (
+        SELECT 1 FROM newsletter_subscribers n
+        WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
+      )
+    ORDER BY o.review_request_sent_at ASC
+  `;
+  return rows as unknown as LifecycleOrder[];
+}
+
+export async function markReviewReminderSent(orderId: string): Promise<void> {
+  await ensureLifecycleSchema();
+  await sql`UPDATE orders SET review_reminder_sent_at = NOW() WHERE id = ${orderId}::uuid`;
 }
 
 /** Commandes livrees depuis au moins `days` jours et jamais relancees pour un autre style. */

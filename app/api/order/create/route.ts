@@ -10,6 +10,8 @@ import { toEUR } from "@/lib/currency";
 import { emailValide } from "@/lib/email";
 import { LANGS } from "@/lib/email-i18n";
 import { signalerPanne } from "@/lib/alerteServeur";
+import { codePostalValide } from "@/lib/codePostal";
+import { estOccasion } from "@/lib/occasions";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -51,6 +53,8 @@ export async function POST(req: NextRequest) {
       city,
       postalCode,
       country,
+      countryCode,
+      occasion,
       phone,
       format,
       people,
@@ -73,6 +77,19 @@ export async function POST(req: NextRequest) {
     // Sans adresse valide, la commande ne peut ni etre confirmee ni livree.
     if (!emailValide(email)) {
       return NextResponse.json({ error: "Adresse e-mail invalide." }, { status: 400 });
+    }
+    /* Meme controle que la caisse, ici aussi pour le paiement express dont
+       l'adresse vient du portefeuille. Seulement pour un tirage, et seulement
+       si le client a transmis le code pays (les anciennes versions de la page
+       ne l'envoyaient pas). La commande est creee AVANT la confirmation du
+       paiement : un refus ici n'est jamais debite. */
+    if (
+      printKey !== "digital" &&
+      typeof countryCode === "string" &&
+      postalCode &&
+      !codePostalValide(countryCode, String(postalCode))
+    ) {
+      return NextResponse.json({ error: "Code postal invalide pour ce pays." }, { status: 400 });
     }
 
     /* Les photos sont nettoyees, plus exigees : la commande peut naitre sans,
@@ -151,6 +168,8 @@ export async function POST(req: NextRequest) {
       calendrier: optionsPayees.has("calendrier"),
       shippingAmount: shippingAmount > 0 ? shippingAmount : undefined,
       gift: estCadeau ? cadeau : null,
+      // Cle d'une liste fermee (lib/occasions.ts), ou rien.
+      occasion: estOccasion(occasion) ? occasion : null,
       style: style || null,
       description,
       phone: phone || null,
@@ -217,6 +236,7 @@ export async function POST(req: NextRequest) {
         print_option: printOption,
         options: [...optionsPayees].join(",") || null,
         is_gift: estCadeau,
+        occasion: estOccasion(occasion) ? occasion : null,
         promo_code: promoCode || null,
         detected_country: detectedCountry || null,
         photo_count: photos.length,

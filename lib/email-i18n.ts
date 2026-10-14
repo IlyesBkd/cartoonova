@@ -812,73 +812,108 @@ export const posterConfirmationPage: Record<Lang, {
 };
 
 // ─── Review request email (sent a few days after delivery) ───────────
+/* Demande d'avis (J+10 apres la livraison) et relance (J+10 apres la demande).
+   Le texte disait « reponds a cet e-mail » sous un bouton qui ouvre le
+   formulaire : les reponses par e-mail n'arrivaient jamais en base. Il
+   demandait aussi une photo, que le formulaire ne prend pas. Corrige le
+   14 octobre 2026, avec le bon de remerciement (lib/recompenseAvis.ts),
+   offert quelle que soit la note. */
 export const reviewRequestEmail: Record<Lang, {
  subject: string;
  title: string;
- greeting: (name: string | null) =>string;
+ greeting: (name: string | null) => string;
  body: string;
  ask: string;
+ /** Le bon offert, a partir de son montant formate. */
+ reward: (valeur: string) => string;
  cta: string;
+ reminderSubject: string;
+ reminderTitle: string;
+ reminderBody: string;
  thanks: string;
  team: string;
-}>= {
+}> = {
  fr: {
- subject: "Ton portrait te plaît ?",
- title: "Ton avis nous aide vraiment",
- greeting: (name) =>name? `Bonjour ${name},`: "Bonjour,",
- body: "Ton portrait est entre tes mains depuis quelques jours. On espère qu'il a fait son effet !",
- ask: "On est une jeune boutique : un mot honnête sur ton expérience — et, si tu veux bien, une photo du portrait chez toi — aide énormément les personnes qui hésitent. Il suffit de répondre à cet e-mail.",
- cta: "Répondre et donner mon avis",
- thanks: "Merci beaucoup ",
- team: "L'équipe Cartoonova",
+  subject: "Ton portrait te plaît ?",
+  title: "Ton avis nous aide vraiment",
+  greeting: (name) => (name ? `Bonjour ${name},` : "Bonjour,"),
+  body: "Ton portrait est entre tes mains depuis quelques jours. On espère qu'il a fait son effet !",
+  ask: "On est une jeune boutique : quelques mots honnêtes sur ton expérience aident énormément les personnes qui hésitent. Ça prend 30 secondes.",
+  reward: (v) => "Pour te remercier, on t'offre un bon de {v} sur ta prochaine commande, quelle que soit ta note.".replace("{v}", v),
+  cta: "Donner mon avis",
+  reminderSubject: "Ton avis compte (et ton bon t'attend)",
+  reminderTitle: "Un petit mot sur ton portrait ?",
+  reminderBody: "On t'a écrit il y a quelques jours pour avoir ton avis. Si tu as 30 secondes, il aide vraiment les personnes qui hésitent.",
+  thanks: "Merci beaucoup ",
+  team: "L'équipe Cartoonova",
  },
  en: {
- subject: "How do you like your portrait?",
- title: "Your feedback really helps",
- greeting: (name) =>name? `Hello ${name},`: "Hello,",
- body: "Your portrait has been with you for a few days now. We hope it landed well!",
- ask: "We're a young shop: an honest word about your experience — and, if you're up for it, a photo of the portrait at home — helps a lot of hesitant people decide. Just reply to this email.",
- cta: "Reply with my feedback",
- thanks: "Thank you so much ",
- team: "The Cartoonova Team",
+  subject: "How do you like your portrait?",
+  title: "Your feedback really helps",
+  greeting: (name) => (name ? `Hello ${name},` : "Hello,"),
+  body: "Your portrait has been with you for a few days now. We hope it landed well!",
+  ask: "We're a young shop: a few honest words about your experience help hesitant people a lot. It takes 30 seconds.",
+  reward: (v) => "To thank you, we'll give you a {v} voucher for your next order, whatever your rating.".replace("{v}", v),
+  cta: "Leave my review",
+  reminderSubject: "Your review matters (and your voucher is waiting)",
+  reminderTitle: "A quick word about your portrait?",
+  reminderBody: "We wrote a few days ago to ask for your feedback. If you have 30 seconds, it really helps people who are hesitating.",
+  thanks: "Thank you so much ",
+  team: "The Cartoonova Team",
  },
  es: {
- subject: "¿Qué te parece tu retrato?",
- title: "Tu opinión nos ayuda mucho",
- greeting: (name) =>name? `Hola ${name},`: "Hola,",
- body: "Hace unos días que tienes tu retrato. ¡Esperamos que haya causado buena impresión!",
- ask: "Somos una tienda joven: unas palabras honestas sobre tu experiencia — y, si te apetece, una foto del retrato en tu casa — ayudan muchísimo a quien duda. Solo tienes que responder a este email.",
- cta: "Responder y dar mi opinión",
- thanks: "Muchas gracias ",
- team: "El equipo Cartoonova",
+  subject: "¿Qué te parece tu retrato?",
+  title: "Tu opinión nos ayuda mucho",
+  greeting: (name) => (name ? `Hola ${name},` : "Hola,"),
+  body: "Hace unos días que tienes tu retrato. ¡Esperamos que haya causado buena impresión!",
+  ask: "Somos una tienda joven: unas palabras honestas sobre tu experiencia ayudan muchísimo a quien duda. Solo lleva 30 segundos.",
+  reward: (v) => "Para darte las gracias, te regalamos un vale de {v} para tu próximo pedido, sea cual sea tu nota.".replace("{v}", v),
+  cta: "Dar mi opinión",
+  reminderSubject: "Tu opinión cuenta (y tu vale te espera)",
+  reminderTitle: "¿Unas palabras sobre tu retrato?",
+  reminderBody: "Te escribimos hace unos días para pedirte tu opinión. Si tienes 30 segundos, ayuda de verdad a quien duda.",
+  thanks: "Muchas gracias ",
+  team: "El equipo Cartoonova",
  },
  de: {
- subject: "Wie gefällt dir dein Porträt?",
- title: "Deine Rückmeldung hilft uns wirklich",
- greeting: (name) =>name? `Hallo ${name},`: "Hallo,",
- body: "Dein Porträt ist seit einigen Tagen bei dir. Wir hoffen, es hat Eindruck gemacht!",
- ask: "Wir sind ein junger Shop: ein ehrliches Wort zu deiner Erfahrung — und, wenn du magst, ein Foto des Porträts bei dir zu Hause — hilft Unentschlossenen enorm. Antworte einfach auf diese E-Mail.",
- cta: "Antworten und Feedback geben",
- thanks: "Vielen Dank ",
- team: "Das Cartoonova-Team",
+  subject: "Wie gefällt dir dein Porträt?",
+  title: "Deine Rückmeldung hilft uns wirklich",
+  greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
+  body: "Dein Porträt ist seit einigen Tagen bei dir. Wir hoffen, es hat Eindruck gemacht!",
+  ask: "Wir sind ein junger Shop: ein paar ehrliche Worte zu deiner Erfahrung helfen Unentschlossenen enorm. Das dauert 30 Sekunden.",
+  reward: (v) => "Als Dankeschön schenken wir dir einen Gutschein über {v} für deine nächste Bestellung, egal wie deine Bewertung ausfällt.".replace("{v}", v),
+  cta: "Bewertung abgeben",
+  reminderSubject: "Deine Meinung zählt (und dein Gutschein wartet)",
+  reminderTitle: "Ein kurzes Wort zu deinem Porträt?",
+  reminderBody: "Wir haben dir vor ein paar Tagen geschrieben. Wenn du 30 Sekunden hast: deine Bewertung hilft Unentschlossenen wirklich.",
+  thanks: "Vielen Dank ",
+  team: "Das Cartoonova-Team",
  },
  it: {
- subject: "Ti piace il tuo ritratto?",
- title: "La tua opinione ci aiuta davvero",
- greeting: (name) =>name? `Ciao ${name},`: "Ciao,",
- body: "Il tuo ritratto è con te da qualche giorno. Speriamo abbia fatto colpo!",
- ask: "Siamo una bottega giovane: due parole sincere sulla tua esperienza — e, se ti va, una foto del ritratto a casa tua — aiutano molto chi è indeciso. Ti basta rispondere a questa email.",
- cta: "Rispondere e lasciare la mia opinione",
- thanks: "Grazie mille ",
- team: "Il team Cartoonova",
+  subject: "Ti piace il tuo ritratto?",
+  title: "La tua opinione ci aiuta davvero",
+  greeting: (name) => (name ? `Ciao ${name},` : "Ciao,"),
+  body: "Il tuo ritratto è con te da qualche giorno. Speriamo abbia fatto colpo!",
+  ask: "Siamo una bottega giovane: due parole sincere sulla tua esperienza aiutano molto chi è indeciso. Bastano 30 secondi.",
+  reward: (v) => "Per ringraziarti, ti regaliamo un buono da {v} per il prossimo ordine, qualunque sia il tuo voto.".replace("{v}", v),
+  cta: "Lascia la tua recensione",
+  reminderSubject: "La tua opinione conta (e il tuo buono ti aspetta)",
+  reminderTitle: "Due parole sul tuo ritratto?",
+  reminderBody: "Ti abbiamo scritto qualche giorno fa per chiederti un parere. Se hai 30 secondi, aiuta davvero chi è indeciso.",
+  thanks: "Grazie mille ",
+  team: "Il team Cartoonova",
  },
  nl: {
   subject: "Wat vind je van je portret?",
   title: "Jouw reactie helpt echt",
   greeting: (name) => (name ? `Hallo ${name},` : "Hallo,"),
   body: "Je portret is inmiddels een paar dagen bij je. We hopen dat het goed viel!",
-  ask: "We zijn een jonge winkel: een eerlijk woord over je ervaring — en, als je zin hebt, een foto van het portret aan de muur — helpt veel twijfelaars over de streep. Beantwoord gewoon deze mail.",
-  cta: "Mijn reactie sturen",
+  ask: "We zijn een jonge winkel: een paar eerlijke woorden over je ervaring helpen twijfelaars enorm. Het kost 30 seconden.",
+  reward: (v) => "Als bedankje krijg je een tegoedbon van {v} voor je volgende bestelling, welk cijfer je ook geeft.".replace("{v}", v),
+  cta: "Mijn review geven",
+  reminderSubject: "Je mening telt (en je tegoedbon wacht)",
+  reminderTitle: "Een kort woordje over je portret?",
+  reminderBody: "We schreven je een paar dagen geleden om je mening. Heb je 30 seconden? Het helpt twijfelaars echt.",
   thanks: "Heel erg bedankt ",
   team: "Het Cartoonova-team",
  },
@@ -887,8 +922,12 @@ export const reviewRequestEmail: Record<Lang, {
   title: "Twoja opinia naprawdę pomaga",
   greeting: (name) => (name ? `Cześć ${name},` : "Cześć,"),
   body: "Portret jest u Ciebie od kilku dni. Mamy nadzieję, że się spodobał!",
-  ask: "Jesteśmy młodym sklepem: szczere słowo o Twoim doświadczeniu — a jeśli masz ochotę, zdjęcie portretu na ścianie — pomaga wielu niezdecydowanym. Wystarczy odpowiedzieć na tego maila.",
-  cta: "Wyślij moją opinię",
+  ask: "Jesteśmy młodym sklepem: kilka szczerych słów o Twoim doświadczeniu bardzo pomaga niezdecydowanym. To zajmie 30 sekund.",
+  reward: (v) => "W podziękowaniu dostaniesz bon na {v} na następne zamówienie, niezależnie od oceny.".replace("{v}", v),
+  cta: "Wystaw opinię",
+  reminderSubject: "Twoja opinia się liczy (a bon czeka)",
+  reminderTitle: "Kilka słów o Twoim portrecie?",
+  reminderBody: "Kilka dni temu poprosiliśmy Cię o opinię. Jeśli masz 30 sekund, naprawdę pomożesz niezdecydowanym.",
   thanks: "Bardzo dziękujemy ",
   team: "Zespół Cartoonova",
  },
@@ -897,8 +936,12 @@ export const reviewRequestEmail: Record<Lang, {
   title: "Din åsikt hjälper verkligen",
   greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
   body: "Ditt porträtt har varit hos dig i några dagar nu. Vi hoppas att det togs emot väl!",
-  ask: "Vi är en ung butik: några ärliga ord om din upplevelse — och gärna en bild på porträttet hemma — hjälper många tveksamma att bestämma sig. Svara bara på det här mejlet.",
-  cta: "Skicka min åsikt",
+  ask: "Vi är en ung butik: några ärliga ord om din upplevelse hjälper många tveksamma. Det tar 30 sekunder.",
+  reward: (v) => "Som tack får du ett presentkort på {v} till nästa beställning, oavsett vilket betyg du ger.".replace("{v}", v),
+  cta: "Lämna mitt omdöme",
+  reminderSubject: "Din åsikt räknas (och ditt presentkort väntar)",
+  reminderTitle: "Ett kort ord om ditt porträtt?",
+  reminderBody: "Vi skrev till dig för några dagar sedan. Har du 30 sekunder? Ditt omdöme hjälper verkligen tveksamma.",
   thanks: "Tack så mycket ",
   team: "Cartoonova-teamet",
  },
@@ -907,8 +950,12 @@ export const reviewRequestEmail: Record<Lang, {
   title: "Din mening hjælper virkelig",
   greeting: (name) => (name ? `Hej ${name},` : "Hej,"),
   body: "Dit portræt har været hos dig et par dage nu. Vi håber, det blev taget godt imod!",
-  ask: "Vi er en ung butik: et ærligt ord om din oplevelse — og gerne et billede af portrættet derhjemme — hjælper mange tvivlere med at beslutte sig. Svar bare på denne mail.",
-  cta: "Send min mening",
+  ask: "Vi er en ung butik: et par ærlige ord om din oplevelse hjælper mange tvivlere. Det tager 30 sekunder.",
+  reward: (v) => "Som tak får du et gavekort på {v} til din næste bestilling, uanset hvilken karakter du giver.".replace("{v}", v),
+  cta: "Giv min anmeldelse",
+  reminderSubject: "Din mening tæller (og dit gavekort venter)",
+  reminderTitle: "Et kort ord om dit portræt?",
+  reminderBody: "Vi skrev til dig for et par dage siden. Har du 30 sekunder? Din anmeldelse hjælper virkelig tvivlere.",
   thanks: "Mange tak ",
   team: "Cartoonova-teamet",
  },
@@ -917,11 +964,15 @@ export const reviewRequestEmail: Record<Lang, {
   title: "A tua opinião ajuda mesmo",
   greeting: (name) => (name ? `Olá ${name},` : "Olá,"),
   body: "O teu retrato já está contigo há alguns dias. Esperamos que tenha caído bem!",
-  ask: "Somos uma loja jovem: uma palavra honesta sobre a tua experiência — e, se te apetecer, uma foto do retrato em casa — ajuda muita gente indecisa a decidir. Basta responderes a este email.",
-  cta: "Enviar a minha opinião",
+  ask: "Somos uma loja jovem: umas palavras honestas sobre a tua experiência ajudam muita gente indecisa. Demora 30 segundos.",
+  reward: (v) => "Para te agradecer, oferecemos-te um vale de {v} para a próxima encomenda, seja qual for a tua nota.".replace("{v}", v),
+  cta: "Dar a minha opinião",
+  reminderSubject: "A tua opinião conta (e o teu vale espera por ti)",
+  reminderTitle: "Umas palavras sobre o teu retrato?",
+  reminderBody: "Escrevemos-te há alguns dias a pedir a tua opinião. Se tiveres 30 segundos, ajuda mesmo quem está indeciso.",
   thanks: "Muito obrigado ",
   team: "A equipa Cartoonova",
- }
+ },
 };
 
 // ─── Welcome sequence (3 emails after newsletter signup) ─────────────
@@ -3343,6 +3394,21 @@ export const bonCadeauTextes: Record<Lang, {
 };
 
 /** Liens vers /bonus/[token] posés dans l'e-mail d'image finale et la page de suivi. */
+/** Invitation a laisser un avis (page bonus, e-mail de livraison), 14 octobre 2026.
+    Le bon offert, quelle que soit la note, est cree par lib/recompenseAvis.ts. */
+export const avisLiens: Record<Lang, { titre: string; texte: string; bouton: string }> = {
+  fr: { titre: "Ton avis compte", texte: "Dis-nous ce que tu en penses en 30 secondes : on t'offre un bon pour ta prochaine commande, quelle que soit ta note.", bouton: "Donner mon avis" },
+  en: { titre: "Your review matters", texte: "Tell us what you think in 30 seconds: we'll send you a voucher for your next order, whatever your rating.", bouton: "Leave my review" },
+  es: { titre: "Tu opinión cuenta", texte: "Cuéntanos qué te parece en 30 segundos: te regalamos un vale para tu próximo pedido, sea cual sea tu nota.", bouton: "Dar mi opinión" },
+  de: { titre: "Deine Meinung zählt", texte: "Sag uns in 30 Sekunden, wie es dir gefällt: du bekommst einen Gutschein für deine nächste Bestellung, egal wie deine Bewertung ausfällt.", bouton: "Bewertung abgeben" },
+  it: { titre: "La tua opinione conta", texte: "Dicci cosa ne pensi in 30 secondi: ti regaliamo un buono per il prossimo ordine, qualunque sia il tuo voto.", bouton: "Lascia la tua recensione" },
+  nl: { titre: "Je mening telt", texte: "Vertel ons in 30 seconden wat je ervan vindt: je krijgt een tegoedbon voor je volgende bestelling, welk cijfer je ook geeft.", bouton: "Mijn review geven" },
+  pl: { titre: "Twoja opinia się liczy", texte: "Powiedz nam w 30 sekund, co myślisz: dostaniesz bon na następne zamówienie, niezależnie od oceny.", bouton: "Wystaw opinię" },
+  sv: { titre: "Din åsikt räknas", texte: "Berätta på 30 sekunder vad du tycker: du får ett presentkort till nästa beställning, oavsett betyg.", bouton: "Lämna mitt omdöme" },
+  da: { titre: "Din mening tæller", texte: "Fortæl os på 30 sekunder, hvad du synes: du får et gavekort til din næste bestilling, uanset karakter.", bouton: "Giv min anmeldelse" },
+  pt: { titre: "A tua opinião conta", texte: "Diz-nos o que achas em 30 segundos: oferecemos-te um vale para a próxima encomenda, seja qual for a tua nota.", bouton: "Dar a minha opinião" },
+};
+
 export const bonusLiens: Record<Lang, { email: string; suiviTitre: string; suiviTexte: string; suiviBouton: string }> = {
   fr: { email: "Mes cadeaux offerts", suiviTitre: "Tes cadeaux offerts", suiviTexte: "Fond d'écran, avatar et carte à imprimer, tirés de ton portrait.", suiviBouton: "Voir mes cadeaux" },
   en: { email: "My free gifts", suiviTitre: "Your free gifts", suiviTexte: "Wallpaper, avatar and printable card, made from your portrait.", suiviBouton: "See my gifts" },

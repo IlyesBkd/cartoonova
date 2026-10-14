@@ -18,6 +18,8 @@ import type { PrintKey } from "@/lib/pricing";
 import Icone from "@/components/tj/Icone";
 import { useRetourFerme } from "@/lib/useRetourFerme";
 import { emailValide, suggestionEmail } from "@/lib/email";
+import { codePostalValide } from "@/lib/codePostal";
+import { OCCASIONS, type Occasion } from "@/lib/occasions";
 import { useSuggestionsAdresse, type AdresseSuggeree } from "@/lib/useSuggestionsAdresse";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -98,8 +100,12 @@ interface FormDataCaisse {
   city?: string;
   postalCode?: string;
   country?: string;
+  /** Code ISO du pays : le libelle traduit ne permet pas de controler le code postal. */
+  countryCode?: string;
   phone?: string;
   gift?: OptionsCadeau | null;
+  /** Pour quelle occasion, si le client l'a dit. */
+  occasion?: Occasion | null;
 }
 
 /** Identifiant du PaymentIntent tire de son secret (pi_xxx_secret_yyy). */
@@ -142,6 +148,8 @@ async function insererCommandeEnAttente(
       city: formData.city,
       postalCode: formData.postalCode,
       country: formData.country,
+      countryCode: formData.countryCode,
+      occasion: formData.occasion ?? null,
       phone: formData.phone,
       format: orderConfig.format,
       people: orderConfig.people,
@@ -247,11 +255,13 @@ function ExpressEtape1({
   estPhysique,
   emailSaisi,
   cadeau,
+  occasion,
   nomPays,
 }: {
   clientSecret: string;
   orderConfig: OrderConfig;
   estPhysique: boolean;
+  occasion: Occasion | null;
   /** E-mail deja tape, en secours si le portefeuille n'en donne pas. */
   emailSaisi: string;
   cadeau: OptionsCadeau | null;
@@ -302,8 +312,10 @@ function ExpressEtape1({
       city: adresse?.city,
       postalCode: adresse?.postal_code,
       country: adresse?.country ? nomPays(adresse.country) : undefined,
+      countryCode: adresse?.country || undefined,
       phone: event.billingDetails?.phone || undefined,
       gift: cadeau,
+      occasion,
     };
 
     // Meme identifiant que la mesure serveur : recolle la session a l'achat.
@@ -675,6 +687,9 @@ export default function CheckoutModal({
 
   // Options cadeau
   const [estCadeau, setEstCadeau] = useState(false);
+  /* Facultatif : sert a savoir pour quoi on achete, et donc quoi mettre dans
+     les annonces. Rien n'est choisi par defaut. */
+  const [occasion, setOccasion] = useState<Occasion | null>(null);
   const [messageCadeau, setMessageCadeau] = useState("");
   const [emailDestinataire, setEmailDestinataire] = useState("");
   const [dateRemise, setDateRemise] = useState("");
@@ -744,6 +759,7 @@ export default function CheckoutModal({
       setPromoError("");
       setApplied(null);
       setEstCadeau(false);
+      setOccasion(null);
       setMessageCadeau("");
       setEmailDestinataire("");
       setDateRemise("");
@@ -1019,6 +1035,10 @@ export default function CheckoutModal({
         refuser("adresse", t("errorAddressRequired"));
         return;
       }
+      if (!codePostalValide(countryCode, postalCode)) {
+        refuser("code_postal", t("errorPostalCode"));
+        return;
+      }
       if (!phone.trim()) {
         refuser("telephone", t("errorPhoneRequired"));
         return;
@@ -1052,6 +1072,7 @@ export default function CheckoutModal({
       has_address: !isDigital,
       is_gift: estCadeau,
       has_promo: Boolean(applied),
+      occasion,
     });
 
     /* Panier retenu pour une relance unique par e-mail (mention RGPD sous le
@@ -1226,6 +1247,7 @@ export default function CheckoutModal({
                     estPhysique={!isDigital}
                     emailSaisi={email}
                     cadeau={cadeau}
+                    occasion={occasion}
                     nomPays={(code) => (COUNTRIES.some((c) => c.code === code) ? tCountry(code) : code)}
                   />
                 </Elements>
@@ -1454,6 +1476,26 @@ export default function CheckoutModal({
                   rien n'était prévu pour offrir. Replié par défaut : ceux qui
                   achètent pour eux ne voient qu'une ligne de plus. */}
               <div className="bloc">
+                <p className={labelClass} id="occasion-titre">
+                  {t("occasionLabel")}
+                </p>
+                <div className="pastilles" role="group" aria-labelledby="occasion-titre" style={{ flexWrap: "wrap" }}>
+                  {OCCASIONS.map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      className="pastille"
+                      aria-pressed={occasion === o}
+                      onClick={() => setOccasion((v) => (v === o ? null : o))}
+                      style={{ width: "auto", paddingInline: 12 }}
+                    >
+                      {t(`occasions.${o}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bloc">
                 <button
                   type="button"
                   onClick={() => {
@@ -1604,8 +1646,10 @@ export default function CheckoutModal({
                     city,
                     postalCode,
                     country: tCountry(countryCode),
+                    countryCode,
                     phone: `${phonePrefix} ${phone}`.trim(),
                     gift: cadeau,
+                    occasion,
                   }}
                   orderConfig={orderConfig}
                   montant={formatPrice(amountDue)}

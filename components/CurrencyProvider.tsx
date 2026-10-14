@@ -11,6 +11,8 @@ interface CurrencyContextType {
   format: (amountInEUR: number) => string;
   formatRaw: (amount: number) => string;
   convert: (amountInEUR: number) => number;
+  /** Vrai une fois la devise du visiteur lue dans son cookie. */
+  pret: boolean;
 }
 
 const CurrencyContext = createContext<CurrencyContextType>({
@@ -19,7 +21,12 @@ const CurrencyContext = createContext<CurrencyContextType>({
   format: (a) => `${a} €`,
   formatRaw: (a) => `${a} €`,
   convert: (a) => a,
+  pret: false,
 });
+
+/* Place reservee d'un montant tant que la devise n'est pas connue : des
+   espaces de la largeur d'un chiffre, pour que rien ne bouge a l'affichage. */
+const MONTANT_EN_ATTENTE = "\u2007\u2007\u2007\u2007";
 
 export function useCurrency() {
   return useContext(CurrencyContext);
@@ -47,6 +54,11 @@ export default function CurrencyProvider({
   const localeFallback: Currency = locale === "en" ? "GBP" : "EUR";
   const defaultCurrency: Currency = initialCurrency || localeFallback;
   const [currency, setCurrencyState] = useState<Currency>(defaultCurrency);
+  /* Devise lue ? Les pages sont statiques : le serveur ne connait pas le
+     visiteur. Avant ce correctif, un visiteur suisse, americain ou
+     britannique voyait un instant le prix en euros (ou en livres sur /en),
+     puis sa devise (audit P1-20). Les montants restent masques jusque-la. */
+  const [pret, setPret] = useState(false);
 
   useEffect(() => {
     const cookieCurrency = getCookie(CURRENCY_COOKIE);
@@ -59,6 +71,7 @@ export default function CurrencyProvider({
     } else {
       setCurrencyState(defaultCurrency);
     }
+    setPret(true);
   }, [defaultCurrency]);
 
   const setCurrency = (c: Currency) => {
@@ -74,12 +87,13 @@ export default function CurrencyProvider({
     setCookieValue(CURRENCY_COOKIE, c);
   };
 
-  const format = (amountInEUR: number) => convertAndFormat(amountInEUR, currency, locale);
-  const formatRaw = (amount: number) => formatPrice(amount, currency, locale);
+  const format = (amountInEUR: number) =>
+    pret ? convertAndFormat(amountInEUR, currency, locale) : MONTANT_EN_ATTENTE;
+  const formatRaw = (amount: number) => (pret ? formatPrice(amount, currency, locale) : MONTANT_EN_ATTENTE);
   const convert = (amountInEUR: number) => convertPrice(amountInEUR, currency);
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, format, formatRaw, convert }}>
+    <CurrencyContext.Provider value={{ currency, setCurrency, format, formatRaw, convert, pret }}>
       {children}
     </CurrencyContext.Provider>
   );

@@ -5,6 +5,8 @@ import { MESURES } from "@/lib/evenementsMesure";
 import { lienEmail } from "@/lib/utmEmail";
 import {
   getOrdersDueForReviewRequest,
+  getOrdersDueForReviewReminder,
+  markReviewReminderSent,
   getOrdersDueForReorderEmail,
   getOrdersDueForAbandonedEmail,
   getSubscribersDueForWelcome,
@@ -36,10 +38,13 @@ import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
+import { recompenseAvisFormatee } from "@/lib/recompenseAvis";
 
 // Delai apres l'envoi de l'illustration finale. La demande d'avis attend que
 // l'impression soit arrivee (2j de dessin + 3j ouvres de fabrication/envoi).
 const REVIEW_REQUEST_DELAY_DAYS = 10;
+// Relance unique, 10 jours apres la demande, si aucun avis n'est arrive.
+const REVIEW_REMINDER_DELAY_DAYS = 10;
 const REORDER_DELAY_DAYS = 90;
 
 // Relance des paniers abandonnes. 4 h laisse le temps a un paiement en cours
@@ -106,7 +111,8 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
             <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
             <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
             <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
-            <p style="font-size: 16px; margin: 0; color: #333;">${t.ask}</p>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.ask}</p>
+            <p style="font-size: 16px; margin: 0; color: #000; font-weight: bold;">${t.reward(recompenseAvisFormatee(order.currency, lang))}</p>
             ${button(lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "demande_avis"), t.cta)}
           `,
           `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>`
@@ -125,6 +131,52 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
       failed++;
       console.error(
         "[CRON lifecycle-emails] review request failed",
+        order.id,
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  return { sent, failed };
+}
+
+/* Relance unique de la demande d'avis. Le site n'avait aucun avis : une
+   seule demande, perdue au milieu d'une boite de reception, ne suffisait pas. */
+async function sendReviewReminders(): Promise<{ sent: number; failed: number }> {
+  const orders = (await getOrdersDueForReviewReminder(REVIEW_REMINDER_DELAY_DAYS)).slice(0, MAX_PER_RUN);
+  let sent = 0;
+  let failed = 0;
+
+  for (const order of orders) {
+    const lang = langueCommande(order);
+    const t = reviewRequestEmail[lang];
+    try {
+      await envoyerEmail({
+        from: EXPEDITEUR,
+        to: [order.customer_email],
+        replyTo: SUPPORT_EMAIL,
+        subject: t.reminderSubject,
+        html: shell(
+          `
+            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.reminderTitle}</h1>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
+            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.reminderBody}</p>
+            <p style="font-size: 16px; margin: 0; color: #000; font-weight: bold;">${t.reward(recompenseAvisFormatee(order.currency, lang))}</p>
+            ${button(lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "relance_avis"), t.cta)}
+          `,
+          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>`
+        ),
+      });
+      await mesureServeur(MESURES.emailEnvoye, {
+        identifiant: order.customer_email,
+        proprietes: { campagne: "relance_avis" },
+      });
+      await markReviewReminderSent(order.id);
+      sent++;
+    } catch (error: unknown) {
+      failed++;
+      console.error(
+        "[CRON lifecycle-emails] review reminder failed",
         order.id,
         error instanceof Error ? error.message : error
       );
@@ -732,8 +784,9 @@ export async function GET(req: NextRequest) {
     };
     const leads = await sendLeadReminders().catch(enEchec("relance caisse"));
     const printUpsell = await sendPrintUpsell().catch(enEchec("upsell poster"));
+    const reviewReminders = await sendReviewReminders().catch(enEchec("relance avis"));
     const photos = await relancerPhotosManquantes();
-    const result = { imagesFinales, welcome, reviewRequests, reorders, abandoned, leads, printUpsell, photos };
+    const result = { imagesFinales, welcome, reviewRequests, reviewReminders, reorders, abandoned, leads, printUpsell, photos };
     console.log("[CRON lifecycle-emails]", JSON.stringify(result));
     /* Un seul signalement pour tout le passage : des e-mails clients qui ne
        partent pas (Resend en panne, quota, adresse refusee) doivent se voir. */

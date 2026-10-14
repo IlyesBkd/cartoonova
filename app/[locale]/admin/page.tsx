@@ -9,6 +9,7 @@ import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
 import type { DbOrder, SupportMessage, SupportReply } from "@/lib/db";
 import { lireConsigne } from "@/lib/consigneClient";
+import { OCCASION_FR, estOccasion } from "@/lib/occasions";
 import { CATALOGUE } from "@/lib/catalogue";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
@@ -1390,6 +1391,15 @@ export default function AdminPage() {
                         au moment de commander ne remontait à personne.
                         Placée juste avant les photos, à l'endroit où l'on
                         prépare le dessin. */}
+                    {(() => {
+                      const o = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options;
+                      if (!estOccasion(o?.occasion)) return null;
+                      return (
+                        <p className="text-sm">
+                          <span className="font-semibold">🎉 Occasion :</span> {OCCASION_FR[o.occasion as keyof typeof OCCASION_FR]}
+                        </p>
+                      );
+                    })()}
                     {(() => {
                       const o = typeof selectedOrder.options === 'string' ? JSON.parse(selectedOrder.options) : selectedOrder.options;
                       const consigne = lireConsigne(o?.description);
