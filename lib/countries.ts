@@ -63,6 +63,21 @@ export const COUNTRIES: CountryEntry[] = [
   { code: "CY", callingCode: "+357" },
   { code: "MT", callingCode: "+356" },
   { code: "AD", callingCode: "+376" },
+  /* Ajoutes le 14 octobre 2026. Le site est traduit en suedois, danois et
+     polonais, mais ces pays n'etaient pas livrables : la semaine du 8 au 14,
+     un poster Batman a 328 kr a ete abandonne en Suede trois secondes apres
+     l'ouverture de la caisse, puis un Lego encadre en Croatie. Optimal Print
+     livre dans tous ces pays. */
+  { code: "SE", callingCode: "+46" },
+  { code: "DK", callingCode: "+45" },
+  { code: "NO", callingCode: "+47" },
+  { code: "IS", callingCode: "+354" },
+  { code: "PL", callingCode: "+48" },
+  { code: "CZ", callingCode: "+420" },
+  { code: "HU", callingCode: "+36" },
+  { code: "HR", callingCode: "+385" },
+  { code: "RO", callingCode: "+40" },
+  { code: "BG", callingCode: "+359" },
 
   /* ─── Territoires ────────────────────────────────────────────────────
      Leur absence n'affichait pas d'erreur : le selecteur retombait sur la

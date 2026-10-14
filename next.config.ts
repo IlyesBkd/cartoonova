@@ -104,6 +104,26 @@ const nextConfig: NextConfig = {
     return [{ source: "/(.*)", headers: EN_TETES_SECURITE }];
   },
 
+  /* Adresses de l'ancienne boutique Shopify (`/products/…`, `/pages/…`,
+     `/collections/…`). Elles restent dans des favoris et dans des index : la
+     semaine du 8 au 14 octobre 2026, quatre visites ont fini en 404 sur
+     /fr/products/portrait-personnalise-simpsons et /fr/pages/contact. Les
+     plus precises d'abord : la premiere regle qui correspond gagne. */
+  async redirects() {
+    const L = ":locale(fr|en|de|es|it|nl|pt|pl|sv|da)";
+    return [
+      { source: `/${L}/products/:slug(.*simpson.*)`, destination: "/:locale/simpson", permanent: true },
+      { source: "/products/:slug(.*simpson.*)", destination: "/fr/simpson", permanent: true },
+      { source: `/${L}/products/:slug*`, destination: "/:locale/collections", permanent: true },
+      { source: "/products/:slug*", destination: "/fr/collections", permanent: true },
+      { source: `/${L}/pages/contact`, destination: "/:locale/contact", permanent: true },
+      { source: "/pages/contact", destination: "/fr/contact", permanent: true },
+      { source: `/${L}/pages/:slug*`, destination: "/:locale", permanent: true },
+      { source: "/pages/:slug*", destination: "/fr", permanent: true },
+      { source: `/${L}/collections/:slug+`, destination: "/:locale/collections", permanent: true },
+    ];
+  },
+
   /* PostHog appelle certains points de terminaison avec une barre finale.
      Sans cela, Next y repond par une redirection que la requete de mesure ne
      suit pas, et l'evenement est perdu. */
