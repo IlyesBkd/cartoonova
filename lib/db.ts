@@ -1318,7 +1318,7 @@ export async function getOrdersDueForReviewReminder(days: number): Promise<Lifec
       AND o.review_request_sent_at < NOW() - (${days} * INTERVAL '1 day')
       AND o.review_reminder_sent_at IS NULL
       AND o.customer_email IS NOT NULL
-      AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.order_id = o.id)
+      AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.order_id = o.id::text)
       AND NOT EXISTS (
         SELECT 1 FROM newsletter_subscribers n
         WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
