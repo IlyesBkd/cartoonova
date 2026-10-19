@@ -1087,7 +1087,7 @@ export default function AdminPage() {
                               <span className="ml-2 inline-block px-2 py-0.5 rounded-lg bg-red-100 text-red-700 text-xs font-bold">⚡ EXPRESS</span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}</td>
+                          <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}{o.currency !== "EUR" && <div className="text-xs font-normal text-gray-500">≈ {toEUR(Number(o.total_price), o.currency).toFixed(2)} €</div>}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
                               {STATUS_LABELS[o.status as OrderStatus]?.label || o.status}
@@ -1299,7 +1299,7 @@ export default function AdminPage() {
                             </div>
                           );
                         })()}
-                        <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span></div>
+                        <div><span className="text-gray-500">Total:</span> <span className="font-bold text-green-600">{selectedOrder.total_price} {selectedOrder.currency}</span>{selectedOrder.currency !== "EUR" && <span className="text-xs text-gray-500"> (≈ {toEUR(Number(selectedOrder.total_price), selectedOrder.currency).toFixed(2)} €)</span>}</div>
                         {/* Options payées (1er octobre 2026). Le texte de la
                             banderole est dans la consigne du client. */}
                         {(() => {
