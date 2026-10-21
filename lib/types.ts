@@ -3,9 +3,11 @@ import type { Currency } from "./currency";
 export interface Order {
   id: string;
   createdAt: string;
-  /* La meme colonne porte le statut de paiement (PENDING / PAID, pose par le
-     paiement) et le suivi saisi par l'admin. Pour savoir si une commande est
-     payee, lire `paid_at` (lib/db.ts), pas ce champ. */
+  /* Statut de paiement (PENDING / PAID). Les autres valeurs sont d'anciens
+     suivis saisis a la main, plus ecrits : le suivi se calcule desormais
+     (lib/statutCommande.ts), qui ne relit que les anciens « completed » et
+     « shipped » comme commandes closes. Pour savoir si une commande est payee, lire
+     `paid_at` (lib/db.ts), pas ce champ. */
   status: "PENDING" | "PAID" | "new" | "in_progress" | "completed" | "shipped";
   // Client info
   email: string;

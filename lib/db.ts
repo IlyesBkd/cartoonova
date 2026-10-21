@@ -275,6 +275,8 @@ export interface DbOrder {
   photos_alerte_le: string | null;
   /** Origine de la premiere visite. Null pour les commandes anterieures. */
   origine: OrigineVisite | null;
+  /** Statut impose par l'admin. Null = calcule (lib/statutCommande.ts). */
+  statut_force?: string | null;
 }
 
 export async function getOrders(querySql: ClientSql = sql): Promise<DbOrder[]> {
@@ -284,6 +286,7 @@ export async function getOrders(querySql: ClientSql = sql): Promise<DbOrder[]> {
   await ensureExpeditionSchema();
   await ensureEnvoiProgrammeSchema();
   await ensurePaidAtSchema();
+  await ensureStatutForceSchema();
   const rows = await querySql`SELECT * FROM orders ORDER BY created_at DESC`;
   return rows as unknown as DbOrder[];
 }
@@ -301,9 +304,33 @@ export async function getOrderById(orderId: string): Promise<DbOrder | null> {
   return (rows[0] as unknown as DbOrder) || null;
 }
 
-export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
+/* Pendant local de migrations/2026-10-statut-force.sql. */
+let statutForceSchemaReady: Promise<void> | null = null;
+
+async function ensureStatutForceSchema(): Promise<void> {
+  if (!runtimeSchemaBootstrapEnabled) return;
+  if (statutForceSchemaReady) return statutForceSchemaReady;
+  statutForceSchemaReady = (async () => {
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS statut_force TEXT`;
+  })().catch((e) => {
+    statutForceSchemaReady = null;
+    throw e;
+  });
+  return statutForceSchemaReady;
+}
+
+/**
+ * Force le statut affiche dans le tableau de bord, ou rend la main au calcul
+ * automatique (lib/statutCommande.ts) avec `null`.
+ *
+ * Colonne a part plutot que `status` : celle-ci porte deja le paiement
+ * (PENDING / PAID), et les anciens statuts saisis a la main y sont restes. Les
+ * relire comme des forcages figerait toutes les commandes passees.
+ */
+export async function forcerStatutCommande(orderId: string, statut: string | null): Promise<void> {
+  await ensureStatutForceSchema();
   await sql`
-    UPDATE orders SET status = ${status} WHERE id = ${orderId}::uuid
+    UPDATE orders SET statut_force = ${statut} WHERE id = ${orderId}::uuid
   `;
 }
 
@@ -504,17 +531,15 @@ export async function enregistrerExpedition(
  * celle du premier depart, meme si le client redemande le lien trois jours
  * plus tard. La date d'e-mail, elle, suit le dernier envoi.
  *
- * Le statut passe a `shipped` dans la foulee. C'est le meme evenement dit deux
- * fois — un colis dont le client a recu le lien de suivi EST expedie — et le
- * laisser a une seconde manipulation garantissait qu'il resterait a « Terminée ».
+ * Le statut « Expediee » du tableau de bord se deduit de `expedie_le`
+ * (lib/statutCommande.ts) : rien d'autre a ecrire.
  */
 export async function marquerExpediee(orderId: string): Promise<void> {
   await ensureExpeditionSchema();
   await sql`
     UPDATE orders
     SET expedie_le = COALESCE(expedie_le, NOW()),
-        expedition_email_envoye_le = NOW(),
-        status = 'shipped'
+        expedition_email_envoye_le = NOW()
     WHERE id = ${orderId}::uuid
   `;
 }

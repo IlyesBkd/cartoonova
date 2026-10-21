@@ -11,11 +11,11 @@ import type { DbOrder, SupportMessage, SupportReply } from "@/lib/db";
 import { lireConsigne } from "@/lib/consigneClient";
 import { OCCASION_FR, estOccasion } from "@/lib/occasions";
 import { CATALOGUE } from "@/lib/catalogue";
+import { STATUTS_COMMANDE, statutCommande, type StatutCommande } from "@/lib/statutCommande";
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 import TraductionFr from "@/components/admin/TraductionFr";
 
-type OrderStatus = "new" | "in_progress" | "completed" | "shipped";
 
 /**
  * A quoi se rattache un courrier qu'on envoie.
@@ -91,12 +91,15 @@ function libelleStyle(slug: unknown): { label: string; emoji: string } | null {
   return { label: UNIVERS_PAR_SLUG.get(slug) ?? slug, emoji: STYLE_EMOJIS[slug] ?? "🎨" };
 }
 
-const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
-  new: { label: "Nouvelle", color: "bg-blue-100 text-blue-800 border-blue-300" },
-  in_progress: { label: "En cours", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
-  completed: { label: "Terminée", color: "bg-green-100 text-green-800 border-green-300" },
-  shipped: { label: "Expédiée", color: "bg-purple-100 text-purple-800 border-purple-300" },
-};
+/* Ce qui attend une action de notre part — le badge rouge du menu. */
+const STATUTS_A_FAIRE: StatutCommande[] = ["a_traiter", "retouche", "new", "a_envoyer", "a_imprimer"];
+
+const COMPTEURS_STATUT: { label: string; statuts: StatutCommande[] }[] = [
+  { label: "À traiter / retouche", statuts: ["a_traiter", "retouche"] },
+  { label: "À dessiner", statuts: ["new", "photos"] },
+  { label: "Attente client / à envoyer", statuts: ["attente_client", "a_envoyer", "envoi_programme", "a_imprimer"] },
+  { label: "Terminées / expédiées", statuts: ["completed", "shipped"] },
+];
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
@@ -493,7 +496,6 @@ export default function AdminPage() {
         suivi_transporteur: transporteur.trim() || null,
         expedie_le: selectedOrder.expedie_le || maintenant,
         expedition_email_envoye_le: maintenant,
-        status: "shipped",
       };
       setSelectedOrder(updated);
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
@@ -590,15 +592,26 @@ export default function AdminPage() {
     }
   }, [authed, fetchOrders, fetchPrices, fetchSupportMessages, fetchSupportOutbox]);
 
-  // Update order status
-  const updateStatus = async (id: string, status: OrderStatus) => {
+  /* Le statut se calcule (lib/statutCommande.ts). Un message client non lu et
+     sans reponse le fait passer avant tout le reste : c'est la seule trace
+     d'une retouche demandee par simple e-mail. */
+  const statutDe = (o: DbOrder): StatutCommande =>
+    statutCommande(o, {
+      messageNonLu: supportMessages.some(
+        (m) => m.order_id === o.id && !m.read_at && m.category !== "spam" && !m.replies?.length
+      ),
+    });
+
+  // Forcer un statut, ou `null` pour revenir au calcul automatique.
+  const forcerStatut = async (id: string, statutForce: StatutCommande | null) => {
     await fetch("/api/orders", {
       method: "PATCH",
       headers: headers(),
-      body: JSON.stringify({ id, status }),
+      body: JSON.stringify({ id, statutForce }),
     });
+    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, statut_force: statutForce } : o)));
+    if (selectedOrder?.id === id) setSelectedOrder({ ...selectedOrder, statut_force: statutForce });
     fetchOrders();
-    if (selectedOrder?.id === id) setSelectedOrder({ ...selectedOrder, status });
   };
 
   // Save prices
@@ -942,11 +955,13 @@ export default function AdminPage() {
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors cursor-pointer ${tab === "orders" ? "bg-yellow-400 text-black" : "text-gray-300 hover:bg-gray-800"}`}
           >
             <span>📦</span> Commandes
-            {orders.filter((o) => o.status === "new").length > 0 && (
-              <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                {orders.filter((o) => o.status === "new").length}
-              </span>
-            )}
+            {/* Ce qui attend une action de notre part. */}
+            {(() => {
+              const n = orders.filter((o) => STATUTS_A_FAIRE.includes(statutDe(o))).length;
+              return n > 0 ? (
+                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{n}</span>
+              ) : null;
+            })()}
           </button>
           <button
             onClick={() => setTab("support")}
@@ -1010,10 +1025,10 @@ export default function AdminPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              {(["new", "in_progress", "completed", "shipped"] as const).map((s) => (
-                <div key={s} className="bg-white border border-gray-200 rounded-xl p-4">
-                  <p className="text-2xl font-bold text-gray-900">{orders.filter((o) => o.status === s).length}</p>
-                  <p className="text-xs text-gray-500 font-semibold mt-1">{STATUS_LABELS[s].label}</p>
+              {COMPTEURS_STATUT.map(({ label, statuts }) => (
+                <div key={label} className="bg-white border border-gray-200 rounded-xl p-4">
+                  <p className="text-2xl font-bold text-gray-900">{orders.filter((o) => statuts.includes(statutDe(o))).length}</p>
+                  <p className="text-xs text-gray-500 font-semibold mt-1">{label}</p>
                 </div>
               ))}
             </div>
@@ -1089,9 +1104,17 @@ export default function AdminPage() {
                           </td>
                           <td className="px-4 py-3 text-right font-bold">{o.total_price} {o.currency}{o.currency !== "EUR" && <div className="text-xs font-normal text-gray-500">≈ {toEUR(Number(o.total_price), o.currency).toFixed(2)} €</div>}</td>
                           <td className="px-4 py-3 text-center">
-                            <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUS_LABELS[o.status as OrderStatus]?.color || ""}`}>
-                              {STATUS_LABELS[o.status as OrderStatus]?.label || o.status}
-                            </span>
+                            {(() => {
+                              const s = STATUTS_COMMANDE[statutDe(o)];
+                              return (
+                                <span
+                                  title={o.statut_force ? "Statut forcé à la main" : undefined}
+                                  className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border whitespace-nowrap ${s.color}`}
+                                >
+                                  {s.label}{o.statut_force ? " 📌" : ""}
+                                </span>
+                              );
+                            })()}
                           </td>
                         </tr>
                       ))
@@ -1829,25 +1852,48 @@ export default function AdminPage() {
                       </div>
                     )}
 
-                    {/* Status update */}
-                    <div>
-                      <p className="text-xs text-gray-500 font-semibold mb-2">Changer le statut</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        {(["new", "in_progress", "completed", "shipped"] as const).map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => updateStatus(selectedOrder.id, s)}
-                            className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
-                              selectedOrder.status === s
-                                ? STATUS_LABELS[s].color + " ring-2 ring-offset-1 ring-gray-400"
-                                : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                            }`}
-                          >
-                            {STATUS_LABELS[s].label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    {/* Statut : calcule, forcable a titre exceptionnel. */}
+                    {(() => {
+                      const actuel = statutDe(selectedOrder);
+                      const force = !!selectedOrder.statut_force;
+                      return (
+                        <div>
+                          <p className="text-xs text-gray-500 font-semibold mb-2">Statut</p>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`inline-block px-2 py-1 text-xs font-bold rounded-lg border ${STATUTS_COMMANDE[actuel].color}`}>
+                              {STATUTS_COMMANDE[actuel].label}
+                            </span>
+                            <span className="text-xs text-gray-500">{force ? "📌 forcé à la main" : "automatique"}</span>
+                            {force && (
+                              <button
+                                onClick={() => forcerStatut(selectedOrder.id, null)}
+                                className="ml-auto text-xs font-semibold text-blue-700 hover:underline cursor-pointer"
+                              >
+                                Revenir à l&apos;automatique
+                              </button>
+                            )}
+                          </div>
+                          <details>
+                            <summary className="text-xs text-gray-500 cursor-pointer select-none">Forcer un statut</summary>
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                              {(Object.keys(STATUTS_COMMANDE) as StatutCommande[]).map((s) => (
+                                <button
+                                  key={s}
+                                  onClick={() => forcerStatut(selectedOrder.id, s)}
+                                  className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                                    force && actuel === s
+                                      ? STATUTS_COMMANDE[s].color + " ring-2 ring-offset-1 ring-gray-400"
+                                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  {STATUTS_COMMANDE[s].label}
+                                </button>
+                              ))}
+                            </div>
+                          </details>
+                        </div>
+                      );
+                    })()}
 
                     {/* Demande d'avis a la demande.
                         Zero avis en base, donc aucune etoile sur les 36 fiches

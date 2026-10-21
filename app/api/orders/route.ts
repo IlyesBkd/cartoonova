@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrders, updateOrderStatus, enregistrerCoutCommande, withFreshDatabaseClient } from "@/lib/db";
+import { getOrders, forcerStatutCommande, enregistrerCoutCommande, withFreshDatabaseClient } from "@/lib/db";
+import { estStatutCommande } from "@/lib/statutCommande";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { retouchesParCommande } from "@/lib/retouches";
 
@@ -32,9 +33,10 @@ export async function PATCH(req: NextRequest) {
   try {
   const refus = refuserSiPasAdmin(req);
   if (refus) return refus;
-    const { id, status, cout, coutNote }: {
+    const { id, statutForce, cout, coutNote }: {
       id: string;
-      status?: string;
+      /** Statut impose, ou `null` pour revenir au statut calcule. */
+      statutForce?: string | null;
       cout?: number | string | null;
       coutNote?: string | null;
     } = await req.json();
@@ -43,7 +45,12 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Commande manquante." }, { status: 400 });
     }
 
-    if (status) await updateOrderStatus(id, status);
+    if (statutForce !== undefined) {
+      if (statutForce !== null && !estStatutCommande(statutForce)) {
+        return NextResponse.json({ error: "Statut inconnu." }, { status: 400 });
+      }
+      await forcerStatutCommande(id, statutForce);
+    }
 
     /* `undefined` = le champ n'est pas dans la requete, on n'y touche pas.
        `null` ou chaine vide = l'utilisateur efface la saisie. Confondre les
