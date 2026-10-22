@@ -64,14 +64,15 @@ function listePhotos(brut: unknown): unknown {
 /**
  * Statut deduit, dans l'ordre ou les situations demandent d'agir.
  *
- * `messageNonLu` vient du support, que cette fonction ne lit pas : un client
- * qui demande une retouche par simple e-mail apres reception (« les visages
- * pourraient ressembler davantage ») ne laisse aucune autre trace en base. Sans
- * cette entree, sa commande resterait « Terminee » pendant qu'il attend.
+ * `messageNonLuLe` vient du support, que cette fonction ne lit pas : la date
+ * du dernier message client non lu et sans reponse. Un client qui demande une
+ * retouche par simple e-mail apres reception (« les visages pourraient
+ * ressembler davantage ») ne laisse aucune autre trace en base. Sans cette
+ * entree, sa commande resterait « Terminee » pendant qu'il attend.
  */
 export function statutCommande(
   order: CommandeStatut,
-  { messageNonLu = false }: { messageNonLu?: boolean } = {}
+  { messageNonLuLe = null }: { messageNonLuLe?: string | null } = {}
 ): StatutCommande {
   if (estStatutCommande(order.statut_force)) return order.statut_force;
 
@@ -79,7 +80,19 @@ export function statutCommande(
      n'en ont pas, mais ont quitte PENDING : on les tient pour payees. */
   if (!order.paid_at && order.status === "PENDING") return "non_payee";
 
-  if (messageNonLu) return "a_traiter";
+  /* Seul un message arrive APRES notre dernier envoi attend quelque chose.
+     Renvoyer le portrait corrige repond a la demande, meme si l'e-mail qui la
+     portait n'a jamais ete ouvert dans l'onglet Support. */
+  if (messageNonLuLe) {
+    const recu = Date.parse(messageNonLuLe) || 0;
+    const dernierEnvoi = Math.max(
+      0,
+      ...[order.final_image_sent_at, order.poster_confirmation_sent_at, order.expedie_le].map(
+        (d) => (d ? Date.parse(d) || 0 : 0)
+      )
+    );
+    if (recu > dernierEnvoi) return "a_traiter";
+  }
 
   /* Commandes closes a la main avant que le statut ne se calcule : certaines
      ont ete expediees avant que `expedie_le` n'existe, et se retrouveraient

@@ -597,22 +597,42 @@ export default function AdminPage() {
      d'une retouche demandee par simple e-mail. */
   const statutDe = (o: DbOrder): StatutCommande =>
     statutCommande(o, {
-      messageNonLu: supportMessages.some(
-        (m) => m.order_id === o.id && !m.read_at && m.category !== "spam" && !m.replies?.length
-      ),
+      messageNonLuLe:
+        supportMessages
+          .filter((m) => m.order_id === o.id && !m.read_at && m.category !== "spam" && !m.replies?.length)
+          .map((m) => m.received_at)
+          .sort()
+          .at(-1) ?? null,
     });
 
   // Forcer un statut, ou `null` pour revenir au calcul automatique.
   const forcerStatut = async (id: string, statutForce: StatutCommande | null) => {
-    await fetch("/api/orders", {
-      method: "PATCH",
-      headers: headers(),
-      body: JSON.stringify({ id, statutForce }),
-    });
+    try {
+      const r = await fetch("/api/orders", {
+        method: "PATCH",
+        headers: headers(),
+        body: JSON.stringify({ id, statutForce }),
+      });
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        alert(`Statut non enregistré : ${data.error ?? `erreur ${r.status}`}`);
+        return;
+      }
+    } catch (e) {
+      alert(`Statut non enregistré : ${e instanceof Error ? e.message : "erreur réseau"}`);
+      return;
+    }
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, statut_force: statutForce } : o)));
-    if (selectedOrder?.id === id) setSelectedOrder({ ...selectedOrder, statut_force: statutForce });
+    setSelectedOrder((prev) => (prev?.id === id ? { ...prev, statut_force: statutForce } : prev));
     fetchOrders();
   };
+
+  /* La fiche ouverte est une copie : sans ce suivi, un rechargement (envoi du
+     portrait, forcage) mettait la liste a jour mais laissait la fiche figee sur
+     l'etat du clic, statut compris. */
+  useEffect(() => {
+    setSelectedOrder((prev) => (prev ? orders.find((o) => o.id === prev.id) ?? prev : prev));
+  }, [orders]);
 
   // Save prices
   const savePrices = async () => {
