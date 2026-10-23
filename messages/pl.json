@@ -463,7 +463,17 @@
       "IM": "Wyspa Man",
       "GI": "Gibraltar",
       "AX": "Wyspy Alandzkie",
-      "MY": "Malezja"
+      "MY": "Malezja",
+      "SE": "Szwecja",
+      "DK": "Dania",
+      "NO": "Norwegia",
+      "IS": "Islandia",
+      "PL": "Polska",
+      "CZ": "Czechy",
+      "HU": "Węgry",
+      "HR": "Chorwacja",
+      "RO": "Rumunia",
+      "BG": "Bułgaria"
     },
     "continueToPayment": "Przejdź do płatności →",
     "loadingPayment": "Wczytywanie płatności...",

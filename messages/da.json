@@ -463,7 +463,17 @@
       "IM": "Isle of Man",
       "GI": "Gibraltar",
       "AX": "Åland",
-      "MY": "Malaysia"
+      "MY": "Malaysia",
+      "SE": "Sverige",
+      "DK": "Danmark",
+      "NO": "Norge",
+      "IS": "Island",
+      "PL": "Polen",
+      "CZ": "Tjekkiet",
+      "HU": "Ungarn",
+      "HR": "Kroatien",
+      "RO": "Rumænien",
+      "BG": "Bulgarien"
     },
     "continueToPayment": "Videre til betaling →",
     "loadingPayment": "Indlæser betaling...",
