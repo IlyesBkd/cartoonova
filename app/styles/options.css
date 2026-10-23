@@ -15,6 +15,20 @@
   color: var(--encre, #2a2552);
 }
 
+/* Options repliables (FicheProduit.tsx, `nbOptionsPlus`).
+   Sur ordinateur seulement : l'etape faisait 608px et repoussait photo et
+   bouton a 2 400px. Le mobile, qui convertit mieux, garde tout deplie.
+   `display: contents` laisse les cases dans la grille de .options-payantes,
+   avec son espacement, comme si l'enveloppe n'existait pas. */
+.options-plus { display: contents; }
+.options-plus__bascule { justify-self: start; }
+@media (min-width: 861px) {
+  .options-plus[data-ferme] { display: none; }
+}
+@media (max-width: 860px) {
+  .options-plus__bascule { display: none; }
+}
+
 .noel-extras {
   margin-top: 40px;
   text-align: center;

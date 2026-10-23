@@ -336,6 +336,7 @@
     "optExpressRecap": "Express 24 h",
     "shippingLine": "dont livraison : {montant}",
     "optSaisonTitre": "Pour les fêtes",
+    "optPlus": "+ {n} autres options",
     "optCarteVoeux": "Carte de vœux à imprimer",
     "optCarteVoeuxSub": "Ton portrait en carte « Joyeux Noël et bonne année », PDF A5 envoyé par e-mail",
     "optCalendrier": "Calendrier 2027 à imprimer",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Envoie n'importe quelle photo",
     "hiwStep2Texte": "Envoie tes photos depuis ton appareil ou tes réseaux sociaux — maintenant ou plus tard — pour créer ton portrait cartoon.",
     "hiwStep3Titre": "Reçois ton portrait",
-    "hiwStep3Texte": "Reçois ton fichier numérique en 2 jours. Ajoute une toile, un portrait encadré, une tasse, et plus encore.",
+    "hiwStep3Texte": "Reçois ton fichier numérique en 2 jours. Tu le veux au mur ? Choisis un poster, une toile ou un portrait encadré.",
     "hiwChoisirDecor": "Choisis un décor",
     "hiwChoisirFichiers": "Choisir des fichiers",
     "hiwCommande": "Commande",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Bon cadeau portrait cartoon | Cartoonova",
-      "description": "Offre un portrait cartoon sans avoir la photo : un bon cadeau imprimable, utilisable sur les 35 univers. Reçu par e-mail en quelques secondes."
+      "description": "Offre un portrait cartoon sans avoir la photo : un bon cadeau imprimable, utilisable sur les 36 univers. Reçu par e-mail en quelques secondes."
     },
     "noel": {
       "title": "Cadeau de Noël personnalisé : portrait cartoon d'après photo | Cartoonova",

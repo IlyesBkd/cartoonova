@@ -336,6 +336,7 @@
     "optExpressRecap": "24-hour express",
     "shippingLine": "incl. shipping: {montant}",
     "optSaisonTitre": "For the holidays",
+    "optPlus": "+ {n} more options",
     "optCarteVoeux": "Printable greeting card",
     "optCarteVoeuxSub": "Your portrait as a \"Merry Christmas and Happy New Year\" card, A5 PDF sent by email",
     "optCalendrier": "Printable 2027 calendar",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Upload Any Photo",
     "hiwStep2Texte": "Upload photos from your device or social media — now or later — to create your cartoon portrait.",
     "hiwStep3Titre": "Get Your Portrait",
-    "hiwStep3Texte": "Get your digital download in 2 days. Add a canvas, a framed portrait, a mug, and more.",
+    "hiwStep3Texte": "Get your digital file in 2 days. Want it on the wall? Choose a poster, a canvas or a framed portrait.",
     "hiwChoisirDecor": "Pick a background",
     "hiwChoisirFichiers": "Choose files",
     "hiwCommande": "Ordered",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Cartoon portrait gift card | Cartoonova",
-      "description": "Give a cartoon portrait without needing the photo: a printable gift card for all 35 styles, emailed in seconds."
+      "description": "Give a cartoon portrait without needing the photo: a printable gift card for all 36 styles, emailed in seconds."
     },
     "noel": {
       "title": "Christmas gift: a cartoon portrait from your photo",

@@ -180,7 +180,7 @@ const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
   pl: (u) =>
     `Zamień swoje zdjęcie w spersonalizowany portret ${u}. Podgląd w 2 dni, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
   sv: (u) =>
-    `Förvandla ditt foto till ett personligt ${u}-porträtt. Förhandsvisning inom 2 dagar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramad.`,
+    `Förvandla ditt foto till ett personligt ${u}-porträtt. Förhandsvisning inom 2 dagar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramat tryck.`,
   da: (u) =>
     `Forvandl dit foto til et personligt ${u}-portræt. Forhåndsvisning inden for 2 dage, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
   pt: (u) =>
@@ -390,7 +390,10 @@ export const CATALOGUE: Produit[] = [
       it: "Carta Pokémon Personalizzata",
     },
     description: {
-      fr: "Crée ta propre carte Pokémon personnalisée : transforme ta photo, choisis ton nom, tes attaques et ton Pokémon favori. Dessiné et imprimé en France !",
+      /* « Dessiné et imprimé en France ! » laissait croire a une carte
+         imprimee livree : une cliente l'attendait par la poste alors qu'elle
+         avait choisi le fichier numerique. */
+      fr: "Crée ta propre carte Pokémon personnalisée à partir de ta photo : choisis ton nom, tes attaques et ton Pokémon favori. Reçois-la en fichier HD par e-mail, ou en tirage encadré livré chez toi.",
     },
   },
   {

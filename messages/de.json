@@ -336,6 +336,7 @@
     "optExpressRecap": "Express 24 Std.",
     "shippingLine": "inkl. Versand: {montant}",
     "optSaisonTitre": "Für die Feiertage",
+    "optPlus": "+ {n} weitere Extras",
     "optCarteVoeux": "Grußkarte zum Ausdrucken",
     "optCarteVoeuxSub": "Dein Porträt als Karte „Frohe Weihnachten und ein gutes neues Jahr“, A5-PDF per E-Mail",
     "optCalendrier": "Kalender 2027 zum Ausdrucken",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Lade ein beliebiges Foto hoch",
     "hiwStep2Texte": "Lade Fotos von deinem Gerät oder aus sozialen Netzwerken hoch — jetzt oder später — um dein Cartoon-Portrait zu erstellen.",
     "hiwStep3Titre": "Erhalte dein Portrait",
-    "hiwStep3Texte": "Erhalte deinen digitalen Download in 2 Tagen. Füge eine Leinwand, ein gerahmtes Porträt, eine Tasse und mehr hinzu.",
+    "hiwStep3Texte": "Deine digitale Datei kommt in 2 Tagen. Lieber an der Wand? Wähle Poster, Leinwand oder gerahmtes Porträt.",
     "hiwChoisirDecor": "Hintergrund wählen",
     "hiwChoisirFichiers": "Dateien auswählen",
     "hiwCommande": "Bestellt",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Gutschein für ein Cartoon-Porträt | Cartoonova",
-      "description": "Verschenke ein Cartoon-Porträt ohne Foto: ein druckbarer Gutschein für alle 35 Stile, in Sekunden per E-Mail."
+      "description": "Verschenke ein Cartoon-Porträt ohne Foto: ein druckbarer Gutschein für alle 36 Stile, in Sekunden per E-Mail."
     },
     "noel": {
       "title": "Weihnachtsgeschenk: Cartoon-Porträt nach Foto",

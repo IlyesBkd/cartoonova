@@ -177,7 +177,12 @@ interface Redige {
   faq: { question: string; reponse: string }[];
 }
 
-const CONSIGNE = `Tu rediges le contenu d'une fiche produit pour Cartoonova, qui dessine a la main des portraits personnalises a partir des photos du client, dans le style d'un univers de fiction.
+/* « qui dessine a la main » ouvrait cette consigne : le modele le reprenait
+   (« handritat Tintin-porträtt »), alors que le site ne doit jamais le
+   pretendre. Releve d'octobre 2026 sur les fiches suedoises : mots francais
+   laisses tels quels (« poster encadre »), requetes recopiees sans grammaire
+   (« ett porträtt personligt inramad »). D'ou les trois dernieres regles. */
+const CONSIGNE = `Tu rediges le contenu d'une fiche produit pour Cartoonova, qui cree des portraits personnalises a partir des photos du client, dans le style d'un univers de fiction.
 
 Regles absolues :
 - Ecris DANS LA LANGUE demandee, entierement, y compris les titres de section.
@@ -187,6 +192,9 @@ Regles absolues :
 - Aucun superlatif invente, aucune promesse chiffree qui ne soit pas dans la liste ci-dessous. N'invente ni delai, ni garantie, ni nombre de clients, ni avis.
 - Ton simple et concret, phrases courtes, pas de remplissage.
 - Tutoie le lecteur, comme tout le site (francais « tu », allemand « du », forme familiere dans les autres langues).
+- Les requetes fournies sont des intentions a couvrir, pas des chaines a recopier : reformule-les en phrases grammaticales et naturelles. Jamais une suite de mots-cles accoles.
+- Aucun mot d'une autre langue que celle demandee : traduis aussi les noms des supports.
+- N'ecris jamais « dessine a la main », « fait main » ni leurs equivalents (handritat, handgezeichnet, hand-drawn…), meme si une requete les contient.
 
 Faits utilisables, et rien d'autre :
 - cree a partir des photos envoyees, pour ce client seul (ne jamais decrire la methode de realisation : ni main, ni artiste, ni illustrateur, ni outil)

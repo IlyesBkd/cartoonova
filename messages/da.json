@@ -336,6 +336,7 @@
     "optExpressRecap": "Ekspres 24 t",
     "shippingLine": "heraf levering: {montant}",
     "optSaisonTitre": "Til højtiden",
+    "optPlus": "+ {n} flere tilvalg",
     "optCarteVoeux": "Julekort til udskrift",
     "optCarteVoeuxSub": "Dit portræt som kort med „Glædelig jul og godt nytår“, A5-PDF sendt på e-mail",
     "optCalendrier": "Kalender 2027 til udskrift",
@@ -723,14 +724,14 @@
     "navStyles": "Stilarter",
     "navEtapes": "Sådan virker det",
     "navFaq": "Spørgsmål",
-    "navTousStyles": "Se alle 35 stilarter",
+    "navTousStyles": "Se alle 36 stilarter",
     "heroOeil": "Personligt portræt",
     "heroNote": "Dit portræt inden for 2 dage, ubegrænsede rettelser",
     "etapesTitre": "Tre trin,",
     "etapesAccent": "ikke mere",
     "etapesSous": "Ingen konto, ingen software. Ét foto er nok.",
     "stylesAccent": "tegnet",
-    "stylesTous": "Se alle 35 stilarter",
+    "stylesTous": "Se alle 36 stilarter",
     "temoinsTitre": "Tegnet…",
     "temoinsAccent": "og vildt glade!",
     "temoinsTexte": "Hver anmeldelse kommer fra en rigtig bestilling, og vi offentliggør den, som den er.",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Upload et foto",
     "hiwStep2Texte": "Upload fotos fra telefonen eller sociale medier — nu eller senere.",
     "hiwStep3Titre": "Få dit portræt",
-    "hiwStep3Texte": "Den digitale fil er klar på 2 dage. Tilføj lærred, indrammet portræt eller krus.",
+    "hiwStep3Texte": "Den digitale fil er klar på 2 dage. Vil du have den på væggen? Vælg plakat, lærred eller indrammet portræt.",
     "hiwChoisirDecor": "Vælg baggrund",
     "hiwChoisirFichiers": "Vælg filer",
     "hiwCommande": "Bestilt",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Gavekort til et cartoonportræt | Cartoonova",
-      "description": "Giv et cartoonportræt uden at have fotoet: et gavekort til udskrivning til alle 35 stilarter, mailet på få sekunder."
+      "description": "Giv et cartoonportræt uden at have fotoet: et gavekort til udskrivning til alle 36 stilarter, mailet på få sekunder."
     },
     "noel": {
       "title": "Personlig julegave: cartoonportræt efter foto | Cartoonova",

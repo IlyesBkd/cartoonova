@@ -183,10 +183,19 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
      de « sous l'ecran » a « au-dessus » sans jamais croiser le bouton, et
      l'observateur ne rappelle rien : la barre restait cachee. */
   useEffect(() => {
+    /* Sur ordinateur, la barre vient aussi AVANT le bouton : des que le prix a
+       quitte l'ecran par le haut et tant que le bouton n'est pas encore entre
+       par le bas. Le configurateur y fait quatre ecrans de portable ; on y
+       perdait de vue le total et l'action pendant tout le parcours. Le mobile
+       garde le comportement d'origine, qui convertit deja mieux. */
+    const bureau = matchMedia("(min-width: 861px)");
     const calculer = () => {
       const cible = boutonAchat.current;
       if (!cible) return;
-      setBoutonHorsEcran(cible.getBoundingClientRect().bottom < 0);
+      const bouton = cible.getBoundingClientRect();
+      const prixHaut = document.querySelector(".panneau__prix")?.getBoundingClientRect();
+      const avantLeBouton = bureau.matches && !!prixHaut && prixHaut.bottom < 0 && bouton.top > innerHeight;
+      setBoutonHorsEcran(bouton.bottom < 0 || avantLeBouton);
     };
     let enAttente = false;
     const surDefilement = () => {
@@ -235,6 +244,8 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   /* Le second decor n'a de sens que s'il en existe au moins deux. */
   const decorSupPossible = donnees.decors.length > 1;
   const decorSupChoisi = decorSup && decorSupPossible;
+  /* Options repliees sur ordinateur : voir `nbOptionsPlus`. */
+  const [optionsPlus, setOptionsPlus] = useState(false);
   const indexSup = indexDecorSup === decor ? (decor + 1) % Math.max(donnees.decors.length, 1) : indexDecorSup;
 
   /* La formule de prix n'existe qu'une fois, dans `lib/pricing.ts`, partagee
@@ -343,6 +354,12 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const texteBanderoleNote =
     !texteIntegre && banderole && texteBanderole.trim() ? `Banderole : « ${texteBanderole.trim()} »` : "";
   const noteComplete = [texteCarte, texteWanted, texteTitre, texteBanderoleNote, note.trim()].filter(Boolean).join(" — ");
+
+  /* Options repliees sur ordinateur, derriere « + N autres options ». Une
+     option deja cochee garde le bloc ouvert : la cacher ferait payer quelque
+     chose que le client ne voit plus. */
+  const nbOptionsPlus = (texteIntegre ? 0 : 1) + (decorSupPossible ? 1 : 0) + (enSaison ? 2 : 0);
+  const optionsPlusOuvertes = optionsPlus || banderole || decorSup || carteVoeux || calendrier;
 
   /* Une commande sans photo est impossible a honorer : l'illustrateur n'a rien
      a dessiner. On bloquait nulle part — ni ici, ni cote serveur — et le
@@ -908,6 +925,31 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
             {prix && (
               <Etape numero titre={tp("optStep")} precision={tp("optional")}>
                 <div className="options-payantes">
+                  {/* Express en tete : c'est le supplement qui se vend. Les
+                      autres se replient sur ordinateur (voir options.css) —
+                      l'etape faisait 608px et repoussait photo et bouton a
+                      2 400px, soit quatre ecrans d'un portable de 768px. */}
+                  <label className="option-payante">
+                    <input type="checkbox" checked={express} onChange={(e) => { setExpress(e.target.checked); trackOptionSelected("addon", `express:${e.target.checked ? "on" : "off"}`, prix?.express ?? 0); }} />
+                    <span className="option-payante__texte">
+                      <b>{tp("optExpress")}</b>
+                      <small>{support === "digital" ? tp("optExpressSub") : tp("optExpressSubPrint")}</small>
+                    </span>
+                    <span className="option-payante__prix">+{formatPrix(prix.express)}</span>
+                  </label>
+
+                  {nbOptionsPlus > 0 && !optionsPlusOuvertes && (
+                    <button
+                      type="button"
+                      className="lien-precision options-plus__bascule"
+                      aria-expanded={false}
+                      onClick={() => setOptionsPlus(true)}
+                    >
+                      {tp("optPlus", { n: nbOptionsPlus })}
+                    </button>
+                  )}
+
+                  <div className="options-plus" data-ferme={optionsPlusOuvertes ? undefined : ""}>
                   {!texteIntegre && (
                   <label className="option-payante">
                     <input type="checkbox" checked={banderole} onChange={(e) => { setBanderole(e.target.checked); trackOptionSelected("addon", `banner:${e.target.checked ? "on" : "off"}`, prix?.banner ?? 0); }} />
@@ -958,15 +1000,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                     </>
                   )}
 
-                  <label className="option-payante">
-                    <input type="checkbox" checked={express} onChange={(e) => { setExpress(e.target.checked); trackOptionSelected("addon", `express:${e.target.checked ? "on" : "off"}`, prix?.express ?? 0); }} />
-                    <span className="option-payante__texte">
-                      <b>{tp("optExpress")}</b>
-                      <small>{support === "digital" ? tp("optExpressSub") : tp("optExpressSubPrint")}</small>
-                    </span>
-                    <span className="option-payante__prix">+{formatPrix(prix.express)}</span>
-                  </label>
-
                   {/* Carte de voeux et calendrier 2027 : fichiers a imprimer,
                       envoyes par e-mail avec le portrait. Du 1er octobre au
                       31 janvier seulement (`saisonCartesEtCalendrier`). */}
@@ -991,6 +1024,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
                       </label>
                     </div>
                   )}
+                  </div>
                 </div>
               </Etape>
             )}

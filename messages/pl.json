@@ -336,6 +336,7 @@
     "optExpressRecap": "Ekspres 24 h",
     "shippingLine": "w tym dostawa: {montant}",
     "optSaisonTitre": "Na święta",
+    "optPlus": "+ Więcej dodatków ({n})",
     "optCarteVoeux": "Kartka z życzeniami do druku",
     "optCarteVoeuxSub": "Twój portret na kartce „Wesołych Świąt i szczęśliwego Nowego Roku”, PDF A5 wysłany e-mailem",
     "optCalendrier": "Kalendarz 2027 do druku",
@@ -723,14 +724,14 @@
     "navStyles": "Style",
     "navEtapes": "Jak to działa",
     "navFaq": "Pytania",
-    "navTousStyles": "Zobacz wszystkie 35 stylów",
+    "navTousStyles": "Zobacz wszystkie 36 stylów",
     "heroOeil": "Spersonalizowany portret",
     "heroNote": "Twój portret w 2 dni, nieograniczone poprawki",
     "etapesTitre": "Trzy kroki,",
     "etapesAccent": "i tyle",
     "etapesSous": "Bez zakładania konta, bez programów. Wystarczy jedno zdjęcie.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Zobacz wszystkie 35 stylów",
+    "stylesTous": "Zobacz wszystkie 36 stylów",
     "temoinsTitre": "Narysowani…",
     "temoinsAccent": "i zachwyceni!",
     "temoinsTexte": "Każda opinia pochodzi z prawdziwego zamówienia i publikujemy ją bez zmian.",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Prześlij zdjęcie",
     "hiwStep2Texte": "Prześlij zdjęcia z telefonu albo z mediów społecznościowych — teraz lub później.",
     "hiwStep3Titre": "Odbierz portret",
-    "hiwStep3Texte": "Plik cyfrowy dostajesz w 2 dni. Dołóż płótno, oprawiony portret albo kubek.",
+    "hiwStep3Texte": "Plik cyfrowy dostajesz w 2 dni. Wolisz na ścianę? Wybierz plakat, płótno albo oprawiony portret.",
     "hiwChoisirDecor": "Wybierz tło",
     "hiwChoisirFichiers": "Wybierz pliki",
     "hiwCommande": "Zamówione",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Karta podarunkowa na portret cartoon | Cartoonova",
-      "description": "Podaruj portret cartoon bez zdjęcia: karta podarunkowa do wydruku, ważna dla 35 stylów, wysyłana e-mailem w kilka sekund."
+      "description": "Podaruj portret cartoon bez zdjęcia: karta podarunkowa do wydruku, ważna dla 36 stylów, wysyłana e-mailem w kilka sekund."
     },
     "noel": {
       "title": "Prezent na święta: portret cartoon ze zdjęcia",

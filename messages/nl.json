@@ -336,6 +336,7 @@
     "optExpressRecap": "Express 24 uur",
     "shippingLine": "incl. verzending: {montant}",
     "optSaisonTitre": "Voor de feestdagen",
+    "optPlus": "+ {n} extra opties",
     "optCarteVoeux": "Wenskaart om te printen",
     "optCarteVoeuxSub": "Je portret als kaart „Vrolijk kerstfeest en een gelukkig nieuwjaar”, A5-pdf per e-mail",
     "optCalendrier": "Kalender 2027 om te printen",
@@ -723,14 +724,14 @@
     "navStyles": "Stijlen",
     "navEtapes": "Hoe het werkt",
     "navFaq": "Vragen",
-    "navTousStyles": "Bekijk alle 35 stijlen",
+    "navTousStyles": "Bekijk alle 36 stijlen",
     "heroOeil": "Gepersonaliseerd portret",
     "heroNote": "Je portret binnen 2 dagen, onbeperkt aanpassen",
     "etapesTitre": "Drie stappen,",
     "etapesAccent": "meer niet",
     "etapesSous": "Geen account, geen software. Eén foto is genoeg.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Bekijk alle 35 stijlen",
+    "stylesTous": "Bekijk alle 36 stijlen",
     "temoinsTitre": "Gecartooniseerd…",
     "temoinsAccent": "en dolblij!",
     "temoinsTexte": "Elke review komt van een echte bestelling, en we publiceren hem zoals hij is.",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Upload een foto",
     "hiwStep2Texte": "Upload foto's vanaf je telefoon of sociale media — nu of later — om je cartoonportret te maken.",
     "hiwStep3Titre": "Ontvang je portret",
-    "hiwStep3Texte": "Je digitale bestand is er in 2 dagen. Voeg een canvas, een ingelijst portret of een mok toe.",
+    "hiwStep3Texte": "Je digitale bestand is er in 2 dagen. Liever aan de muur? Kies een poster, canvas of ingelijst portret.",
     "hiwChoisirDecor": "Kies een achtergrond",
     "hiwChoisirFichiers": "Bestanden kiezen",
     "hiwCommande": "Besteld",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Cadeaubon voor een cartoonportret | Cartoonova",
-      "description": "Geef een cartoonportret zonder de foto te hebben: een printbare cadeaubon voor alle 35 stijlen, binnen enkele seconden gemaild."
+      "description": "Geef een cartoonportret zonder de foto te hebben: een printbare cadeaubon voor alle 36 stijlen, binnen enkele seconden gemaild."
     },
     "noel": {
       "title": "Gepersonaliseerd kerstcadeau: cartoonportret van je foto | Cartoonova",

@@ -336,6 +336,7 @@
     "optExpressRecap": "Express 24 h",
     "shippingLine": "spedizione inclusa: {montant}",
     "optSaisonTitre": "Per le feste",
+    "optPlus": "+ altre {n} opzioni",
     "optCarteVoeux": "Biglietto di auguri da stampare",
     "optCarteVoeuxSub": "Il tuo ritratto su un biglietto «Buon Natale e felice anno nuovo», PDF A5 inviato via e-mail",
     "optCalendrier": "Calendario 2027 da stampare",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Carica qualsiasi foto",
     "hiwStep2Texte": "Carica foto dal tuo dispositivo o dai social — ora o più tardi — per creare il tuo ritratto cartoon.",
     "hiwStep3Titre": "Ricevi il tuo ritratto",
-    "hiwStep3Texte": "Ricevi il tuo download digitale in 2 giorni. Aggiungi una tela, un ritratto incorniciato, una tazza e altro ancora.",
+    "hiwStep3Texte": "Ricevi il tuo file digitale in 2 giorni. Lo vuoi appeso al muro? Scegli poster, tela o ritratto incorniciato.",
     "hiwChoisirDecor": "Scegli uno sfondo",
     "hiwChoisirFichiers": "Scegli i file",
     "hiwCommande": "Ordinato",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Carta regalo ritratto cartoon | Cartoonova",
-      "description": "Regala un ritratto cartoon senza avere la foto: una carta regalo stampabile per tutti i 35 stili, ricevuta via e-mail in pochi secondi."
+      "description": "Regala un ritratto cartoon senza avere la foto: una carta regalo stampabile per tutti i 36 stili, ricevuta via e-mail in pochi secondi."
     },
     "noel": {
       "title": "Regalo di Natale: ritratto cartoon dalla tua foto",

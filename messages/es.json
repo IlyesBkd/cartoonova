@@ -336,6 +336,7 @@
     "optExpressRecap": "Exprés 24 h",
     "shippingLine": "envío incluido: {montant}",
     "optSaisonTitre": "Para las fiestas",
+    "optPlus": "+ {n} opciones más",
     "optCarteVoeux": "Tarjeta de felicitación para imprimir",
     "optCarteVoeuxSub": "Tu retrato en una tarjeta «Feliz Navidad y próspero año nuevo», PDF A5 enviado por e-mail",
     "optCalendrier": "Calendario 2027 para imprimir",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Sube cualquier foto",
     "hiwStep2Texte": "Sube fotos desde tu dispositivo o redes sociales — ahora o más tarde — para crear tu retrato cartoon.",
     "hiwStep3Titre": "Recibe tu retrato",
-    "hiwStep3Texte": "Recibe tu descarga digital en 2 días. Añade un lienzo, un retrato enmarcado, una taza y más.",
+    "hiwStep3Texte": "Recibe tu archivo digital en 2 días. ¿Lo quieres en la pared? Elige póster, lienzo o retrato enmarcado.",
     "hiwChoisirDecor": "Elige un fondo",
     "hiwChoisirFichiers": "Elegir archivos",
     "hiwCommande": "Pedido",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Tarjeta regalo de retrato cartoon | Cartoonova",
-      "description": "Regala un retrato cartoon sin tener la foto: una tarjeta regalo imprimible para los 35 estilos, recibida por correo en segundos."
+      "description": "Regala un retrato cartoon sin tener la foto: una tarjeta regalo imprimible para los 36 estilos, recibida por correo en segundos."
     },
     "noel": {
       "title": "Regalo de Navidad: retrato cartoon de tu foto",

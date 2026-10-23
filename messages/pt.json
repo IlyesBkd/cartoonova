@@ -336,6 +336,7 @@
     "optExpressRecap": "Expresso 24 h",
     "shippingLine": "envio incluído: {montant}",
     "optSaisonTitre": "Para as festas",
+    "optPlus": "+ {n} outras opções",
     "optCarteVoeux": "Cartão de boas festas para imprimir",
     "optCarteVoeuxSub": "O teu retrato num cartão «Feliz Natal e um feliz ano novo», PDF A5 enviado por e-mail",
     "optCalendrier": "Calendário 2027 para imprimir",
@@ -723,14 +724,14 @@
     "navStyles": "Estilos",
     "navEtapes": "Como funciona",
     "navFaq": "Perguntas",
-    "navTousStyles": "Ver os 35 estilos",
+    "navTousStyles": "Ver os 36 estilos",
     "heroOeil": "Retrato personalizado",
     "heroNote": "O teu retrato em 2 dias, retoques ilimitados",
     "etapesTitre": "Três passos,",
     "etapesAccent": "e mais nada",
     "etapesSous": "Sem criar conta, sem software. Basta uma foto.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Ver os 35 estilos",
+    "stylesTous": "Ver os 36 estilos",
     "temoinsTitre": "Desenhados…",
     "temoinsAccent": "e encantados!",
     "temoinsTexte": "Cada avaliação vem de uma encomenda real, e publicamo-la tal como foi escrita.",
@@ -770,7 +771,7 @@
     "hiwStep2Titre": "Carrega uma foto",
     "hiwStep2Texte": "Carrega fotos do telemóvel ou das redes sociais — agora ou mais tarde.",
     "hiwStep3Titre": "Recebe o teu retrato",
-    "hiwStep3Texte": "O ficheiro digital chega em 2 dias. Junta uma tela, um retrato emoldurado ou uma caneca.",
+    "hiwStep3Texte": "O ficheiro digital chega em 2 dias. Queres na parede? Escolhe um poster, uma tela ou um retrato emoldurado.",
     "hiwChoisirDecor": "Escolhe o cenário",
     "hiwChoisirFichiers": "Escolher ficheiros",
     "hiwCommande": "Encomendado",
@@ -868,7 +869,7 @@
     },
     "bonCadeau": {
       "title": "Vale-oferta de retrato cartoon | Cartoonova",
-      "description": "Oferece um retrato cartoon sem teres a foto: um vale-oferta para imprimir, válido nos 35 estilos, recebido por email em segundos."
+      "description": "Oferece um retrato cartoon sem teres a foto: um vale-oferta para imprimir, válido nos 36 estilos, recebido por email em segundos."
     },
     "noel": {
       "title": "Prenda de Natal: retrato cartoon da tua foto",
