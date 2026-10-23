@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getOrderByConfirmationToken } from "@/lib/db";
 import { posterConfirmationPage, langueCommande } from "@/lib/email-i18n";
 import ConfirmClient from "./ConfirmClient";
@@ -41,13 +42,25 @@ export default async function ConfirmPosterPage({
             <p className="text-sm text-black/70 mt-2">{t.description}</p>
           </div>
 
-          {order.final_image_url && (
-            <img
-              src={order.final_image_url}
-              alt="Cartoonova poster"
-              className="w-full rounded-xl"
-            />
-          )}
+          {/* Optimisee (AVIF/WebP a la largeur de l'ecran) plutot que le PNG
+              d'origine de plusieurs Mo. Le fichier original reste joint a
+              l'e-mail. Les anciens portraits hors de `/final/` gardent la
+              balise brute, que l'optimiseur refuserait. */}
+          {order.final_image_url &&
+            (/^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/final\//.test(order.final_image_url) ? (
+              <Image
+                src={order.final_image_url}
+                alt="Cartoonova poster"
+                width={1024}
+                height={1365}
+                sizes="(max-width: 480px) 100vw, 448px"
+                priority
+                className="w-full h-auto rounded-xl"
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={order.final_image_url} alt="Cartoonova poster" className="w-full rounded-xl" />
+            ))}
 
           <ConfirmClient
             token={token}

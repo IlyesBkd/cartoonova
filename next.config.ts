@@ -157,6 +157,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.cartoonova.com",
       },
+      /* Les portraits finaux, sur le stockage Vercel Blob. La page de
+         validation les servait tels quels, en pleine resolution : 6 s de LCP
+         au 75e centile, sur la page qui decide de l'impression. */
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+        pathname: "/final/**",
+      },
     ],
   },
 };

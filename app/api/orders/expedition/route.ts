@@ -6,7 +6,7 @@ import {
   setOrderLastOutboundMessageId,
 } from "@/lib/db";
 import { shippingEmail, langueCommande } from "@/lib/email-i18n";
-import { estPhysique } from "@/lib/supportCommande";
+import { COUT_ESTIME_EUR, decrireSupport, estPhysique, type OptionsSupport } from "@/lib/supportCommande";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
@@ -90,6 +90,13 @@ function lienDepuisNumero(valeur: string | null): string | null {
   return `https://t.17track.net/fr#nums=${numero.toUpperCase()}`;
 }
 
+/** Cout du tirage d'apres le support commande, ou null s'il n'est pas reconnu. */
+function coutEstime(brutes: unknown): number | null {
+  const options = typeof brutes === "string" ? JSON.parse(brutes) : brutes;
+  const { cle } = decrireSupport(options as OptionsSupport);
+  return cle && cle !== "digital" ? COUT_ESTIME_EUR[cle] : null;
+}
+
 /** Neutralise ce que l'admin a tape avant de le coller dans du HTML. */
 function echapper(texte: string): string {
   return texte
@@ -131,7 +138,8 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    await enregistrerExpedition(orderId, fournisseurRef, suiviUrl, transporteur);
+    const order = await getOrderById(orderId);
+    await enregistrerExpedition(orderId, fournisseurRef, suiviUrl, transporteur, coutEstime(order?.options));
     return NextResponse.json({ ok: true });
   } catch (erreur) {
     console.error("[expedition PATCH] échec:", erreur);
@@ -178,7 +186,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await enregistrerExpedition(orderId, fournisseurRef, lien, transporteur);
+    await enregistrerExpedition(orderId, fournisseurRef, lien, transporteur, coutEstime(options));
 
     const lang = langueCommande(order);
     const t = shippingEmail[lang];

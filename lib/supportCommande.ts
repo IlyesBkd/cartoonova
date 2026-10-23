@@ -147,6 +147,22 @@ const SUPPORTS: Record<CleSupport, Omit<SupportDecrit, "cle">> = {
   framed: { libelle: "Portrait encadré", taille: TAILLE_IMPRESSION, detail: "cadre chêne" },
 };
 
+/**
+ * Ce qu'un tirage coute chez Optimal Print, port compris, en euros.
+ *
+ * Prix payes avec leurs codes promo quasi permanents (releve du 11/10/2026,
+ * puis factures reelles : toile 12,80 €, encadre 31,28 €). Sans code, la toile
+ * coute 86,60 € — d'ou « estimation » dans la note : le chiffre reel se corrige
+ * a la main dans la fiche. Le coût n'etait saisi que sur une commande sur onze,
+ * et la marge du tableau de bord restait donc vide.
+ */
+export const COUT_ESTIME_EUR: Record<CleSupport, number> = {
+  digital: 0,
+  posterSimple: 5.49,
+  canvas: 12.99,
+  framed: 31.28,
+};
+
 /* Les libelles imprimes, dans les dix langues, en minuscules.
 
    Meme repli date que `LIBELLES_NUMERIQUES` au-dessus, et pour la meme raison :

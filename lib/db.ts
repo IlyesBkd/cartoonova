@@ -512,14 +512,20 @@ export async function enregistrerExpedition(
   orderId: string,
   fournisseurRef: string | null,
   suiviUrl: string | null,
-  transporteur: string | null
+  transporteur: string | null,
+  /** Pose le cout s'il est encore vide, jamais par-dessus une saisie. */
+  coutEstime: number | null = null
 ): Promise<void> {
   await ensureExpeditionSchema();
+  await ensurePosterConfirmationSchema();
+  const estimer = fournisseurRef !== null && coutEstime !== null;
   await sql`
     UPDATE orders
     SET fournisseur_ref = ${fournisseurRef},
         suivi_url = ${suiviUrl},
-        suivi_transporteur = ${transporteur}
+        suivi_transporteur = ${transporteur},
+        cout_note = CASE WHEN cout IS NULL AND ${estimer} THEN 'estimation Optimal Print' ELSE cout_note END,
+        cout = CASE WHEN cout IS NULL AND ${estimer} THEN ${coutEstime}::numeric ELSE cout END
     WHERE id = ${orderId}::uuid
   `;
 }

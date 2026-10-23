@@ -189,6 +189,15 @@ function client(): Promise<PostHog | null> {
   const cle = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   if (!cle) return Promise.resolve(null);
 
+  /* Ni robots, ni nous-memes. Releve d'octobre 2026 sur 60 jours : 91 sessions
+     « Chrome / Linux / Etats-Unis » — des navigateurs pilotes, qui faisaient
+     croire que /en ne convertissait rien — et 35 sessions sur l'admin, comptees
+     comme des visites. `navigator.webdriver` est leve par Playwright, Puppeteer
+     et Selenium ; les robots des assistants qui affichent la page aussi. */
+  if (navigator.webdriver || /^\/(?:[a-z]{2}\/)?admin(?:\/|$)/.test(window.location.pathname)) {
+    return Promise.resolve(null);
+  }
+
   chargement ??= import("posthog-js")
     .then(({ default: posthog }) => {
       posthog.init(cle, {
