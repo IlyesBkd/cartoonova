@@ -90,9 +90,6 @@ export interface DonneesFiche {
    personnes, animaux, decor, support, photos, note — pour que le calcul du
    prix cote serveur reste inchange. */
 
-/** Abonnement sans source : la valeur lue ne change pas pendant la visite. */
-const abonnementVide = () => () => {};
-
 export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const t = useTranslations("tj");
   const tp = useTranslations("product");
@@ -476,17 +473,6 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     allerAuVisuel(vue + (dx < 0 ? 1 : -1), "balayage");
   };
 
-  /* « Imprimé en France » : vrai pour une livraison en France (l'imprimeur
-     imprime au plus pres du client), invérifiable ailleurs. Le pays vient du
-     cookie pose par proxy.ts, lu apres l'hydratation : la page est statique,
-     le serveur affiche la legende neutre, et elle ne change que pour un
-     visiteur situe en France. */
-  const visiteurEnFrance = useSyncExternalStore(
-    abonnementVide,
-    () => /(?:^|; )cartoonova_country=FR(?:;|$)/.test(document.cookie),
-    () => false,
-  );
-
   /* Titre du visuel courant. Il était incrusté en français dans le montage
      d'origine ; détouré, il redevient du texte — traduit, indexable, lisible
      par un lecteur d'écran, et sans une image par langue. */
@@ -494,7 +480,9 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const titreVisuel = legende
     ? {
         transformation: [t("legTransfo"), t("legTransfoAcc", { univers: donnees.univers })],
-        impression: [visiteurEnFrance ? t("legImpressionFR") : t("legImpression"), t("legImpressionAcc")],
+        /* « Imprimé en France » est retire (octobre 2026) : le lieu
+           d'impression depend de l'imprimeur, on ne l'affirme plus. */
+        impression: [t("legImpression"), t("legImpressionAcc")],
         cadre: [t("legCadre"), t("legCadreAcc")],
       }[legende]
     : null;
