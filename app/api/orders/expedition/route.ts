@@ -74,6 +74,22 @@ function lienSuiviValide(valeur: string | null): string | null {
   }
 }
 
+/**
+ * Un numero de suivi colle tel quel devient un lien.
+ *
+ * L'imprimeur donne un numero (`00340434886620302256`, `CC381022174DE`), pas
+ * un lien : il fallait retrouver soi-meme la bonne page de transporteur, et
+ * c'est a cette etape que le suivi d'une cliente est reste un mois dans le
+ * compte imprimeur sans jamais lui parvenir. 17TRACK reconnait seul le
+ * transporteur, ce qui evite de le deviner a partir du format.
+ */
+function lienDepuisNumero(valeur: string | null): string | null {
+  if (!valeur) return null;
+  const numero = valeur.replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9]{8,40}$/.test(numero)) return valeur;
+  return `https://t.17track.net/fr#nums=${numero.toUpperCase()}`;
+}
+
 /** Neutralise ce que l'admin a tape avant de le coller dans du HTML. */
 function echapper(texte: string): string {
   return texte
@@ -89,7 +105,7 @@ async function lireCorps(req: NextRequest) {
   return {
     orderId: typeof corps.orderId === "string" ? corps.orderId : "",
     fournisseurRef: texteOuNull(corps.fournisseurRef, 120),
-    suiviUrl: typeof corps.suiviUrl === "string" ? corps.suiviUrl.trim() || null : null,
+    suiviUrl: lienDepuisNumero(typeof corps.suiviUrl === "string" ? corps.suiviUrl.trim() || null : null),
     transporteur: texteOuNull(corps.transporteur, 60),
   };
 }

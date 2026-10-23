@@ -1310,21 +1310,30 @@ async function ensureLifecycleSchema(): Promise<void> {
   return lifecycleSchemaReady;
 }
 
-/** Commandes livrees depuis au moins `days` jours et jamais relancees pour un avis. */
+/**
+ * Commandes livrees depuis au moins `days` jours et jamais relancees pour un avis.
+ *
+ * « Livree » = le fichier envoye OU le colis parti. La requete ne regardait que
+ * le fichier : une commande imprimee n'en recoit pas, et aucun des clients qui
+ * avaient paye un tirage n'a jamais ete sollicite. Le plus recent des deux
+ * fait foi, et sort sous le nom `final_image_sent_at` que lisent les appelants.
+ */
 export async function getOrdersDueForReviewRequest(days: number): Promise<LifecycleOrder[]> {
   await ensureLifecycleSchema();
+  await ensureExpeditionSchema();
   const rows = await sql`
-    SELECT id, customer_email, customer_name, detected_country, langue, final_image_sent_at, currency
+    SELECT id, customer_email, customer_name, detected_country, langue,
+           GREATEST(final_image_sent_at, expedie_le) AS final_image_sent_at, currency
     FROM orders o
-    WHERE o.final_image_sent_at IS NOT NULL
-      AND o.final_image_sent_at < NOW() - (${days} * INTERVAL '1 day')
+    WHERE GREATEST(o.final_image_sent_at, o.expedie_le) IS NOT NULL
+      AND GREATEST(o.final_image_sent_at, o.expedie_le) < NOW() - (${days} * INTERVAL '1 day')
       AND o.review_request_sent_at IS NULL
       AND o.customer_email IS NOT NULL
       AND NOT EXISTS (
         SELECT 1 FROM newsletter_subscribers n
         WHERE lower(n.email) = lower(o.customer_email) AND n.unsubscribed_at IS NOT NULL
       )
-    ORDER BY o.final_image_sent_at ASC
+    ORDER BY 6 ASC
   `;
   return rows as unknown as LifecycleOrder[];
 }

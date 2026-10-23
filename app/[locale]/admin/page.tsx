@@ -1804,13 +1804,14 @@ export default function AdminPage() {
                         <div className="grid grid-cols-3 gap-2">
                           <div className="col-span-2">
                             <label className="block text-[10px] font-semibold text-gray-500 mb-1">
-                              Lien de suivi du colis
+                              Lien ou numéro de suivi
                             </label>
+                            {/* Un numero brut est change en lien 17TRACK par le serveur. */}
                             <input
-                              type="url"
+                              type="text"
                               value={suiviUrl}
                               onChange={(e) => setSuiviUrl(e.target.value)}
-                              placeholder="https://…"
+                              placeholder="00340434886620302256 ou https://…"
                               className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
                             />
                           </div>

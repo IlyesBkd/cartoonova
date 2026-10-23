@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { alerteDiscord, COULEUR_ALERTE } from "@/lib/discord";
+import { alerteDiscord, COULEUR_ALERTE, COULEUR_ATTENTION } from "@/lib/discord";
+import { apercusEnRetard, impressionsEnAttente, messagesSansReponse } from "@/lib/aFaire";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -76,6 +77,65 @@ function ageEnHeures(date: string): number {
   return Math.floor((Date.now() - new Date(date).getTime()) / 3_600_000);
 }
 
+function age(date: string): string {
+  const h = ageEnHeures(date);
+  return h < 48 ? `${h} h` : `${Math.floor(h / 24)} j`;
+}
+
+/* Une ligne par dossier, coupee pour tenir dans un champ Discord (1024
+   caracteres). */
+function bloc(lignes: string[]): string {
+  const texte = lignes.slice(0, MAX_LIGNES).join("\n");
+  const reste = lignes.length > MAX_LIGNES ? `\n… et ${lignes.length - MAX_LIGNES} autre(s)` : "";
+  return (texte + reste).slice(0, 1020);
+}
+
+async function envoyerRecapAFaire(): Promise<{ impressions: number; messages: number; apercus: number }> {
+  const [impressions, messages, apercus] = await Promise.all([
+    impressionsEnAttente(),
+    messagesSansReponse(),
+    apercusEnRetard(),
+  ]);
+
+  const champs = [];
+  if (impressions.length) {
+    champs.push({
+      name: `🖨️ ${impressions.length} tirage(s) validé(s), pas commandé(s) chez l'imprimeur`,
+      value: bloc(impressions.map((c) => `\`${c.id.slice(0, 8)}\` ${c.client} · validé il y a ${age(c.valideeLe)}`)),
+      inline: false,
+    });
+  }
+  if (messages.length) {
+    champs.push({
+      name: `✉️ ${messages.length} client(s) sans réponse`,
+      value: bloc(
+        messages.map(
+          (m) => `${m.orderId ? `\`${m.orderId.slice(0, 8)}\` ` : ""}${m.de} · ${age(m.recuLe)} · ${(m.objet ?? "").slice(0, 60)}`
+        )
+      ),
+      inline: false,
+    });
+  }
+  if (apercus.length) {
+    champs.push({
+      name: `🎨 ${apercus.length} commande(s) sans aperçu après 48 h`,
+      value: bloc(apercus.map((c) => `\`${c.id.slice(0, 8)}\` ${c.client} · payée il y a ${age(c.payeeLe)}`)),
+      inline: false,
+    });
+  }
+
+  // Rien a faire : on se tait, une alerte vide apprendrait a ne plus les lire.
+  if (champs.length) {
+    await alerteDiscord({
+      titre: "📋 À FAIRE SUR LES COMMANDES",
+      couleur: COULEUR_ATTENTION,
+      champs,
+      piedDePage: "Cartoonova • Récapitulatif quotidien, tant que ce n'est pas réglé",
+    });
+  }
+  return { impressions: impressions.length, messages: messages.length, apercus: apercus.length };
+}
+
 export async function GET(req: NextRequest) {
   // Sans CRON_SECRET configure, la comparaison laisserait passer
   // « Bearer undefined » : on refuse explicitement.
@@ -115,7 +175,17 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const result = { enAttente: enAttente.length };
+    /* Le recapitulatif « a faire » (lib/aFaire.ts) emprunte ce passage plutot
+       qu'une tache a lui : la route tourne deja toutes les trois heures sur le
+       VPS. Mais une fois par jour suffit — un tirage oublie depuis dix jours
+       ne devient pas plus urgent a 15 h qu'a 9 h — d'ou le passage de 6 h UTC
+       (8 h a Paris). `?tout=1` le force, pour un rattrapage a la main. */
+    const recap =
+      new Date().getUTCHours() === 6 || req.nextUrl.searchParams.get("tout") === "1"
+        ? await envoyerRecapAFaire()
+        : null;
+
+    const result = { enAttente: enAttente.length, recap };
     console.log("[CRON retouches]", JSON.stringify(result));
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
