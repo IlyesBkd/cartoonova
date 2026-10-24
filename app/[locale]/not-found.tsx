@@ -5,6 +5,7 @@ import { locales, defaultLocale, type Locale } from "@/i18n/config";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { vignetteProduit } from "@/lib/visuels";
 import MesurePage404 from "@/components/MesurePage404";
+import PageIntrouvable from "@/components/PageIntrouvable";
 
 /* 404 dans la coque du site. Sans ce fichier, chaque `notFound()` appele sous
    /[locale] (slug produit inconnu, article absent, occasion inconnue...)
@@ -24,25 +25,17 @@ export default async function NotFoundLocalise() {
   return (
     <>
       <MesurePage404 />
-      <section className="section page-404">
-        <div className="enveloppe">
-          <div className="chapeau">
-            <span className="surtitre">{t("surtitre")}</span>
-            <h1>
-              {t("titre")} <span className="accent">{t("accent")}</span>
-            </h1>
-            <p>{t("texte")}</p>
-          </div>
-          <div className="page-404__actions">
-            <Link href={`/${locale}/collections`} className="bouton bouton--primaire">
-              {t("boutonCollections")}
-            </Link>
-            <Link href={`/${locale}`} className="bouton bouton--fantome">
-              {t("boutonAccueil")}
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PageIntrouvable
+        locale={locale}
+        textes={locale === "fr" ? undefined : {
+          surtitre: t("surtitre"),
+          titre: t("titre"),
+          accent: t("accent"),
+          texte: t("texte"),
+          boutonCollections: t("boutonCollections"),
+          boutonAccueil: t("boutonAccueil"),
+        }}
+      />
 
       <section className="section" style={{ background: "var(--cendre)" }}>
         <div className="enveloppe">

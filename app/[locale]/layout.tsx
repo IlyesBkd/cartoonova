@@ -54,6 +54,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!routing.locales.includes(locale as Locale)) {
+    notFound();
+  }
   const t = await getTranslations({ locale, namespace: "meta" });
 
   return {
