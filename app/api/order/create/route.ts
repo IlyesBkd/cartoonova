@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { matchesCheckoutConfig, readCheckoutQuote } from "@/lib/checkoutQuote";
+import { OPTIONS_PAYANTES } from "@/lib/pricing";
+import { decrireSupport } from "@/lib/supportCommande";
 import { validerOrigine } from "@/lib/origineVisite";
 import Stripe from "stripe";
 import { runtimeSchemaBootstrapEnabled, sql } from "@/lib/db";
@@ -60,7 +63,6 @@ export async function POST(req: NextRequest) {
       people,
       animals,
       background,
-      printOption,
       printKey,
       extraDecorKey,
       description,
@@ -107,19 +109,35 @@ export async function POST(req: NextRequest) {
 
     await ensureOrderPromoSchema();
 
-    // Le montant enregistre vient de Stripe, pas du navigateur : c'est le seul
-    // chiffre dont on sait qu'il correspond a ce qui a reellement ete demande
-    // au client.
+    // Migration: existing orders (including paid/legacy ones) are read-only on retry.
+    // Never reconstruct an old PI's missing quote from untrusted browser data.
+    const existingOrder = await sql`
+      SELECT id, customer_email FROM orders WHERE payment_intent_id = ${paymentIntentId}
+    `;
+    if (existingOrder[0]) {
+      if (existingOrder[0].customer_email !== email) {
+        return NextResponse.json({ error: "Ce paiement est déjà associé à une autre commande." }, { status: 409 });
+      }
+      return NextResponse.json({ orderId: existingOrder[0].id });
+    }
+
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    const total = paymentIntent.amount / 100;
-    const currency = paymentIntent.currency.toUpperCase();
-    const promoCode = paymentIntent.metadata?.promo_code || null;
-    const discount = Number(paymentIntent.metadata?.discount || 0) || 0;
-    // Livraison des impressions : posee par `/api/checkout`, jamais reprise du navigateur.
-    const shippingAmount = Number(paymentIntent.metadata?.shipping || 0) || 0;
-    /* Options payantes : lues sur le PaymentIntent, ou `/api/checkout` les a
-       posees apres les avoir facturees — pas reprises du navigateur. */
-    const optionsPayees = new Set((paymentIntent.metadata?.options || "").split(",").filter(Boolean));
+    const quote = readCheckoutQuote(paymentIntent);
+    if (!quote) {
+      return NextResponse.json({
+        error: "Devis de paiement absent ou invalide. Rouvrez la caisse avant de payer ; si vous avez déjà payé, contactez le support sans repayer.",
+      }, { status: 409 });
+    }
+    if (!matchesCheckoutConfig(quote, { format, people, animals, printKey })) {
+      return NextResponse.json({ error: "La configuration ne correspond pas au devis de ce paiement. Rouvrez la caisse." }, { status: 409 });
+    }
+    const config = quote.config;
+    const total = quote.amount / 100;
+    const currency = quote.currency;
+    const promoCode = quote.promoCode;
+    const discount = quote.discount;
+    const shippingAmount = quote.shipping;
+    const optionsPayees = new Set(OPTIONS_PAYANTES.filter(key => config[key]));
     /* Langue : lue sur le PaymentIntent, ou `/api/checkout` l'a validee. */
     const langueMeta = paymentIntent.metadata?.lang || "";
     const langue = (LANGS as readonly string[]).includes(langueMeta) ? langueMeta : null;
@@ -149,14 +167,13 @@ export async function POST(req: NextRequest) {
     );
 
     const options = JSON.stringify({
-      format,
-      people,
-      animals,
+      format: config.format,
+      people: config.people,
+      animals: config.animals,
       background,
-      printOption,
-      /* Cle stable du support. `printOption` est traduit — « Digitale » en
-         italien — donc il ne peut pas servir a decider si on imprime. */
-      printKey: typeof printKey === "string" ? printKey : null,
+      // Canonical server label too: a forged translation must not mislead fulfillment.
+      printOption: decrireSupport(config).libelle,
+      printKey: config.printKey,
       banner: optionsPayees.has("banner"),
       extraDecor: optionsPayees.has("extraDecor"),
       extraDecorKey:
@@ -252,7 +269,7 @@ export async function POST(req: NextRequest) {
         format,
         people,
         animals,
-        print_option: printOption,
+        print_option: decrireSupport(config).libelle,
         options: [...optionsPayees].join(",") || null,
         is_gift: estCadeau,
         occasion: estOccasion(occasion) ? occasion : null,

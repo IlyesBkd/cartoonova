@@ -38,6 +38,7 @@ import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
+import { drainerEmails } from "@/lib/emailOutbox";
 import { recompenseAvisFormatee } from "@/lib/recompenseAvis";
 
 // Delai apres l'envoi de l'illustration finale. La demande d'avis attend que
@@ -768,6 +769,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Reprise autonome apres crash, sans attendre un retour client/webhook.
+    // Une panne de la file ne doit pas empecher les autres taches.
+    const outbox = await drainerEmails(null, 20)
+      .then((sent) => ({ sent, failed: 0 }))
+      .catch(() => ({ sent: 0, failed: 1 }));
     const imagesFinales = await envoyerImagesFinalesProgrammees();
     const welcome = await sendWelcomeSteps();
     const reviewRequests = await sendReviewRequests();
@@ -786,7 +792,7 @@ export async function GET(req: NextRequest) {
     const printUpsell = await sendPrintUpsell().catch(enEchec("upsell poster"));
     const reviewReminders = await sendReviewReminders().catch(enEchec("relance avis"));
     const photos = await relancerPhotosManquantes();
-    const result = { imagesFinales, welcome, reviewRequests, reviewReminders, reorders, abandoned, leads, printUpsell, photos };
+    const result = { outbox, imagesFinales, welcome, reviewRequests, reviewReminders, reorders, abandoned, leads, printUpsell, photos };
     console.log("[CRON lifecycle-emails]", JSON.stringify(result));
     /* Un seul signalement pour tout le passage : des e-mails clients qui ne
        partent pas (Resend en panne, quota, adresse refusee) doivent se voir. */

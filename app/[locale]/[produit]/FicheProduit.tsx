@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } fro
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { upload } from "@vercel/blob/client";
+import { uploadImage } from "@/lib/uploadClient";
 import dynamic from "next/dynamic";
 
 /* 1 100 lignes qui n'entrent en jeu qu'apres un clic sur « commander ». En
@@ -281,10 +281,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     try {
       const urls: string[] = [];
       for (const fichier of aEnvoyer) {
-        const blob = await upload(`orders/${Date.now()}-${fichier.name}`, fichier, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
+        const blob = await uploadImage(fichier, { purpose: "checkout", product: donnees.slug });
         urls.push(blob.url);
       }
       setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));

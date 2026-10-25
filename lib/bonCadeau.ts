@@ -12,8 +12,7 @@ import { alerteDiscord, COULEUR_SOLEIL } from "./discord";
 import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
 import { toEUR } from "./currency";
-import { envoyerEmail } from "@/lib/envoiEmail";
-import { signalerPanne } from "@/lib/alerteServeur";
+import { drainerEmails, type EmailPayload } from "./emailOutbox";
 
 /**
  * Le bon cadeau.
@@ -82,7 +81,7 @@ function langue(brut: unknown): Lang {
  *
  * Appelee par le webhook Stripe ET par la page de succes : la contrainte
  * UNIQUE sur `achat_payment_intent` tranche la course — le second appel
- * retrouve le bon cree par le premier, sans renvoyer d'e-mail.
+ * retrouve le bon cree par le premier et reprend uniquement son mail en attente.
  */
 export async function finaliserBonCadeau(pi: Stripe.PaymentIntent): Promise<BonCadeau> {
   const meta = pi.metadata ?? {};
@@ -99,12 +98,10 @@ export async function finaliserBonCadeau(pi: Stripe.PaymentIntent): Promise<BonC
   // Un code tire au hasard peut, tres rarement, exister deja : on retente.
   let cree: { code: string } | null = null;
   for (let essai = 0; essai < 5 && !cree; essai++) {
-    const rows = await sql`
-      INSERT INTO promo_codes (code, kind, value, currency, min_subtotal, max_uses, ends_at, solde, achat_payment_intent, acheteur_email)
-      VALUES (${nouveauCode()}, 'amount', ${montant}, ${devise}, 0, NULL, ${expire.toISOString()}, ${montant}, ${pi.id}, ${email || null})
-      ON CONFLICT DO NOTHING
-      RETURNING code
-    `;
+    if (!email) throw new Error("Bon cadeau : adresse manquante");
+    const code = nouveauCode();
+    const candidate: BonCadeau = { code, montant, devise, solde: montant, expireLe: expire.toISOString(), prenom, message, lang };
+    const rows = await insererBonAvecEmail(pi.id, email, candidate);
     if (rows[0]) {
       cree = { code: String(rows[0].code) };
       break;
@@ -112,7 +109,10 @@ export async function finaliserBonCadeau(pi: Stripe.PaymentIntent): Promise<BonC
     // Rien d'insere : soit le bon de ce paiement existe deja, soit le code tire existait.
     const existant = await sql`SELECT code FROM promo_codes WHERE achat_payment_intent = ${pi.id}`;
     if (existant[0]) {
-      return { code: String(existant[0].code), montant, devise, solde: montant, expireLe: expire.toISOString(), prenom, message, lang };
+      await drainerEmails(`gift:${pi.id}`, 1);
+      const original = await lireBon(String(existant[0].code));
+      if (!original) throw new Error("Bon cadeau introuvable");
+      return { ...original, prenom, message, lang };
     }
   }
   if (!cree) throw new Error(`Bon cadeau : impossible de creer un code pour ${pi.id}`);
@@ -120,7 +120,7 @@ export async function finaliserBonCadeau(pi: Stripe.PaymentIntent): Promise<BonC
   const bon: BonCadeau = { code: cree.code, montant, devise, solde: montant, expireLe: expire.toISOString(), prenom, message, lang };
 
   await Promise.all([
-    email ? envoyerBon(email, bon) : Promise.resolve(),
+    drainerEmails(`gift:${pi.id}`, 1),
     alerteDiscord({
       titre: "🎁 BON CADEAU VENDU",
       couleur: COULEUR_SOLEIL,
@@ -151,8 +151,8 @@ export async function finaliserBonCadeau(pi: Stripe.PaymentIntent): Promise<BonC
  * qu'une meme commande parrainee recompense deux fois, quel que soit
  * l'appelant qui passe en premier.
  *
- * Renvoie null si le bon de cette cle existait deja : rien n'est renvoye au
- * client ni signale une seconde fois.
+ * Renvoie null si le bon existait deja ; son mail en attente reste reprenable,
+ * sans recreer le bon ni repeter l'alerte equipe.
  */
 export async function creerBonOffert(input: {
   email: string;
@@ -175,19 +175,18 @@ export async function creerBonOffert(input: {
 
   let code: string | null = null;
   for (let essai = 0; essai < 5 && !code; essai++) {
-    const rows = await sql`
-      INSERT INTO promo_codes (code, kind, value, currency, min_subtotal, max_uses, ends_at, solde, achat_payment_intent, acheteur_email)
-      VALUES (${nouveauCode()}, 'amount', ${montant}, ${input.devise}, 0, NULL, ${expire.toISOString()}, ${montant}, ${input.cle}, ${email})
-      ON CONFLICT DO NOTHING
-      RETURNING code
-    `;
+    const candidate: BonCadeau = { code: nouveauCode(), montant, devise: input.devise, solde: montant, expireLe: expire.toISOString(), prenom: null, message: null, lang: input.lang };
+    const rows = await insererBonAvecEmail(input.cle, email, candidate, input.textes?.(formatMontant(montant, input.devise, input.lang)));
     if (rows[0]) {
       code = String(rows[0].code);
       break;
     }
     // Rien d'insere : soit ce bon existe deja (on s'arrete), soit le code tire existait (on retente).
     const existant = await sql`SELECT code FROM promo_codes WHERE achat_payment_intent = ${input.cle}`;
-    if (existant[0]) return null;
+    if (existant[0]) {
+      await drainerEmails(`gift:${input.cle}`, 1);
+      return null;
+    }
   }
   if (!code) throw new Error(`Bon offert : impossible de creer un code pour ${input.cle}`);
 
@@ -201,10 +200,9 @@ export async function creerBonOffert(input: {
     message: null,
     lang: input.lang,
   };
-  const valeur = formatMontant(montant, input.devise, input.lang);
 
   await Promise.all([
-    envoyerBon(email, bon, input.textes?.(valeur)),
+    drainerEmails(`gift:${input.cle}`, 1),
     alerteDiscord({
       titre: "🎁 BON OFFERT",
       couleur: COULEUR_SOLEIL,
@@ -219,6 +217,22 @@ export async function creerBonOffert(input: {
   ]);
 
   return bon;
+}
+
+/** La creation du code et la copie immuable du mail sont inseparables. */
+async function insererBonAvecEmail(cle: string, email: string, bon: BonCadeau, offert?: TextesBonOffert) {
+  return sql`
+    WITH created AS (
+      INSERT INTO promo_codes (code, kind, value, currency, min_subtotal, max_uses, ends_at, solde, achat_payment_intent, acheteur_email)
+      VALUES (${bon.code}, 'amount', ${bon.montant}, ${bon.devise}, 0, NULL, ${bon.expireLe}, ${bon.solde}, ${cle}, ${email})
+      ON CONFLICT DO NOTHING RETURNING code
+    ), queued AS (
+      INSERT INTO email_outbox(event_key, payload)
+      SELECT ${`gift:${cle}`}, ${JSON.stringify(bonPayload(email, bon, offert))}::text::jsonb FROM created
+      RETURNING event_key
+    )
+    SELECT code FROM created WHERE EXISTS (SELECT 1 FROM queued)
+  `;
 }
 
 export function lienImpression(code: string): string {
@@ -240,11 +254,10 @@ interface TextesBonOffert {
   intro: string;
 }
 
-async function envoyerBon(email: string, bon: BonCadeau, offert?: TextesBonOffert): Promise<void> {
+function bonPayload(email: string, bon: BonCadeau, offert?: TextesBonOffert): EmailPayload {
   const t = bonCadeauTextes[bon.lang];
   const valeur = formatMontant(bon.montant, bon.devise, bon.lang);
-  try {
-    await envoyerEmail({
+    return {
       from: EXPEDITEUR,
       to: [email],
       replyTo: SUPPORT_EMAIL,
@@ -267,9 +280,5 @@ async function envoyerBon(email: string, bon: BonCadeau, offert?: TextesBonOffer
           <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;"><p>${t.equipe}</p></div>
         </div>
       `,
-    });
-  } catch (erreur) {
-    // Le bon existe et s'affiche sur la page de succes : un e-mail perdu ne le perd pas.
-    await signalerPanne("e-mail du bon cadeau", erreur);
-  }
+    };
 }

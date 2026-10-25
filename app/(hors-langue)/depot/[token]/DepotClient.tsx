@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
+import { uploadImage } from "@/lib/uploadClient";
 import { depotPhotosPage, type Lang } from "@/lib/email-i18n";
 import { depotBouton } from "@/lib/i18n/fiche";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
@@ -46,10 +46,7 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
     try {
       const urls: string[] = [];
       for (const fichier of fichiers.slice(0, MAX_PHOTOS)) {
-        const blob = await upload(`orders/${Date.now()}-${fichier.name}`, fichier, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
+        const blob = await uploadImage(fichier, { purpose: "depot", token });
         urls.push(blob.url);
       }
       setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));

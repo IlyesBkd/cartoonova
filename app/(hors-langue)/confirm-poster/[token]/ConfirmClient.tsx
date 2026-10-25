@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
+import { uploadImage } from "@/lib/uploadClient";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { posterConfirmationPage, type Lang } from "@/lib/email-i18n";
 import { mesure } from "@/lib/analytics";
@@ -48,10 +48,7 @@ export default function ConfirmClient({
     try {
       const urls: string[] = [];
       for (const fichier of Array.from(fichiers).slice(0, MAX_PHOTOS)) {
-        const blob = await upload(`retouches/${Date.now()}-${fichier.name}`, fichier, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
+        const blob = await uploadImage(fichier, { purpose: "poster", token });
         urls.push(blob.url);
       }
       setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));

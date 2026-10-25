@@ -1,4 +1,4 @@
-import { marquerPayee } from "@/lib/db";
+import { payerAvecConfirmation, drainerEmails, type EmailPayload } from "./emailOutbox";
 import type { DbOrder } from "@/lib/db";
 import { confirmationEmail, depotPhotosPage, optionsCommande, langueCommande } from "@/lib/email-i18n";
 import { orderTrackingToken } from "@/lib/emailToken";
@@ -14,8 +14,6 @@ import { formatPrix } from "@/lib/i18n/relances";
 import { debiterBonCadeau } from "./promoCodes";
 import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
-import { envoyerEmail } from "@/lib/envoiEmail";
-import { signalerPanne } from "@/lib/alerteServeur";
 import { envoyerConversionChatgpt } from "@/lib/conversionsChatgpt";
 import { OCCASION_FR, estOccasion } from "@/lib/occasions";
 
@@ -29,15 +27,15 @@ import { OCCASION_FR, estOccasion } from "@/lib/occasions";
  * sequence de notifications divergent toujours — c'est l'e-mail qu'on met a
  * jour d'un cote et pas de l'autre.
  *
- * La garantie d'unicite ne vient pas d'ici mais de `marquerPayee`, ou la
- * lecture et l'ecriture du statut sont une seule requete SQL. C'est
- * indispensable : Stripe emet `payment_intent.succeeded` a l'instant meme ou
+ * La garantie d'unicite vient de `payerAvecConfirmation` : paiement et intent
+ * d'e-mail sont une seule instruction SQL. L'envoi est repris independamment
+ * de `paid_at`, par les appelants ou par le drain authentifie.
+ * C'est indispensable : Stripe emet `payment_intent.succeeded` a l'instant meme ou
  * il redirige le navigateur, donc les deux appelants courent l'un contre
  * l'autre a chaque commande.
  */
 
-async function envoyerConfirmation(order: DbOrder): Promise<void> {
-  try {
+function confirmationPayload(order: DbOrder): EmailPayload {
     const opts = order.options;
     const lang = langueCommande(order);
     const t = confirmationEmail[lang];
@@ -45,7 +43,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
     const oc = optionsCommande[lang];
     const ref = order.id.slice(0, 8);
 
-    await envoyerEmail({
+    return {
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
@@ -106,18 +104,7 @@ async function envoyerConfirmation(order: DbOrder): Promise<void> {
           </div>
         </div>
       `,
-    });
-    /* L'envoi compte autant que le clic : sans denominateur,
-       un taux d'ouverture n'est pas un taux. */
-    await mesureServeur(MESURES.emailEnvoye, {
-      identifiant: order.customer_email,
-      proprietes: { campagne: "confirmation" },
-    });
-  } catch (erreur) {
-    /* Une commande payee ne se perd pas parce que Resend est en panne : on
-       journalise et on laisse le reste se faire. */
-    await signalerPanne("e-mail de confirmation de commande", erreur, { commande: String(order.id).slice(0, 8) });
-  }
+    };
 }
 
 async function notifierEquipe(order: DbOrder): Promise<void> {
@@ -265,8 +252,11 @@ export async function finaliserCommande(
   order: DbOrder,
   source: "webhook" | "page_succes"
 ): Promise<boolean> {
-  const gagnant = await marquerPayee(order.id);
-  if (!gagnant) return false;
+  const gagnant = await payerAvecConfirmation(order.id, confirmationPayload(order));
+  if (!gagnant) {
+    await drainerEmails(`order:${order.id}`, 1);
+    return false;
+  }
 
   console.log(`[finaliser] commande ${order.id} finalisée par ${source}`);
 
@@ -280,7 +270,7 @@ export async function finaliserCommande(
   }
 
   await Promise.all([
-    envoyerConfirmation(order),
+    drainerEmails(`order:${order.id}`, 1),
     notifierEquipe(order),
     /* Attendu explicitement : sur Vercel l'execution est coupee des que la
        reponse part, et un envoi non attendu est simplement perdu. */

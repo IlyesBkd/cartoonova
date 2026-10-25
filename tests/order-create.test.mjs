@@ -18,10 +18,30 @@ const pgBin = process.env.TEST_PG_BIN || '/usr/lib/postgresql/18/bin';
 const runtime = mkdtempSync(path.join(tmpdir(), 'cartoonova-order-regression-'));
 const pgData = path.join(runtime, 'pg');
 const cleanEnv = Object.fromEntries(['PATH', 'HOME', 'LANG', 'LC_ALL', 'TMPDIR'].filter(k => process.env[k]).map(k => [k, process.env[k]]));
-let db, started = false, POST;
+let db, started = false, POST, CHECKOUT;
+let checkoutCount = 0;
 const effects = { promos: 0, analytics: 0, alerts: 0 };
+const intents = new Map();
+const digitalConfig = { format: 'portrait', people: 1, animals: 0, printKey: 'digital', banner: false, extraDecor: false, express: false, carteVoeux: false, calendrier: false };
+function intent(overrides = {}) {
+  return { object: 'payment_intent', amount: 3900, currency: 'eur', metadata: {
+    promo_code: 'REGRESSION', discount: '5', lang: 'fr',
+    checkout_quote: JSON.stringify({ version: 1, type: 'portrait_order', config: digitalConfig, amount: 3900, currency: 'EUR', shipping: 0, discount: 5, promoCode: 'REGRESSION' }),
+  }, ...overrides };
+}
 function pg(command, args) {
   return execFileSync(path.join(pgBin, command), args, { env: cleanEnv, encoding: 'utf8', timeout: 15000, stdio: 'pipe' });
+}
+
+function loadTs(relative, replacements = {}) {
+  const sourcePath = path.join(root, relative);
+  const source = ts.transpileModule(readFileSync(sourcePath, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
+  const loaded = new Module(sourcePath);
+  loaded.filename = sourcePath;
+  const originalRequire = createRequire(sourcePath);
+  loaded.require = name => Object.hasOwn(replacements, name) ? replacements[name] : originalRequire(name.startsWith('@/') ? path.join(root, name.slice(2)) : name);
+  loaded._compile(source, sourcePath);
+  return loaded.exports;
 }
 
 before(async () => {
@@ -44,21 +64,28 @@ before(async () => {
     detected_country text, promo_code text, discount_amount numeric, origine jsonb, langue text,
     paid_at timestamptz
   )`;
-  const sourcePath = path.join(root, 'app/api/order/create/route.ts');
-  const source = ts.transpileModule(readFileSync(sourcePath, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText;
-  const route = new Module(sourcePath);
-  route.filename = sourcePath;
-  const originalRequire = createRequire(sourcePath);
   const replacements = {
-    stripe: class { paymentIntents = { retrieve: async () => ({ amount: 3900, currency: 'eur', metadata: { promo_code: 'REGRESSION', discount: '5', lang: 'fr' } }) }; },
+    stripe: class { paymentIntents = {
+      retrieve: async id => intents.get(id) ?? intent(),
+      create: async params => {
+        const id = `pi_checkout${++checkoutCount}`;
+        const created = { object: 'payment_intent', id, ...params, client_secret: `${id}_secret_fixture` };
+        intents.set(id, created);
+        return created;
+      },
+    }; },
     '@/lib/db': { sql: db, runtimeSchemaBootstrapEnabled: false },
     '@/lib/promoCodes': { consumePromoCode: async () => { effects.promos++; } },
     '@/lib/analyticsServeur': { mesureServeur: async () => { effects.analytics++; } },
     '@/lib/alerteServeur': { signalerPanne: async () => { effects.alerts++; } },
   };
-  route.require = name => Object.hasOwn(replacements, name) ? replacements[name] : originalRequire(name.startsWith('@/') ? path.join(root, name.slice(2)) : name);
-  route._compile(source, sourcePath);
-  POST = route.exports.POST;
+  POST = loadTs('app/api/order/create/route.ts', replacements).POST;
+  const { DEFAULT_PRICE_SET } = require(path.join(root, 'lib/types.ts'));
+  const orderQuote = loadTs('lib/orderQuote.ts', {
+    './db': { getPricesForCurrency: async () => ({ ...DEFAULT_PRICE_SET }) },
+    './promoCodes': { validatePromoCode: async () => ({ ok: true, discount: 1, code: 'TEST' }) },
+  });
+  CHECKOUT = loadTs('app/api/checkout/route.ts', { ...replacements, '@/lib/orderQuote': orderQuote }).POST;
 });
 
 after(async () => {
@@ -69,6 +96,16 @@ after(async () => {
 function request(paymentIntentId, overrides = {}) {
   return { json: async () => ({ paymentIntentId, email: 'retry@example.invalid', firstName: 'Test', format: 'portrait', people: 1, animals: 0, printKey: 'digital', photoUrls: [], ...overrides }) };
 }
+
+test('CODE-01: digital one-person quote cannot create a ten-person canvas order', async () => {
+  const id = 'pi_quote_digital_canvas_attack';
+  const before = { ...effects };
+  const response = await POST(request(id, { people: 10, printKey: 'canvas' }));
+  assert.equal(response.status, 409, 'configuration must match the immutable server quote');
+  const rows = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
+  assert.equal(rows.length, 0);
+  assert.deepEqual(effects, before);
+});
 
 test('retry after a declined payment returns the same order without duplicate side effects', async () => {
   const id = 'pi_regression_declined';
@@ -133,4 +170,101 @@ test('invalid retry input is still rejected before returning an order', async ()
   await POST(request(id));
   assert.equal((await POST(request(id, { email: 'invalid' }))).status, 400);
   assert.equal((await POST(request(id, { printKey: 'poster', countryCode: 'FR', postalCode: 'wrong' }))).status, 400);
+});
+
+test('real checkout quote rejects altered deliverables and accepts the identical configuration', async () => {
+  const response = await CHECKOUT({ json: async () => ({ orderConfig: digitalConfig, currency: 'EUR', photoUrls: [], lang: 'fr' }) });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  const id = result.clientSecret.split('_secret_')[0];
+  const created = intents.get(id);
+  assert.equal(created.amount, 499, 'real pricing formula, not browser total');
+  assert.ok(created.metadata.checkout_quote.length <= 500);
+  const snapshot = JSON.parse(created.metadata.checkout_quote);
+  assert.deepEqual(snapshot.config, digitalConfig);
+  assert.equal(snapshot.amount, 499);
+  assert.equal(snapshot.currency, 'EUR');
+  for (const changed of [{ people: 10, printKey: 'canvas' }, { format: 'fullbody' }, { animals: 10 }, { printKey: 'framed' }, { people: '1' }]) {
+    const refused = await POST(request(id, changed));
+    assert.equal(refused.status, 409);
+    assert.equal((await db`SELECT id FROM orders WHERE payment_intent_id = ${id}`).length, 0);
+  }
+  const accepted = await POST(request(id));
+  assert.equal(accepted.status, 200);
+  const [order] = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
+  assert.equal(Number(order.total_price), 4.99);
+  assert.equal(order.currency, 'EUR');
+  for (const key of ['format', 'people', 'animals', 'printKey']) assert.equal(order.options[key], snapshot.config[key]);
+});
+
+test('invalid, missing, wrong-type and amount/currency-mismatched snapshots fail closed', async () => {
+  const base = intent();
+  const quote = JSON.parse(base.metadata.checkout_quote);
+  const variants = [
+    { metadata: {} },
+    { metadata: { checkout_quote: '{broken' } },
+    { metadata: { checkout_quote: JSON.stringify({ ...quote, type: 'gift_card' }) } },
+    { metadata: { checkout_quote: JSON.stringify({ ...quote, version: 2 }) } },
+    { amount: 100 },
+    { currency: 'usd' },
+    { object: 'setup_intent' },
+    { metadata: { checkout_quote: JSON.stringify({ ...quote, config: { ...digitalConfig, people: 11 } }) } },
+  ];
+  const before = { ...effects };
+  for (const [i, overrides] of variants.entries()) {
+    const id = `pi_quote_invalid_${i}`;
+    intents.set(id, intent(overrides));
+    const response = await POST(request(id));
+    assert.equal(response.status, 409, `variant ${i}`);
+    assert.match((await response.json()).error, /support sans repayer/);
+    assert.equal((await db`SELECT id FROM orders WHERE payment_intent_id = ${id}`).length, 0);
+  }
+  assert.deepEqual(effects, before);
+});
+
+test('existing legacy paid orders remain read-only without a quote on their PI', async () => {
+  const id = 'pi_legacy_paid';
+  await db`INSERT INTO orders (payment_intent_id, customer_email, status, paid_at, options)
+    VALUES (${id}, 'retry@example.invalid', 'PAID', NOW(), '{"people":1,"printKey":"digital"}')`;
+  intents.set(id, intent({ metadata: {} }));
+  const [before] = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
+  const priorEffects = { ...effects };
+  const response = await POST(request(id, { people: 10, printKey: 'canvas' }));
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).orderId, before.id);
+  const [after] = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
+  assert.deepEqual(after, before);
+  assert.deepEqual(effects, priorEffects);
+});
+
+test('a forged translated support label cannot advertise a canvas for a digital quote', async () => {
+  const id = 'pi_quote_forged_label';
+  const response = await POST(request(id, { printOption: 'Portrait encadré sur toile' }));
+  assert.equal(response.status, 200);
+  const [order] = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
+  assert.equal(order.options.printOption, 'Fichier numérique');
+});
+
+test('paid options, discount and shipping are delivered from the frozen quote only', async () => {
+  const config = { ...digitalConfig, format: 'fullbody', people: 3, animals: 2, printKey: 'canvas', express: true, extraDecor: true };
+  const response = await CHECKOUT({ json: async () => ({ orderConfig: config, currency: 'EUR', promoCode: 'TEST', photoUrls: [] }) });
+  assert.equal(response.status, 200);
+  const result = await response.json();
+  const id = result.clientSecret.split('_secret_')[0];
+  const pi = intents.get(id);
+  const snapshot = JSON.parse(pi.metadata.checkout_quote);
+  // Old loose metadata and browser flags must not override the snapshot.
+  pi.metadata.options = 'banner';
+  pi.metadata.discount = '1000';
+  pi.metadata.shipping = '1000';
+  const accepted = await POST(request(id, { ...config, express: false, banner: true }));
+  assert.equal(accepted.status, 200);
+  const [order] = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
+  assert.equal(order.options.express, true);
+  assert.equal(order.options.extraDecor, true);
+  assert.equal(order.options.banner, false);
+  assert.equal(order.options.shippingAmount, snapshot.shipping);
+  assert.equal(Number(order.discount_amount), 1);
+  assert.equal(order.promo_code, 'TEST');
+  assert.equal(Number(order.total_price), snapshot.amount / 100);
 });

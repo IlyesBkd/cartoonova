@@ -17,8 +17,11 @@ const resend = new Resend(process.env.RESEND_API_KEY!);
 type Parametres = Parameters<typeof resend.emails.send>[0];
 type Resultat = Awaited<ReturnType<typeof resend.emails.send>>;
 
-export async function envoyerEmail(parametres: Parametres): Promise<Resultat> {
-  const resultat = await resend.emails.send(parametres);
+export async function envoyerEmail(
+  parametres: Parametres,
+  options?: Parameters<typeof resend.emails.send>[1]
+): Promise<Resultat> {
+  const resultat = await resend.emails.send(parametres, options);
   if (resultat.error) {
     const destinataire = Array.isArray(parametres.to) ? parametres.to[0] : parametres.to;
     throw new Error(

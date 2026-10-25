@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { estPhysique, decrireSupport } from "@/lib/supportCommande";
 import { toEUR } from "@/lib/currency";
-import { upload } from "@vercel/blob/client";
+import { uploadImage } from "@/lib/uploadClient";
 import type { PriceSet, PricesByCurrency } from "@/lib/types";
 import { DEFAULT_PRICES_BY_CURRENCY } from "@/lib/types";
 import { currencies, currencySymbols, currencyFlags, type Currency } from "@/lib/currency";
@@ -659,19 +659,7 @@ export default function AdminPage() {
     if (!selectedOrder) return;
     setUploadingImage(true);
     try {
-      const extensionsParType: Record<string, string> = {
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "image/heic": "heic",
-        "image/heif": "heif",
-      };
-      const extension = extensionsParType[file.type] ?? "jpg";
-      const nomPublic = `final/cartoonova-${crypto.randomUUID()}.${extension}`;
-      const blob = await upload(nomPublic, file, {
-        access: "public",
-        handleUploadUrl: "/api/upload",
-      });
+      const blob = await uploadImage(file, { purpose: "admin", orderId: selectedOrder.id, password });
       // Save to DB
       /* Le depot pose aussi le rendez-vous d'envoi : c'est la reponse qui dit
          pour quand, et si elle l'a pose — un tirage physique pas encore valide

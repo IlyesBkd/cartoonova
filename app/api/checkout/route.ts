@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { serializeCheckoutQuote } from "@/lib/checkoutQuote";
 import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
@@ -41,7 +42,9 @@ export async function POST(req: NextRequest) {
        express paye doit etre un express livre — et un express non paye ne
        doit pas passer devant les autres. */
     const config = parseOrderPricingInput(orderConfig);
-    const options = OPTIONS_PAYANTES.filter((o) => config?.[o]).join(",");
+    if (!config) return NextResponse.json({ error: "invalid_config" }, { status: 400 });
+    const options = OPTIONS_PAYANTES.filter((o) => config[o]).join(",");
+    const checkoutQuote = serializeCheckoutQuote(config, quote);
 
     if (amount < 100) {
       return NextResponse.json({ error: "Montant invalide." }, { status: 400 });
@@ -58,6 +61,7 @@ export async function POST(req: NextRequest) {
          tableau de bord. */
       excluded_payment_method_types: ["amazon_pay"],
       metadata: {
+        checkout_quote: checkoutQuote,
         style: typeof style === "string" ? style.slice(0, 40) : "",
         promo_code: quote.promoCode ?? "",
         subtotal: quote.subtotal.toFixed(2),

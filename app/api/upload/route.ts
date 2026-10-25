@@ -1,36 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { reserveUpload, UploadError } from "@/lib/uploadPolicy";
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as HandleUploadBody;
-
   try {
-    const jsonResponse = await handleUpload({
+    const body = (await req.json()) as HandleUploadBody;
+    if (body?.type !== "blob.generate-client-token" && body?.type !== "blob.upload-completed") {
+      return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    }
+    if (body.type === "blob.generate-client-token" && !body.payload?.clientPayload) {
+      return NextResponse.json({ error: "Contexte requis." }, { status: 403 });
+    }
+    const result = await handleUpload({
       body,
       request: req,
-      onBeforeGenerateToken: async (pathname) => {
-        // Authorize the upload — you can add auth checks here
-        return {
-          allowedContentTypes: [
-            "image/jpeg",
-            "image/png",
-            "image/webp",
-            "image/heic",
-            "image/heif",
-          ],
-          maximumSizeInBytes: 10 * 1024 * 1024, // 10 MB per file
-          tokenPayload: JSON.stringify({ pathname }),
-        };
-      },
-      onUploadCompleted: async ({ blob }) => {
-        console.log("[Blob] Upload completed:", blob.url);
-      },
+      onBeforeGenerateToken: (pathname, context) => reserveUpload(req, pathname, context),
+      // The SDK verifies the provider callback signature. No quota refund or
+      // auth context is required for this callback; it cannot mint a token.
+      onUploadCompleted: async () => {},
     });
-
-    return NextResponse.json(jsonResponse);
+    return NextResponse.json(result);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/upload] Error:", message);
-    return NextResponse.json({ error: message }, { status: 400 });
+    if (error instanceof UploadError) return NextResponse.json({ error: error.message }, { status: error.status });
+    if (error instanceof SyntaxError) return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+    console.error("[upload] Autorisation ou fournisseur indisponible.");
+    return NextResponse.json({ error: "Dépôt indisponible." }, { status: 503 });
   }
 }
