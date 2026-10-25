@@ -17,8 +17,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { visuelsProduit } from "@/lib/visuels";
 import { MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
 import { contenuFicheEnCache, prixEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache";
-import { offresPortrait } from "@/lib/donneesStructurees";
-import { DEFAULT_PRICE_SET, type Prices } from "@/lib/types";
+import type { Prices } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
 import { OG_LOCALE, alternatesPour, couper, titreSeo } from "@/lib/seo";
 
@@ -108,12 +107,11 @@ export default async function Page({
     reponse: tProduit(`faqA${n}` as "faqA1"),
   }));
 
-  /* Grille tarifaire, pour la fourchette du balisage Product. */
-  let prix = DEFAULT_PRICE_SET;
+  /* Seed only a successful approved EUR grid; the configurator and its JSON-LD
+     share it once the visitor currency is known. No invented fallback offer. */
   let prixInitial: Prices | null = null;
   try {
-    prix = await prixEnCache("EUR");
-    prixInitial = prix;
+    prixInitial = await prixEnCache("EUR");
   } catch {
     // Repli : la fiche reste servie meme si la base est injoignable.
   }
@@ -180,32 +178,6 @@ export default async function Page({
             "@context": "https://schema.org",
             "@graph": [
               {
-                "@type": "Product",
-                name: donnees.titre,
-                description: donnees.description,
-                brand: { "@type": "Brand", name: "Cartoonova" },
-                image: visuels.galerie.map((v) => `${SITE_URL}${v}`),
-                category: donnees.categorieNom,
-                /* Une offre par support (fichier, poster, toile, portrait
-                   encadre), pour un portrait a une personne : le prix que la
-                   fiche affiche par defaut. Elles portent ce que Google exige
-                   d'une fiche marchande depuis 2024 — validite du prix,
-                   livraison (0 EUR pour le fichier, forfait pour un tirage) et
-                   politique de retour — sans quoi la fiche n'a pas de resultat
-                   enrichi produit. Voir `lib/donneesStructurees.ts`. */
-                offers: offresPortrait(prix, `${SITE_URL}/${locale}/${slug}`, {
-                  digital: tProduit("digital"),
-                  posterSimple: tProduit("posterOption"),
-                  canvas: tProduit("canvas"),
-                  framed: tProduit("poster"),
-                }),
-                /* `sku` : l'identifiant stable du produit, celui du flux
-                   Merchant. Il aide les moteurs a reconnaitre qu'une fiche vue
-                   en francais et sa version anglaise sont le meme produit. */
-                sku: p.idProduit,
-                ...(note ? { aggregateRating: note } : {}),
-              },
-              {
                 "@type": "BreadcrumbList",
                 itemListElement: [
                   { "@type": "ListItem", position: 1, name: tNav("home"), item: `${SITE_URL}/${locale}` },
@@ -236,7 +208,19 @@ export default async function Page({
           }),
         }}
       />
-      <FicheProduit donnees={donnees} prixInitial={prixInitial} />
+      <FicheProduit donnees={donnees} prixInitial={prixInitial} produitStructure={{
+        url: `${SITE_URL}/${locale}/${slug}`,
+        produit: {
+          "@type": "Product",
+          name: donnees.titre,
+          description: donnees.description,
+          brand: { "@type": "Brand", name: "Cartoonova" },
+          image: visuels.galerie.map((v) => `${SITE_URL}${v}`),
+          category: donnees.categorieNom,
+          sku: p.idProduit,
+          ...(note ? { aggregateRating: note } : {}),
+        },
+      }} />
     </>
   );
 }

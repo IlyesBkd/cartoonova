@@ -20,6 +20,7 @@ import { computeOrderSubtotal, computeShipping, type PrintKey } from "@/lib/pric
 import type { Prices } from "@/lib/types";
 import { loadProductPrices, PRICE_MESSAGES } from "@/lib/productPrices";
 import type { Currency } from "@/lib/currency";
+import PortraitJsonLd from "@/components/PortraitJsonLd";
 import type { Decor, LegendeVisuel } from "@/lib/visuels";
 
 /* Plafond partage avec la validation serveur : deux constantes qui divergent
@@ -92,7 +93,7 @@ export interface DonneesFiche {
    personnes, animaux, decor, support, photos, note — pour que le calcul du
    prix cote serveur reste inchange. */
 
-export default function FicheProduit({ donnees, prixInitial = null }: { donnees: DonneesFiche; prixInitial?: Prices | null }) {
+export default function FicheProduit({ donnees, prixInitial = null, produitStructure }: { donnees: DonneesFiche; prixInitial?: Prices | null; produitStructure?: { produit: object; url: string } }) {
   const t = useTranslations("tj");
   const tp = useTranslations("product");
   const tf = useTranslations("fiche");
@@ -507,6 +508,18 @@ export default function FicheProduit({ donnees, prixInitial = null }: { donnees:
 
   return (
     <>
+      {prix && produitStructure ? <PortraitJsonLd
+        produit={produitStructure.produit}
+        url={produitStructure.url}
+        prix={prix}
+        currency={currency}
+        nomsSupports={{
+          digital: tp("digital"),
+          posterSimple: tp("posterOption"),
+          canvas: tp("canvas"),
+          framed: tp("poster"),
+        }}
+      /> : null}
       <div>
         <div className="enveloppe">
           <nav className="fil" aria-label="Fil d'Ariane">

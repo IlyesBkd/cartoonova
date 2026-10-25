@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { mesure, identifier } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -55,6 +55,9 @@ export default function ChatWidget() {
   const [premierEnvoi, setPremierEnvoi] = useState(true);
 
   const filRef = useRef<HTMLDivElement>(null);
+  const dialogueId = useId();
+  const demarrerRef = useRef<HTMLButtonElement>(null);
+  const lanceurRef = useRef<HTMLButtonElement>(null);
   const champEmailRef = useRef<HTMLInputElement>(null);
   const champSaisieRef = useRef<HTMLInputElement>(null);
 
@@ -63,10 +66,24 @@ export default function ChatWidget() {
     filRef.current?.scrollTo({ top: filRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, envoiEnCours]);
 
+  /* Dialogue non modal : mémoriser le déclencheur avant de déplacer le focus.
+     La fermeture (Échap, croix ou retour mobile) le lui rend. */
+  useEffect(() => {
+    if (!ouvert) return;
+    const declencheur = document.activeElement;
+    const lanceur = lanceurRef.current;
+    return () => {
+      const cible = declencheur instanceof HTMLElement && declencheur.isConnected
+        && declencheur !== document.body ? declencheur : lanceur;
+      cible?.focus({ preventScroll: true });
+    };
+  }, [ouvert]);
+
   /* Le champ attendu prend le focus à chaque changement d'écran. */
   useEffect(() => {
     if (!ouvert) return;
     if (ecran === "email") champEmailRef.current?.focus();
+    if (ecran === "accueil") demarrerRef.current?.focus();
     if (ecran === "fil") champSaisieRef.current?.focus();
   }, [ouvert, ecran]);
 
@@ -91,13 +108,15 @@ export default function ChatWidget() {
 
   useRetourFerme(ouvert, () => setOuvert(false));
 
-  /* Échap ferme le panneau, comme n'importe quelle surface posée du site. */
+  /* Échap ferme le panneau, comme n'importe quelle surface posée du site.
+     Écouter dès le montage : une ouverture native (Aide) peut afficher le
+     panneau avant les effets passifs de [ouvert], sans perdre Échap entre-temps.
+     Fermer un panneau déjà fermé est sans effet. */
   useEffect(() => {
-    if (!ouvert) return;
     const surTouche = (e: KeyboardEvent) => e.key === "Escape" && setOuvert(false);
     window.addEventListener("keydown", surTouche);
     return () => window.removeEventListener("keydown", surTouche);
-  }, [ouvert]);
+  }, []);
 
   const choisirSujet = (id: string | null) => {
     mesure(MESURES.sujetAideChoisi, { topic: id ?? "libre" });
@@ -181,10 +200,12 @@ export default function ChatWidget() {
           ouvert ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0 pointer-events-none"
         }`}
         aria-hidden={!ouvert}
+        inert={!ouvert}
       >
         <div
           className={`clavardage${ecran === "fil" ? " clavardage--conversation" : ""}`}
           role="dialog"
+          id={dialogueId}
           aria-label={t("ariaDialog")}
         >
           <header className={`clavardage__entete${enConversation ? " clavardage__entete--compact" : ""}`}>
@@ -255,6 +276,7 @@ export default function ChatWidget() {
                   <button
                     type="button"
                     className="clavardage__lien clavardage__lien--principal"
+                    ref={demarrerRef}
                     onClick={() => choisirSujet(null)}
                   >
                     <span className="clavardage__lien-icone">
@@ -382,10 +404,12 @@ export default function ChatWidget() {
       {/* Lanceur : pastille à libellé, qui bascule sur une croix à l'ouverture. */}
       <button
         type="button"
+        ref={lanceurRef}
         onClick={() => setOuvert((o) => !o)}
         className={`clavardage__lanceur${ouvert ? " clavardage__lanceur--ouvert" : ""}`}
         aria-label={ouvert ? t("ariaFermer") : t("ariaOuvrir")}
         aria-expanded={ouvert}
+        aria-controls={dialogueId}
       >
         {ouvert ? <Icone nom="croix" taille={17} /> : <TeteAide taille={37} />}
         <span className="clavardage__lanceur-texte">{t("lanceur")}</span>

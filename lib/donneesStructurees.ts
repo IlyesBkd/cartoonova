@@ -1,8 +1,34 @@
 import { SITE_URL } from "./site";
 import { locales } from "../i18n/config";
 import { COUNTRIES } from "./countries";
-import { PRINT_KEYS, computeShipping, type PrintKey } from "./pricing";
+import { PRINT_KEYS, computeOrderSubtotal, computeShipping, type PrintKey } from "./pricing";
+import type { Currency } from "./currency";
+import { montantsBon } from "./bonCadeauMontants";
 import type { PriceSet } from "./types";
+
+/** Digital vouchers use exactly the checkout denomination grid. */
+export function offresBonCadeau(currency: Currency, url: string) {
+  return montantsBon(currency).map((price) => ({
+    "@type": "Offer",
+    price,
+    priceCurrency: currency,
+    priceValidUntil: prixValideJusqua(),
+    availability: "https://schema.org/InStock",
+    url,
+    seller: { "@id": `${SITE_URL}/#organization` },
+    shippingDetails: {
+      "@type": "OfferShippingDetails",
+      shippingRate: { "@type": "MonetaryAmount", value: 0, currency },
+      shippingDestination: { "@type": "DefinedRegion", addressCountry: ["FR", "BE", "CH", "DE", "ES", "IT", "NL", "GB", "US", "CA"] },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+        transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+      },
+    },
+    hasMerchantReturnPolicy: politiqueRetourBonCadeau(),
+  }));
+}
 
 /* Blocs schema.org partages par les pages (2 octobre 2026).
 
@@ -22,11 +48,11 @@ export function prixValideJusqua(maintenant: Date = new Date()): string {
 }
 
 /** Delais et cout de livraison d'un support, en jours ouvres (CGV art. 6). */
-export function livraisonOffre(prix: PriceSet, cle: PrintKey) {
+export function livraisonOffre(prix: PriceSet, cle: PrintKey, currency: Currency) {
   const numerique = cle === "digital";
   return {
     "@type": "OfferShippingDetails",
-    shippingRate: { "@type": "MonetaryAmount", value: computeShipping(prix, cle), currency: "EUR" },
+    shippingRate: { "@type": "MonetaryAmount", value: computeShipping(prix, cle), currency },
     shippingDestination: { "@type": "DefinedRegion", addressCountry: PAYS_LIVRES },
     deliveryTime: {
       "@type": "ShippingDeliveryTime",
@@ -68,33 +94,25 @@ export function politiqueRetourBonCadeau() {
   };
 }
 
-/** Champ de prix de chaque support (meme correspondance que `lib/pricing.ts`). */
-const CHAMP_SUPPORT: Record<PrintKey, keyof PriceSet> = {
-  digital: "digital",
-  posterSimple: "posterSimple",
-  canvas: "canvas",
-  framed: "poster",
-};
-
 /**
  * Une offre par support, pour un portrait a une personne : c'est ce que la
  * fiche affiche par defaut et ce que commandent la plupart des clients. Le
  * prix est celui des produits ; la livraison est declaree a part, comme a la
  * caisse.
  */
-export function offresPortrait(prix: PriceSet, url: string, nomsSupports: Record<PrintKey, string>) {
+export function offresPortrait(prix: PriceSet, url: string, nomsSupports: Record<PrintKey, string>, currency: Currency) {
   const validite = prixValideJusqua();
   return PRINT_KEYS.map((cle) => ({
     "@type": "Offer",
     name: nomsSupports[cle],
-    price: Math.round((prix.base + prix[CHAMP_SUPPORT[cle]]) * 100) / 100,
-    priceCurrency: "EUR",
+    price: computeOrderSubtotal(prix, { format: "portrait", people: 1, animals: 0, printKey: cle }),
+    priceCurrency: currency,
     priceValidUntil: validite,
     availability: "https://schema.org/InStock",
     itemCondition: "https://schema.org/NewCondition",
     url,
     seller: { "@id": `${SITE_URL}/#organization` },
-    shippingDetails: livraisonOffre(prix, cle),
+    shippingDetails: livraisonOffre(prix, cle, currency),
     hasMerchantReturnPolicy: politiqueRetourPortrait(),
   }));
 }
@@ -141,5 +159,5 @@ export function pageWeb(type: string, locale: string, url: string, nom: string, 
 
 /** Le script JSON-LD d'un graphe, pret a poser dans une page serveur. */
 export function grapheJsonLd(noeuds: object[]) {
-  return JSON.stringify({ "@context": "https://schema.org", "@graph": noeuds });
+  return JSON.stringify({ "@context": "https://schema.org", "@graph": noeuds }).replace(/</g, "\\u003c");
 }
