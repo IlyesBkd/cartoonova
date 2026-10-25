@@ -203,10 +203,29 @@ export async function POST(req: NextRequest) {
         ${origineValidee ? JSON.stringify(origineValidee) : null}::text::jsonb,
         ${langue}
       )
+      ON CONFLICT (payment_intent_id) DO NOTHING
       RETURNING id
     `;
 
-    const orderId = rows[0]?.id;
+    /* Une carte refusee laisse sa commande en attente. Un nouvel essai (ou
+       deux clics concurrents) doit reutiliser cette commande sans la modifier
+       ni rejouer les effets de creation. La contrainte unique arbitre les
+       concurrents ; la lecture separee voit le gagnant apres son commit. */
+    if (rows.length === 0) {
+      const existing = await sql`
+        SELECT id FROM orders
+        WHERE payment_intent_id = ${paymentIntentId} AND customer_email = ${email}
+      `;
+      if (!existing[0]) {
+        return NextResponse.json(
+          { error: "Ce paiement est déjà associé à une autre commande." },
+          { status: 409 }
+        );
+      }
+      return NextResponse.json({ orderId: existing[0].id });
+    }
+
+    const orderId = rows[0].id;
     console.log(`✅ Commande ${orderId} créée en PENDING | PI: ${paymentIntentId}`);
 
     if (promoCode) {
