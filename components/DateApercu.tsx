@@ -65,7 +65,20 @@ function fourchette(debut: Date, fin: Date, locale: string): { debut: string; fi
     : { debut: complet.debut, fin: jourSeul(fin) };
 }
 
-/** « Commande aujourd'hui → ton portrait le lundi 5 octobre. » */
+/** Estimation à partir de la réception du paiement ET des photos.
+ * Les jours fériés ne sont pas déduits ; l'express reste 24 h, week-end compris. */
+export function calculDateApercu(maintenant: Date, express: boolean) {
+  const dessin = express
+    ? new Date(maintenant.getTime() + 24 * 60 * 60 * 1000)
+    : ajouterJoursOuvres(maintenant, DRAWING_BUSINESS_DAYS);
+  return {
+    dessin,
+    debut: ajouterJoursOuvres(dessin, VALIDATION_BUSINESS_DAYS + PRINT_SHIPPING_MIN_BUSINESS_DAYS),
+    fin: ajouterJoursOuvres(dessin, VALIDATION_BUSINESS_DAYS + PRINT_SHIPPING_BUSINESS_DAYS),
+  };
+}
+
+/** Dates indicatives, conditionnées à la réception du paiement et des photos aujourd'hui. */
 export default function DateApercu({ physique, express }: { physique: boolean; express: boolean }) {
   const t = useTranslations("fiche");
   const locale = useLocale();
@@ -78,21 +91,14 @@ export default function DateApercu({ physique, express }: { physique: boolean; e
   /* L'express est un engagement en heures, week-end compris (CGV, article 6) :
      on ajoute un jour calendaire, pas un jour ouvre. Pour un imprime, il ne
      porte que sur le dessin ; validation, tirage et transport suivent. */
-  const dessin = express
-    ? new Date(maintenant.getTime() + 24 * 60 * 60 * 1000)
-    : ajouterJoursOuvres(maintenant, DRAWING_BUSINESS_DAYS);
-
+  const { dessin, debut, fin } = calculDateApercu(maintenant, express);
   let texte: string;
   if (!physique) {
     texte = express
       ? t("dateExpress", { date: formatJour.format(dessin) })
       : t("dateNumerique", { date: formatJour.format(dessin) });
   } else {
-    const plage = fourchette(
-      ajouterJoursOuvres(dessin, VALIDATION_BUSINESS_DAYS + PRINT_SHIPPING_MIN_BUSINESS_DAYS),
-      ajouterJoursOuvres(dessin, VALIDATION_BUSINESS_DAYS + PRINT_SHIPPING_BUSINESS_DAYS),
-      locale
-    );
+    const plage = fourchette(debut, fin, locale);
     texte = t(express ? "dateImprimeExpress" : "dateImprime", {
       apercu: formatJour.format(dessin),
       debut: plage.debut,

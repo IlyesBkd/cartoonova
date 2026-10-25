@@ -1,3 +1,4 @@
+import { diagnosticJournal, bilanJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { syncSupportInbox } from "@/lib/imapSync";
 
@@ -9,11 +10,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const result = await syncSupportInbox();
-    console.log("[CRON sync-support-inbox]", JSON.stringify(result));
+    console.log("[CRON sync-support-inbox]", JSON.stringify(bilanJournal(result)));
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[CRON sync-support-inbox] Error:", message);
+    console.error("[CRON sync-support-inbox] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

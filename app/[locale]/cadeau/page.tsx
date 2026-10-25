@@ -7,7 +7,8 @@ import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { locales, type Locale } from "@/i18n/config";
 import { OCCASIONS, OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
 import { prixEnCache } from "@/lib/lecturesCache";
-import { DEFAULT_PRICE_SET } from "@/lib/types";
+import type { Prices } from "@/lib/types";
+import { GiftPricingProvider, GiftStartingPrice } from "./GiftPricing";
 import { vignetteProduit } from "@/lib/visuels";
 import { metadataPage, urlAbsolue } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
@@ -53,25 +54,21 @@ export default async function GiftIndexPage({
   const locale = localeRaw as Locale;
   const t = await getTranslations({ locale, namespace: "cadeauPage" });
 
-  /* Prix de base en euros, comme sur /collections : la page est mise en cache
-     pour tous les visiteurs, elle ne peut donc pas suivre la devise de chacun. */
-  let prixDepart = DEFAULT_PRICE_SET.base;
+  // Seed only a successful approved grid. The visitor currency is resolved
+  // after hydration; a database failure must not advertise fallback prices.
+  let initialPrices: Prices | null = null;
   try {
-    prixDepart = (await prixEnCache("EUR")).base;
+    initialPrices = await prixEnCache("EUR");
   } catch {
-    // Repli sur la grille par defaut si la base est injoignable.
+    // The client performs a bounded read with a visible retry on failure.
   }
-  const prix = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: Number.isInteger(prixDepart) ? 0 : 2,
-  }).format(prixDepart);
 
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tGift = await getTranslations({ locale, namespace: "giftPage" });
   const url = urlAbsolue(locale, "/cadeau");
 
   return (
+    <GiftPricingProvider initialPrices={initialPrices}>
     <main className="page-tj">
       <JsonLd
         noeuds={[
@@ -157,7 +154,7 @@ export default async function GiftIndexPage({
                       )}
                       <div className="carte__corps">
                         <h3>{occasion.headline(titre)}</h3>
-                        <span className="carte__prix">{t("aPartirDe", { prix })}</span>
+                        <GiftStartingPrice className="carte__prix" />
                       </div>
                     </Link>
                   );
@@ -168,5 +165,6 @@ export default async function GiftIndexPage({
         );
       })}
     </main>
+    </GiftPricingProvider>
   );
 }

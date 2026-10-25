@@ -27,6 +27,7 @@ import {
   type Produit,
 } from "@/lib/catalogue";
 import { useRetourFerme } from "@/lib/useRetourFerme";
+import "./Navbar.css";
 
 /* En-tete du systeme ToonJaune (blocs/entete.html) : barre promo indigo,
    en-tete collante, logo a gauche, menu a droite, bouton d'action.
@@ -93,6 +94,55 @@ export default function Navbar({
   };
 
   useEffect(() => () => annulerFermeture(), []);
+
+  useEffect(() => {
+    if (!replieOuvert) return;
+    const entete = enteteRef.current;
+    const grille = entete?.querySelector<HTMLElement>(".entete__grille");
+    const panneau = entete?.querySelector<HTMLElement>(".replie");
+    const burger = entete?.querySelector<HTMLButtonElement>(".burger");
+    if (!grille || !panneau || !burger) return;
+    const overflowBody = document.body.style.overflow;
+    const overflowHtml = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    panneau.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    const auTab = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const controles = [burger, ...panneau.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), select, input:not([disabled]), [tabindex='0']")]
+        .filter((element) => element.getClientRects().length > 0);
+      const premier = controles[0];
+      const dernier = controles[controles.length - 1];
+      if (event.shiftKey && (document.activeElement === premier || !entete?.contains(document.activeElement))) {
+        event.preventDefault();
+        dernier?.focus();
+      } else if (!event.shiftKey && (document.activeElement === dernier || !entete?.contains(document.activeElement))) {
+        event.preventDefault();
+        premier?.focus();
+      }
+    };
+    document.addEventListener("keydown", auTab);
+    const bureau = window.matchMedia("(min-width: 1081px)");
+    const auBureau = () => { if (bureau.matches) setReplieOuvert(false); };
+    bureau.addEventListener("change", auBureau);
+    // Le panneau absolu ne doit pas agrandir l'en-tête collant au-delà de l'écran.
+    const mesurer = () => panneau.style.setProperty("--nav-mobile-top", `${grille.getBoundingClientRect().bottom}px`);
+    mesurer();
+    const observer = new ResizeObserver(mesurer);
+    observer.observe(grille);
+    window.addEventListener("resize", mesurer);
+    window.addEventListener("scroll", mesurer, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", mesurer);
+      window.removeEventListener("scroll", mesurer);
+      document.removeEventListener("keydown", auTab);
+      bureau.removeEventListener("change", auBureau);
+      document.body.style.overflow = overflowBody;
+      document.documentElement.style.overflow = overflowHtml;
+      if (burger.isConnected && burger.getClientRects().length > 0) burger.focus({ preventScroll: true });
+    };
+  }, [replieOuvert]);
 
   /* Un clic sur un lien du panneau ne fermait le menu que parce que chaque
      lien portait son propre onClick. Fermer sur changement d'URL couvre aussi
@@ -333,6 +383,7 @@ export default function Navbar({
             className="burger"
             aria-expanded={replieOuvert}
             aria-label="Menu"
+            aria-controls="navigation-mobile"
             onClick={() => setReplieOuvert((v) => !v)}
           >
             <span />
@@ -341,7 +392,13 @@ export default function Navbar({
           </button>
         </div>
 
-        <div className={`replie${replieOuvert ? " ouvert" : ""}`}>
+        <div
+          id="navigation-mobile"
+          className={`replie${replieOuvert ? " ouvert" : ""}`}
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest("a[href]")) setReplieOuvert(false);
+          }}
+        >
           <div className="enveloppe">
             {/* Les familles reprennent la meme hierarchie qu'en bureau, en
                 accordeon : 36 fiches deroulees d'un bloc rendaient le repli
@@ -357,6 +414,7 @@ export default function Navbar({
                     type="button"
                     className="replie__declencheur"
                     aria-expanded={ouverte}
+                    aria-controls={`mobile-${categorie}`}
                     onClick={() => setSectionRepliee(ouverte ? null : categorie)}
                   >
                     {NOMS_CATEGORIE[categorie][locale]}
@@ -365,7 +423,7 @@ export default function Navbar({
                     </svg>
                   </button>
                   {ouverte && (
-                    <div className="replie__styles">
+                    <div className="replie__styles" id={`mobile-${categorie}`}>
                       {produits.map((p) => (
                         <Link className="replie__style" key={p.slug} href={lien(`/${slugProduit(p, locale)}`)}>
                           <span className="nav__style__vignette">{vignetteStyle(p, 40)}</span>

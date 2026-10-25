@@ -4,6 +4,7 @@ import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from "pdf
 import fontkit from "@pdf-lib/fontkit";
 import type { Lang } from "@/lib/email-i18n";
 import { SITE_URL } from "@/lib/site";
+import { downloadFinalImage, finalImageType } from "@/lib/finalImage";
 
 /**
  * Carte de voeux a imprimer (option F-6) : un PDF A5 paysage de deux pages,
@@ -68,23 +69,16 @@ export async function embarquerPolices(doc: PDFDocument): Promise<Polices> {
 export type SourceImage = string | Uint8Array;
 
 async function octetsImage(source: SourceImage): Promise<Uint8Array> {
-  if (typeof source !== "string") return source;
-  const reponse = await fetch(source);
-  if (!reponse.ok) throw new Error(`Image injoignable (${reponse.status})`);
-  return new Uint8Array(await reponse.arrayBuffer());
-}
-
-function estJpeg(o: Uint8Array) {
-  return o[0] === 0xff && o[1] === 0xd8 && o[2] === 0xff;
-}
-function estPng(o: Uint8Array) {
-  return o[0] === 0x89 && o[1] === 0x50 && o[2] === 0x4e && o[3] === 0x47;
+  if (typeof source === "string") return (await downloadFinalImage(source)).bytes;
+  finalImageType(source);
+  return source;
 }
 
 export async function embarquerImage(doc: PDFDocument, source: SourceImage): Promise<PDFImage> {
   const octets = await octetsImage(source);
-  if (estJpeg(octets)) return doc.embedJpg(octets);
-  if (estPng(octets)) return doc.embedPng(octets);
+  const type = finalImageType(octets);
+  if (type === "image/jpeg") return doc.embedJpg(octets);
+  if (type === "image/png") return doc.embedPng(octets);
   const sharp = (await import("sharp")).default;
   const png = await sharp(Buffer.from(octets)).png().toBuffer();
   return doc.embedPng(new Uint8Array(png));

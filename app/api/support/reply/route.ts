@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getSupportMessageById,
@@ -132,7 +133,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (envoi.error) {
-      console.error("[POST /api/support/reply] Resend:", envoi.error);
+      console.error("[POST /api/support/reply] Resend:", diagnosticJournal(envoi.error));
       return NextResponse.json({ error: envoi.error.message || "Envoi refusé." }, { status: 502 });
     }
 
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, reponse });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/support/reply] Error:", message);
+    console.error("[POST /api/support/reply] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

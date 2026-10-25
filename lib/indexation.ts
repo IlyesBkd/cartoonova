@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
@@ -179,7 +180,7 @@ export async function produitsRecales(locale: string): Promise<string[]> {
       })
       .map((r) => r.produit);
   } catch (erreur) {
-    console.error("[indexation] verdicts illisibles:", erreur);
+    console.error("[indexation] verdicts illisibles:", diagnosticJournal(erreur));
     return [];
   }
 }

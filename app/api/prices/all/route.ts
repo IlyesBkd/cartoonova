@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { getAllPrices, updateAllPrices, withFreshDatabaseClient } from "@/lib/db";
 import { currencies, type Currency } from "@/lib/currency";
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(await withFreshDatabaseClient((db) => getAllPrices(db)));
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[GET /api/prices/all] Error:", message);
+    console.error("[GET /api/prices/all] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -68,7 +69,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[PUT /api/prices/all] Error:", message);
+    console.error("[PUT /api/prices/all] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

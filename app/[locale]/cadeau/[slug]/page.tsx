@@ -7,6 +7,9 @@ import Icone from "@/components/tj/Icone";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BreadcrumbJsonLd, FAQJsonLd } from "@/components/structured-data";
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
+import { prixEnCache } from "@/lib/lecturesCache";
+import type { Prices } from "@/lib/types";
+import { GiftPricingProvider, GiftStartingPrice, GiftConfiguratorLink } from "../GiftPricing";
 import { GIFT_PRODUCTS } from "@/lib/productFeed";
 import { SITE_URL } from "@/lib/site";
 import { locales, type Locale } from "@/i18n/config";
@@ -115,13 +118,19 @@ export default async function GiftOccasionPage({
 
   const { locale, product, occasion, occasionKey, styleName } = data;
   const t = await getTranslations({ locale, namespace: "giftPage" });
+  let initialPrices: Prices | null = null;
+  try {
+    initialPrices = await prixEnCache("EUR");
+  } catch {
+    // No invented fallback: resolve the visitor's grid on the client.
+  }
 
   const stylePath = `/${locale}/${product.slugs[locale]}`;
   const otherOccasions = OCCASION_KEYS.filter((key) => key !== occasionKey);
   const otherStyles = GIFT_PRODUCTS.filter((p) => p.slug !== product.slug);
 
   return (
-    <>
+    <GiftPricingProvider initialPrices={initialPrices}>
       <BreadcrumbJsonLd
         breadcrumbs={[
           { name: t("home"), item: `${SITE_URL}/${locale}` },
@@ -186,12 +195,13 @@ export default async function GiftOccasionPage({
 
           <section className="cta-cadeau">
             <h2 className="text-2xl sm:text-3xl font-black text-black mb-4">{t("ctaTitle")}</h2>
-            <Link
+            <GiftStartingPrice className="block mb-4" />
+            <GiftConfiguratorLink
               href={stylePath}
               className="bouton bouton--clair"
             >
               {t("ctaButton")}
-            </Link>
+            </GiftConfiguratorLink>
             <p className="mt-4 text-sm font-bold text-black/60">{t("ctaNote")}</p>
           </section>
 
@@ -242,6 +252,6 @@ export default async function GiftOccasionPage({
           </section>
         </div>
       </main>
-    </>
+    </GiftPricingProvider>
   );
 }

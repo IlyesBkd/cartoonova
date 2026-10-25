@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { matchesCheckoutConfig, readCheckoutQuote } from "@/lib/checkoutQuote";
 import { OPTIONS_PAYANTES } from "@/lib/pricing";
@@ -259,7 +260,7 @@ export async function POST(req: NextRequest) {
 
     if (promoCode) {
       await consumePromoCode(promoCode).catch((error) =>
-        console.error("[order/create] increment du code promo impossible:", error)
+        console.error("[order/create] increment du code promo impossible:", diagnosticJournal(error))
       );
     }
 

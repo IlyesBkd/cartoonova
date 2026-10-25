@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupportMessageById, getOrderById, getSupportOutbox } from "@/lib/db";
 import { redigerReponseSupport } from "@/lib/aiReponse";
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ brouillon: resultat.texte });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/support/draft] Error:", message);
+    console.error("[POST /api/support/draft] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { locales } from "@/i18n/config";
 import { currencies } from "@/lib/currency";
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
        comme si de rien n'etait, l'appelant n'attend de toute facon rien. */
     console.error(
       "[POST /api/checkout/lead] enregistrement impossible:",
-      error instanceof Error ? error.message : error
+      diagnosticJournal(error)
     );
   }
 

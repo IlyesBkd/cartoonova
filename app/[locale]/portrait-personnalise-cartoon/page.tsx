@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { PREVIEW_PROMISE } from "@/lib/deliveryCopy";
 import PageAccueil from "@/components/pages/PageAccueil";
 import { BreadcrumbJsonLd } from "@/components/structured-data";
 import { SITE_URL } from "@/lib/site";
@@ -42,8 +43,8 @@ const TEXTES_HERO = {
   titre2: "d'après ta photo",
   sous:
     "Tes photos transformées en caricature personnalisée, unique au monde. " +
-    "Aperçu sous 2 jours, retouches illimitées.",
-  note: "Aperçu sous 2 jours, sans engagement",
+    `${PREVIEW_PROMISE.fr} Retouches illimitées.`,
+  note: PREVIEW_PROMISE.fr,
 };
 
 export async function generateMetadata({
@@ -55,10 +56,10 @@ export async function generateMetadata({
   const path = `/${locale}${CHEMIN}`;
 
   return {
-    // 60 et 158 caracteres au plus : l'ancien titre en faisait 87.
+    // Titre ciblé ; la description précise le point de départ du délai.
     title: "Portrait personnalisé cartoon d'après ta photo",
     description:
-      "Transforme ta photo en portrait cartoon personnalisé : Simpson, Disney, manga… Aperçu sous 2 jours, retouches illimitées. Une idée cadeau originale.",
+      `Portrait cartoon personnalisé : Simpson, Disney, manga… ${PREVIEW_PROMISE.fr}`,
     metadataBase: new URL(SITE_URL),
     /* Pas de `languages` ici, et c'est delibere : le hero de cette page est
        redige en francais et le reste dans toutes les langues. Annoncer une
@@ -68,7 +69,7 @@ export async function generateMetadata({
     openGraph: {
       title: "Portrait personnalisé cartoon d'après ta photo",
       description:
-        "Transforme ta photo en portrait cartoon personnalisé. Aperçu sous 2 jours, retouches illimitées.",
+        `Transforme ta photo en portrait cartoon personnalisé. ${PREVIEW_PROMISE.fr}`,
       url: `${SITE_URL}${path}`,
       siteName: "Cartoonova",
       images: [

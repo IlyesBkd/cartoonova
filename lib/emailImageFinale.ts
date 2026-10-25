@@ -9,6 +9,7 @@ import { infosParrainage } from "./parrainage";
 import { parrainageTextes } from "./i18n/relances";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { optionsLivraisonCadeau, echapperMessageCadeau, validerLivraisonCadeau } from "./livraisonCadeau";
+import { downloadFinalImage, validateFinalImageUrl } from "./finalImage";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -46,6 +47,7 @@ export async function envoyerImageFinale(
   const t = finalImageEmail[lang];
   const options = optionsLivraisonCadeau(order.options);
   validerLivraisonCadeau(options);
+  validateFinalImageUrl(order.final_image_url);
   const gift = options?.gift;
   // The promise is a UTC calendar day, not the buyer's or server's timezone.
   // A deferred gift is aligned with the daily cron at 09:00 UTC.
@@ -55,6 +57,7 @@ export async function envoyerImageFinale(
     return { id: null, deferredUntil: date.toISOString() };
   }
   const destinataire = gift?.recipientEmail?.trim() || order.customer_email;
+  await downloadFinalImage(order.final_image_url);
   const tiers = destinataire.toLowerCase() !== order.customer_email.toLowerCase();
   const ref = order.id.slice(0, 8);
   /* Les cadeaux offerts (fond d'ecran, avatar, carte a imprimer) : la page
@@ -68,8 +71,8 @@ export async function envoyerImageFinale(
   let parrainage: { code: string; recompense: string } | null = null;
   try {
     if (!tiers) parrainage = await infosParrainage(order.customer_email, lang);
-  } catch (erreur) {
-    console.error("[IMAGE-FINALE] code de parrainage indisponible:", order.id, erreur);
+  } catch {
+    console.error("[IMAGE-FINALE] code de parrainage indisponible.");
   }
   const tp = parrainageTextes[lang];
 
@@ -142,8 +145,6 @@ export async function envoyerImageFinale(
   if (result.error) {
     throw new Error(result.error.message || "Envoi refusé par Resend.");
   }
-
-  console.log("[IMAGE-FINALE] Email envoyé:", JSON.stringify(result));
 
   /* Sans cet identifiant, la reponse du client — « pouvez-vous ajouter les
      tatouages ? » — arrive dans la boite support sans se rattacher a sa

@@ -51,10 +51,29 @@ function estDuBruit(v: Violation): boolean {
    un rapport ne doit pas faire sortir un lien d'acces a une commande. */
 function cheminPropre(page: string): string {
   try {
-    return new URL(page).pathname.replace(/\/(suivi|depot|bonus|bon|confirm-poster)\/[^/]+/, "/$1/<jeton>");
+    const chemin = new URL(page).pathname;
+    const route = chemin.match(/^\/(?:[a-z]{2}\/)?(suivi|depot|bonus|bon|confirm-poster|extras|telecharger|download)(?:\/|$)/);
+    if (route) return `/${route[1]}/[prive]`;
+    return /^\/(?:[a-z]{2}\/?)?$/.test(chemin) ? chemin : "[page]";
   } catch {
     return page ? "?" : "";
   }
+}
+
+/* Reports are untrusted client input, including directive and source-file.
+   Keep actionable resource categories, never arbitrary URL/path/text values. */
+function ressourceCsp(valeur: string): string {
+  if (!valeur) return "";
+  if (["inline", "eval", "wasm-eval", "self"].includes(valeur)) return valeur;
+  try {
+    const protocole = new URL(valeur).protocol;
+    if (["https:", "http:", "data:", "blob:"].includes(protocole)) return protocole;
+  } catch { /* not a URL */ }
+  return "[ressource]";
+}
+
+function directiveCsp(valeur: string): string {
+  return /^(?:default|script|style|img|font|connect|media|object|frame|child|worker|manifest|prefetch)-src(?:-elem|-attr)?$|^(?:base-uri|form-action|frame-ancestors|upgrade-insecure-requests|trusted-types|require-trusted-types-for)$/.test(valeur) ? valeur : "[directive]";
 }
 
 /* Une alerte Discord par heure et par instance au plus : une page mal
@@ -73,11 +92,12 @@ export async function POST(req: Request) {
 
   const violations = normaliser(corps).filter((v) => !estDuBruit(v));
   for (const v of violations) {
-    console.warn("[csp]", v.directive, v.bloque, cheminPropre(v.page), v.source);
-    /* Page et script fautif : sans eux, une alerte ne disait pas ou chercher
-       (rapport « wasm-eval » du 3 octobre 2026, introuvable). */
-    const lignes = [`${v.directive} ← ${v.bloque || "(inline)"}`, `   page : ${cheminPropre(v.page) || "?"}`];
-    if (v.source) lignes.push(`   script : ${v.source.slice(0, 150)}`);
+    const directive = directiveCsp(v.directive);
+    const bloque = ressourceCsp(v.bloque);
+    const source = ressourceCsp(v.source);
+    console.warn("[csp]", directive, bloque, cheminPropre(v.page), source);
+    const lignes = [`${directive} ← ${bloque || "(inline)"}`, `   page : ${cheminPropre(v.page) || "?"}`];
+    if (source) lignes.push(`   script : ${source}`);
     recents.add(lignes.join("\n"));
   }
 

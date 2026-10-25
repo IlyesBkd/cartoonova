@@ -1,4 +1,5 @@
 import type { Locale } from "../i18n/config";
+import { PREVIEW_PROMISE, PRINT_PROMISE } from "./deliveryCopy";
 import { produitParSlug, slugProduit } from "./catalogue";
 import { GIFT_PRODUCTS } from "./productFeed";
 
@@ -46,13 +47,13 @@ const fr: OccasionTable = {
     bullets: [
       "Personne d'autre ne peut offrir le même : le dessin part de ta photo.",
       "Ça se garde et ça s'accroche, contrairement à la plupart des cadeaux d'anniversaire.",
-      "Le dessin est prêt en 2 jours, ce qui laisse une marge même quand on s'y prend tard.",
+      PREVIEW_PROMISE.fr,
     ],
     faq: [
       {
         question: "Combien de temps avant l'anniversaire faut-il commander ?",
         answer:
-          "Pour une version numérique, comptez 2 jours. Pour un poster ou une toile, comptez jusqu'à 10 jours ouvrés entre la commande et la réception : 2 jours de dessin, 1 jour pour valider l'aperçu, puis 3 à 7 jours ouvrés d'impression et de livraison.",
+          `${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
       },
       {
         question: "Peut-on mettre plusieurs personnes sur le portrait d'anniversaire ?",
@@ -70,13 +71,13 @@ const fr: OccasionTable = {
     bullets: [
       "Un cadeau qui se déballe devant tout le monde et qui se commente.",
       "Idéal pour offrir à des parents ou grands-parents qui « n'ont besoin de rien ».",
-      "La version numérique reste possible jusqu'à la dernière minute.",
+      PREVIEW_PROMISE.fr,
     ],
     faq: [
       {
         question: "Jusqu'à quand peut-on commander pour recevoir avant Noël ?",
         answer:
-          "La date limite est affichée directement sur le site pendant la période de Noël. En pratique, il faut compter jusqu'à 10 jours ouvrés pour une impression livrée, et 2 jours pour la version numérique.",
+          `${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
       },
       {
         question: "Peut-on offrir un portrait sans l'avoir reçu à temps ?",
@@ -177,7 +178,7 @@ const fr: OccasionTable = {
       {
         question: "Quel délai prévoir pour un pot de départ ?",
         answer:
-          "Jusqu'à 10 jours ouvrés pour une impression livrée. Si la date est proche, la version numérique reste imprimable localement.",
+          `${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
       },
     ],
   },
@@ -193,13 +194,13 @@ const en: OccasionTable = {
     bullets: [
       "Nobody else can give the same thing: the drawing starts from your photo.",
       "It gets kept and hung up, unlike most birthday presents.",
-      "The artwork is ready within 2 days, which leaves room even when you're late.",
+      PREVIEW_PROMISE.en,
     ],
     faq: [
       {
         question: "How far in advance should I order for a birthday?",
         answer:
-          "For a digital version, allow 2 days. For a poster or canvas, allow up to 10 business days between order and delivery: 2 days of drawing, 1 day to approve the preview, then 3 to 7 business days of printing and shipping.",
+          `${PREVIEW_PROMISE.en} ${PRINT_PROMISE.en}`,
       },
       {
         question: "Can several people appear on a birthday portrait?",
@@ -217,13 +218,13 @@ const en: OccasionTable = {
     bullets: [
       "A gift that gets unwrapped in front of everyone and gets talked about.",
       "Ideal for parents or grandparents who 'don't need anything'.",
-      "The digital version stays possible right up to the last minute.",
+      PREVIEW_PROMISE.en,
     ],
     faq: [
       {
         question: "What's the cut-off for ordering in time for Christmas?",
         answer:
-          "The order-by date is shown on the site during the Christmas period. In practice, allow up to 10 business days for a delivered print, and 2 days for the digital version.",
+          `${PREVIEW_PROMISE.en} ${PRINT_PROMISE.en}`,
       },
       {
         question: "Can I give the portrait if the print hasn't arrived yet?",
@@ -324,7 +325,7 @@ const en: OccasionTable = {
       {
         question: "How long should we allow for a leaving party?",
         answer:
-          "Up to 10 business days for a delivered print. If the date is close, the digital version can still be printed locally.",
+          `${PREVIEW_PROMISE.en} ${PRINT_PROMISE.en}`,
       },
     ],
   },
@@ -340,13 +341,13 @@ const es: OccasionTable = {
     bullets: [
       "Nadie más puede regalar lo mismo: el dibujo parte de tu foto.",
       "Se guarda y se cuelga, al contrario que la mayoría de regalos de cumpleaños.",
-      "El dibujo está listo en 2 días, lo que deja margen incluso a última hora.",
+      PREVIEW_PROMISE.es,
     ],
     faq: [
       {
         question: "¿Con cuánta antelación hay que pedirlo?",
         answer:
-          "Para la versión digital, calcula 2 días. Para un póster o un lienzo, calcula hasta 10 días hábiles entre el pedido y la recepción: 2 días de dibujo, 1 día para validar la vista previa y 3 a 7 días hábiles de impresión y envío.",
+          `${PREVIEW_PROMISE.es} ${PRINT_PROMISE.es}`,
       },
       {
         question: "¿Pueden aparecer varias personas en el retrato?",
@@ -364,13 +365,13 @@ const es: OccasionTable = {
     bullets: [
       "Un regalo que se abre delante de todos y del que se habla.",
       "Ideal para padres o abuelos que « no necesitan nada ».",
-      "La versión digital sigue siendo posible hasta el último momento.",
+      PREVIEW_PROMISE.es,
     ],
     faq: [
       {
         question: "¿Hasta cuándo se puede pedir para recibirlo antes de Navidad?",
         answer:
-          "La fecha límite aparece en la web durante la campaña de Navidad. En la práctica, calcula hasta 10 días hábiles para una impresión entregada y 2 días para la versión digital.",
+          `${PREVIEW_PROMISE.es} ${PRINT_PROMISE.es}`,
       },
       {
         question: "¿Se puede regalar aunque la impresión no haya llegado?",
@@ -471,7 +472,7 @@ const es: OccasionTable = {
       {
         question: "¿Qué plazo hay que prever para una despedida?",
         answer:
-          "Hasta 10 días hábiles para una impresión entregada. Si la fecha está cerca, la versión digital se puede imprimir en local.",
+          `${PREVIEW_PROMISE.es} ${PRINT_PROMISE.es}`,
       },
     ],
   },
@@ -487,13 +488,13 @@ const de: OccasionTable = {
     bullets: [
       "Niemand sonst kann dasselbe schenken: die Zeichnung entsteht aus deinem Foto.",
       "Es wird aufgehoben und aufgehängt — anders als die meisten Geburtstagsgeschenke.",
-      "Die Zeichnung ist in 2 Tagen fertig, das lässt auch spät noch Luft.",
+      PREVIEW_PROMISE.de,
     ],
     faq: [
       {
         question: "Wie lange vorher sollte man bestellen?",
         answer:
-          "Für die digitale Fassung rechne mit 2 Tagen. Für Poster oder Leinwand rechne mit bis zu 10 Werktagen zwischen Bestellung und Erhalt: 2 Tage Zeichnung, 1 Tag Freigabe der Vorschau, dann 3 bis 7 Werktage Druck und Versand.",
+          `${PREVIEW_PROMISE.de} ${PRINT_PROMISE.de}`,
       },
       {
         question: "Können mehrere Personen auf dem Portrait sein?",
@@ -511,13 +512,13 @@ const de: OccasionTable = {
     bullets: [
       "Ein Geschenk, das vor allen ausgepackt wird und für Gesprächsstoff sorgt.",
       "Ideal für Eltern oder Großeltern, die „nichts brauchen“.",
-      "Die digitale Fassung ist bis zur letzten Minute möglich.",
+      PREVIEW_PROMISE.de,
     ],
     faq: [
       {
         question: "Bis wann muss man für Weihnachten bestellen?",
         answer:
-          "Das Bestelldatum wird während der Weihnachtszeit direkt auf der Seite angezeigt. Praktisch sind es bis zu 10 Werktage für einen gelieferten Druck und 2 Tage für die digitale Fassung.",
+          `${PREVIEW_PROMISE.de} ${PRINT_PROMISE.de}`,
       },
       {
         question: "Kann man schenken, bevor der Druck da ist?",
@@ -618,7 +619,7 @@ const de: OccasionTable = {
       {
         question: "Wie viel Zeit sollte man für eine Abschiedsfeier einplanen?",
         answer:
-          "Bis zu 10 Werktage für einen gelieferten Druck. Ist der Termin nah, lässt sich die digitale Fassung vor Ort ausdrucken.",
+          `${PREVIEW_PROMISE.de} ${PRINT_PROMISE.de}`,
       },
     ],
   },
@@ -634,13 +635,13 @@ const it: OccasionTable = {
     bullets: [
       "Nessun altro può regalare la stessa cosa: il disegno parte dalla tua foto.",
       "Si conserva e si appende, al contrario della maggior parte dei regali di compleanno.",
-      "Il disegno è pronto in 2 giorni, il che lascia margine anche all'ultimo momento.",
+      PREVIEW_PROMISE.it,
     ],
     faq: [
       {
         question: "Con quanto anticipo bisogna ordinare?",
         answer:
-          "Per la versione digitale, calcola 2 giorni. Per un poster o una tela, calcola fino a 10 giorni lavorativi tra ordine e consegna: 2 giorni di disegno, 1 giorno per approvare l'anteprima e 3-7 giorni lavorativi di stampa e spedizione.",
+          `${PREVIEW_PROMISE.it} ${PRINT_PROMISE.it}`,
       },
       {
         question: "Possono comparire più persone nel ritratto?",
@@ -658,13 +659,13 @@ const it: OccasionTable = {
     bullets: [
       "Un regalo che si apre davanti a tutti e di cui si parla.",
       "Ideale per genitori o nonni che « non hanno bisogno di niente ».",
-      "La versione digitale resta possibile fino all'ultimo momento.",
+      PREVIEW_PROMISE.it,
     ],
     faq: [
       {
         question: "Entro quando ordinare per riceverlo prima di Natale?",
         answer:
-          "La data limite è indicata sul sito durante il periodo natalizio. In pratica, calcola fino a 10 giorni lavorativi per una stampa consegnata e 2 giorni per la versione digitale.",
+          `${PREVIEW_PROMISE.it} ${PRINT_PROMISE.it}`,
       },
       {
         question: "Si può regalare prima che arrivi la stampa?",
@@ -765,7 +766,7 @@ const it: OccasionTable = {
       {
         question: "Che tempi prevedere per una festa di saluto?",
         answer:
-          "Fino a 10 giorni lavorativi per una stampa consegnata. Se la data è vicina, la versione digitale resta stampabile in loco.",
+          `${PREVIEW_PROMISE.it} ${PRINT_PROMISE.it}`,
       },
     ],
   },
@@ -785,13 +786,13 @@ const nl: OccasionTable = {
     bullets: [
       "Niemand anders kan hetzelfde geven: de tekening begint bij jouw foto.",
       "Het hangt straks aan de muur, in tegenstelling tot de meeste verjaardagscadeaus.",
-      "De tekening is in 2 dagen klaar, dus ook laat bestellen komt nog goed.",
+      PREVIEW_PROMISE.nl,
     ],
     faq: [
       {
         question: "Hoe lang van tevoren moet ik bestellen voor een verjaardag?",
         answer:
-          "Voor de digitale versie: reken op 2 dagen. Voor een poster of canvas tot 10 werkdagen tussen bestelling en ontvangst — 2 dagen tekenen, 1 dag goedkeuren, daarna 3 tot 7 werkdagen drukken en verzenden.",
+          `${PREVIEW_PROMISE.nl} ${PRINT_PROMISE.nl}`,
       },
       {
         question: "Kunnen er meerdere personen op het portret staan?",
@@ -809,13 +810,13 @@ const nl: OccasionTable = {
     bullets: [
       "Een cadeau dat je voor iedereen uitpakt en waar over gepraat wordt.",
       "Ideaal voor ouders of grootouders die ‘niets nodig hebben’.",
-      "De digitale versie blijft tot het laatste moment mogelijk.",
+      PREVIEW_PROMISE.nl,
     ],
     faq: [
       {
         question: "Tot wanneer kan ik bestellen om het voor Kerst te ontvangen?",
         answer:
-          "De uiterste besteldatum staat tijdens de kerstperiode op de site. Reken in de praktijk op tot 10 werkdagen voor een geleverde print, en 2 dagen voor de digitale versie.",
+          `${PREVIEW_PROMISE.nl} ${PRINT_PROMISE.nl}`,
       },
       {
         question: "Kan ik iets geven dat nog niet binnen is?",
@@ -844,7 +845,7 @@ const nl: OccasionTable = {
       {
         question: "Wanneer moet ik uiterlijk bestellen voor 14 februari?",
         answer:
-          "Voor een print tot 10 werkdagen van tevoren. Voor de digitale versie volstaan 2 dagen.",
+          `${PREVIEW_PROMISE.nl} ${PRINT_PROMISE.nl}`,
       },
     ],
   },
@@ -857,7 +858,7 @@ const nl: OccasionTable = {
     bullets: [
       "Met de kinderen erop, of het hele gezin samen.",
       "Huisdieren mogen mee — vaak is dat precies wat het portret maakt.",
-      "Klaar in 2 dagen, dus ook haalbaar als je het bijna vergeten was.",
+      PREVIEW_PROMISE.nl,
     ],
     faq: [
       {
@@ -905,7 +906,7 @@ const nl: OccasionTable = {
     bullets: [
       "Van één collega of van het hele team.",
       "Iedereen kan meebetalen: één bestelling, één cadeau.",
-      "In 2 dagen klaar, ook als het afscheid snel geregeld moet worden.",
+      PREVIEW_PROMISE.nl,
     ],
     faq: [
       {
@@ -936,13 +937,13 @@ const pl: OccasionTable = {
     bullets: [
       "Nikt inny nie podaruje tego samego: rysunek powstaje z Twojego zdjęcia.",
       "Zawiśnie na ścianie, w przeciwieństwie do większości prezentów urodzinowych.",
-      "Rysunek jest gotowy w 2 dni, więc spóźnialscy też zdążą.",
+      PREVIEW_PROMISE.pl,
     ],
     faq: [
       {
         question: "Z jakim wyprzedzeniem zamówić portret na urodziny?",
         answer:
-          "Wersja cyfrowa: 2 dni. Plakat lub obraz na płótnie: do 10 dni roboczych od zamówienia do odbioru — 2 dni rysowania, 1 dzień na akceptację podglądu, potem 3–7 dni roboczych na druk i wysyłkę.",
+          `${PREVIEW_PROMISE.pl} ${PRINT_PROMISE.pl}`,
       },
       {
         question: "Czy na portrecie może być kilka osób?",
@@ -960,13 +961,13 @@ const pl: OccasionTable = {
     bullets: [
       "Prezent, który rozpakowuje się przy wszystkich i o którym się rozmawia.",
       "Idealny dla rodziców i dziadków, którzy „niczego nie potrzebują”.",
-      "Wersja cyfrowa jest możliwa do ostatniej chwili.",
+      PREVIEW_PROMISE.pl,
     ],
     faq: [
       {
         question: "Do kiedy zamówić, żeby zdążyć przed Świętami?",
         answer:
-          "Ostateczny termin pojawia się na stronie w okresie świątecznym. W praktyce: do 10 dni roboczych na wydruk z dostawą, 2 dni na wersję cyfrową.",
+          `${PREVIEW_PROMISE.pl} ${PRINT_PROMISE.pl}`,
       },
       {
         question: "Czy mogę podarować portret, którego jeszcze nie mam?",
@@ -994,7 +995,7 @@ const pl: OccasionTable = {
       },
       {
         question: "Do kiedy zamówić na 14 lutego?",
-        answer: "Na wydruk: do 10 dni roboczych wcześniej. Na wersję cyfrową wystarczą 2 dni.",
+        answer: `${PREVIEW_PROMISE.pl} ${PRINT_PROMISE.pl}`,
       },
     ],
   },
@@ -1007,7 +1008,7 @@ const pl: OccasionTable = {
     bullets: [
       "Z dziećmi albo z całą rodziną.",
       "Zwierzęta też mogą się znaleźć — często to one robią cały portret.",
-      "Gotowy w 2 dni, więc zdążysz nawet jeśli prawie zapomniałeś.",
+      PREVIEW_PROMISE.pl,
     ],
     faq: [
       {
@@ -1055,7 +1056,7 @@ const pl: OccasionTable = {
     bullets: [
       "Jednej osoby albo całego zespołu.",
       "Każdy może się dorzucić: jedno zamówienie, jeden prezent.",
-      "Gotowy w 2 dni, także gdy pożegnanie trzeba zorganizować szybko.",
+      PREVIEW_PROMISE.pl,
     ],
     faq: [
       {
@@ -1086,13 +1087,13 @@ const sv: OccasionTable = {
     bullets: [
       "Ingen annan kan ge samma sak: teckningen utgår från ditt foto.",
       "Det hamnar på väggen, till skillnad från de flesta födelsedagspresenter.",
-      "Teckningen är klar på 2 dagar, så även sena beställningar hinner fram.",
+      PREVIEW_PROMISE.sv,
     ],
     faq: [
       {
         question: "Hur långt i förväg behöver jag beställa till en födelsedag?",
         answer:
-          "Digital version: räkna med 2 dagar. Affisch eller canvas: upp till 10 arbetsdagar från beställning till leverans — 2 dagar för teckningen, 1 dag för godkännande, sedan 3 till 7 arbetsdagar för tryck och frakt.",
+          `${PREVIEW_PROMISE.sv} ${PRINT_PROMISE.sv}`,
       },
       {
         question: "Kan flera personer vara med på porträttet?",
@@ -1110,13 +1111,13 @@ const sv: OccasionTable = {
     bullets: [
       "En present som packas upp inför alla och som det pratas om.",
       "Perfekt för föräldrar eller mor- och farföräldrar som ”inte behöver något”.",
-      "Den digitala versionen går att beställa in i det sista.",
+      PREVIEW_PROMISE.sv,
     ],
     faq: [
       {
         question: "Hur sent kan jag beställa och ändå få det till jul?",
         answer:
-          "Sista beställningsdag visas på sidan under julperioden. I praktiken: upp till 10 arbetsdagar för ett tryck med leverans, 2 dagar för den digitala versionen.",
+          `${PREVIEW_PROMISE.sv} ${PRINT_PROMISE.sv}`,
       },
       {
         question: "Kan jag ge bort ett porträtt som inte hunnit fram?",
@@ -1144,7 +1145,7 @@ const sv: OccasionTable = {
       },
       {
         question: "När senast behöver jag beställa till den 14 februari?",
-        answer: "Till ett tryck: upp till 10 arbetsdagar innan. Till den digitala versionen räcker 2 dagar.",
+        answer: `${PREVIEW_PROMISE.sv} ${PRINT_PROMISE.sv}`,
       },
     ],
   },
@@ -1157,7 +1158,7 @@ const sv: OccasionTable = {
     bullets: [
       "Med barnen, eller med hela familjen.",
       "Husdjur får vara med — ofta är det de som gör porträttet.",
-      "Klart på 2 dagar, så det hinns med även om du nästan glömde bort det.",
+      PREVIEW_PROMISE.sv,
     ],
     faq: [
       {
@@ -1205,7 +1206,7 @@ const sv: OccasionTable = {
     bullets: [
       "På en kollega eller på hela teamet.",
       "Alla kan vara med och dela: en beställning, en present.",
-      "Klart på 2 dagar, även när avskedet ordnas snabbt.",
+      PREVIEW_PROMISE.sv,
     ],
     faq: [
       {
@@ -1235,13 +1236,13 @@ const da: OccasionTable = {
     bullets: [
       "Ingen andre kan give det samme: tegningen tager udgangspunkt i dit foto.",
       "Det ender på væggen, i modsætning til de fleste fødselsdagsgaver.",
-      "Tegningen er klar på 2 dage, så sene bestillinger når det også.",
+      PREVIEW_PROMISE.da,
     ],
     faq: [
       {
         question: "Hvor lang tid før skal jeg bestille til en fødselsdag?",
         answer:
-          "Digital version: regn med 2 dage. Plakat eller lærred: op til 10 hverdage fra bestilling til levering — 2 dage til tegningen, 1 dag til godkendelse og derefter 3 til 7 hverdage til tryk og forsendelse.",
+          `${PREVIEW_PROMISE.da} ${PRINT_PROMISE.da}`,
       },
       {
         question: "Kan der være flere personer på portrættet?",
@@ -1259,13 +1260,13 @@ const da: OccasionTable = {
     bullets: [
       "En gave, der pakkes op foran alle, og som der bliver snakket om.",
       "Perfekt til forældre eller bedsteforældre, der ”ikke mangler noget”.",
-      "Den digitale version kan bestilles helt til sidst.",
+      PREVIEW_PROMISE.da,
     ],
     faq: [
       {
         question: "Hvor sent kan jeg bestille og stadig nå det til jul?",
         answer:
-          "Sidste bestillingsdag står på siden i juleperioden. I praksis: op til 10 hverdage til et tryk med levering, 2 dage til den digitale version.",
+          `${PREVIEW_PROMISE.da} ${PRINT_PROMISE.da}`,
       },
       {
         question: "Kan jeg give et portræt, der ikke er nået frem?",
@@ -1293,7 +1294,7 @@ const da: OccasionTable = {
       },
       {
         question: "Hvornår skal jeg senest bestille til 14. februar?",
-        answer: "Til et tryk: op til 10 hverdage før. Til den digitale version er 2 dage nok.",
+        answer: `${PREVIEW_PROMISE.da} ${PRINT_PROMISE.da}`,
       },
     ],
   },
@@ -1306,7 +1307,7 @@ const da: OccasionTable = {
     bullets: [
       "Med børnene, eller med hele familien.",
       "Kæledyr må gerne være med — ofte er det dem, der gør portrættet.",
-      "Klar på 2 dage, så det kan nås, selv hvis du næsten havde glemt det.",
+      PREVIEW_PROMISE.da,
     ],
     faq: [
       {
@@ -1354,7 +1355,7 @@ const da: OccasionTable = {
     bullets: [
       "Af én kollega eller af hele teamet.",
       "Alle kan være med til at betale: én bestilling, én gave.",
-      "Klar på 2 dage, også når afskeden skal arrangeres hurtigt.",
+      PREVIEW_PROMISE.da,
     ],
     faq: [
       {
@@ -1386,13 +1387,13 @@ const pt: OccasionTable = {
     bullets: [
       "Mais ninguém pode oferecer o mesmo: o desenho parte da tua foto.",
       "Fica na parede, ao contrário da maioria das prendas de aniversário.",
-      "O desenho fica pronto em 2 dias, o que dá margem mesmo a quem se lembra tarde.",
+      PREVIEW_PROMISE.pt,
     ],
     faq: [
       {
         question: "Com quanta antecedência devo encomendar para um aniversário?",
         answer:
-          "Versão digital: conta com 2 dias. Poster ou tela: até 10 dias úteis entre a encomenda e a entrega — 2 dias de desenho, 1 dia para aprovar a pré-visualização e depois 3 a 7 dias úteis de impressão e envio.",
+          `${PREVIEW_PROMISE.pt} ${PRINT_PROMISE.pt}`,
       },
       {
         question: "Podem estar várias pessoas no retrato?",
@@ -1410,13 +1411,13 @@ const pt: OccasionTable = {
     bullets: [
       "Uma prenda que se abre à frente de todos e que dá conversa.",
       "Ideal para pais ou avós que «não precisam de nada».",
-      "A versão digital continua possível até ao último momento.",
+      PREVIEW_PROMISE.pt,
     ],
     faq: [
       {
         question: "Até quando posso encomendar para receber antes do Natal?",
         answer:
-          "A data-limite aparece no site durante a época natalícia. Na prática: até 10 dias úteis para uma impressão entregue, e 2 dias para a versão digital.",
+          `${PREVIEW_PROMISE.pt} ${PRINT_PROMISE.pt}`,
       },
       {
         question: "Posso oferecer um retrato que ainda não chegou?",
@@ -1444,7 +1445,7 @@ const pt: OccasionTable = {
       },
       {
         question: "Até quando devo encomendar para 14 de fevereiro?",
-        answer: "Para uma impressão: até 10 dias úteis antes. Para a versão digital bastam 2 dias.",
+        answer: `${PREVIEW_PROMISE.pt} ${PRINT_PROMISE.pt}`,
       },
     ],
   },
@@ -1457,7 +1458,7 @@ const pt: OccasionTable = {
     bullets: [
       "Com os filhos, ou com a família toda.",
       "Os animais podem entrar — muitas vezes são eles que fazem o retrato.",
-      "Pronto em 2 dias, por isso ainda dá tempo mesmo se te esqueceste.",
+      PREVIEW_PROMISE.pt,
     ],
     faq: [
       {
@@ -1505,7 +1506,7 @@ const pt: OccasionTable = {
     bullets: [
       "De um colega ou da equipa inteira.",
       "Toda a gente pode contribuir: uma encomenda, uma prenda.",
-      "Pronto em 2 dias, mesmo quando a despedida se organiza à pressa.",
+      PREVIEW_PROMISE.pt,
     ],
     faq: [
       {

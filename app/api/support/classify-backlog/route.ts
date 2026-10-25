@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getUnclassifiedSupportMessages,
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, processed: batch.length, remaining });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/support/classify-backlog] Error:", message);
+    console.error("[POST /api/support/classify-backlog] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

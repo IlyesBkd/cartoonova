@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { quoteOrder } from "@/lib/orderQuote";
 import { cleDepuisRequete, limiteur } from "@/lib/rateLimit";
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       currency: quote.currency,
     });
   } catch (error) {
-    console.error("[POST /api/promo/validate] Error:", error);
+    console.error("[POST /api/promo/validate] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

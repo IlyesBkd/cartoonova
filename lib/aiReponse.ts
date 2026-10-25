@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import type { DbOrder, OrderOptions, SupportReply } from "./db";
 import { decrireSupport, estPhysique } from "./supportCommande";
 import { lireConsigne } from "./consigneClient";
@@ -287,7 +288,7 @@ export async function redigerReponseSupport(input: {
       /* Le message du fournisseur est la seule chose qui distingue une cle
          expiree d'un modele retire du catalogue ou d'un quota atteint. */
       const detail = await r.text().catch(() => "");
-      console.error(`[AI-REPONSE] reponse ${r.status} : ${detail.slice(0, 500)}`);
+      console.error(`[AI-REPONSE] reponse ${r.status} : corps fournisseur omis`);
       return { erreur: `Le modèle a répondu ${r.status} : ${detail.slice(0, 300) || "aucun détail."}` };
     }
 
@@ -300,7 +301,7 @@ export async function redigerReponseSupport(input: {
 
     return { texte };
   } catch (error) {
-    console.error("[AI-REPONSE] Erreur:", error);
+    console.error("[AI-REPONSE] Erreur:", diagnosticJournal(error));
     return { erreur: error instanceof Error ? error.message : "Erreur inconnue." };
   }
 }

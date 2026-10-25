@@ -1,3 +1,5 @@
+import { diagnosticErreur, texteMesure } from "@/lib/confidentialiteMesure";
+
 /**
  * Notifications Discord.
  *
@@ -44,16 +46,18 @@ export async function alerteDiscord(message: MessageDiscord): Promise<void> {
       body: JSON.stringify({
         embeds: [
           {
-            title: message.titre,
+            title: texteMesure(message.titre),
             color: message.couleur,
-            fields: message.champs,
-            footer: { text: message.piedDePage ?? "Cartoonova" },
+            fields: message.champs
+              .filter(champ => !/email|e-mail|photo|token|jeton|secret|adresse/i.test(champ.name))
+              .map(champ => ({ ...champ, name: texteMesure(champ.name), value: texteMesure(champ.value) })),
+            footer: { text: texteMesure(message.piedDePage ?? "Cartoonova") },
             timestamp: new Date().toISOString(),
           },
         ],
       }),
     });
   } catch (erreur) {
-    console.error("[discord] notification impossible:", erreur);
+    console.error("[discord] notification impossible:", diagnosticErreur(erreur));
   }
 }

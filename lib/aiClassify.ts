@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import type { SupportMessageCategory } from "./db";
 
 const SYSTEM_PROMPT = `Tu tries les emails reçus sur la boîte support@cartoonova.com, l'adresse support d'un e-commerce (Cartoonova) qui vend des portraits caricature personnalisés à partir de photos.
@@ -71,10 +72,10 @@ export async function classifySupportMessage(input: {
 
     /* Une reponse hors des trois libelles attendus n'est pas un classement :
        c'est un modele qui a derive. On ne la traduit pas en "customer". */
-    console.error(`[AI-CLASSIFY] reponse inattendue ${JSON.stringify(label)} : message laisse non classe`);
+    console.error("[AI-CLASSIFY] format inattendu : message laisse non classe");
     return null;
   } catch (error) {
-    console.error("[AI-CLASSIFY] Erreur:", error);
+    console.error("[AI-CLASSIFY] Erreur:", diagnosticJournal(error));
     return null;
   }
 }

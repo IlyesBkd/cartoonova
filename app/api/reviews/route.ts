@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { recompenserAvis } from "@/lib/recompenseAvis";
@@ -148,7 +149,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, statut: resultat.statut });
   } catch (error) {
-    console.error("[POST /api/reviews]", error instanceof Error ? error.message : error);
+    console.error("[POST /api/reviews]", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
@@ -161,7 +162,7 @@ export async function GET(req: NextRequest) {
   try {
     return NextResponse.json(await tousLesAvis());
   } catch (error) {
-    console.error("[GET /api/reviews]", error instanceof Error ? error.message : error);
+    console.error("[GET /api/reviews]", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
@@ -186,7 +187,7 @@ export async function PATCH(req: NextRequest) {
     revalidateTag("avis", { expire: 0 });
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[PATCH /api/reviews]", error instanceof Error ? error.message : error);
+    console.error("[PATCH /api/reviews]", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

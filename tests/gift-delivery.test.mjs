@@ -5,8 +5,16 @@ import path from 'node:path';
 import { createRequire, Module } from 'node:module';
 import ts from 'typescript';
 const root=path.resolve(import.meta.dirname,'..');
-let sends=[], marked=[], scheduled=[], referrals=[];
-const order={id:'11111111-1111-4111-8111-111111111111',customer_email:'buyer@example.invalid',customer_name:'Private Buyer',detected_country:'FR',langue:'en',final_image_url:'https://images.example.invalid/portrait.png',options:{printKey:'digital',gift:{recipientEmail:'recipient@example.invalid',message:'Happy <script>alert("gift")</script> & birthday!\nEnjoy',deliverAfter:null}}};
+const require=createRequire(import.meta.url);
+const {MockAgent,setGlobalDispatcher,getGlobalDispatcher}=require('undici');
+const sharp=require('sharp');
+const storageOrigin='https://synthetic.public.blob.vercel-storage.com';
+const portraitPath='/final/gift-fixture/portrait.png';
+// A complete PNG, independently decoded below; not just a matching signature.
+const portraitPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWP4dUYUAASfAdxNa9nPAAAAAElFTkSuQmCC','base64');
+let sends=[], marked=[], scheduled=[], referrals=[], downloads=[];
+let agent, previousDispatcher, previousStorageOrigin;
+const order={id:'11111111-1111-4111-8111-111111111111',customer_email:'buyer@example.invalid',customer_name:'Private Buyer',detected_country:'FR',langue:'en',final_image_url:storageOrigin+portraitPath,options:{printKey:'digital',gift:{recipientEmail:'recipient@example.invalid',message:'Happy <script>alert("gift")</script> & birthday!\nEnjoy',deliverAfter:null}}};
 function load(file,replacements={},cache=new Map()) {
  file=path.resolve(root,file);if(cache.has(file))return cache.get(file).exports;
  const m=new Module(file);m.filename=file;cache.set(file,m);const original=createRequire(file);
@@ -20,13 +28,33 @@ function load(file,replacements={},cache=new Map()) {
  m.require=name=>{const normalized=name.startsWith('.')?'@/'+path.relative(root,path.resolve(path.dirname(file),name)):name;if(normalized in replacements)return replacements[normalized];if(normalized in defaults)return defaults[normalized];if(normalized.startsWith('@/'))return load(normalized.slice(2)+'.ts',replacements,cache);return original(name);};
  m._compile(ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,file);return m.exports;
 }
-beforeEach(()=>{sends=[];marked=[];scheduled=[];referrals=[];mock.timers.enable({apis:['Date'],now:new Date('2026-10-25T12:00:00Z')});});
-afterEach(()=>mock.timers.reset());
+beforeEach(async()=>{
+ sends=[];marked=[];scheduled=[];referrals=[];downloads=[];
+ previousStorageOrigin=process.env.FINAL_IMAGE_STORAGE_ORIGIN;
+ process.env.FINAL_IMAGE_STORAGE_ORIGIN=storageOrigin;
+ previousDispatcher=getGlobalDispatcher();
+ agent=new MockAgent();agent.disableNetConnect();setGlobalDispatcher(agent);
+ agent.get(storageOrigin).intercept({path:portraitPath,method:'GET'}).reply(200,request=>{
+  downloads.push({origin:request.origin,path:request.path,method:request.method});
+  return portraitPng;
+ },{headers:{'content-type':'image/png','content-length':String(portraitPng.length)}}).persist();
+ const decoded=await sharp(portraitPng).raw().toBuffer({resolveWithObject:true});
+ assert.equal(decoded.info.width,1);assert.equal(decoded.info.height,1);
+ assert.deepEqual(decoded.data,Buffer.from([250,204,21]));
+ mock.timers.enable({apis:['Date'],now:new Date('2026-10-25T12:00:00Z')});
+});
+afterEach(async()=>{
+ mock.timers.reset();
+ setGlobalDispatcher(previousDispatcher);await agent.close();
+ if(previousStorageOrigin===undefined)delete process.env.FINAL_IMAGE_STORAGE_ORIGIN;
+ else process.env.FINAL_IMAGE_STORAGE_ORIGIN=previousStorageOrigin;
+});
 
 test('delivery provider refusal never marks the portrait delivered',async()=>{
  const input=structuredClone(order);
  await assert.rejects(load('lib/emailImageFinale.ts',{'@/lib/envoiEmail':{envoyerEmail:async()=>({data:null,error:{message:'captured refusal'}})}}).envoyerImageFinale(input),/captured refusal/);
  assert.equal(marked.length,0);
+ assert.deepEqual(downloads,[{origin:storageOrigin,path:portraitPath,method:'GET'}]);
 });
 
 test('server route rejects impossible gift date before saving or sending',async()=>{
@@ -34,6 +62,7 @@ test('server route rejects impossible gift date before saving or sending',async(
  const {POST}=load('app/api/orders/send-final-image/route.ts',{'@/lib/db':{getOrderById:async()=>input,updateOrderFinalImage:async()=>writes++},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
  const response=await POST(new Request('http://local/api/orders/send-final-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({orderId:input.id,finalImageUrl:input.final_image_url,saveOnly:true})}));
  assert.equal(response.status,400);assert.equal(writes,0);assert.equal(sends.length,0);
+ assert.equal(downloads.length,0);
 });
 
 test('past and today gifts deliver; blank recipient falls back to buyer with buyer-only links',async()=>{
@@ -45,14 +74,17 @@ test('past and today gifts deliver; blank recipient falls back to buyer with buy
   if(!recipient?.trim())assert.match(mail.html,/PRIVATE_BUYER_TOKEN/);
  }
  assert.equal(sends.length,6);assert.equal(scheduled.length,0);
+ assert.equal(downloads.length,6);
 });
 
 test('UTC midnight boundary controls gift eligibility independently of host timezone',async()=>{
  const input=structuredClone(order);input.options.gift.deliverAfter='2026-10-26';
  mock.timers.setTime(Date.parse('2026-10-25T23:59:59.999Z'));
  await load('lib/emailImageFinale.ts').envoyerImageFinale(input);assert.equal(sends.length,0);
+ assert.equal(downloads.length,0);
  mock.timers.setTime(Date.parse('2026-10-26T00:00:00.000Z'));
  await load('lib/emailImageFinale.ts').envoyerImageFinale(input);assert.equal(sends.length,1);
+ assert.equal(downloads.length,1);
 });
 
 test('purchase confirmation still targets buyer immediately even for a future recipient gift',async()=>{
@@ -66,6 +98,7 @@ test('purchase confirmation still targets buyer immediately even for a future re
  assert.equal(await finaliser(input,'webhook'),true);
  assert.deepEqual(sends[0].to,['buyer@example.invalid']);assert.match(sends[0].html,/\/suivi\/PRIVATE_BUYER_TOKEN/);
  assert.doesNotMatch(sends[0].html,/recipient@example.invalid/);assert.equal(scheduled.length,0);
+ assert.equal(downloads.length,0);
 });
 
 test('cron reschedules a stale future gift without counting a delivery',async()=>{
@@ -77,16 +110,18 @@ test('cron reschedules a stale future gift without counting a delivery',async()=
  const old=process.env.CRON_SECRET;process.env.CRON_SECRET='local-only';
  try {const response=await GET(new Request('http://local/api/cron/lifecycle-emails',{headers:{authorization:'Bearer local-only'}}));assert.equal(response.status,200);const body=await response.json();assert.equal(body.imagesFinales.sent,0);assert.equal(body.imagesFinales.deferred,1);assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(scheduled[0].date.toISOString(),'2026-10-26T09:00:00.000Z');}
  finally {if(old===undefined)delete process.env.CRON_SECRET;else process.env.CRON_SECRET=old;}
+ assert.equal(downloads.length,0);
 });
 
 test('manual and express routes use persisted recipient and language, and cannot bypass gift date',async()=>{
  for(const saveOnly of [false,true]) for(const future of [false,true]){
-  sends=[];marked=[];scheduled=[];
+  sends=[];marked=[];scheduled=[];downloads=[];
   const stored=structuredClone(order);stored.options.express=saveOnly;stored.options.gift.deliverAfter=future?'2026-10-26':null;
   const db={getOrderById:async()=>stored,updateOrderFinalImage:async()=>{},markFinalImageSent:async id=>marked.push(id),setOrderLastOutboundMessageId:async()=>{},programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date}),programmerEnvoiImageFinaleSiLibre:async(id,date)=>{scheduled.push({id,date});return date;}};
   const {POST}=load('app/api/orders/send-final-image/route.ts',{'@/lib/db':db,'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
   const response=await POST(new Request('http://local/api/orders/send-final-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({orderId:order.id,finalImageUrl:order.final_image_url,customerEmail:'forged@example.invalid',detectedCountry:'FR',saveOnly})}));
   assert.equal(response.status,200);const body=await response.json();
+  assert.equal(downloads.length,future?1:2,'route validates before persistence; actual delivery validates again');
   if(future){assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(body.scheduledAt,'2026-10-26T09:00:00.000Z');assert.notEqual(body.envoyeImmediatement,true);}
   else {assert.deepEqual(sends[0].to,['recipient@example.invalid']);assert.equal(sends[0].subject,load('lib/email-i18n.ts').finalImageEmail.en.subject);}
  }
@@ -98,6 +133,7 @@ test('invalid persisted gift email or impossible calendar date fails closed befo
   await assert.rejects(load('lib/emailImageFinale.ts').envoyerImageFinale(input),/invalide/);
  }
  assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(scheduled.length,0);
+ assert.equal(downloads.length,0);
 });
 
 test('future gift is deferred without delivery or delivered marker, using UTC calendar days',async()=>{
@@ -107,6 +143,7 @@ test('future gift is deferred without delivery or delivered marker, using UTC ca
  assert.equal(result.deferredUntil,'2026-10-26T09:00:00.000Z');
  assert.equal(sends.length,0);assert.equal(marked.length,0);
  assert.equal(scheduled[0].date.toISOString(),result.deferredUntil);
+ assert.equal(downloads.length,0);
 });
 
 test('gift portrait goes to selected recipient, escaped message, order language and no buyer access',async()=>{
@@ -117,4 +154,5 @@ test('gift portrait goes to selected recipient, escaped message, order language 
  assert.doesNotMatch(sends[0].html,/<script>|PRIVATE_BUYER_TOKEN|Private Buyer|buyer@example.invalid|\/admin|\/bonus\/|\/suivi\//);
  assert.equal(sends[0].subject,load('lib/email-i18n.ts').finalImageEmail.en.subject);
  assert.deepEqual(referrals,[]);assert.deepEqual(marked,[order.id]);
+ assert.deepEqual(downloads,[{origin:storageOrigin,path:portraitPath,method:'GET'}]);
 });

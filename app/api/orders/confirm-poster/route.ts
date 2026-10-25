@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { libelleSupportCourt } from "@/lib/supportCommande";
@@ -69,7 +70,7 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
     });
 
     if (result.error) {
-      console.error("[CONFIRM-POSTER] Accusé de retouche refusé par Resend:", result.error.message);
+      console.error("[CONFIRM-POSTER] Accusé de retouche refusé par Resend:", diagnosticJournal(result.error));
       return;
     }
     /* Meme raison que pour l'image finale : la reponse du client a cet e-mail
@@ -78,7 +79,7 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
       await setOrderLastOutboundMessageId(order.id, result.data.id);
     }
   } catch (error) {
-    console.error("[CONFIRM-POSTER] Accusé de retouche impossible:", error);
+    console.error("[CONFIRM-POSTER] Accusé de retouche impossible:", diagnosticJournal(error));
   }
 }
 
@@ -99,28 +100,17 @@ async function sendDiscordNotification(order: {
     const isConfirmed = order.status === "confirmed";
     const fields: { name: string; value: string; inline: boolean }[] = [
       { name: "📦 Numéro", value: order.id.slice(0, 8), inline: true },
-      { name: "📧 Email", value: order.customer_email, inline: true },
     ];
-    /* Le support reel, pas « poster » : vous en vendez trois, et c'est la
-       premiere chose a saisir chez l'imprimeur. */
-    if (order.support) {
-      fields.push({ name: "🖼️ Support", value: order.support, inline: true });
+    // Discord is an operational signal, not a second customer-content store.
+    // Read the note/photos in the authenticated admin instead.
+    if (order.support && ["Poster", "Toile", "Cadre"].includes(order.support)) {
+      fields.push({ name: "Support", value: order.support, inline: true });
     }
-    if (!isConfirmed && order.note) {
-      fields.push({
-        name: `✏️ Modification demandée${order.rang && order.rang > 1 ? ` — demande n°${order.rang}` : ""}`,
-        value: order.note.slice(0, 1000),
-        inline: false,
-      });
-    }
-    /* Les photos dans l'alerte elle-meme : une demande de retouche visuelle
-       sans les images oblige a ouvrir le tableau de bord pour comprendre. */
-    if (!isConfirmed && order.photos?.length) {
-      fields.push({
-        name: `📎 ${order.photos.length} photo(s) jointe(s)`,
-        value: order.photos.map((u, i) => `[photo ${i + 1}](${u})`).join(" · ").slice(0, 1000),
-        inline: false,
-      });
+    if (!isConfirmed) {
+      fields.push({ name: "Photos jointes", value: String(order.photos?.length ?? 0), inline: true });
+      if (typeof order.rang === "number" && Number.isInteger(order.rang)) {
+        fields.push({ name: "Demande", value: String(order.rang), inline: true });
+      }
     }
 
     await fetch(webhookUrl, {
@@ -145,7 +135,7 @@ async function sendDiscordNotification(order: {
       }),
     });
   } catch (error) {
-    console.error("[CONFIRM-POSTER] Erreur notification Discord:", error);
+    console.error("[CONFIRM-POSTER] Erreur notification Discord:", diagnosticJournal(error));
   }
 }
 

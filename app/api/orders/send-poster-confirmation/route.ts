@@ -5,6 +5,7 @@ import { langueCommande, posterConfirmationEmail } from "@/lib/email-i18n";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
+import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
 
 export async function POST(req: NextRequest) {
   const refus = refuserSiPasAdmin(req);
@@ -17,6 +18,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
     }
 
+    const image = await downloadFinalImage(finalImageUrl);
+    const extension = image.contentType === "image/jpeg" ? "jpg" : image.contentType.split("/")[1];
     const token = randomBytes(24).toString("hex");
     await setPosterConfirmationToken(orderId, token);
 
@@ -35,8 +38,9 @@ export async function POST(req: NextRequest) {
       subject: t.subject,
       attachments: [
         {
-          filename: `cartoonova-${ref}.jpg`,
-          path: finalImageUrl,
+          filename: `cartoonova-${ref}.${extension}`,
+          content: Buffer.from(image.bytes).toString("base64"),
+          contentType: image.contentType,
         },
       ],
       html: `
@@ -80,7 +84,7 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    console.log("[SEND-POSTER-CONFIRMATION] Email envoyé:", JSON.stringify(result));
+    if (result.error) throw new Error("Envoi du portrait refusé.");
 
     if (result.data?.id) {
       await setOrderLastOutboundMessageId(orderId, result.data.id);
@@ -88,8 +92,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, emailResult: result });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/orders/send-poster-confirmation] Error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    const message = error instanceof FinalImageError ? error.message : "Envoi du portrait impossible.";
+    console.error("[SEND-POSTER-CONFIRMATION] Échec de livraison.");
+    return NextResponse.json({ error: message }, { status: error instanceof FinalImageError ? error.status : 500 });
   }
 }

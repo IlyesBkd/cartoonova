@@ -1,4 +1,6 @@
 import { PostHog } from "posthog-node";
+import { createHmac, randomUUID } from "node:crypto";
+import { diagnosticErreur, proprietesMesure } from "@/lib/confidentialiteMesure";
 import type { NomEvenement } from "@/lib/evenementsMesure";
 
 /**
@@ -20,13 +22,21 @@ import type { NomEvenement } from "@/lib/evenementsMesure";
  * PAID. Ce basculement est deja protege contre le double comptage — il
  * n'arrive qu'une fois par commande, quoi qu'il arrive au navigateur.
  *
- * Le `distinct_id` est l'adresse e-mail, la meme cle que `identifier()` cote
- * client : c'est ce qui recolle l'achat a la session qui l'a precede, et donc
- * ce qui permet a un entonnoir « vue produit → achat » de se fermer.
+ * Les adresses sont pseudonymisees par HMAC-SHA256 avec un secret serveur.
+ * Le navigateur conserve son identite anonyme, jamais l'adresse client.
  */
 
 let client: PostHog | null = null;
 let clientTente = false;
+
+function identiteMesure(identifiant: string): string {
+  if (!identifiant.includes("@")) return identifiant;
+  const secret = process.env.NEWSLETTER_SECRET || process.env.CRON_SECRET || process.env.STRIPE_SECRET_KEY;
+  // Keep counting business events without merging people or hashing an email
+  // with a public/weak salt when the deployment has no configured secret.
+  if (!secret) return `anonymous_${randomUUID()}`;
+  return `person_${createHmac("sha256", secret).update(`analytics:v1:${identifiant.trim().toLowerCase()}`).digest("hex")}`;
+}
 
 /* Seule la production mesure. Un serveur local ou une preview Vercel partagent
    la meme cle PostHog : le 2 octobre 2026, cinq achats de test passes en local
@@ -86,9 +96,9 @@ export async function mesureServeur(
 
   try {
     posthog.capture({
-      distinctId: identifiant,
+      distinctId: identiteMesure(identifiant),
       event: nom,
-      properties: proprietes,
+      properties: proprietesMesure(proprietes),
       /* Sans cela PostHog resout l'IP de l'appelant — celle du datacentre
          Vercel — et chaque commande semblerait venir de Francfort. Le pays
          reel du client est deja porte par `detected_country`. */
@@ -96,7 +106,7 @@ export async function mesureServeur(
     });
     await posthog.flush();
   } catch (erreur) {
-    console.error("[mesure] envoi impossible:", erreur);
+    console.error("[mesure] envoi impossible:", diagnosticErreur(erreur));
   }
 }
 
@@ -113,10 +123,10 @@ export async function personneServeur(
   if (!posthog) return;
 
   try {
-    posthog.identify({ distinctId: identifiant, properties: proprietes, disableGeoip: true });
+    posthog.identify({ distinctId: identiteMesure(identifiant), properties: proprietesMesure(proprietes), disableGeoip: true });
     await posthog.flush();
   } catch (erreur) {
-    console.error("[mesure] identification impossible:", erreur);
+    console.error("[mesure] identification impossible:", diagnosticErreur(erreur));
   }
 }
 

@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { payerAvecConfirmation, drainerEmails, type EmailPayload } from "./emailOutbox";
 import type { DbOrder } from "@/lib/db";
 import { confirmationEmail, depotPhotosPage, optionsCommande, langueCommande } from "@/lib/email-i18n";
@@ -277,7 +278,7 @@ export async function finaliserCommande(
        sous aucun pretexte empecher la confirmation de partir. */
     order.promo_code
       ? recompenserParrain(order).catch((erreur) =>
-          console.error("[finaliser] parrainage impossible:", order.id, erreur)
+          console.error("[finaliser] parrainage impossible:", order.id, diagnosticJournal(erreur))
         )
       : Promise.resolve(),
   ]);

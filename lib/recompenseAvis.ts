@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 /**
  * Bon de remerciement apres un avis (14 octobre 2026).
  *
@@ -60,6 +61,6 @@ export async function recompenserAvis(orderId: string): Promise<void> {
       textes: (valeur) => ({ sujet: t.sujet(valeur), titre: t.titre, intro: t.intro(valeur) }),
     });
   } catch (erreur) {
-    console.error("[avis] bon de remerciement impossible pour", orderId, erreur);
+    console.error("[avis] bon de remerciement impossible pour", orderId, diagnosticJournal(erreur));
   }
 }

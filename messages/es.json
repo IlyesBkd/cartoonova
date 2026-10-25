@@ -61,15 +61,15 @@
       "description": "Vive tu cuento de hadas"
     },
     "reassurance1": "Único, a partir de tu foto",
-    "reassurance2": "Entrega digital en 2 días",
+    "reassurance2": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "reassurance3": "Satisfacción garantizada",
     "ctaTitle": "¿No sabes cuál elegir?",
     "ctaSubtitle": "¡Empieza con nuestro más vendido!",
     "ctaButton": "Descubrir Simpson",
     "badgeSatisfied": "Satisfecho o reembolsado",
     "badgeHandDrawn": "A partir de tu foto",
-    "badgeDelivery24h": "Entrega en 2 días",
-    "trustBar": "A partir de tu foto · Entrega en 2 días · Satisfecho o reembolsado"
+    "badgeDelivery24h": "Primera vista previa: 2 días hábiles tras pago + fotos",
+    "trustBar": "A partir de tu foto · Primera vista previa: 2 días hábiles tras pago + fotos · Satisfecho o reembolsado"
   },
   "hero": {
     "badge": "4.8",
@@ -103,7 +103,7 @@
   "faq": {
     "title": "Preguntas Frecuentes",
     "q1": "¿Cuánto tiempo se tarda en crear la caricatura?",
-    "a1": "El dibujo se realiza en 2 días. Si elegiste una impresión física (póster, lienzo), añade 3 días laborables adicionales para la fabricación y el envío.",
+    "a1": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "q2": "¿Las personas deben estar en la misma foto?",
     "a2": "¡Para nada! Envíanos fotos individuales y reuniremos a todos en una sola imagen.",
     "q3": "¿Qué pasa si no estoy satisfecho/a?",
@@ -127,7 +127,7 @@
     "averageRating": "Valoración media",
     "delivery": "Entrega",
     "satisfactionGuarantee": "Garantía de satisfacción",
-    "digitalDelivery48h": "Entrega digital en 2 días",
+    "digitalDelivery48h": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "guaranteeStep1Title": "Envía tu foto",
     "guaranteeStep1Desc": "Un selfie es suficiente",
     "guaranteeStep2Title": "Dibujamos tu retrato",
@@ -141,10 +141,10 @@
     "verified": "Verificado",
     "frequentQuestions": "Preguntas frecuentes",
     "readyToBecome": "¿Listo para convertirte en",
-    "joinClients": "Recibe tu retrato personalizado en 2 días",
+    "joinClients": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "createMyPortrait": "Crear mi retrato",
     "handDrawnIcon": "A partir de tu foto",
-    "delivered48h": "Entregado en 2 días",
+    "delivered48h": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "satisfiedOrRefunded": "Satisfecho o reembolsado",
     "formatLabel": "Formato",
     "peopleLabel": "Personas",
@@ -219,7 +219,7 @@
     "reviewsTitle": "Gracias por tu confianza",
     "posterOption": "Póster Simple",
     "faqQ1": "¿Cuánto tiempo se tarda en hacer la caricatura?",
-    "faqA1": "El dibujo se realiza en 2 días. Si elegiste una impresión física (póster, lienzo), añade 3 días laborables adicionales para la fabricación y el envío.",
+    "faqA1": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "faqQ2": "¿Las personas deben estar todas en la misma foto?",
     "faqA2": "¡Para nada! Envíanos fotos individuales y reuniremos a todos juntos en una sola imagen.",
     "faqQ3": "¿Qué pasa si no estoy satisfecho/a?",
@@ -263,8 +263,8 @@
     "ctaTitle": "Tú también, pasa a modo cartoon.",
     "decorChip": "Escena",
     "decorStep": "Fondo",
-    "delivery48h": "archivo en 2 días",
-    "digital48h": "2 días (archivo digital)",
+    "delivery48h": "Primera vista previa: 2 días hábiles tras pago + fotos",
+    "digital48h": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "digitalSub": "HD por email · sin imprimir",
     "dragHere": "Arrastra tus fotos aquí",
     "estimatedDelay": "Plazo estimado",
@@ -289,7 +289,7 @@
     "paymentReassurance": "Pago seguro · Retoques gratis",
     "peoplePlural": "personas",
     "peopleSingular": "persona",
-    "pillDelivered48h": "Entrega en 2 días",
+    "pillDelivered48h": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "pillDrawnHand": "A partir de tu foto",
     "pillSatisfied": "Satisfecho o reembolsado",
     "portraitSub": "Cara + busto",
@@ -330,8 +330,8 @@
     "optExtraDecorSub": "Los mismos personajes en un segundo fondo: dos imágenes",
     "optExtraDecorRecap": "2.º fondo: {decor}",
     "optExpress": "Exprés 24 h",
-    "optExpressSub": "Tu retrato en 24 horas, fines de semana incluidos",
-    "optExpressSubPrint": "Dibujo en 24 horas, fines de semana incluidos, y luego la impresión",
+    "optExpressSub": "Primera vista previa en 24 horas, fines de semana incluidos, tras recibir el pago y las fotos.",
+    "optExpressSubPrint": "Primera vista previa en 24 horas, fines de semana incluidos, tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "optExpressRecap": "Exprés 24 h",
     "shippingLine": "envío incluido: {montant}",
     "optSaisonTitre": "Para las fiestas",
@@ -489,7 +489,7 @@
     "errorNameRequired": "Por favor ingresa tu nombre y apellido.",
     "errorAddressRequired": "Por favor completa la dirección completa.",
     "errorPostalCode": "Este código postal no corresponde al país elegido.",
-    "guaranteeLine": "Vista previa en 2 días · retoques ilimitados · reembolso si la vista previa no te gusta",
+    "guaranteeLine": "Primera vista previa: 2 días hábiles tras pago + fotos · retoques ilimitados · reembolso si la vista previa no te gusta",
     "occasionLabel": "¿Para qué ocasión? (opcional)",
     "occasions": {
       "anniversaire": "Cumpleaños",
@@ -505,7 +505,7 @@
     "errorTechnical": "Error técnico al preparar el pago.",
     "step1Of2": "Paso 1/2",
     "step2Of2": "Paso 2/2",
-    "orderByGuidance": "¿Lo necesitas para una fecha concreta? Cuenta 2 días de dibujo, 1 día para validar la vista previa y luego 3 a 7 días hábiles de impresión y envío.",
+    "orderByGuidance": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "giftToggle": "Es un regalo",
     "giftHint": "Mensaje, envío al destinatario, fecha de entrega",
     "giftMessageLabel": "Mensaje para el destinatario",
@@ -540,66 +540,66 @@
   "evenements": {
     "anniversaire": {
       "promo": "¿Un cumpleaños a la vista? —",
-      "promoFort": "vista previa en 2 días",
+      "promoFort": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos.",
       "heroTitre1": "El regalo de cumpleaños",
       "heroTitre2": "que hace reír a toda la mesa",
-      "heroSous": "Tu foto convertida en un retrato único. Vista previa en 2 días, retoques ilimitados."
+      "heroSous": "Tu foto convertida en un retrato único. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
     "saintValentin": {
       "promo": "San Valentín — retrato único, retoques ilimitados,",
-      "promoFort": "pide antes del {date}",
+      "promoFort": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha.",
       "heroTitre1": "Un regalo de San Valentín",
       "heroTitre2": "que no se compra",
-      "heroSous": "Vuestra mejor foto en pareja, convertida en un retrato único. Vista previa en 2 días, retoques ilimitados."
+      "heroSous": "Vuestra mejor foto en pareja, convertida en un retrato único. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
     "feteDesMeres": {
       "promo": "Día de la Madre —",
-      "promoFort": "pide antes del {date}",
+      "promoFort": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha.",
       "heroTitre1": "El regalo del Día de la Madre",
       "heroTitre2": "que va a guardar",
-      "heroSous": "Vuestra foto de familia convertida en un retrato único. Vista previa en 2 días, retoques ilimitados."
+      "heroSous": "Vuestra foto de familia convertida en un retrato único. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
     "feteDesPeres": {
       "promo": "Día del Padre —",
-      "promoFort": "pide antes del {date}",
+      "promoFort": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha.",
       "heroTitre1": "Un regalo del Día del Padre",
       "heroTitre2": "que no es otra corbata",
-      "heroSous": "Su foto, en el universo que más le gusta. Vista previa en 2 días, retoques ilimitados."
+      "heroSous": "Su foto, en el universo que más le gusta. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
     "halloween": {
       "promo": "Se acerca Halloween —",
-      "promoFort": "pide antes del {date}",
+      "promoFort": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha.",
       "heroTitre1": "Tu retrato,",
       "heroTitre2": "versión Halloween",
-      "heroSous": "Toda la familia en versión dibujos animados. Vista previa en 2 días, retoques ilimitados."
+      "heroSous": "Toda la familia en versión dibujos animados. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
     "blackFriday": {
       "promo": "Es Black Friday —",
       "promoFort": "el mejor momento para regalar",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "regala algo original",
-      "heroSous": "Un retrato suyo, no un objeto más. Vista previa en 2 días, retoques ilimitados."
+      "heroSous": "Un retrato suyo, no un objeto más. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
     "noel": {
       "promo": "Navidad —",
-      "promoFort": "pide antes del {date}",
+      "promoFort": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha.",
       "heroTitre1": "El regalo de Navidad",
       "heroTitre2": "que no se olvida",
-      "heroSous": "Vuestra foto convertida en un retrato único, a tiempo para el 25. Vista previa en 2 días."
+      "heroSous": "Tu foto convertida en un retrato único. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados."
     },
-    "phaseNumerique": "el retrato digital aún llega a tiempo si pides antes del {date}"
+    "phaseNumerique": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha."
   },
   "gift": {
-    "generic": "¿Regalo para una fecha concreta? Recíbelo en {digitalDays} días en digital, o en {daysMin} a {days} días hábiles en versión impresa.",
-    "deadline": "{event}: pide antes del {date} para recibirlo a tiempo.",
+    "generic": "Primera vista previa en {digitalDays} días hábiles tras recibir el pago y las fotos. Recepción impresa estimada en {daysMin} a {days} días hábiles con validación rápida; el transporte es independiente.",
+    "deadline": "{event} : Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha.",
     "event_saintValentin": "San Valentín",
     "event_feteDesMeres": "Día de la Madre",
     "event_feteDesPeres": "Día del Padre",
     "event_halloween": "Halloween",
     "event_blackFriday": "Black Friday",
     "event_noel": "Navidad",
-    "deadlineDouble": "{event}: pide antes del {date} para un retrato impreso, o antes del {dateNumerique} en digital.",
-    "deadlineNumerique": "{event}: ya es tarde para la impresión, pero el retrato digital llega a tiempo si pides antes del {date}."
+    "deadlineDouble": "{event}: fechas orientativas si recibimos el pago y las fotos antes del {date} para impresión o del {dateNumerique} en digital. La validación y el transporte pueden retrasar la recepción.",
+    "deadlineNumerique": "{event} : Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha."
   },
   "exitIntent": {
     "title": "¿Ya te vas?",
@@ -657,7 +657,7 @@
     "howItWorksLink": "¿Cómo funciona?",
     "satisfiedOrRefunded": "Satisfecho o reembolsado",
     "handDrawn": "A partir de tu foto",
-    "delivered48h": "Entrega en 2 días",
+    "delivered48h": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "portraitsCreated": "Retratos creados",
     "averageRating": "Nota media",
     "delivery": "Entrega",
@@ -671,7 +671,7 @@
     "step2Title": "Te dibujamos",
     "step2Desc": "Creamos tu retrato cartoon único.",
     "step3Title": "Recibe tu obra",
-    "step3Desc": "Recibe tu archivo digital en 2 días.",
+    "step3Desc": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos.",
     "startNow": "Empezar ahora →",
     "galleryTitle": "Nuestras creaciones",
     "gallerySubtitle": "¡Descubre lo que podemos crear a partir de tus fotos!",
@@ -681,15 +681,15 @@
     "whyUs1Desc": "¡Revisiones ilimitadas y gratuitas, y reembolso si no te convence!",
     "whyUs2Title": "Hecho a medida",
     "whyUs2Desc": "Cada retrato se crea a partir de tus fotos, solo para ti.",
-    "whyUs3Title": "Entrega en 2 días",
-    "whyUs3Desc": "Recibe tu retrato digital en máximo 2 días.",
+    "whyUs3Title": "Primera vista previa: 2 días hábiles tras pago + fotos",
+    "whyUs3Desc": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos.",
     "reviewsTitle": "Lo que dicen nuestros clientes",
     "verifiedReviewsCount": "Retoques ilimitados",
     "verified": "Verificado",
     "viewAllReviews": "Ver todas las reseñas →",
     "faqTitle": "Preguntas frecuentes",
     "faqQ1": "¿Cuánto tiempo se tarda en realizar la caricatura?",
-    "faqA1": "El dibujo se realiza en 2 días. Si elegiste una impresión física (póster, lienzo, marco), añade 3 días laborables para la fabricación y la entrega.",
+    "faqA1": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "faqQ2": "¿Las personas deben estar en la misma foto?",
     "faqA2": "¡Para nada! Envíanos fotos individuales y reuniremos a todos juntos.",
     "faqQ3": "¿Qué pasa si no estoy satisfecho/a?",
@@ -700,10 +700,10 @@
     "faqA5": "¡Sí! Podemos incluir objetos, vehículos, fondos o accesorios por un pequeño suplemento.",
     "ctaTitle": "¿Listo para convertirte en cartoon?",
     "ctaSubtitle": "¿Quieres un retrato que se parezca a ti? ¡Te toca!",
-    "ctaReassurance": "A partir de tu foto · Entrega en 2 días · Satisfecho o reembolsado",
+    "ctaReassurance": "A partir de tu foto · Primera vista previa: 2 días hábiles tras pago + fotos · Satisfecho o reembolsado",
     "portraitAlt": "Retrato cartoon",
     "realizationAlt": "Creación",
-    "trustBar": "A partir de tu foto · Entrega en 2 días · Satisfecho o reembolsado"
+    "trustBar": "A partir de tu foto · Primera vista previa: 2 días hábiles tras pago + fotos · Satisfecho o reembolsado"
   },
   "socialProof": {
     "names": [
@@ -719,13 +719,13 @@
   },
   "tj": {
     "promo": "Retrato único, retoques ilimitados —",
-    "promoFort": "vista previa en 2 días",
+    "promoFort": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "navStyles": "Estilos",
     "navEtapes": "Cómo funciona",
     "navFaq": "Preguntas",
     "navTousStyles": "Ver los 36 estilos",
     "heroOeil": "Retrato personalizado",
-    "heroNote": "Tu retrato en 2 días, retoques ilimitados",
+    "heroNote": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Retoques ilimitados.",
     "etapesTitre": "Tres pasos,",
     "etapesAccent": "nada más",
     "etapesSous": "Sin crear cuenta, sin programas. Basta una foto.",
@@ -742,7 +742,7 @@
     "atoutsAccent": "diferencia",
     "atoutsSous": "Cada retrato parte de tu foto, y de nada más.",
     "atout1T": "Vista previa rápida",
-    "atout1D": "Tu retrato llega en 2 días. En digital, el archivo en alta definición sale directamente por correo; en impresión, validas la vista previa antes de imprimir.",
+    "atout1D": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "atout2T": "Retoques ilimitados",
     "atout2D": "Ajustamos hasta que quede perfecto, tantas veces como haga falta, sin coste añadido.",
     "atout3T": "Cualquier foto vale",
@@ -770,7 +770,7 @@
     "hiwStep2Titre": "Sube cualquier foto",
     "hiwStep2Texte": "Sube fotos desde tu dispositivo o redes sociales — ahora o más tarde — para crear tu retrato cartoon.",
     "hiwStep3Titre": "Recibe tu retrato",
-    "hiwStep3Texte": "Recibe tu archivo digital en 2 días. ¿Lo quieres en la pared? Elige póster, lienzo o retrato enmarcado.",
+    "hiwStep3Texte": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. ¿Lo quieres en la pared? Elige póster, lienzo o retrato enmarcado.",
     "hiwChoisirDecor": "Elige un fondo",
     "hiwChoisirFichiers": "Elegir archivos",
     "hiwCommande": "Pedido",
@@ -781,7 +781,7 @@
     "ctaTitre": "¿Listo para verte",
     "ctaAccent": "en dibujo animado",
     "ctaTexte": "Regala algo que nadie más puede regalar.",
-    "ctaAtout1": "Listo en 2 días",
+    "ctaAtout1": "Primera vista previa: 2 días hábiles tras pago + fotos",
     "ctaAtout2": "Retoques ilimitados",
     "ctaAtout3": "Cualquier foto vale",
     "piedBaseline": "Retratos únicos, creados a partir de tus fotos.",
@@ -834,12 +834,12 @@
     "garantieImprime": "Validas tu retrato antes de que lo imprimamos. ¿No te convence tras los retoques? Te lo reembolsamos.",
     "garantieNumerique": "Retoques hasta que te encante. ¿No te convence? Te lo reembolsamos.",
     "offerts": "De regalo con tu retrato: fondo de pantalla, avatar y tarjeta para imprimir.",
-    "tuileDelai": "2 días"
+    "tuileDelai": "Primera vista previa: 2 días hábiles tras pago + fotos"
   },
   "metaPages": {
     "aPropos": {
       "title": "Quiénes somos — Cartoonova, retratos cartoon personalizados",
-      "description": "Detrás de Cartoonova, retratos cartoon creados uno a uno a partir de tus fotos. Vista previa en 2 días, retoques ilimitados, impresión en 3 a 7 días hábiles."
+      "description": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino."
     },
     "avis": {
       "title": "Opiniones de clientes — qué dicen de su retrato Cartoonova",
@@ -913,11 +913,11 @@
     "surtitre": "Navidad",
     "titre": "El regalo de Navidad",
     "accent": "que no se olvida",
-    "sous": "Un retrato cartoon dibujado a partir de tu foto. Hasta cuándo pedir para que llegue a tiempo.",
+    "sous": "Un retrato cartoon a partir de tu foto. Fechas orientativas, sujetas a la recepción del pago y las fotos.",
     "impressionTitre": "Póster, lienzo o marco",
-    "impressionTexte": "Pide antes del {date}: 2 días de dibujo, 1 día para validar la vista previa y luego la impresión y el envío.",
+    "impressionTexte": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "numeriqueTitre": "Versión digital",
-    "numeriqueTexte": "Pide antes del {date}: el retrato llega por correo, listo para imprimir en casa o regalar en una pantalla.",
+    "numeriqueTexte": "Fecha orientativa: pago y fotos recibidos antes del {date}, sin garantía de recepción en esa fecha. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos.",
     "bonTitre": "Tarjeta regalo",
     "bonTexte": "Hasta la noche del {date}: nada que enviar, la tarjeta llega por correo en segundos, lista para el árbol.",
     "bonCta": "Regalar una tarjeta",
@@ -952,17 +952,17 @@
     "photoBoutonAutre": "Añadir otra foto",
     "photoGlisser": "o arrástralas aquí desde tu ordenador",
     "ajouterPrecision": "+ Añadir una indicación",
-    "dateNumerique": "Pide hoy → tu retrato el {date}",
-    "dateExpress": "Pide hoy → tu retrato mañana, {date}",
-    "dateImprime": "Pide hoy → vista previa el {apercu}, tu retrato en casa entre el {debut} y el {fin}",
-    "dateImprimeExpress": "Pide hoy → vista previa mañana, {apercu}, tu retrato en casa entre el {debut} y el {fin}",
+    "dateNumerique": "Si recibimos el pago y las fotos hoy: primera vista previa estimada el {date}.",
+    "dateExpress": "Si recibimos el pago y las fotos hoy: primera vista previa estimada el {date}. Primera vista previa en 24 horas, fines de semana incluidos, tras recibir el pago y las fotos.",
+    "dateImprime": "Si recibimos el pago y las fotos hoy: primera vista previa estimada el {apercu}. Recepción impresa estimada entre {debut} y {fin}, según la validación y el transporte.",
+    "dateImprimeExpress": "Si recibimos el pago y las fotos hoy: primera vista previa estimada el {apercu}. Recepción impresa estimada entre {debut} y {fin}, según la validación y el transporte. Primera vista previa en 24 horas, fines de semana incluidos, tras recibir el pago y las fotos.",
     "qRessembleQ": "¿Y si no se parece?",
     "qRessembleR": "Retocamos tu retrato tantas veces como haga falta, gratis: parecido, colores, detalles. Si sigues sin estar convencido, te devolvemos el importe íntegro. Para un retrato impreso, pídelo antes de validar la vista previa: una vez validada, se lanza la impresión.",
     "qPhotosQ": "¿Cuántas fotos envío?",
     "qPhotosR": "Basta con una foto nítida por persona (y por mascota): de frente, bien iluminada, con la cara bien visible. Puedes enviar hasta {max}.",
     "qPhotosLien": "¿Qué foto elegir?",
     "qPlusTardQ": "¿Puedo pagar y enviar mis fotos más tarde?",
-    "qPlusTardR": "Sí. Justo después del pago, recibes por e-mail un enlace para subir tus fotos. El plazo de realización empieza cuando las recibimos."
+    "qPlusTardR": "Sí. Justo después del pago, recibes por e-mail un enlace para subir tus fotos. Primera vista previa en 2 días hábiles tras recibir el pago y las fotos."
   },
   "guidePhoto": {
     "lienPied": "¿Qué foto enviar?",
@@ -1090,7 +1090,7 @@
     "v2Titre": "Satisfacción garantizada",
     "v2Texte": "Retoques ilimitados y gratuitos. No paramos hasta que te encante.",
     "v3Titre": "Rápido y fiable",
-    "v3Texte": "Vista previa en 2 días, impresiones fabricadas y entregadas en 3 a 7 días hábiles. Envío con seguimiento a todo el mundo.",
+    "v3Texte": "Primera vista previa en 2 días hábiles tras recibir el pago y las fotos. Para una impresión, primero validas la vista previa; después, la fabricación y el envío tardan de 3 a 7 días hábiles según el destino.",
     "v4Titre": "En todo el mundo",
     "v4Texte": "Enviamos a más de 50 países, con un soporte que responde de verdad."
   },

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
+import { downloadFinalImage } from "@/lib/finalImage";
 
 /* Le portrait final, servi depuis le domaine du site.
 
@@ -23,15 +24,16 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
     return NextResponse.json({ error: "indisponible" }, { status: 404 });
   }
 
-  const source = await fetch(order.final_image_url);
-  if (!source.ok || !source.body) {
+  try {
+    const image = await downloadFinalImage(order.final_image_url);
+    return new Response(Buffer.from(image.bytes), {
+      headers: {
+        "content-type": image.contentType,
+        "x-content-type-options": "nosniff",
+        "cache-control": "private, max-age=3600",
+      },
+    });
+  } catch {
     return NextResponse.json({ error: "stockage" }, { status: 502 });
   }
-
-  return new Response(source.body, {
-    headers: {
-      "content-type": source.headers.get("content-type") ?? "image/png",
-      "cache-control": "private, max-age=3600",
-    },
-  });
 }

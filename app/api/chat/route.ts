@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { cleDepuisRequete, limiteur } from "@/lib/rateLimit";
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Chat webhook error:", error);
+    console.error("Chat webhook error:", diagnosticJournal(error));
     return NextResponse.json({ error: "Erreur serveur." }, { status: 500 });
   }
 }

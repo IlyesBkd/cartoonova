@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { getOrderById, markReviewRequestSent } from "@/lib/db";
 import { reviewRequestEmail, langueCommande } from "@/lib/email-i18n";
@@ -84,12 +85,12 @@ export async function POST(req: NextRequest) {
     /* Marque la commande pour que le cron ne repasse pas derriere : sans ca,
        un envoi manuel serait suivi d'un envoi automatique dix jours plus tard. */
     await markReviewRequestSent(order.id).catch((e) =>
-      console.error("[review-request] marquage impossible:", e)
+      console.error("[review-request] marquage impossible:", diagnosticJournal(e))
     );
 
     return NextResponse.json({ ok: true, lang, email: order.customer_email });
   } catch (erreur) {
-    console.error("[review-request] échec:", erreur);
+    console.error("[review-request] échec:", diagnosticJournal(erreur));
     return NextResponse.json({ error: "Envoi impossible." }, { status: 500 });
   }
 }

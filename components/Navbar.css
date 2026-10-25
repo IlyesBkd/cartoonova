@@ -1,0 +1,14 @@
+/* A bounded, independent scroll area below the always-reachable header. */
+@media (max-width: 1080px) {
+  .entete .replie.ouvert {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    height: calc(100dvh - var(--nav-mobile-top, 80px));
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    padding-bottom: max(22px, env(safe-area-inset-bottom));
+    scroll-padding-block: 14px;
+  }
+}

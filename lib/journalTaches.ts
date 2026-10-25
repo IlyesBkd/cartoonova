@@ -1,3 +1,4 @@
+import { diagnosticJournal, bilanJournal } from "@/lib/confidentialiteMesure";
 import { sql } from "./db";
 
 /**
@@ -85,18 +86,19 @@ export async function enregistrerPassage(
   try {
     await assurerSchema();
     const { produit, ...details } = resume;
+    const detailsSurs = bilanJournal(details);
     await sql`
       INSERT INTO ge_job_runs (projet, tache, demarre_le, termine_le, duree_ms, ok, produit, details, erreur)
       VALUES (
         ${projet}, ${tache}, ${demarreLe.toISOString()}, NOW(),
         ${Date.now() - demarreLe.getTime()}, ${ok},
         ${produit ?? null},
-        ${Object.keys(details).length ? JSON.stringify(details) : null}::text::jsonb,
-        ${erreur ?? null}
+        ${Object.keys(detailsSurs).length ? JSON.stringify(detailsSurs) : null}::text::jsonb,
+        ${erreur ? diagnosticJournal(erreur).categorie : null}
       )
     `;
   } catch (e) {
-    console.error(`[journal] passage non enregistre pour ${tache}:`, e);
+    console.error(`[journal] passage non enregistre pour ${tache}:`, diagnosticJournal(e));
   }
 }
 
@@ -117,7 +119,7 @@ export async function avecJournal<T extends ResumePassage | void>(
     await enregistrerPassage(tache, true, demarreLe, resultat ?? {}, undefined, projet);
     return resultat;
   } catch (e) {
-    const message = e instanceof Error ? e.message : String(e);
+    const message = diagnosticJournal(e).categorie;
     await enregistrerPassage(tache, false, demarreLe, {}, message, projet);
     throw e;
   }

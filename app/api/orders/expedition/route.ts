@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getOrderById,
@@ -142,7 +143,7 @@ export async function PATCH(req: NextRequest) {
     await enregistrerExpedition(orderId, fournisseurRef, suiviUrl, transporteur, coutEstime(order?.options));
     return NextResponse.json({ ok: true });
   } catch (erreur) {
-    console.error("[expedition PATCH] échec:", erreur);
+    console.error("[expedition PATCH] échec:", diagnosticJournal(erreur));
     return NextResponse.json({ error: "Enregistrement impossible." }, { status: 500 });
   }
 }
@@ -234,7 +235,7 @@ export async function POST(req: NextRequest) {
        pas » arrive en reponse a CET e-mail, et doit se lire sur la fiche. */
     if (resultat.data?.id) {
       await setOrderLastOutboundMessageId(orderId, resultat.data.id).catch((e) =>
-        console.error("[expedition] rattachement du message impossible:", e)
+        console.error("[expedition] rattachement du message impossible:", diagnosticJournal(e))
       );
     }
 
@@ -242,7 +243,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, lang, email: order.customer_email });
   } catch (erreur) {
-    console.error("[expedition POST] échec:", erreur);
+    console.error("[expedition POST] échec:", diagnosticJournal(erreur));
     return NextResponse.json({ error: "Envoi impossible." }, { status: 500 });
   }
 }

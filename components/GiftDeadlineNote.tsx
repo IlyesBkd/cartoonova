@@ -74,8 +74,8 @@ export default function GiftDeadlineNote({
         taille={15}
         style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 7 }}
       />
-      {/* `livraisonSeulement` garantit les deux dates limites : seuls les
-          evenements livrables passent le filtre. */}
+      {/* `livraisonSeulement` fournit les deux dates de repère ; le texte
+          précise qu'elles dépendent du paiement, des photos et de la validation. */}
       {evenement.phase === "numerique"
         ? t("deadlineNumerique", {
             event: t(`event_${evenement.cle}` as "event_noel"),

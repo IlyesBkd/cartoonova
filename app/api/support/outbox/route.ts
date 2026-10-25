@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupportOutbox, withFreshDatabaseClient } from "@/lib/db";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(sortants);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[GET /api/support/outbox] Error:", message);
+    console.error("[GET /api/support/outbox] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { createPromoCode, listPromoCodes, setPromoActive, type PromoKind } from "@/lib/promoCodes";
 import { currencies, type Currency } from "@/lib/currency";
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     return NextResponse.json(await listPromoCodes());
   } catch (error) {
-    console.error("[GET /api/promo] Error:", error);
+    console.error("[GET /api/promo] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[POST /api/promo] Error:", error);
+    console.error("[POST /api/promo] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
@@ -81,7 +82,7 @@ export async function PATCH(req: NextRequest) {
     await setPromoActive(code, Boolean(active));
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("[PATCH /api/promo] Error:", error);
+    console.error("[PATCH /api/promo] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { subscribeToNewsletter } from "@/lib/db";
 import { sendWelcomeStep } from "@/lib/welcomeSequence";
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
       try {
         await sendWelcomeStep({ email, locale }, 1);
       } catch (error) {
-        console.error("[POST /api/newsletter] email de bienvenue non envoye:", error);
+        console.error("[POST /api/newsletter] email de bienvenue non envoye:", diagnosticJournal(error));
       }
     }
 
@@ -54,8 +55,7 @@ export async function POST(req: NextRequest) {
     // pas de fuite d'information sur qui est deja inscrit.
     return NextResponse.json({ ok: true, created });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/newsletter] Error:", message);
+    console.error("[POST /api/newsletter] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

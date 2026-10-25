@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { syncSupportInbox } from "@/lib/imapSync";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/support/sync] Error:", message);
+    console.error("[POST /api/support/sync] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

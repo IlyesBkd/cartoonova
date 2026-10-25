@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
@@ -94,7 +95,7 @@ export async function contenuFiche(produit: string, locale: string): Promise<Con
   try {
     return await lireContenuFiche(produit, locale);
   } catch (erreur) {
-    console.error("[contenuFiche] lecture impossible:", produit, locale, erreur);
+    console.error("[contenuFiche] lecture impossible:", produit, locale, diagnosticJournal(erreur));
     return null;
   }
 }
@@ -204,7 +205,7 @@ export async function fichesMisesAJourDepuis(
       locale: String(r.locale),
     }));
   } catch (erreur) {
-    console.error("[contenuFiche] fiches mises a jour illisibles:", erreur);
+    console.error("[contenuFiche] fiches mises a jour illisibles:", diagnosticJournal(erreur));
     return [];
   }
 }

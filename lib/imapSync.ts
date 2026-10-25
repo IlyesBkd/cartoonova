@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import {
@@ -53,7 +54,7 @@ async function notifySupportDiscord(msg: {
       }),
     });
   } catch (error) {
-    console.error("[IMAP-SYNC] Erreur notification Discord:", error);
+    console.error("[IMAP-SYNC] Erreur notification Discord:", diagnosticJournal(error));
   }
 }
 

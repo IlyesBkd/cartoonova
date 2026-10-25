@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getOrderByPaymentId } from "@/lib/db";
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
     /* Signature invalide : la requete ne vient pas de Stripe, ou le secret
        configure n'est pas le bon (le secret de test et celui de production
        sont differents). On refuse sans reessai possible. */
-    console.error("[stripe/webhook] signature refusée:", erreur);
+    console.error("[stripe/webhook] signature refusée:", diagnosticJournal(erreur));
     return NextResponse.json({ error: "Signature invalide." }, { status: 400 });
   }
 

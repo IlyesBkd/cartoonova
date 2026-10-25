@@ -21,6 +21,7 @@ import { createHash } from "node:crypto";
 import type { DbOrder } from "@/lib/db";
 import { PIXEL_CHATGPT_ID, enCentimes } from "@/lib/pixelChatgpt";
 import { SITE_URL } from "@/lib/site";
+import { diagnosticErreur } from "@/lib/confidentialiteMesure";
 
 const CLE = process.env.OPENAI_CONVERSIONS_API_KEY || "";
 const ENDPOINT = "https://bzr.openai.com/v1/events";
@@ -80,11 +81,14 @@ export async function envoyerConversionChatgpt(
       body: JSON.stringify({ validate_only: validateOnly, events: [evenementCommande(order)] }),
       signal: AbortSignal.timeout(8000),
     });
-    const corps = await r.text();
-    if (!r.ok) console.error(`[conversions chatgpt] ${order.id} refusée (${r.status}):`, corps.slice(0, 300));
-    return { ok: r.ok, statut: r.status, corps: corps.slice(0, 300) };
+    // Provider responses may echo the private input or authentication URL.
+    // Status is sufficient to diagnose a delivery failure; never forward text.
+    await r.body?.cancel();
+    if (!r.ok) console.error(`[conversions chatgpt] refusée (${r.status})`);
+    return { ok: r.ok, statut: r.status };
   } catch (erreur) {
-    console.error(`[conversions chatgpt] ${order.id} non envoyée:`, erreur);
-    return { ok: false, corps: String(erreur) };
+    const diagnostic = diagnosticErreur(erreur);
+    console.error("[conversions chatgpt] non envoyée:", diagnostic);
+    return { ok: false, corps: diagnostic };
   }
 }

@@ -11,6 +11,7 @@ import { envoyerImageFinale } from "@/lib/emailImageFinale";
 import { dateEnvoiProgramme, reporterApresDateCadeau } from "@/lib/envoiProgramme";
 import { estPhysique } from "@/lib/supportCommande";
 import { optionsLivraisonCadeau, validerLivraisonCadeau, LivraisonCadeauInvalide } from "@/lib/livraisonCadeau";
+import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "@/lib/finalImage";
 
 /**
  * Depot de l'illustration finale, et son envoi.
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       }
 
       const demandee = scheduledAt ? new Date(scheduledAt) : null;
+      validateFinalImageUrl(order.final_image_url);
       if (demandee && Number.isNaN(demandee.getTime())) {
         return NextResponse.json({ error: "Date invalide." }, { status: 400 });
       }
@@ -91,6 +93,8 @@ export async function POST(req: NextRequest) {
     validerLivraisonCadeau(options);
 
     // ── Depot de l'image ─────────────────────────────────────────────
+    // Refuse unsafe destinations and bytes BEFORE persistence or scheduling.
+    await downloadFinalImage(finalImageUrl);
     if (saveOnly) {
       await updateOrderFinalImage(orderId, finalImageUrl);
 
@@ -154,8 +158,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, emailId: result.id });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/orders/send-final-image] Error:", message);
-    return NextResponse.json({ error: message }, { status: error instanceof LivraisonCadeauInvalide ? 400 : 500 });
+    const message = error instanceof FinalImageError || error instanceof LivraisonCadeauInvalide ? error.message : "Envoi du portrait impossible.";
+    console.error("[SEND-FINAL-IMAGE] Échec de livraison.");
+    return NextResponse.json({ error: message }, { status: error instanceof FinalImageError ? error.status : error instanceof LivraisonCadeauInvalide ? 400 : 500 });
   }
 }

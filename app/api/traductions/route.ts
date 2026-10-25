@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { traduireEnFrancais } from "@/lib/traduction";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ resultats });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[POST /api/traductions] Error:", message);
+    console.error("[POST /api/traductions] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

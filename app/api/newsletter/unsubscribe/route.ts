@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { unsubscribeFromNewsletter } from "@/lib/db";
 import { mesureServeur } from "@/lib/analyticsServeur";
@@ -85,8 +86,7 @@ export async function GET(req: NextRequest) {
     const t = CONFIRMATION[lang];
     return page(t.title, t.body, 200);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[GET /api/newsletter/unsubscribe] Error:", message);
+    console.error("[GET /api/newsletter/unsubscribe] Error:", diagnosticJournal(error));
     return page("Erreur", "La désinscription a échoué. Écris-nous à support@cartoonova.com.", 500);
   }
 }

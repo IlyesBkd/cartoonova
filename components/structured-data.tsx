@@ -1,5 +1,7 @@
 "use client";
 
+import { PREVIEW_PROMISE, PRINT_PROMISE } from "@/lib/deliveryCopy";
+
 interface BreadcrumbItem {
   name: string;
   item: string;
@@ -99,37 +101,37 @@ interface ProductStyleMeta {
 export const PRODUCT_STYLE_META: Record<string, ProductStyleMeta> = {
   simpson: {
     name: "Portrait Simpson personnalisé",
-    description: "Transforme tes photos en personnage des Simpson. Aperçu sous 2 jours, imprimé et livré en 3 à 7 jours ouvrés.",
+    description: `Transforme tes photos en personnage des Simpson. ${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
     image: "/simpson_photos_produit/0009_1.jpg",
     sku: "cartoonova-simpson",
   },
   dbz: {
     name: "Portrait Dragon Ball Z personnalisé",
-    description: "Deviens un Saiyan. Portrait style Dragon Ball Z, aperçu sous 2 jours, imprimé et livré en 3 à 7 jours ouvrés.",
+    description: `Deviens un Saiyan. Portrait style Dragon Ball Z. ${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
     image: "/DBZ/Photo_produits/1.png",
     sku: "cartoonova-dbz",
   },
   disney: {
     name: "Portrait Disney personnalisé",
-    description: "Ta photo transformée en personnage Disney, aperçu sous 2 jours. Imprimé et livré en 3 à 7 jours ouvrés.",
+    description: `Ta photo transformée en personnage Disney. ${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
     image: "/Disney/Photo_produits/1.png",
     sku: "cartoonova-disney",
   },
   ghibli: {
     name: "Portrait Studio Ghibli personnalisé",
-    description: "Portrait inspiré de l'univers Studio Ghibli, aperçu sous 2 jours. Imprimé et livré en 3 à 7 jours ouvrés.",
+    description: `Portrait inspiré de l'univers Studio Ghibli. ${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
     image: "/Ghibli/Photo_produits/il_794xN.7001686030_jbst.png",
     sku: "cartoonova-ghibli",
   },
   onepiece: {
     name: "Affiche Wanted One Piece personnalisée",
-    description: "Ton avis de recherche style One Piece, aperçu sous 2 jours. Imprimé et livré en 3 à 7 jours ouvrés.",
+    description: `Ton avis de recherche style One Piece. ${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
     image: "/onepiece/wanted_produit/il_1140xN.7027231626_qn94.png",
     sku: "cartoonova-onepiece",
   },
   rickandmorty: {
     name: "Portrait Rick & Morty personnalisé",
-    description: "Portrait style Rick & Morty, aperçu sous 2 jours. Imprimé et livré en 3 à 7 jours ouvrés.",
+    description: `Portrait style Rick & Morty. ${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
     image: "/rickandmorty/Photo_produits/1.png",
     sku: "cartoonova-rickandmorty",
   },

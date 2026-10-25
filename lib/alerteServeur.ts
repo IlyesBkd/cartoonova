@@ -1,6 +1,7 @@
 import { alerteDiscord, COULEUR_ALERTE } from "@/lib/discord";
 import { mesureServeur, IDENTIFIANT_SYSTEME } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
+import { diagnosticErreur, proprietesMesure, texteMesure } from "@/lib/confidentialiteMesure";
 
 /**
  * Panne cote serveur sur un chemin critique : creation du paiement, de la
@@ -22,8 +23,10 @@ export async function signalerPanne(
   erreur: unknown,
   details: Record<string, string | number | null | undefined> = {}
 ): Promise<void> {
-  const message = erreur instanceof Error ? erreur.message : String(erreur);
-  console.error(`[panne] ${contexte}:`, erreur);
+  contexte = texteMesure(contexte);
+  details = proprietesMesure(details);
+  const message = diagnosticErreur(erreur);
+  console.error(`[panne] ${contexte}:`, message, details);
 
   try {
     await mesureServeur(MESURES.panneServeur, {
@@ -48,6 +51,6 @@ export async function signalerPanne(
       piedDePage: "Journaux complets : Vercel → Logs",
     });
   } catch (e) {
-    console.error("[panne] signalement impossible:", e);
+    console.error("[panne] signalement impossible:", diagnosticErreur(e));
   }
 }

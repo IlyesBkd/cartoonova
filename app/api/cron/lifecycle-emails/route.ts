@@ -1,3 +1,4 @@
+import { diagnosticJournal, bilanJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { mesureServeur } from "@/lib/analyticsServeur";
@@ -133,7 +134,7 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
       console.error(
         "[CRON lifecycle-emails] review request failed",
         order.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -179,7 +180,7 @@ async function sendReviewReminders(): Promise<{ sent: number; failed: number }> 
       console.error(
         "[CRON lifecycle-emails] review reminder failed",
         order.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -236,7 +237,7 @@ async function sendReorderEmails(): Promise<{ sent: number; failed: number }> {
       console.error(
         "[CRON lifecycle-emails] reorder email failed",
         order.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -349,7 +350,7 @@ async function sendAbandonedCartEmails(): Promise<{
       console.error(
         "[CRON lifecycle-emails] abandoned cart email failed",
         order.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -424,7 +425,7 @@ async function sendLeadReminders(): Promise<{ sent: number; failed: number }> {
       console.error(
         "[CRON lifecycle-emails] lead reminder failed",
         lead.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -581,7 +582,7 @@ async function sendPrintUpsell(): Promise<{ sent: number; failed: number }> {
       console.error(
         "[CRON lifecycle-emails] print upsell failed",
         order.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -610,7 +611,7 @@ async function sendWelcomeSteps(): Promise<{ sent: number; failed: number }> {
         console.error(
           "[CRON lifecycle-emails] welcome step failed",
           step,
-          error instanceof Error ? error.message : error
+          diagnosticJournal(error)
         );
       }
     }
@@ -701,7 +702,7 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
       });
       sent++;
     } catch (erreur) {
-      console.error("[CRON lifecycle-emails] relance photos impossible:", order.id, erreur);
+      console.error("[CRON lifecycle-emails] relance photos impossible:", order.id, diagnosticJournal(erreur));
     }
   }
 
@@ -726,7 +727,7 @@ async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed
   const commandes = (await getOrdersDueForFinalImage().catch((error: unknown) => {
     console.error(
       "[CRON lifecycle-emails] lecture des envois programmés impossible",
-      error instanceof Error ? error.message : error
+      diagnosticJournal(error)
     );
     return [];
   })).slice(0, MAX_PER_RUN);
@@ -747,7 +748,7 @@ async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed
       console.error(
         "[CRON lifecycle-emails] image finale non envoyée",
         commande.id,
-        error instanceof Error ? error.message : error
+        diagnosticJournal(error)
       );
     }
   }
@@ -787,7 +788,7 @@ export async function GET(req: NextRequest) {
        propager, pour ne pas priver la suite (photos) de son passage. */
     const enEchec = (tache: string) => (error: unknown) => {
       const message = error instanceof Error ? error.message : String(error);
-      console.error(`[CRON lifecycle-emails] ${tache} impossible`, message);
+      console.error(`[CRON lifecycle-emails] ${tache} impossible`, diagnosticJournal(error));
       return { sent: 0, failed: 0, erreur: message };
     };
     const leads = await sendLeadReminders().catch(enEchec("relance caisse"));
@@ -795,7 +796,7 @@ export async function GET(req: NextRequest) {
     const reviewReminders = await sendReviewReminders().catch(enEchec("relance avis"));
     const photos = await relancerPhotosManquantes();
     const result = { outbox, imagesFinales, welcome, reviewRequests, reviewReminders, reorders, abandoned, leads, printUpsell, photos };
-    console.log("[CRON lifecycle-emails]", JSON.stringify(result));
+    console.log("[CRON lifecycle-emails]", JSON.stringify(bilanJournal(result)));
     /* Un seul signalement pour tout le passage : des e-mails clients qui ne
        partent pas (Resend en panne, quota, adresse refusee) doivent se voir. */
     const echecs = Object.entries(result)

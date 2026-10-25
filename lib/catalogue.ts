@@ -1,4 +1,5 @@
 import { locales, type Locale } from "../i18n/config";
+import { PREVIEW_PROMISE } from "./deliveryCopy";
 
 /**
  * Catalogue produit.
@@ -166,25 +167,25 @@ const GABARIT_TITRE: Record<Locale, (u: string) => string> = {
 
 const GABARIT_DESCRIPTION: Record<Locale, (u: string) => string> = {
   fr: (u) =>
-    `Transforme ta photo en portrait ${u} personnalisé. Aperçu sous 2 jours, retouches illimitées, disponible en fichier numérique, poster, toile ou cadre.`,
+    `Transforme ta photo en portrait ${u} personnalisé. ${PREVIEW_PROMISE.fr} Retouches illimitées, disponible en fichier numérique, poster, toile ou cadre.`,
   en: (u) =>
-    `Turn your photo into a custom ${u} portrait. Preview within 2 days, unlimited revisions, available as a digital file, poster, canvas or framed print.`,
+    `Turn your photo into a custom ${u} portrait. ${PREVIEW_PROMISE.en} Unlimited revisions, available as a digital file, poster, canvas or framed print.`,
   es: (u) =>
-    `Convierte tu foto en un retrato ${u} personalizado. Vista previa en 2 días, retoques ilimitados, disponible en digital, póster, lienzo o enmarcado.`,
+    `Convierte tu foto en un retrato ${u} personalizado. ${PREVIEW_PROMISE.es} Retoques ilimitados, disponible en digital, póster, lienzo o enmarcado.`,
   de: (u) =>
-    `Verwandle dein Foto in ein personalisiertes ${u}-Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
+    `Verwandle dein Foto in ein personalisiertes ${u}-Porträt. ${PREVIEW_PROMISE.de} Unbegrenzte Korrekturen, als Datei, Poster, Leinwand oder gerahmt.`,
   it: (u) =>
-    `Trasforma la tua foto in un ritratto ${u} personalizzato. Anteprima in 2 giorni, ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
+    `Trasforma la tua foto in un ritratto ${u} personalizzato. ${PREVIEW_PROMISE.it} Ritocchi illimitati, disponibile in digitale, poster, tela o incorniciato.`,
   nl: (u) =>
-    `Laat je foto omtoveren tot een gepersonaliseerd ${u} portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
+    `Laat je foto omtoveren tot een gepersonaliseerd ${u} portret. ${PREVIEW_PROMISE.nl} Onbeperkt aanpassen, verkrijgbaar als digitaal bestand, poster, canvas of ingelijst.`,
   pl: (u) =>
-    `Zamień swoje zdjęcie w spersonalizowany portret ${u}. Podgląd w 2 dni, nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
+    `Zamień swoje zdjęcie w spersonalizowany portret ${u}. ${PREVIEW_PROMISE.pl} Nieograniczone poprawki, do wyboru plik cyfrowy, plakat, obraz na płótnie lub w ramie.`,
   sv: (u) =>
-    `Förvandla ditt foto till ett personligt ${u}-porträtt. Förhandsvisning inom 2 dagar, obegränsat med ändringar, som digital fil, affisch, canvas eller inramat tryck.`,
+    `Förvandla ditt foto till ett personligt ${u}-porträtt. ${PREVIEW_PROMISE.sv} Obegränsat med ändringar, som digital fil, affisch, canvas eller inramat tryck.`,
   da: (u) =>
-    `Forvandl dit foto til et personligt ${u}-portræt. Forhåndsvisning inden for 2 dage, ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
+    `Forvandl dit foto til et personligt ${u}-portræt. ${PREVIEW_PROMISE.da} Ubegrænsede rettelser, som digital fil, plakat, lærred eller indrammet.`,
   pt: (u) =>
-    `Transforma a tua foto num retrato ${u} personalizado. Pré-visualização em 2 dias, retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
+    `Transforma a tua foto num retrato ${u} personalizado. ${PREVIEW_PROMISE.pt} Retoques ilimitados, disponível em ficheiro digital, poster, tela ou emoldurado.`,
 };
 
 /** Nom de l'univers dans la langue demandee, le francais servant de repli. */

@@ -61,15 +61,15 @@
       "description": "Beleef je eigen sprookje"
     },
     "reassurance1": "Uniek, naar jouw foto",
-    "reassurance2": "Digitaal geleverd binnen 2 dagen",
+    "reassurance2": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "reassurance3": "Tevredenheid gegarandeerd",
     "ctaTitle": "Kun je niet kiezen?",
     "ctaSubtitle": "Begin met onze bestseller!",
     "ctaButton": "Bekijk Simpsons",
     "badgeSatisfied": "Niet goed, geld terug",
     "badgeHandDrawn": "Naar jouw foto",
-    "badgeDelivery24h": "Geleverd in 2 dagen",
-    "trustBar": "Naar jouw foto · Geleverd in 2 dagen · Niet goed, geld terug"
+    "badgeDelivery24h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
+    "trustBar": "Naar jouw foto · Eerste voorbeeld: 2 werkdagen na betaling + foto's · Niet goed, geld terug"
   },
   "hero": {
     "badge": "4.8",
@@ -103,7 +103,7 @@
   "faq": {
     "title": "Veelgestelde vragen",
     "q1": "Hoe lang duurt het voordat het portret klaar is?",
-    "a1": "De tekening is binnen 2 dagen klaar. Kies je voor een print (poster, canvas), reken dan 3 werkdagen extra voor productie en verzending.",
+    "a1": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "q2": "Moeten alle personen op dezelfde foto staan?",
     "a2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in één beeld.",
     "q3": "Wat als ik niet tevreden ben?",
@@ -127,7 +127,7 @@
     "averageRating": "Gemiddelde score",
     "delivery": "Levering",
     "satisfactionGuarantee": "Tevredenheidsgarantie",
-    "digitalDelivery48h": "Digitaal geleverd in 2 dagen",
+    "digitalDelivery48h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "guaranteeStep1Title": "Stuur je foto",
     "guaranteeStep1Desc": "Een selfie is genoeg",
     "guaranteeStep2Title": "Wij tekenen je portret",
@@ -141,10 +141,10 @@
     "verified": "Geverifieerd",
     "frequentQuestions": "Veelgestelde vragen",
     "readyToBecome": "Klaar om te worden:",
-    "joinClients": "Je gepersonaliseerde portret binnen 2 dagen",
+    "joinClients": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "createMyPortrait": "Maak mijn portret",
     "handDrawnIcon": "Naar jouw foto",
-    "delivered48h": "Geleverd in 2 dagen",
+    "delivered48h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "satisfiedOrRefunded": "Niet goed, geld terug",
     "formatLabel": "Formaat",
     "peopleLabel": "Personen",
@@ -219,7 +219,7 @@
     "reviewsTitle": "Bedankt voor het vertrouwen",
     "posterOption": "Poster",
     "faqQ1": "Hoe lang duurt het voordat de karikatuur klaar is?",
-    "faqA1": "De tekening is binnen 2 dagen klaar. Kies je voor een print (poster, canvas), reken dan 3 werkdagen extra voor productie en verzending.",
+    "faqA1": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "faqQ2": "Moeten alle personen op dezelfde foto staan?",
     "faqA2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in één beeld.",
     "faqQ3": "Wat als ik niet tevreden ben?",
@@ -263,8 +263,8 @@
     "ctaTitle": "Word cartoon, op jouw manier.",
     "decorChip": "Decor",
     "decorStep": "Achtergrond",
-    "delivery48h": "bestand in 2 dagen",
-    "digital48h": "2 dagen (digitaal bestand)",
+    "delivery48h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
+    "digital48h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "digitalSub": "HD per e-mail · niet gedrukt",
     "dragHere": "Sleep je foto's hierheen",
     "estimatedDelay": "Verwachte levertijd",
@@ -289,7 +289,7 @@
     "paymentReassurance": "Veilig betalen · Gratis aanpassingen",
     "peoplePlural": "personen",
     "peopleSingular": "persoon",
-    "pillDelivered48h": "Levering in 2 dagen",
+    "pillDelivered48h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "pillDrawnHand": "Naar jouw foto",
     "pillSatisfied": "Niet goed, geld terug",
     "portraitSub": "Gezicht + buste",
@@ -330,8 +330,8 @@
     "optExtraDecorSub": "Dezelfde personages op een tweede achtergrond: twee afbeeldingen",
     "optExtraDecorRecap": "2e achtergrond: {decor}",
     "optExpress": "Express 24 uur",
-    "optExpressSub": "Je portret binnen 24 uur, ook in het weekend",
-    "optExpressSubPrint": "Tekening binnen 24 uur, ook in het weekend, daarna het drukken",
+    "optExpressSub": "Eerste voorbeeld binnen 24 uur, ook in het weekend, na ontvangst van de betaling en foto's.",
+    "optExpressSubPrint": "Eerste voorbeeld binnen 24 uur, ook in het weekend, na ontvangst van de betaling en foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "optExpressRecap": "Express 24 uur",
     "shippingLine": "incl. verzending: {montant}",
     "optSaisonTitre": "Voor de feestdagen",
@@ -489,7 +489,7 @@
     "errorNameRequired": "Vul je voor- en achternaam in.",
     "errorAddressRequired": "Vul het volledige adres in.",
     "errorPostalCode": "Deze postcode past niet bij het gekozen land.",
-    "guaranteeLine": "Voorbeeld binnen 2 dagen · onbeperkt aanpassen · geld terug als het voorbeeld je niet bevalt",
+    "guaranteeLine": "Eerste voorbeeld: 2 werkdagen na betaling + foto's · onbeperkt aanpassen · geld terug als het voorbeeld je niet bevalt",
     "occasionLabel": "Voor welke gelegenheid? (optioneel)",
     "occasions": {
       "anniversaire": "Verjaardag",
@@ -505,7 +505,7 @@
     "errorTechnical": "Technische fout bij het voorbereiden van de betaling.",
     "step1Of2": "Stap 1/2",
     "step2Of2": "Stap 2/2",
-    "orderByGuidance": "Nodig op een bepaalde datum? Reken 2 dagen voor de tekening, 1 dag om het voorbeeld goed te keuren en daarna 3 tot 7 werkdagen voor drukken en bezorgen.",
+    "orderByGuidance": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "giftToggle": "Het is een cadeau",
     "giftHint": "Bericht, naar ontvanger sturen, leverdatum",
     "giftMessageLabel": "Bericht voor de ontvanger",
@@ -540,66 +540,66 @@
   "evenements": {
     "anniversaire": {
       "promo": "Een verjaardag op komst —",
-      "promoFort": "voorbeeld binnen 2 dagen",
+      "promoFort": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's.",
       "heroTitre1": "Het verjaardagscadeau",
       "heroTitre2": "waar iedereen om lacht",
-      "heroSous": "Je foto als uniek portret. Voorbeeld binnen 2 dagen, onbeperkt bijwerken."
+      "heroSous": "Je foto als uniek portret. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
     "saintValentin": {
       "promo": "Valentijnsdag — uniek portret, onbeperkt aanpassen,",
-      "promoFort": "bestel vóór {date}",
+      "promoFort": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum.",
       "heroTitre1": "Een valentijnscadeau",
       "heroTitre2": "dat je niet kunt kopen",
-      "heroSous": "Jullie mooiste foto samen, als uniek portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Jullie mooiste foto samen, als uniek portret. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
     "feteDesMeres": {
       "promo": "Moederdag —",
-      "promoFort": "bestel vóór {date}",
+      "promoFort": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum.",
       "heroTitre1": "Het moederdagcadeau",
       "heroTitre2": "dat ze bewaart",
-      "heroSous": "Jullie gezinsfoto als uniek portret. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Jullie gezinsfoto als uniek portret. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
     "feteDesPeres": {
       "promo": "Vaderdag —",
-      "promoFort": "bestel vóór {date}",
+      "promoFort": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum.",
       "heroTitre1": "Een vaderdagcadeau",
       "heroTitre2": "dat geen stropdas is",
-      "heroSous": "Zijn foto, in de wereld waar hij van houdt. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Zijn foto, in de wereld waar hij van houdt. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
     "halloween": {
       "promo": "Halloween komt eraan —",
-      "promoFort": "bestel vóór {date}",
+      "promoFort": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum.",
       "heroTitre1": "Jouw portret,",
       "heroTitre2": "halloween-editie",
-      "heroSous": "Het hele gezin in cartoonstijl. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Het hele gezin in cartoonstijl. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
     "blackFriday": {
       "promo": "Het is Black Friday —",
       "promoFort": "hét moment om te geven",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "geef iets origineels",
-      "heroSous": "Een portret, geen gadget erbij. Voorbeeld binnen 2 dagen, onbeperkt aanpassen."
+      "heroSous": "Een portret, geen gadget erbij. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
     "noel": {
       "promo": "Kerst —",
-      "promoFort": "bestel vóór {date}",
+      "promoFort": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum.",
       "heroTitre1": "Het kerstcadeau",
       "heroTitre2": "dat niemand vergeet",
-      "heroSous": "Je foto als uniek portret, op tijd voor de 25e. Voorbeeld binnen 2 dagen."
+      "heroSous": "Je foto als uniek portret. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen."
     },
-    "phaseNumerique": "een digitaal portret komt nog op tijd als je vóór {date} bestelt"
+    "phaseNumerique": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum."
   },
   "gift": {
-    "generic": "Cadeau voor een bepaalde datum? Digitaal in {digitalDays} dagen, of in {daysMin} tot {days} werkdagen als print.",
-    "deadline": "{event}: bestel vóór {date} om het op tijd te ontvangen.",
+    "generic": "Eerste voorbeeld binnen {digitalDays} werkdagen na ontvangst van de betaling en foto's. Print naar verwachting in {daysMin} tot {days} werkdagen bij snelle goedkeuring; vervoer staat daar los van.",
+    "deadline": "{event} : Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum.",
     "event_saintValentin": "Valentijnsdag",
     "event_feteDesMeres": "Moederdag",
     "event_feteDesPeres": "Vaderdag",
     "event_halloween": "Halloween",
     "event_blackFriday": "Black Friday",
     "event_noel": "Kerst",
-    "deadlineDouble": "{event}: bestel vóór {date} voor een geprint portret, of vóór {dateNumerique} voor een digitaal portret.",
-    "deadlineNumerique": "{event}: te laat voor een print, maar een digitaal portret komt op tijd als je vóór {date} bestelt."
+    "deadlineDouble": "{event}: indicatieve grenzen als we de betaling en foto's ontvangen vóór {date} voor print of {dateNumerique} voor digitaal. Goedkeuring en vervoer kunnen de aankomst vertragen.",
+    "deadlineNumerique": "{event} : Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum."
   },
   "exitIntent": {
     "title": "Nu al weg?",
@@ -657,7 +657,7 @@
     "howItWorksLink": "Hoe werkt het?",
     "satisfiedOrRefunded": "Niet goed, geld terug",
     "handDrawn": "Naar jouw foto",
-    "delivered48h": "Geleverd in 2 dagen",
+    "delivered48h": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "portraitsCreated": "Portretten gemaakt",
     "averageRating": "Gemiddelde score",
     "delivery": "Levering",
@@ -671,7 +671,7 @@
     "step2Title": "Wij tekenen je",
     "step2Desc": "We maken jouw unieke cartoonportret.",
     "step3Title": "Ontvang je portret",
-    "step3Desc": "Je digitale bestand is binnen 2 dagen klaar.",
+    "step3Desc": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's.",
     "startNow": "Nu beginnen →",
     "galleryTitle": "Ons werk",
     "gallerySubtitle": "Bekijk wat we van jouw foto's kunnen maken!",
@@ -681,15 +681,15 @@
     "whyUs1Desc": "Onbeperkt gratis aanpassen, en geld terug als je niet overtuigd bent.",
     "whyUs2Title": "Op maat",
     "whyUs2Desc": "Elk portret wordt gemaakt naar jouw foto's, alleen voor jou.",
-    "whyUs3Title": "Levering in 2 dagen",
-    "whyUs3Desc": "Je digitale portret is binnen 2 dagen binnen.",
+    "whyUs3Title": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
+    "whyUs3Desc": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's.",
     "reviewsTitle": "Wat onze klanten zeggen",
     "verifiedReviewsCount": "Onbeperkt aanpassen",
     "verified": "Geverifieerd",
     "viewAllReviews": "Alle reviews bekijken →",
     "faqTitle": "Veelgestelde vragen",
     "faqQ1": "Hoe lang duurt het voordat het portret klaar is?",
-    "faqA1": "De tekening is binnen 2 dagen klaar. Kies je voor een print (poster, canvas, lijst), reken dan 3 werkdagen extra voor productie en levering.",
+    "faqA1": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "faqQ2": "Moeten alle personen op dezelfde foto staan?",
     "faqA2": "Nee hoor. Stuur losse foto's op; we zetten iedereen samen in beeld.",
     "faqQ3": "Wat als ik niet tevreden ben?",
@@ -700,10 +700,10 @@
     "faqA5": "Ja. Voorwerpen, voertuigen, decors of accessoires kunnen erbij tegen een kleine meerprijs.",
     "ctaTitle": "Klaar om cartoon te worden?",
     "ctaSubtitle": "Zin in een portret dat echt op je lijkt? Nu jij.",
-    "ctaReassurance": "Naar jouw foto · Geleverd in 2 dagen · Niet goed, geld terug",
+    "ctaReassurance": "Naar jouw foto · Eerste voorbeeld: 2 werkdagen na betaling + foto's · Niet goed, geld terug",
     "portraitAlt": "Cartoonportret",
     "realizationAlt": "Realisatie",
-    "trustBar": "Naar jouw foto · Geleverd in 2 dagen · Niet goed, geld terug"
+    "trustBar": "Naar jouw foto · Eerste voorbeeld: 2 werkdagen na betaling + foto's · Niet goed, geld terug"
   },
   "socialProof": {
     "names": [
@@ -719,13 +719,13 @@
   },
   "tj": {
     "promo": "Uniek portret, onbeperkt aanpassen —",
-    "promoFort": "voorbeeld binnen 2 dagen",
+    "promoFort": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "navStyles": "Stijlen",
     "navEtapes": "Hoe het werkt",
     "navFaq": "Vragen",
     "navTousStyles": "Bekijk alle 36 stijlen",
     "heroOeil": "Gepersonaliseerd portret",
-    "heroNote": "Je portret binnen 2 dagen, onbeperkt aanpassen",
+    "heroNote": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen.",
     "etapesTitre": "Drie stappen,",
     "etapesAccent": "meer niet",
     "etapesSous": "Geen account, geen software. Eén foto is genoeg.",
@@ -742,7 +742,7 @@
     "atoutsAccent": "verschil maakt",
     "atoutsSous": "Elk portret begint bij jouw foto, en niets anders.",
     "atout1T": "Snel een voorbeeld",
-    "atout1D": "Je portret komt binnen 2 dagen. Digitaal mailen we het bestand in hoge resolutie meteen; bij een print keur je het voorbeeld goed voordat we drukken.",
+    "atout1D": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "atout2T": "Onbeperkt aanpassen",
     "atout2D": "We passen aan tot het klopt, zo vaak als nodig, zonder meerkosten.",
     "atout3T": "Elke foto werkt",
@@ -770,7 +770,7 @@
     "hiwStep2Titre": "Upload een foto",
     "hiwStep2Texte": "Upload foto's vanaf je telefoon of sociale media — nu of later — om je cartoonportret te maken.",
     "hiwStep3Titre": "Ontvang je portret",
-    "hiwStep3Texte": "Je digitale bestand is er in 2 dagen. Liever aan de muur? Kies een poster, canvas of ingelijst portret.",
+    "hiwStep3Texte": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Liever aan de muur? Kies een poster, canvas of ingelijst portret.",
     "hiwChoisirDecor": "Kies een achtergrond",
     "hiwChoisirFichiers": "Bestanden kiezen",
     "hiwCommande": "Besteld",
@@ -781,7 +781,7 @@
     "ctaTitre": "Klaar om jezelf",
     "ctaAccent": "als cartoon te zien",
     "ctaTexte": "Geef een cadeau dat niemand anders geeft.",
-    "ctaAtout1": "Klaar in 2 dagen",
+    "ctaAtout1": "Eerste voorbeeld: 2 werkdagen na betaling + foto's",
     "ctaAtout2": "Onbeperkt aanpassen",
     "ctaAtout3": "Elke foto werkt",
     "piedBaseline": "Unieke portretten, gemaakt vanaf jouw foto's.",
@@ -834,12 +834,12 @@
     "garantieImprime": "Je keurt je portret goed voordat we het drukken. Na de aanpassingen nog niet overtuigd? Geld terug.",
     "garantieNumerique": "Aanpassingen tot je het geweldig vindt. Niet overtuigd? Geld terug.",
     "offerts": "Gratis bij je portret: achtergrond, avatar en een kaart om te printen.",
-    "tuileDelai": "2 dagen"
+    "tuileDelai": "Eerste voorbeeld: 2 werkdagen na betaling + foto's"
   },
   "metaPages": {
     "aPropos": {
       "title": "Over Cartoonova — gepersonaliseerde cartoonportretten",
-      "description": "Achter Cartoonova: cartoonportretten, één voor één gemaakt naar jouw foto's. Voorbeeld in 2 dagen, onbeperkt aanpassen, print in 3 tot 7 werkdagen."
+      "description": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming."
     },
     "avis": {
       "title": "Klantreviews — wat klanten van hun Cartoonova-portret vinden",
@@ -913,11 +913,11 @@
     "surtitre": "Kerst",
     "titre": "Het kerstcadeau",
     "accent": "dat je niet vergeet",
-    "sous": "Een cartoonportret getekend naar je foto. Tot wanneer je kunt bestellen zodat het op tijd is.",
+    "sous": "Een cartoonportret op basis van je foto. Datums zijn schattingen, afhankelijk van ontvangst van de betaling en foto's.",
     "impressionTitre": "Poster, canvas of lijst",
-    "impressionTexte": "Bestel vóór {date}: 2 dagen tekenen, 1 dag om het voorbeeld goed te keuren, daarna drukken en bezorgen.",
+    "impressionTexte": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "numeriqueTitre": "Digitale versie",
-    "numeriqueTexte": "Bestel vóór {date}: het portret komt per e-mail, klaar om thuis te printen of op een scherm te geven.",
+    "numeriqueTexte": "Indicatieve grens: betaling en foto's ontvangen vóór {date}, geen gegarandeerde aankomstdatum. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's.",
     "bonTitre": "Cadeaubon",
     "bonTexte": "Tot de avond van {date}: niets te verzenden, de bon komt binnen enkele seconden per e-mail, klaar voor onder de boom.",
     "bonCta": "Een cadeaubon geven",
@@ -952,17 +952,17 @@
     "photoBoutonAutre": "Nog een foto toevoegen",
     "photoGlisser": "of sleep ze hierheen vanaf je computer",
     "ajouterPrecision": "+ Opmerking toevoegen",
-    "dateNumerique": "Vandaag besteld → je portret op {date}",
-    "dateExpress": "Vandaag besteld → je portret morgen, {date}",
-    "dateImprime": "Vandaag besteld → voorbeeld op {apercu}, je portret bij je thuis tussen {debut} en {fin}",
-    "dateImprimeExpress": "Vandaag besteld → voorbeeld morgen, {apercu}, je portret bij je thuis tussen {debut} en {fin}",
+    "dateNumerique": "Als we de betaling en foto's vandaag ontvangen: eerste voorbeeld verwacht op {date}.",
+    "dateExpress": "Als we de betaling en foto's vandaag ontvangen: eerste voorbeeld verwacht op {date}. Eerste voorbeeld binnen 24 uur, ook in het weekend, na ontvangst van de betaling en foto's.",
+    "dateImprime": "Als we de betaling en foto's vandaag ontvangen: eerste voorbeeld verwacht op {apercu}. Print naar verwachting tussen {debut} en {fin}, afhankelijk van goedkeuring en vervoer.",
+    "dateImprimeExpress": "Als we de betaling en foto's vandaag ontvangen: eerste voorbeeld verwacht op {apercu}. Print naar verwachting tussen {debut} en {fin}, afhankelijk van goedkeuring en vervoer. Eerste voorbeeld binnen 24 uur, ook in het weekend, na ontvangst van de betaling en foto's.",
     "qRessembleQ": "En als het niet lijkt?",
     "qRessembleR": "We passen je portret zo vaak aan als nodig, gratis: gelijkenis, kleuren, details. Ben je daarna nog steeds niet overtuigd, dan krijg je het volledige bedrag terug. Bij een gedrukt portret vraag je dat aan voordat je het voorbeeld goedkeurt: na goedkeuring gaat het naar de drukker.",
     "qPhotosQ": "Hoeveel foto's moet ik sturen?",
     "qPhotosR": "Eén scherpe foto per persoon (en per huisdier) is genoeg: recht van voren, goed belicht, gezicht goed zichtbaar. Je kunt er tot {max} sturen.",
     "qPhotosLien": "Welke foto kies ik?",
     "qPlusTardQ": "Kan ik nu betalen en mijn foto's later sturen?",
-    "qPlusTardR": "Ja. Direct na de betaling krijg je per e-mail een link om je foto's te uploaden. De levertijd gaat in zodra we ze ontvangen."
+    "qPlusTardR": "Ja. Direct na de betaling krijg je per e-mail een link om je foto's te uploaden. Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's."
   },
   "guidePhoto": {
     "lienPied": "Welke foto sturen?",
@@ -1090,7 +1090,7 @@
     "v2Titre": "Tevredenheid gegarandeerd",
     "v2Texte": "Onbeperkt en gratis aanpassen. We stoppen pas als je blij bent.",
     "v3Titre": "Snel en betrouwbaar",
-    "v3Texte": "Voorbeeld in 2 dagen, prints gemaakt en geleverd in 3 tot 7 werkdagen. Verzending met track & trace wereldwijd.",
+    "v3Texte": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Voor een print keur je eerst het voorbeeld goed; daarna duren productie en verzending 3 tot 7 werkdagen, afhankelijk van de bestemming.",
     "v4Titre": "Wereldwijd",
     "v4Texte": "Geleverd in meer dan 50 landen, met support die echt antwoordt."
   },

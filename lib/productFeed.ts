@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { getPricesForCurrency } from "./db";
 import { DEFAULT_PRICES_BY_CURRENCY } from "./types";
 import type { Currency } from "./currency";
@@ -177,7 +178,7 @@ async function getFeedPrice(currency: Currency): Promise<number> {
     const prices = await getPricesForCurrency(currency);
     return prices.base;
   } catch (error) {
-    console.error("[productFeed] lecture des prix impossible, repli sur les valeurs par defaut:", error);
+    console.error("[productFeed] lecture des prix impossible, repli sur les valeurs par defaut:", diagnosticJournal(error));
     return DEFAULT_PRICES_BY_CURRENCY[currency].base;
   }
 }

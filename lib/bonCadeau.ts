@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { randomInt } from "crypto";
 import type Stripe from "stripe";
 import { sql } from "./db";
@@ -131,7 +132,7 @@ export async function finaliserBonCadeau(pi: Stripe.PaymentIntent): Promise<BonC
         ...(prenom ? [{ name: "Pour", value: prenom, inline: true }] : []),
       ],
       piedDePage: "Cartoonova • bon cadeau",
-    }).catch((e) => console.error("[bonCadeau] alerte Discord impossible:", e)),
+    }).catch((e) => console.error("[bonCadeau] alerte Discord impossible:", diagnosticJournal(e))),
     mesureServeur(MESURES.bonCadeauAchete, {
       identifiant: email || pi.id,
       proprietes: { value: montant, currency: devise, revenue_eur: toEUR(montant, devise), transaction_id: pi.id },
@@ -213,7 +214,7 @@ export async function creerBonOffert(input: {
         { name: "Raison", value: input.raison, inline: false },
       ],
       piedDePage: "Cartoonova • bon offert",
-    }).catch((e) => console.error("[bonCadeau] alerte Discord impossible:", e)),
+    }).catch((e) => console.error("[bonCadeau] alerte Discord impossible:", diagnosticJournal(e))),
   ]);
 
   return bon;

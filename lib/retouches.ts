@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
 /**
@@ -79,7 +80,7 @@ export async function enregistrerRetouche(
       VALUES (${orderId}::uuid, ${note}, ${JSON.stringify(photos)}::text::jsonb)
     `;
   } catch (erreur) {
-    console.error("[retouches] enregistrement impossible:", orderId, erreur);
+    console.error("[retouches] enregistrement impossible:", orderId, diagnosticJournal(erreur));
   }
 }
 
@@ -100,7 +101,7 @@ export async function retouchesDeCommande(orderId: string): Promise<Retouche[]> 
       demandeeLe: String(r.demandee_le),
     }));
   } catch (erreur) {
-    console.error("[retouches] lecture impossible:", orderId, erreur);
+    console.error("[retouches] lecture impossible:", orderId, diagnosticJournal(erreur));
     return [];
   }
 }
@@ -141,7 +142,7 @@ export async function retouchesParCommande(querySql: typeof sql = sql): Promise<
     }
     return par;
   } catch (erreur) {
-    console.error("[retouches] lecture globale impossible:", erreur);
+    console.error("[retouches] lecture globale impossible:", diagnosticJournal(erreur));
     return new Map();
   }
 }

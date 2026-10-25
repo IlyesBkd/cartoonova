@@ -23,10 +23,11 @@ export async function envoyerEmail(
 ): Promise<Resultat> {
   const resultat = await resend.emails.send(parametres, options);
   if (resultat.error) {
-    const destinataire = Array.isArray(parametres.to) ? parametres.to[0] : parametres.to;
-    throw new Error(
-      `Resend a refuse l'envoi (${resultat.error.name ?? "erreur"}) a ${destinataire ?? "?"} : ${resultat.error.message}`
-    );
+    // Provider text can echo recipients, signed links or HTML. Keep only a
+    // documented diagnostic category, never the response body or recipient.
+    const categories = ["validation_error", "rate_limit_exceeded", "application_error", "missing_api_key", "invalid_api_key", "restricted_api_key"];
+    const categorie = categories.includes(resultat.error.name) ? resultat.error.name : "erreur";
+    throw new Error(`Resend a refuse l'envoi (${categorie})`);
   }
   return resultat;
 }

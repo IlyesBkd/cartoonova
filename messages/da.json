@@ -61,15 +61,15 @@
       "description": "Lev dit eget eventyr"
     },
     "reassurance1": "Unikt, ud fra dit foto",
-    "reassurance2": "Digital levering på 2 dage",
+    "reassurance2": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "reassurance3": "Tilfredshedsgaranti",
     "ctaTitle": "Kan du ikke vælge?",
     "ctaSubtitle": "Start med bestselleren!",
     "ctaButton": "Se Simpsons",
     "badgeSatisfied": "Tilfreds eller pengene tilbage",
     "badgeHandDrawn": "Ud fra dit foto",
-    "badgeDelivery24h": "Leveres på 2 dage",
-    "trustBar": "Ud fra dit foto · Leveres på 2 dage · Tilfreds eller pengene tilbage"
+    "badgeDelivery24h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
+    "trustBar": "Ud fra dit foto · Første forhåndsvisning: 2 hverdage efter betaling + fotos · Tilfreds eller pengene tilbage"
   },
   "hero": {
     "badge": "4.8",
@@ -103,7 +103,7 @@
   "faq": {
     "title": "Ofte stillede spørgsmål",
     "q1": "Hvor lang tid tager portrættet?",
-    "a1": "Tegningen er klar på 2 dage. Vælger du et tryk (plakat, lærred), kommer der 3 hverdage til produktion og forsendelse.",
+    "a1": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "q2": "Skal alle være på det samme foto?",
     "a2": "Nej da. Send separate fotos, så sætter vi alle sammen i ét billede.",
     "q3": "Hvad hvis jeg ikke er tilfreds?",
@@ -127,7 +127,7 @@
     "averageRating": "Gennemsnit",
     "delivery": "Levering",
     "satisfactionGuarantee": "Tilfredshedsgaranti",
-    "digitalDelivery48h": "Digital levering på 2 dage",
+    "digitalDelivery48h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "guaranteeStep1Title": "Send dit foto",
     "guaranteeStep1Desc": "En selfie er nok",
     "guaranteeStep2Title": "Vi tegner portrættet",
@@ -141,10 +141,10 @@
     "verified": "Verificeret",
     "frequentQuestions": "Ofte stillede spørgsmål",
     "readyToBecome": "Klar til at blive:",
-    "joinClients": "Dit personlige portræt på 2 dage",
+    "joinClients": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "createMyPortrait": "Lav mit portræt",
     "handDrawnIcon": "Ud fra dit foto",
-    "delivered48h": "Leveres på 2 dage",
+    "delivered48h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "satisfiedOrRefunded": "Tilfreds eller pengene tilbage",
     "formatLabel": "Format",
     "peopleLabel": "Personer",
@@ -219,7 +219,7 @@
     "reviewsTitle": "Tak for tilliden",
     "posterOption": "Plakat",
     "faqQ1": "Hvor lang tid tager karikaturen?",
-    "faqA1": "Tegningen er klar på 2 dage. Vælger du et tryk (plakat, lærred), kommer der 3 hverdage til produktion og forsendelse.",
+    "faqA1": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "faqQ2": "Skal alle være på det samme foto?",
     "faqA2": "Nej da. Send separate fotos, så sætter vi alle sammen i ét billede.",
     "faqQ3": "Hvad hvis jeg ikke er tilfreds?",
@@ -263,8 +263,8 @@
     "ctaTitle": "Bliv tegnet, på din måde.",
     "decorChip": "Miljø",
     "decorStep": "Baggrund",
-    "delivery48h": "fil på 2 dage",
-    "digital48h": "2 dage (digital fil)",
+    "delivery48h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
+    "digital48h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "digitalSub": "HD via e-mail · ikke trykt",
     "dragHere": "Slip dine fotos her",
     "estimatedDelay": "Forventet leveringstid",
@@ -289,7 +289,7 @@
     "paymentReassurance": "Sikker betaling · Gratis rettelser",
     "peoplePlural": "personer",
     "peopleSingular": "person",
-    "pillDelivered48h": "Levering på 2 dage",
+    "pillDelivered48h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "pillDrawnHand": "Ud fra dit foto",
     "pillSatisfied": "Tilfreds eller pengene tilbage",
     "portraitSub": "Ansigt + buste",
@@ -330,8 +330,8 @@
     "optExtraDecorSub": "De samme figurer på en anden baggrund: to billeder",
     "optExtraDecorRecap": "2. baggrund: {decor}",
     "optExpress": "Ekspres 24 t",
-    "optExpressSub": "Dit portræt inden for 24 timer, også i weekenden",
-    "optExpressSubPrint": "Tegningen inden for 24 timer, også i weekenden, derefter trykket",
+    "optExpressSub": "Første forhåndsvisning inden for 24 timer, også i weekenden, efter modtagelse af betaling og fotos.",
+    "optExpressSubPrint": "Første forhåndsvisning inden for 24 timer, også i weekenden, efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "optExpressRecap": "Ekspres 24 t",
     "shippingLine": "heraf levering: {montant}",
     "optSaisonTitre": "Til højtiden",
@@ -489,7 +489,7 @@
     "errorNameRequired": "Angiv for- og efternavn.",
     "errorAddressRequired": "Udfyld hele adressen.",
     "errorPostalCode": "Postnummeret passer ikke til det valgte land.",
-    "guaranteeLine": "Forhåndsvisning inden for 2 dage · ubegrænsede rettelser · pengene tilbage, hvis du ikke kan lide den",
+    "guaranteeLine": "Første forhåndsvisning: 2 hverdage efter betaling + fotos · ubegrænsede rettelser · pengene tilbage, hvis du ikke kan lide den",
     "occasionLabel": "Hvilken anledning? (valgfrit)",
     "occasions": {
       "anniversaire": "Fødselsdag",
@@ -505,7 +505,7 @@
     "errorTechnical": "Teknisk fejl under forberedelsen af betalingen.",
     "step1Of2": "Trin 1/2",
     "step2Of2": "Trin 2/2",
-    "orderByGuidance": "Skal du bruge det til en bestemt dato? Regn med 2 dage til tegningen, 1 dag til at godkende forhåndsvisningen og derefter 3 til 7 hverdage til tryk og levering.",
+    "orderByGuidance": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "giftToggle": "Det er en gave",
     "giftHint": "Besked, send til modtageren, leveringsdato",
     "giftMessageLabel": "Besked til modtageren",
@@ -540,66 +540,66 @@
   "evenements": {
     "anniversaire": {
       "promo": "En fødselsdag på vej —",
-      "promoFort": "forhåndsvisning på 2 dage",
+      "promoFort": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos.",
       "heroTitre1": "Fødselsdagsgaven",
       "heroTitre2": "som får alle til at grine",
-      "heroSous": "Dit foto som et unikt portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Dit foto som et unikt portræt. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
     "saintValentin": {
       "promo": "Valentinsdag — unikt portræt, ubegrænsede rettelser,",
-      "promoFort": "bestil senest {date}",
+      "promoFort": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato.",
       "heroTitre1": "En valentinsgave",
       "heroTitre2": "der ikke kan købes",
-      "heroSous": "Jeres bedste foto sammen, som unikt portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Jeres bedste foto sammen, som unikt portræt. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
     "feteDesMeres": {
       "promo": "Mors dag —",
-      "promoFort": "bestil senest {date}",
+      "promoFort": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato.",
       "heroTitre1": "Gaven til mors dag",
       "heroTitre2": "som hun gemmer",
-      "heroSous": "Jeres familiefoto som unikt portræt. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Jeres familiefoto som unikt portræt. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
     "feteDesPeres": {
       "promo": "Fars dag —",
-      "promoFort": "bestil senest {date}",
+      "promoFort": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato.",
       "heroTitre1": "En fars dag-gave",
       "heroTitre2": "der ikke er et slips",
-      "heroSous": "Hans foto, tegnet i den verden han elsker. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Hans foto, tegnet i den verden han elsker. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
     "halloween": {
       "promo": "Halloween nærmer sig —",
-      "promoFort": "bestil senest {date}",
+      "promoFort": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato.",
       "heroTitre1": "Dit portræt,",
       "heroTitre2": "halloween-udgaven",
-      "heroSous": "Hele familien i tegneseriestil. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Hele familien i tegneseriestil. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
     "blackFriday": {
       "promo": "Det er Black Friday —",
       "promoFort": "det bedste tidspunkt at give",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "giv noget originalt",
-      "heroSous": "Et portræt i stedet for endnu en dims. Forhåndsvisning på 2 dage, ubegrænsede rettelser."
+      "heroSous": "Et portræt i stedet for endnu en dims. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
     "noel": {
       "promo": "Jul —",
-      "promoFort": "bestil senest {date}",
+      "promoFort": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato.",
       "heroTitre1": "Julegaven",
       "heroTitre2": "ingen glemmer",
-      "heroSous": "Dit foto som unikt portræt, klar til den 24. Forhåndsvisning på 2 dage."
+      "heroSous": "Dit foto som et unikt portræt. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser."
     },
-    "phaseNumerique": "et digitalt portræt når stadig frem, hvis du bestiller senest {date}"
+    "phaseNumerique": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato."
   },
   "gift": {
-    "generic": "Gave til en bestemt dato? Digitalt på {digitalDays} dage, eller {daysMin} til {days} hverdage som tryk.",
-    "deadline": "{event}: bestil senest {date} for at nå det.",
+    "generic": "Første forhåndsvisning inden for {digitalDays} hverdage efter modtagelse af betaling og fotos. Trykt levering anslås til {daysMin}–{days} hverdage ved hurtig godkendelse; transport er et separat trin.",
+    "deadline": "{event} : Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato.",
     "event_saintValentin": "Valentinsdag",
     "event_feteDesMeres": "Mors dag",
     "event_feteDesPeres": "Fars dag",
     "event_halloween": "Halloween",
     "event_blackFriday": "Black Friday",
     "event_noel": "Jul",
-    "deadlineDouble": "{event}: bestil senest {date} for et trykt portræt, eller senest {dateNumerique} for et digitalt.",
-    "deadlineNumerique": "{event}: for sent til tryk, men et digitalt portræt når frem, hvis du bestiller senest {date}."
+    "deadlineDouble": "{event}: vejledende frister hvis betaling og fotos modtages senest {date} til tryk eller {dateNumerique} digitalt. Godkendelse og transport kan forsinke leveringen.",
+    "deadlineNumerique": "{event} : Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato."
   },
   "exitIntent": {
     "title": "Skal du allerede gå?",
@@ -657,7 +657,7 @@
     "howItWorksLink": "Hvordan virker det?",
     "satisfiedOrRefunded": "Tilfreds eller pengene tilbage",
     "handDrawn": "Ud fra dit foto",
-    "delivered48h": "Leveres på 2 dage",
+    "delivered48h": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "portraitsCreated": "Portrætter lavet",
     "averageRating": "Gennemsnit",
     "delivery": "Levering",
@@ -671,7 +671,7 @@
     "step2Title": "Vi tegner dig",
     "step2Desc": "Vi laver dit unikke portræt.",
     "step3Title": "Få dit portræt",
-    "step3Desc": "Den digitale fil er klar på 2 dage.",
+    "step3Desc": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos.",
     "startNow": "Kom i gang →",
     "galleryTitle": "Vores arbejde",
     "gallerySubtitle": "Se hvad vi kan lave ud fra dine fotos!",
@@ -681,15 +681,15 @@
     "whyUs1Desc": "Ubegrænsede gratis rettelser, og pengene tilbage, hvis du ikke er overbevist.",
     "whyUs2Title": "Efter dit foto",
     "whyUs2Desc": "Hvert portræt laves ud fra dine fotos, kun til dig.",
-    "whyUs3Title": "Levering på 2 dage",
-    "whyUs3Desc": "Dit digitale portræt er klar inden for 2 dage.",
+    "whyUs3Title": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
+    "whyUs3Desc": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos.",
     "reviewsTitle": "Hvad vores kunder siger",
     "verifiedReviewsCount": "Ubegrænsede rettelser",
     "verified": "Verificeret",
     "viewAllReviews": "Se alle anmeldelser →",
     "faqTitle": "Ofte stillede spørgsmål",
     "faqQ1": "Hvor lang tid tager portrættet?",
-    "faqA1": "Tegningen er klar på 2 dage. Vælger du et tryk (plakat, lærred, ramme), kommer der 3 hverdage til produktion og levering.",
+    "faqA1": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "faqQ2": "Skal alle være på det samme foto?",
     "faqA2": "Nej da. Send separate fotos, så sætter vi alle sammen i ét billede.",
     "faqQ3": "Hvad hvis jeg ikke er tilfreds?",
@@ -700,10 +700,10 @@
     "faqA5": "Ja. Genstande, køretøjer, baggrunde og tilbehør tegnes med mod en mindre merpris.",
     "ctaTitle": "Klar til at blive tegnet?",
     "ctaSubtitle": "Vil du have et portræt, der ligner dig? Så er det din tur.",
-    "ctaReassurance": "Ud fra dit foto · Leveres på 2 dage · Tilfreds eller pengene tilbage",
+    "ctaReassurance": "Ud fra dit foto · Første forhåndsvisning: 2 hverdage efter betaling + fotos · Tilfreds eller pengene tilbage",
     "portraitAlt": "Tegnet portræt",
     "realizationAlt": "Arbejde",
-    "trustBar": "Ud fra dit foto · Leveres på 2 dage · Tilfreds eller pengene tilbage"
+    "trustBar": "Ud fra dit foto · Første forhåndsvisning: 2 hverdage efter betaling + fotos · Tilfreds eller pengene tilbage"
   },
   "socialProof": {
     "names": [
@@ -719,13 +719,13 @@
   },
   "tj": {
     "promo": "Unikt portræt, ubegrænsede rettelser —",
-    "promoFort": "forhåndsvisning på 2 dage",
+    "promoFort": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "navStyles": "Stilarter",
     "navEtapes": "Sådan virker det",
     "navFaq": "Spørgsmål",
     "navTousStyles": "Se alle 36 stilarter",
     "heroOeil": "Personligt portræt",
-    "heroNote": "Dit portræt inden for 2 dage, ubegrænsede rettelser",
+    "heroNote": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser.",
     "etapesTitre": "Tre trin,",
     "etapesAccent": "ikke mere",
     "etapesSous": "Ingen konto, ingen software. Ét foto er nok.",
@@ -742,7 +742,7 @@
     "atoutsAccent": "forskellen",
     "atoutsSous": "Hvert portræt tager udgangspunkt i dit foto, og intet andet.",
     "atout1T": "Hurtig forhåndsvisning",
-    "atout1D": "Dit portræt kommer inden for 2 dage. Digitalt mailer vi filen i høj opløsning med det samme; ved tryk godkender du forhåndsvisningen, før vi trykker.",
+    "atout1D": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "atout2T": "Ubegrænsede rettelser",
     "atout2D": "Vi retter til, indtil det passer, så mange gange det skal være, uden ekstra betaling.",
     "atout3T": "Alle fotos virker",
@@ -770,7 +770,7 @@
     "hiwStep2Titre": "Upload et foto",
     "hiwStep2Texte": "Upload fotos fra telefonen eller sociale medier — nu eller senere.",
     "hiwStep3Titre": "Få dit portræt",
-    "hiwStep3Texte": "Den digitale fil er klar på 2 dage. Vil du have den på væggen? Vælg plakat, lærred eller indrammet portræt.",
+    "hiwStep3Texte": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Vil du have den på væggen? Vælg plakat, lærred eller indrammet portræt.",
     "hiwChoisirDecor": "Vælg baggrund",
     "hiwChoisirFichiers": "Vælg filer",
     "hiwCommande": "Bestilt",
@@ -781,7 +781,7 @@
     "ctaTitre": "Klar til at se dig selv",
     "ctaAccent": "som tegnet figur",
     "ctaTexte": "Giv en gave, ingen andre kan give.",
-    "ctaAtout1": "Klar på 2 dage",
+    "ctaAtout1": "Første forhåndsvisning: 2 hverdage efter betaling + fotos",
     "ctaAtout2": "Ubegrænsede rettelser",
     "ctaAtout3": "Alle fotos virker",
     "piedBaseline": "Unikke portrætter, lavet efter dine fotos.",
@@ -834,12 +834,12 @@
     "garantieImprime": "Du godkender portrættet, før vi trykker det. Stadig ikke overbevist efter rettelserne? Pengene tilbage.",
     "garantieNumerique": "Rettelser, til du elsker det. Ikke overbevist? Pengene tilbage.",
     "offerts": "Gratis med dit portræt: baggrund, avatar og kort til udskrivning.",
-    "tuileDelai": "2 dage"
+    "tuileDelai": "Første forhåndsvisning: 2 hverdage efter betaling + fotos"
   },
   "metaPages": {
     "aPropos": {
       "title": "Om Cartoonova — personlige portrætter",
-      "description": "Bag Cartoonova: cartoonportrætter skabt ét ad gangen ud fra dine fotos. Forhåndsvisning på 2 dage, ubegrænsede rettelser, tryk på 3–7 hverdage."
+      "description": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen."
     },
     "avis": {
       "title": "Kundeanmeldelser af Cartoonova-portrættet",
@@ -913,11 +913,11 @@
     "surtitre": "Jul",
     "titre": "Julegaven,",
     "accent": "man ikke glemmer",
-    "sous": "Et cartoonportræt tegnet efter dit foto. Så længe kan du bestille, så det når frem i tide.",
+    "sous": "Et cartoonportræt ud fra dit foto. Datoerne er vejledende og forudsætter modtagelse af betaling og fotos.",
     "impressionTitre": "Plakat, lærred eller ramme",
-    "impressionTexte": "Bestil senest {date}: 2 dage til tegningen, 1 dag til godkendelse, derefter tryk og levering.",
+    "impressionTexte": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "numeriqueTitre": "Digital version",
-    "numeriqueTexte": "Bestil senest {date}: portrættet kommer på mail, klar til at udskrive derhjemme eller give på en skærm.",
+    "numeriqueTexte": "Vejledende frist: betaling og fotos modtaget senest {date}, ikke en garanteret leveringsdato. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos.",
     "bonTitre": "Gavekort",
     "bonTexte": "Indtil aftenen den {date}: intet at sende, gavekortet kommer på mail på få sekunder, klar til under træet.",
     "bonCta": "Giv et gavekort",
@@ -952,17 +952,17 @@
     "photoBoutonAutre": "Tilføj et foto mere",
     "photoGlisser": "eller træk dem herind fra din computer",
     "ajouterPrecision": "+ Tilføj en bemærkning",
-    "dateNumerique": "Bestil i dag → dit portræt {date}",
-    "dateExpress": "Bestil i dag → dit portræt i morgen, {date}",
-    "dateImprime": "Bestil i dag → forhåndsvisning {apercu}, portrættet hjemme hos dig mellem den {debut} og {fin}",
-    "dateImprimeExpress": "Bestil i dag → forhåndsvisning i morgen, {apercu}, portrættet hjemme hos dig mellem den {debut} og {fin}",
+    "dateNumerique": "Hvis betaling og fotos modtages i dag: første forhåndsvisning forventes den {date}.",
+    "dateExpress": "Hvis betaling og fotos modtages i dag: første forhåndsvisning forventes den {date}. Første forhåndsvisning inden for 24 timer, også i weekenden, efter modtagelse af betaling og fotos.",
+    "dateImprime": "Hvis betaling og fotos modtages i dag: første forhåndsvisning forventes den {apercu}. Trykt levering anslås mellem {debut} og {fin}, afhængigt af godkendelse og transport.",
+    "dateImprimeExpress": "Hvis betaling og fotos modtages i dag: første forhåndsvisning forventes den {apercu}. Trykt levering anslås mellem {debut} og {fin}, afhængigt af godkendelse og transport. Første forhåndsvisning inden for 24 timer, også i weekenden, efter modtagelse af betaling og fotos.",
     "qRessembleQ": "Hvad hvis det ikke ligner?",
     "qRessembleR": "Vi retter dit portræt så mange gange, det er nødvendigt, gratis: lighed, farver, detaljer. Er du stadig ikke overbevist, får du hele beløbet tilbage. Ved et trykt portræt skal du bede om det, før du godkender forhåndsvisningen: når den er godkendt, går den til tryk.",
     "qPhotosQ": "Hvor mange fotos skal jeg sende?",
     "qPhotosR": "Ét skarpt foto pr. person (og pr. dyr) er nok: forfra, godt belyst, ansigtet tydeligt. Du kan sende op til {max}.",
     "qPhotosLien": "Hvilket foto skal jeg vælge?",
     "qPlusTardQ": "Kan jeg betale nu og sende mine fotos senere?",
-    "qPlusTardR": "Ja. Lige efter betalingen får du en e-mail med et link til at uploade dine fotos. Leveringstiden regnes fra, når vi har modtaget dem."
+    "qPlusTardR": "Ja. Lige efter betalingen får du en e-mail med et link til at uploade dine fotos. Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos."
   },
   "guidePhoto": {
     "lienPied": "Hvilket foto skal jeg sende?",
@@ -1090,7 +1090,7 @@
     "v2Titre": "Tilfredshedsgaranti",
     "v2Texte": "Ubegrænsede, gratis rettelser. Vi stopper ikke, før du er begejstret.",
     "v3Titre": "Hurtigt og pålideligt",
-    "v3Texte": "Forhåndsvisning på 2 dage, tryk fremstillet og leveret på 3 til 7 hverdage. Sporbar forsendelse over hele verden.",
+    "v3Texte": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ved tryk godkender du først forhåndsvisningen; derefter tager produktion og forsendelse 3 til 7 hverdage afhængigt af destinationen.",
     "v4Titre": "Over hele verden",
     "v4Texte": "Levering til over 50 lande og en support, der faktisk svarer."
   },

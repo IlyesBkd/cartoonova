@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { getOrders, forcerStatutCommande, enregistrerCoutCommande, withFreshDatabaseClient } from "@/lib/db";
 import { estStatutCommande } from "@/lib/statutCommande";
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[GET /api/orders] Error:", message);
+    console.error("[GET /api/orders] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -70,7 +71,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[PATCH /api/orders] Error:", message);
+    console.error("[PATCH /api/orders] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -61,15 +61,15 @@
       "description": "Lebe dein Märchen"
     },
     "reassurance1": "Einzigartig, nach deinem Foto",
-    "reassurance2": "Digitale Lieferung innerhalb 2 Tagen",
+    "reassurance2": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "reassurance3": "Zufriedenheit garantiert",
     "ctaTitle": "Du kannst dich nicht entscheiden?",
     "ctaSubtitle": "Fang mit unserem Bestseller an!",
     "ctaButton": "Simpson entdecken",
     "badgeSatisfied": "Zufrieden oder Geld zurück",
     "badgeHandDrawn": "Nach deinem Foto",
-    "badgeDelivery24h": "Lieferung in 2 Tagen",
-    "trustBar": "Nach deinem Foto · Datei in 2 Tagen · Zufrieden oder Geld zurück"
+    "badgeDelivery24h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
+    "trustBar": "Nach deinem Foto · Erste Vorschau: 2 Werktage nach Zahlung + Fotos · Zufrieden oder Geld zurück"
   },
   "hero": {
     "badge": "4.8",
@@ -103,7 +103,7 @@
   "faq": {
     "title": "Häufig gestellte Fragen",
     "q1": "Wie lange dauert die Erstellung der Karikatur?",
-    "a1": "Die Zeichnung wird innerhalb von 2 Tagen fertiggestellt. Bei einem physischen Druck (Poster, Leinwand) kommen 3 Werktage für Herstellung und Versand hinzu.",
+    "a1": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "q2": "Müssen die Personen auf dem gleichen Foto sein?",
     "a2": "Überhaupt nicht! Schick uns Einzelfotos, wir bringen alle in einem Bild zusammen.",
     "q3": "Was passiert, wenn ich nicht zufrieden bin?",
@@ -127,7 +127,7 @@
     "averageRating": "Durchschnittsbewertung",
     "delivery": "Lieferung",
     "satisfactionGuarantee": "Zufriedenheitsgarantie",
-    "digitalDelivery48h": "Digitale Lieferung in 2 Tagen",
+    "digitalDelivery48h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "guaranteeStep1Title": "Schick dein Foto",
     "guaranteeStep1Desc": "Ein Selfie reicht aus",
     "guaranteeStep2Title": "Wir zeichnen dein Porträt",
@@ -141,10 +141,10 @@
     "verified": "Verifiziert",
     "frequentQuestions": "Häufig gestellte Fragen",
     "readyToBecome": "Bereit zu werden",
-    "joinClients": "Erhalte dein personalisiertes Porträt in 2 Tagen",
+    "joinClients": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "createMyPortrait": "Mein Porträt erstellen",
     "handDrawnIcon": "Nach deinem Foto",
-    "delivered48h": "Geliefert in 2 Tagen",
+    "delivered48h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "satisfiedOrRefunded": "Zufrieden oder Geld zurück",
     "formatLabel": "Format",
     "peopleLabel": "Personen",
@@ -219,7 +219,7 @@
     "reviewsTitle": "Danke für dein Vertrauen",
     "posterOption": "Poster Simple",
     "faqQ1": "Wie lange dauert es, die Karikatur zu erstellen?",
-    "faqA1": "Die Zeichnung wird innerhalb von 2 Tagen fertiggestellt. Bei einem physischen Druck (Poster, Leinwand) kommen 3 Werktage für Herstellung und Versand hinzu.",
+    "faqA1": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "faqQ2": "Müssen alle Personen auf demselben Foto sein?",
     "faqA2": "Überhaupt nicht! Schick uns Einzelfotos, wir bringen alle in einem Bild zusammen.",
     "faqQ3": "Was passiert, wenn ich nicht zufrieden bin?",
@@ -263,8 +263,8 @@
     "ctaTitle": "Wechsle auch du in den Cartoon-Modus.",
     "decorChip": "Szene",
     "decorStep": "Hintergrund",
-    "delivery48h": "Datei in 2 Tagen",
-    "digital48h": "2 Tage (digitale Datei)",
+    "delivery48h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
+    "digital48h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "digitalSub": "HD per E-Mail · ohne Druck",
     "dragHere": "Ziehe deine Fotos hierher",
     "estimatedDelay": "Geschätzte Lieferzeit",
@@ -289,7 +289,7 @@
     "paymentReassurance": "Sichere Zahlung · Kostenlose Korrekturen",
     "peoplePlural": "Personen",
     "peopleSingular": "Person",
-    "pillDelivered48h": "Lieferung in 2 Tagen",
+    "pillDelivered48h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "pillDrawnHand": "Nach deinem Foto",
     "pillSatisfied": "Zufrieden oder Geld zurück",
     "portraitSub": "Gesicht + Büste",
@@ -330,8 +330,8 @@
     "optExtraDecorSub": "Dieselben Figuren vor einem zweiten Hintergrund: zwei Bilder",
     "optExtraDecorRecap": "2. Hintergrund: {decor}",
     "optExpress": "Express 24 Std.",
-    "optExpressSub": "Dein Porträt in 24 Stunden, auch am Wochenende",
-    "optExpressSubPrint": "Zeichnung in 24 Stunden, auch am Wochenende, danach der Druck",
+    "optExpressSub": "Erste Vorschau innerhalb von 24 Stunden, auch am Wochenende, nach Eingang der Zahlung und der Fotos.",
+    "optExpressSubPrint": "Erste Vorschau innerhalb von 24 Stunden, auch am Wochenende, nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "optExpressRecap": "Express 24 Std.",
     "shippingLine": "inkl. Versand: {montant}",
     "optSaisonTitre": "Für die Feiertage",
@@ -489,7 +489,7 @@
     "errorNameRequired": "Gib bitte deinen Vor- und Nachnamen ein.",
     "errorAddressRequired": "Füll bitte die vollständige Adresse aus.",
     "errorPostalCode": "Diese Postleitzahl passt nicht zum gewählten Land.",
-    "guaranteeLine": "Vorschau in 2 Tagen · unbegrenzte Änderungen · Geld zurück, wenn dir die Vorschau nicht gefällt",
+    "guaranteeLine": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos · unbegrenzte Änderungen · Geld zurück, wenn dir die Vorschau nicht gefällt",
     "occasionLabel": "Zu welchem Anlass? (optional)",
     "occasions": {
       "anniversaire": "Geburtstag",
@@ -505,7 +505,7 @@
     "errorTechnical": "Technischer Fehler bei der Vorbereitung der Zahlung.",
     "step1Of2": "Schritt 1/2",
     "step2Of2": "Schritt 2/2",
-    "orderByGuidance": "Brauchst du es zu einem bestimmten Datum? Rechne mit 2 Tagen für die Zeichnung, 1 Tag für die Freigabe der Vorschau und dann 3 bis 7 Werktagen für Druck und Lieferung.",
+    "orderByGuidance": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "giftToggle": "Es ist ein Geschenk",
     "giftHint": "Nachricht, Versand an Beschenkte, Wunschtermin",
     "giftMessageLabel": "Nachricht für die beschenkte Person",
@@ -540,66 +540,66 @@
   "evenements": {
     "anniversaire": {
       "promo": "Ein Geburtstag steht an —",
-      "promoFort": "Vorschau in 2 Tagen",
+      "promoFort": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos.",
       "heroTitre1": "Das Geburtstagsgeschenk",
       "heroTitre2": "über das alle lachen",
-      "heroSous": "Dein Foto als einzigartiges Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Dein Foto als einzigartiges Porträt. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
     "saintValentin": {
       "promo": "Valentinstag — einzigartiges Porträt, unbegrenzte Korrekturen,",
-      "promoFort": "bestellen bis {date}",
+      "promoFort": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum.",
       "heroTitre1": "Ein Valentinsgeschenk,",
       "heroTitre2": "das man nicht kaufen kann",
-      "heroSous": "Euer schönstes Foto zu zweit als einzigartiges Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Euer schönstes Foto zu zweit als einzigartiges Porträt. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
     "feteDesMeres": {
       "promo": "Muttertag —",
-      "promoFort": "bestellen bis {date}",
+      "promoFort": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum.",
       "heroTitre1": "Das Muttertagsgeschenk,",
       "heroTitre2": "das sie behält",
-      "heroSous": "Euer Familienfoto als einzigartiges Porträt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Euer Familienfoto als einzigartiges Porträt. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
     "feteDesPeres": {
       "promo": "Vatertag —",
-      "promoFort": "bestellen bis {date}",
+      "promoFort": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum.",
       "heroTitre1": "Ein Vatertagsgeschenk,",
       "heroTitre2": "das keine Krawatte ist",
-      "heroSous": "Sein Foto in seiner Lieblingswelt. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Sein Foto in seiner Lieblingswelt. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
     "halloween": {
       "promo": "Halloween steht vor der Tür —",
-      "promoFort": "bestellen bis {date}",
+      "promoFort": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum.",
       "heroTitre1": "Dein Porträt,",
       "heroTitre2": "Halloween-Edition",
-      "heroSous": "Die ganze Familie im Cartoon-Stil. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Die ganze Familie im Cartoon-Stil. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
     "blackFriday": {
       "promo": "Black Friday —",
       "promoFort": "der beste Moment zum Schenken",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "schenk etwas Einzigartiges",
-      "heroSous": "Ein Porträt statt noch eines Geräts. Vorschau in 2 Tagen, unbegrenzte Korrekturen."
+      "heroSous": "Ein Porträt statt noch eines Geräts. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
     "noel": {
       "promo": "Weihnachten —",
-      "promoFort": "bestellen bis {date}",
+      "promoFort": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum.",
       "heroTitre1": "Das Weihnachtsgeschenk,",
       "heroTitre2": "das man nicht vergisst",
-      "heroSous": "Euer Foto als einzigartiges Porträt, rechtzeitig zum 25. geliefert. Vorschau in 2 Tagen."
+      "heroSous": "Dein Foto als einzigartiges Porträt. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen."
     },
-    "phaseNumerique": "das digitale Porträt kommt noch rechtzeitig, wenn du bis zum {date} bestellst"
+    "phaseNumerique": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum."
   },
   "gift": {
-    "generic": "Geschenk für ein bestimmtes Datum? Digital in {digitalDays} Tagen, gedruckt in {daysMin} bis {days} Werktagen.",
-    "deadline": "{event}: bis zum {date} bestellen, damit es rechtzeitig ankommt.",
+    "generic": "Erste Vorschau innerhalb von {digitalDays} Werktagen nach Eingang der Zahlung und der Fotos. Druck voraussichtlich in {daysMin} bis {days} Werktagen bei schneller Freigabe; Transport ist separat.",
+    "deadline": "{event} : Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum.",
     "event_saintValentin": "Valentinstag",
     "event_feteDesMeres": "Muttertag",
     "event_feteDesPeres": "Vatertag",
     "event_halloween": "Halloween",
     "event_blackFriday": "Black Friday",
     "event_noel": "Weihnachten",
-    "deadlineDouble": "{event}: bis zum {date} für ein gedrucktes Porträt bestellen, digital bis zum {dateNumerique}.",
-    "deadlineNumerique": "{event}: Für den Druck ist es zu spät, aber das digitale Porträt kommt rechtzeitig, wenn du bis zum {date} bestellst."
+    "deadlineDouble": "{event}: unverbindliche Richtwerte bei Eingang der Zahlung und der Fotos bis zum {date} für Druck oder {dateNumerique} für digital. Freigabe und Transport können die Ankunft verzögern.",
+    "deadlineNumerique": "{event} : Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum."
   },
   "exitIntent": {
     "title": "Schon weg?",
@@ -657,7 +657,7 @@
     "howItWorksLink": "Wie funktioniert es?",
     "satisfiedOrRefunded": "Zufrieden oder Geld zurück",
     "handDrawn": "Nach deinem Foto",
-    "delivered48h": "Lieferung in 2 Tagen",
+    "delivered48h": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "portraitsCreated": "Erstellte Portraits",
     "averageRating": "Durchschnittsbewertung",
     "delivery": "Lieferung",
@@ -671,7 +671,7 @@
     "step2Title": "Wir zeichnen dich",
     "step2Desc": "Wir erstellen dein einzigartiges Cartoon-Porträt.",
     "step3Title": "Erhalte dein Kunstwerk",
-    "step3Desc": "Erhalte deine digitale Datei innerhalb von 2 Tagen.",
+    "step3Desc": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos.",
     "startNow": "Jetzt starten →",
     "galleryTitle": "Unsere Kreationen",
     "gallerySubtitle": "Entdecke, was wir aus deinen Fotos machen können!",
@@ -681,15 +681,15 @@
     "whyUs1Desc": "Unbegrenzte kostenlose Korrekturen, und Geld zurück, wenn du nicht überzeugt bist!",
     "whyUs2Title": "Maßgeschneidert",
     "whyUs2Desc": "Jedes Porträt entsteht nach deinen Fotos, nur für dich.",
-    "whyUs3Title": "Lieferung in 2 Tagen",
-    "whyUs3Desc": "Erhalte dein digitales Porträt in höchstens 2 Tagen.",
+    "whyUs3Title": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
+    "whyUs3Desc": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos.",
     "reviewsTitle": "Was unsere Kunden sagen",
     "verifiedReviewsCount": "Unbegrenzte Korrekturen",
     "verified": "Verifiziert",
     "viewAllReviews": "Alle Bewertungen ansehen →",
     "faqTitle": "Häufig gestellte Fragen",
     "faqQ1": "Wie lange dauert die Erstellung der Karikatur?",
-    "faqA1": "Die Zeichnung wird innerhalb von 2 Tagen fertiggestellt. Bei einem physischen Druck (Poster, Leinwand, Rahmen) kommen 3 Werktage für Produktion und Versand hinzu.",
+    "faqA1": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "faqQ2": "Müssen die Personen auf dem gleichen Foto sein?",
     "faqA2": "Überhaupt nicht! Schick uns Einzelfotos, wir bringen alle zusammen.",
     "faqQ3": "Was passiert, wenn ich nicht zufrieden bin?",
@@ -700,10 +700,10 @@
     "faqA5": "Ja! Wir können Objekte, Fahrzeuge, Hintergründe oder Accessoires gegen einen kleinen Aufpreis hinzufügen.",
     "ctaTitle": "Bereit, ein Cartoon zu werden?",
     "ctaSubtitle": "Lust auf ein Porträt, das dir ähnelt? Du bist dran!",
-    "ctaReassurance": "Nach deinem Foto · Datei in 2 Tagen · Zufrieden oder Geld zurück",
+    "ctaReassurance": "Nach deinem Foto · Erste Vorschau: 2 Werktage nach Zahlung + Fotos · Zufrieden oder Geld zurück",
     "portraitAlt": "Cartoon-Portrait",
     "realizationAlt": "Kreation",
-    "trustBar": "Nach deinem Foto · Datei in 2 Tagen · Zufrieden oder Geld zurück"
+    "trustBar": "Nach deinem Foto · Erste Vorschau: 2 Werktage nach Zahlung + Fotos · Zufrieden oder Geld zurück"
   },
   "socialProof": {
     "names": [
@@ -719,13 +719,13 @@
   },
   "tj": {
     "promo": "Einzigartiges Porträt, unbegrenzte Korrekturen —",
-    "promoFort": "Vorschau in 2 Tagen",
+    "promoFort": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "navStyles": "Stile",
     "navEtapes": "So funktioniert es",
     "navFaq": "Fragen",
     "navTousStyles": "Alle 36 Stile ansehen",
     "heroOeil": "Personalisiertes Porträt",
-    "heroNote": "Dein Porträt in 2 Tagen, unbegrenzte Korrekturen",
+    "heroNote": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Unbegrenzte Korrekturen.",
     "etapesTitre": "Drei Schritte,",
     "etapesAccent": "mehr nicht",
     "etapesSous": "Kein Konto, keine Software. Ein Foto genügt.",
@@ -742,7 +742,7 @@
     "atoutsAccent": "Unterschied macht",
     "atoutsSous": "Jedes Porträt entsteht aus deinem Foto, aus nichts anderem.",
     "atout1T": "Schnelle Vorschau",
-    "atout1D": "Dein Porträt kommt in 2 Tagen. Digital geht die hochauflösende Datei direkt per E-Mail raus; beim Druck gibst du die Vorschau vor dem Drucken frei.",
+    "atout1D": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "atout2T": "Unbegrenzte Korrekturen",
     "atout2D": "Wir passen an, bis es stimmt — so oft wie nötig, ohne Aufpreis.",
     "atout3T": "Jedes Foto geht",
@@ -770,7 +770,7 @@
     "hiwStep2Titre": "Lade ein beliebiges Foto hoch",
     "hiwStep2Texte": "Lade Fotos von deinem Gerät oder aus sozialen Netzwerken hoch — jetzt oder später — um dein Cartoon-Portrait zu erstellen.",
     "hiwStep3Titre": "Erhalte dein Portrait",
-    "hiwStep3Texte": "Deine digitale Datei kommt in 2 Tagen. Lieber an der Wand? Wähle Poster, Leinwand oder gerahmtes Porträt.",
+    "hiwStep3Texte": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Lieber an der Wand? Wähle Poster, Leinwand oder gerahmtes Porträt.",
     "hiwChoisirDecor": "Hintergrund wählen",
     "hiwChoisirFichiers": "Dateien auswählen",
     "hiwCommande": "Bestellt",
@@ -781,7 +781,7 @@
     "ctaTitre": "Bereit, dich",
     "ctaAccent": "als Cartoon zu sehen",
     "ctaTexte": "Verschenke etwas, das sonst niemand schenken kann.",
-    "ctaAtout1": "Fertig in 2 Tagen",
+    "ctaAtout1": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos",
     "ctaAtout2": "Unbegrenzte Korrekturen",
     "ctaAtout3": "Jedes Foto geht",
     "piedBaseline": "Einzigartige Porträts, nach euren Fotos.",
@@ -834,12 +834,12 @@
     "garantieImprime": "Du gibst dein Porträt frei, bevor wir drucken. Nach den Korrekturen nicht überzeugt? Geld zurück.",
     "garantieNumerique": "Korrekturen, bis du es liebst. Nicht überzeugt? Geld zurück.",
     "offerts": "Gratis zu deinem Porträt: Hintergrundbild, Profilbild und Karte zum Ausdrucken.",
-    "tuileDelai": "2 Tage"
+    "tuileDelai": "Erste Vorschau: 2 Werktage nach Zahlung + Fotos"
   },
   "metaPages": {
     "aPropos": {
       "title": "Über Cartoonova — personalisierte Cartoon-Porträts",
-      "description": "Hinter Cartoonova stehen Cartoon-Porträts, einzeln nach deinen Fotos gezeichnet. Vorschau in 2 Tagen, unbegrenzte Korrekturen, Druck in 3–7 Werktagen."
+      "description": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage."
     },
     "avis": {
       "title": "Kundenbewertungen zum Cartoonova-Porträt",
@@ -913,11 +913,11 @@
     "surtitre": "Weihnachten",
     "titre": "Das Weihnachtsgeschenk,",
     "accent": "das man nicht vergisst",
-    "sous": "Ein Cartoon-Porträt nach deinem Foto gezeichnet. So lange kannst du bestellen, damit es rechtzeitig ankommt.",
+    "sous": "Ein Cartoon-Porträt nach deinem Foto. Termine sind Richtwerte und setzen den Eingang der Zahlung und der Fotos voraus.",
     "impressionTitre": "Poster, Leinwand oder Rahmen",
-    "impressionTexte": "Bestelle bis zum {date}: 2 Tage Zeichnung, 1 Tag Freigabe der Vorschau, dann Druck und Lieferung.",
+    "impressionTexte": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "numeriqueTitre": "Digitale Version",
-    "numeriqueTexte": "Bestelle bis zum {date}: Das Porträt kommt per E-Mail, bereit zum Ausdrucken oder Verschenken auf dem Bildschirm.",
+    "numeriqueTexte": "Unverbindlicher Richtwert: Zahlung und Fotos bis zum {date}; kein garantiertes Ankunftsdatum. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos.",
     "bonTitre": "Gutschein",
     "bonTexte": "Bis zum Abend des {date}: Nichts zu versenden, der Gutschein kommt in Sekunden per E-Mail, bereit für unter den Baum.",
     "bonCta": "Gutschein verschenken",
@@ -952,17 +952,17 @@
     "photoBoutonAutre": "Weiteres Foto hinzufügen",
     "photoGlisser": "oder zieh sie von deinem Computer hierher",
     "ajouterPrecision": "+ Hinweis hinzufügen",
-    "dateNumerique": "Heute bestellt → dein Porträt am {date}",
-    "dateExpress": "Heute bestellt → dein Porträt morgen, {date}",
-    "dateImprime": "Heute bestellt → Vorschau am {apercu}, dein Porträt bei dir zwischen dem {debut} und {fin}",
-    "dateImprimeExpress": "Heute bestellt → Vorschau morgen, {apercu}, dein Porträt bei dir zwischen dem {debut} und {fin}",
+    "dateNumerique": "Wenn Zahlung und Fotos heute eingehen: erste Vorschau voraussichtlich am {date}.",
+    "dateExpress": "Wenn Zahlung und Fotos heute eingehen: erste Vorschau voraussichtlich am {date}. Erste Vorschau innerhalb von 24 Stunden, auch am Wochenende, nach Eingang der Zahlung und der Fotos.",
+    "dateImprime": "Wenn Zahlung und Fotos heute eingehen: erste Vorschau voraussichtlich am {apercu}. Druck voraussichtlich zwischen {debut} und {fin}, abhängig von Freigabe und Transport.",
+    "dateImprimeExpress": "Wenn Zahlung und Fotos heute eingehen: erste Vorschau voraussichtlich am {apercu}. Druck voraussichtlich zwischen {debut} und {fin}, abhängig von Freigabe und Transport. Erste Vorschau innerhalb von 24 Stunden, auch am Wochenende, nach Eingang der Zahlung und der Fotos.",
     "qRessembleQ": "Und wenn es mir nicht ähnlich sieht?",
     "qRessembleR": "Wir überarbeiten dein Porträt so oft wie nötig, kostenlos: Ähnlichkeit, Farben, Details. Bist du danach immer noch nicht überzeugt, erstatten wir dir den vollen Betrag. Bei einem gedruckten Porträt melde dich bitte vor der Freigabe der Vorschau: Nach der Freigabe geht es in den Druck.",
     "qPhotosQ": "Wie viele Fotos soll ich schicken?",
     "qPhotosR": "Ein scharfes Foto pro Person (und pro Haustier) reicht: von vorne, gut beleuchtet, Gesicht gut sichtbar. Du kannst bis zu {max} schicken.",
     "qPhotosLien": "Welches Foto eignet sich?",
     "qPlusTardQ": "Kann ich jetzt bezahlen und die Fotos später schicken?",
-    "qPlusTardR": "Ja. Direkt nach der Zahlung bekommst du per E-Mail einen Link zum Hochladen deiner Fotos. Die Bearbeitungszeit beginnt, sobald sie bei uns sind."
+    "qPlusTardR": "Ja. Direkt nach der Zahlung bekommst du per E-Mail einen Link zum Hochladen deiner Fotos. Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos."
   },
   "guidePhoto": {
     "lienPied": "Welches Foto schicken?",
@@ -1090,7 +1090,7 @@
     "v2Titre": "Zufriedenheit garantiert",
     "v2Texte": "Unbegrenzte, kostenlose Korrekturen. Wir hören erst auf, wenn du begeistert bist.",
     "v3Titre": "Schnell und zuverlässig",
-    "v3Texte": "Vorschau in 2 Tagen, Drucke in 3 bis 7 Werktagen hergestellt und geliefert. Versand mit Sendungsverfolgung weltweit.",
+    "v3Texte": "Erste Vorschau innerhalb von 2 Werktagen nach Eingang der Zahlung und der Fotos. Beim Druck gibst du zuerst die Vorschau frei; danach dauern Herstellung und Versand je nach Ziel 3 bis 7 Werktage.",
     "v4Titre": "Weltweit",
     "v4Texte": "Lieferung in mehr als 50 Länder, und ein Support, der wirklich antwortet."
   },

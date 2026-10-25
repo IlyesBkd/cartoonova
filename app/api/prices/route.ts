@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { prixEnCache } from "@/lib/lecturesCache";
 import { currencies, type Currency } from "@/lib/currency";
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(prices);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[GET /api/prices] Error:", message);
+    console.error("[GET /api/prices] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

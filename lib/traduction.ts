@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { createHash } from "crypto";
 import { runtimeSchemaBootstrapEnabled, sql } from "./db";
 
@@ -96,10 +97,8 @@ async function traduireUn(texte: string, apiKey: string): Promise<Traduction> {
     });
 
     if (!r.ok) {
-      /* Le message du fournisseur est la seule chose qui distingue une cle
-         expiree d'un quota atteint. */
-      const detail = await r.text().catch(() => "");
-      console.error(`[TRADUCTION] reponse ${r.status} : ${detail.slice(0, 300)}`);
+      // Provider response bodies may echo the customer text. Log status only.
+      console.error(`[TRADUCTION] reponse ${r.status} : corps fournisseur omis`);
       return { erreur: `Le modèle a répondu ${r.status}.` };
     }
 
@@ -116,7 +115,7 @@ async function traduireUn(texte: string, apiKey: string): Promise<Traduction> {
     if (!fr) return { erreur: "Traduction vide." };
     return { langue, fr };
   } catch (error) {
-    console.error("[TRADUCTION] Erreur:", error);
+    console.error("[TRADUCTION] Erreur:", diagnosticJournal(error));
     return { erreur: error instanceof Error ? error.message : "Erreur inconnue." };
   }
 }

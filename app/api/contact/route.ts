@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { findOrderByCustomerEmail, insertSupportMessage } from "@/lib/db";
@@ -131,7 +132,7 @@ export async function POST(req: NextRequest) {
     /* Un 500 et non un faux succes : le formulaire affiche alors l'erreur et
        l'adresse directe, au lieu de laisser croire au client qu'il nous a
        ecrit. */
-    console.error("[POST /api/contact]", erreur instanceof Error ? erreur.message : erreur);
+    console.error("[POST /api/contact]", diagnosticJournal(erreur));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

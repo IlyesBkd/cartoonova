@@ -1,5 +1,6 @@
 import type { PostHog, Properties, CaptureResult } from "posthog-js";
 import type { NomEvenement } from "@/lib/evenementsMesure";
+import { proprietesMesure } from "@/lib/confidentialiteMesure";
 
 /**
  * Chargement differe de PostHog.
@@ -46,80 +47,11 @@ const CONSENTEMENT_REQUIS = process.env.NEXT_PUBLIC_CONSENT_BANNER === "1";
    Trois fuites possibles, toutes fermees ici plutot que sur chaque appel :
    un oubli sur un seul appel suffirait a envoyer l'adresse d'un client. */
 
-/** Proprietes dont la valeur ne doit jamais quitter le navigateur. */
-const PROPRIETES_INTERDITES = [
-  "email",
-  "customer_email",
-  "recipientEmail",
-  "recipient_email",
-  "firstName",
-  "lastName",
-  "first_name",
-  "last_name",
-  "address",
-  "addressLine2",
-  "postalCode",
-  "postal_code",
-  "phone",
-  "photoUrls",
-  "photo_urls",
-  "message",
-  "description",
-  "note",
-];
-
-/** Une adresse e-mail, ou qu'elle se trouve dans une chaine. */
-const MOTIF_EMAIL = /[\w.+-]+@[\w-]+\.[\w.-]+/g;
-
-/** URL d'une photo client deposee sur Vercel Blob. */
-const MOTIF_BLOB = /https?:\/\/[\w-]+\.public\.blob\.vercel-storage\.com\/\S*/g;
-
-/* Jeton signe dans le chemin des pages apres-vente (/suivi/<jeton>,
-   /depot/<jeton>…). C'est un lien d'acces : celui qui le possede voit la
-   commande. Il ne doit jamais partir chez un tiers, ni dans une URL de page
-   vue, ni dans un referent. */
-const MOTIF_JETON = /\/(suivi|depot|bonus|bon|confirm-poster)\/[^/?#\s]+/g;
-
-function nettoyerChaine(valeur: string): string {
-  return valeur
-    .replace(MOTIF_EMAIL, "<email>")
-    .replace(MOTIF_BLOB, "<photo>")
-    .replace(MOTIF_JETON, "/$1/<jeton>");
-}
-
 /** Adresses reservees aux tests : une session de test ne doit rien compter. */
 const MOTIF_ADRESSE_TEST = /@(resend\.dev|example\.(com|org|net))$/i;
 
-/**
- * Les cles qui portent l'IDENTITE et non une donnee incidente. Elles doivent
- * traverser le filtre intactes.
- *
- * `posthog-js` range `distinct_id` DANS `properties` — ce n'est pas un champ
- * de premier niveau comme on pourrait le croire. Le nettoyage l'attrapait donc
- * au passage et remplacait l'adresse par la chaine litterale « <email> ».
- *
- * Les consequences etaient bien pires qu'une propriete perdue :
- *
- *  - tous les visiteurs identifies partageaient le meme identifiant, donc
- *    la MEME personne. Au 25 aout, deux clients distincts et 33 evenements
- *    etaient deja confondus sous « <email> » ;
- *  - la mesure serveur, elle, envoie la vraie adresse (posthog-node ne passe
- *    pas par ce filtre). Navigation et achat vivaient donc sous deux personnes
- *    differentes, et aucun tunnel ne pouvait relier une vente a la session qui
- *    l'avait produite.
- *
- * Identifier un client par son adresse est ici deliberé — c'est ce que fait
- * `identifier()`, et ce que fait deja le serveur. Le filtre est la pour les
- * adresses ACCIDENTELLES : celle qui traine dans un parametre d'URL, dans le
- * libelle d'un bouton capture automatiquement, dans un lien de suivi.
- */
-const CLES_IDENTITE = [
-  "distinct_id",
-  "$anon_distinct_id",
-  "$device_id",
-  "$user_id",
-  "alias",
-];
+/** Identity fields must never be redacted into a shared person. */
+const CLES_IDENTITE = ["distinct_id", "$anon_distinct_id", "$device_id", "$user_id", "alias"];
 
 /** Cookie pose par `/api/admin/auth` sur le navigateur de l'admin. */
 export const COOKIE_INTERNE = "cn_interne";
@@ -159,19 +91,17 @@ export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResul
   const id = evenement.properties.distinct_id;
   if (typeof id === "string" && MOTIF_ADRESSE_TEST.test(id)) return null;
 
-  for (const [cle, valeur] of Object.entries(evenement.properties)) {
-    /* L'identite passe avant tout le reste : la reecrire revient a fusionner
-       des personnes distinctes. Voir CLES_IDENTITE. */
-    if (CLES_IDENTITE.includes(cle)) continue;
-
-    if (PROPRIETES_INTERDITES.includes(cle)) {
-      delete evenement.properties[cle];
-      continue;
-    }
-    if (typeof valeur === "string") {
-      evenement.properties[cle] = nettoyerChaine(valeur);
-    }
+  // Never merge legacy email identities into one redacted person. Drop only
+  // this unsafe event; client() resets legacy persisted identities below.
+  for (const cle of CLES_IDENTITE) {
+    const identite = evenement.properties[cle];
+    if (typeof identite === "string" && /@|%40|https?:|\//i.test(identite)) return null;
   }
+  // The SDK token is the PUBLIC project key, required for ingestion, not an
+  // access token from a customer URL. Restore this one SDK-owned field only.
+  const tokenProjet = evenement.properties.token;
+  evenement = proprietesMesure(evenement);
+  if (tokenProjet === process.env.NEXT_PUBLIC_POSTHOG_KEY) evenement.properties.token = tokenProjet;
 
   return evenement;
 }
@@ -211,6 +141,9 @@ function client(): Promise<PostHog | null> {
         defaults: "2026-01-30",
 
         person_profiles: "identified_only",
+        // No feature flags are used here. Their evaluation transport bypasses
+        // before_send and includes the raw initial URL/person properties.
+        advanced_disable_feature_flags: true,
 
         /* La vue de page est envoyee a la main par `PostHogProvider` : avec
            l'App Router, une navigation client ne recharge pas la page et
@@ -248,11 +181,10 @@ function client(): Promise<PostHog | null> {
            propriete qui les porterait. */
         before_send: filtrerAvantEnvoi,
 
-        /* Enregistrement de session. Le tunnel de commande manipule photos de
-           famille, adresse postale et carte bancaire : tout est masque par
-           defaut, et le formulaire de paiement Stripe est purement et
-           simplement exclu du film. */
-        disable_session_recording: false,
+        /* Les snapshots compresses du replay ne passent pas par notre filtre
+           de donnees. Pas de film tant que ce transport prive n'est pas audite ;
+           les evenements commerciaux anonymes restent actifs et testes. */
+        disable_session_recording: true,
         session_recording: {
           maskAllInputs: true,
           maskTextSelector: "[data-prive]",
@@ -276,6 +208,9 @@ function client(): Promise<PostHog | null> {
           : {}),
       });
 
+      // Existing local storage may still contain an email distinct_id from
+      // the old release. Reset before flags/events can reuse that identity.
+      if (posthog.get_distinct_id()?.includes("@")) posthog.reset();
       if (Object.keys(globalesEnAttente).length) {
         posthog.register(globalesEnAttente);
       }
@@ -299,7 +234,7 @@ function client(): Promise<PostHog | null> {
  * remarque avant des semaines.
  */
 export function mesure(nom: NomEvenement, proprietes?: Record<string, unknown>): void {
-  void client().then((posthog) => posthog?.capture(nom, proprietes));
+  void client().then((posthog) => posthog?.capture(nom, proprietesMesure(proprietes)));
 }
 
 /**
@@ -314,32 +249,28 @@ export function mesure(nom: NomEvenement, proprietes?: Record<string, unknown>):
  * de cote et posees a l'initialisation.
  */
 export function contexte(proprietes: Properties): void {
+  proprietes = proprietesMesure(proprietes);
   globalesEnAttente = { ...globalesEnAttente, ...proprietes };
   void client().then((posthog) => posthog?.register(proprietes));
 }
 
-/**
- * Rattache la session a une personne.
- *
- * Sans cet appel, `person_profiles: "identified_only"` ne cree jamais aucun
- * profil : tout le trafic reste anonyme, et deux visites du meme client depuis
- * le meme navigateur restent deux inconnus. C'est ce qui manquait pour qu'un
- * entonnoir « vue produit → commande » puisse traverser une nuit de reflexion.
- *
- * L'identifiant est l'adresse e-mail, seule cle stable dont le site dispose —
- * il n'y a pas de compte client. Elle n'est pas envoyee comme propriete : le
- * filtre s'en chargerait de toute facon, mais le distinct_id, lui, doit rester
- * lisible pour rapprocher une commande d'une session.
+/** Identify with a server-provided pseudonym or order ID, never an email.
+ * Existing email callers keep the anonymous session and safe segmentation.
  */
-export function identifier(email: string, proprietes?: Properties): void {
-  const propre = email.trim().toLowerCase();
-  if (!propre.includes("@")) return;
-  void client().then((posthog) => posthog?.identify(propre, proprietes));
+export function identifier(identifiant: string, proprietes?: Properties): void {
+  // No browser-side email hash: it is dictionary-reversible. Email callers
+  // retain the SDK anonymous identity and safe business segmentation.
+  if (/@|%40|https?:|\//i.test(identifiant)) {
+    if (proprietes) proprietesPersonne(proprietes);
+    return;
+  }
+  if (!/^(?:person_[a-f0-9]{64}|order_[a-zA-Z0-9_-]+)$/.test(identifiant)) return;
+  void client().then((posthog) => posthog?.identify(identifiant, proprietesMesure(proprietes)));
 }
 
 /** Proprietes de la personne (et non de l'evenement) : marche, devise, LTV. */
 export function proprietesPersonne(proprietes: Properties): void {
-  void client().then((posthog) => posthog?.setPersonProperties(proprietes));
+  void client().then((posthog) => posthog?.setPersonProperties(proprietesMesure(proprietes)));
 }
 
 /**

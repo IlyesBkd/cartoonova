@@ -61,15 +61,15 @@
       "description": "Przeżyj własną bajkę"
     },
     "reassurance1": "Wyjątkowy, z Twojego zdjęcia",
-    "reassurance2": "Dostawa cyfrowa w 2 dni",
+    "reassurance2": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "reassurance3": "Gwarancja satysfakcji",
     "ctaTitle": "Nie możesz się zdecydować?",
     "ctaSubtitle": "Zacznij od bestsellera!",
     "ctaButton": "Zobacz Simpsonów",
     "badgeSatisfied": "Zwrot pieniędzy",
     "badgeHandDrawn": "Z Twojego zdjęcia",
-    "badgeDelivery24h": "Dostawa w 2 dni",
-    "trustBar": "Z Twojego zdjęcia · Dostawa w 2 dni · Zwrot pieniędzy"
+    "badgeDelivery24h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
+    "trustBar": "Z Twojego zdjęcia · Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach · Zwrot pieniędzy"
   },
   "hero": {
     "badge": "4.8",
@@ -103,7 +103,7 @@
   "faq": {
     "title": "Najczęstsze pytania",
     "q1": "Ile trwa wykonanie portretu?",
-    "a1": "Rysunek powstaje w 2 dni. Przy wydruku (plakat, płótno) doliczamy 3 dni robocze na produkcję i wysyłkę.",
+    "a1": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "q2": "Czy wszystkie osoby muszą być na jednym zdjęciu?",
     "a2": "Wcale nie. Prześlij osobne zdjęcia, a połączymy wszystkich w jednym kadrze.",
     "q3": "Co jeśli nie będę zadowolony?",
@@ -127,7 +127,7 @@
     "averageRating": "Średnia ocena",
     "delivery": "Dostawa",
     "satisfactionGuarantee": "Gwarancja satysfakcji",
-    "digitalDelivery48h": "Dostawa cyfrowa w 2 dni",
+    "digitalDelivery48h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "guaranteeStep1Title": "Wyślij zdjęcie",
     "guaranteeStep1Desc": "Wystarczy selfie",
     "guaranteeStep2Title": "Rysujemy portret",
@@ -141,10 +141,10 @@
     "verified": "Zweryfikowana",
     "frequentQuestions": "Najczęstsze pytania",
     "readyToBecome": "Gotowy, żeby zostać:",
-    "joinClients": "Twój spersonalizowany portret w 2 dni",
+    "joinClients": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "createMyPortrait": "Stwórz mój portret",
     "handDrawnIcon": "Z Twojego zdjęcia",
-    "delivered48h": "Dostawa w 2 dni",
+    "delivered48h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "satisfiedOrRefunded": "Zwrot pieniędzy",
     "formatLabel": "Format",
     "peopleLabel": "Osoby",
@@ -219,7 +219,7 @@
     "reviewsTitle": "Dziękujemy za zaufanie",
     "posterOption": "Plakat",
     "faqQ1": "Ile trwa wykonanie karykatury?",
-    "faqA1": "Rysunek powstaje w 2 dni. Przy wydruku (plakat, płótno) doliczamy 3 dni robocze na produkcję i wysyłkę.",
+    "faqA1": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "faqQ2": "Czy wszystkie osoby muszą być na jednym zdjęciu?",
     "faqA2": "Wcale nie. Prześlij osobne zdjęcia, a połączymy wszystkich w jednym kadrze.",
     "faqQ3": "Co jeśli nie będę zadowolony?",
@@ -263,8 +263,8 @@
     "ctaTitle": "Zostań postacią z kreskówki, po swojemu.",
     "decorChip": "Sceneria",
     "decorStep": "Tło",
-    "delivery48h": "plik w 2 dni",
-    "digital48h": "2 dni (plik cyfrowy)",
+    "delivery48h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
+    "digital48h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "digitalSub": "HD e-mailem · bez wydruku",
     "dragHere": "Upuść zdjęcia tutaj",
     "estimatedDelay": "Szacowany termin",
@@ -289,7 +289,7 @@
     "paymentReassurance": "Bezpieczna płatność · Darmowe poprawki",
     "peoplePlural": "osób",
     "peopleSingular": "osoba",
-    "pillDelivered48h": "Dostawa w 2 dni",
+    "pillDelivered48h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "pillDrawnHand": "Z Twojego zdjęcia",
     "pillSatisfied": "Zwrot pieniędzy",
     "portraitSub": "Twarz + popiersie",
@@ -330,8 +330,8 @@
     "optExtraDecorSub": "Te same postacie na drugim tle: dwa obrazy",
     "optExtraDecorRecap": "2. tło: {decor}",
     "optExpress": "Ekspres 24 h",
-    "optExpressSub": "Portret w 24 godziny, także w weekend",
-    "optExpressSubPrint": "Rysunek w 24 godziny, także w weekend, potem druk",
+    "optExpressSub": "Pierwszy podgląd w ciągu 24 godzin, także w weekendy, od otrzymania płatności i zdjęć.",
+    "optExpressSubPrint": "Pierwszy podgląd w ciągu 24 godzin, także w weekendy, od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "optExpressRecap": "Ekspres 24 h",
     "shippingLine": "w tym dostawa: {montant}",
     "optSaisonTitre": "Na święta",
@@ -489,7 +489,7 @@
     "errorNameRequired": "Podaj imię i nazwisko.",
     "errorAddressRequired": "Uzupełnij pełny adres.",
     "errorPostalCode": "Ten kod pocztowy nie pasuje do wybranego kraju.",
-    "guaranteeLine": "Podgląd w 2 dni · poprawki bez limitu · zwrot pieniędzy, jeśli podgląd Ci się nie spodoba",
+    "guaranteeLine": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach · poprawki bez limitu · zwrot pieniędzy, jeśli podgląd Ci się nie spodoba",
     "occasionLabel": "Z jakiej okazji? (opcjonalnie)",
     "occasions": {
       "anniversaire": "Urodziny",
@@ -505,7 +505,7 @@
     "errorTechnical": "Błąd techniczny przy przygotowaniu płatności.",
     "step1Of2": "Krok 1/2",
     "step2Of2": "Krok 2/2",
-    "orderByGuidance": "Potrzebujesz na konkretną datę? Licz 2 dni na rysunek, 1 dzień na akceptację podglądu, a potem 3–7 dni roboczych na druk i dostawę.",
+    "orderByGuidance": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "giftToggle": "To prezent",
     "giftHint": "Wiadomość, wysyłka do obdarowanego, data dostawy",
     "giftMessageLabel": "Wiadomość dla obdarowanego",
@@ -540,66 +540,66 @@
   "evenements": {
     "anniversaire": {
       "promo": "Zbliżają się urodziny —",
-      "promoFort": "podgląd w 2 dni",
+      "promoFort": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć.",
       "heroTitre1": "Prezent urodzinowy,",
       "heroTitre2": "który rozbawi wszystkich",
-      "heroSous": "Twoje zdjęcie jako wyjątkowy portret. Podgląd w 2 dni, nieograniczone poprawki."
+      "heroSous": "Twoje zdjęcie jako wyjątkowy portret. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
     "saintValentin": {
       "promo": "Walentynki — wyjątkowy portret, nieograniczone poprawki,",
-      "promoFort": "zamów do {date}",
+      "promoFort": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie.",
       "heroTitre1": "Walentynkowy prezent,",
       "heroTitre2": "którego nie kupisz",
-      "heroSous": "Wasze ulubione wspólne zdjęcie jako wyjątkowy portret. Podgląd w 2 dni, nieograniczone poprawki."
+      "heroSous": "Wasze ulubione wspólne zdjęcie jako wyjątkowy portret. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
     "feteDesMeres": {
       "promo": "Dzień Matki —",
-      "promoFort": "zamów do {date}",
+      "promoFort": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie.",
       "heroTitre1": "Prezent na Dzień Matki,",
       "heroTitre2": "który zostanie",
-      "heroSous": "Wasze rodzinne zdjęcie jako wyjątkowy portret. Podgląd w 2 dni, nieograniczone poprawki."
+      "heroSous": "Wasze rodzinne zdjęcie jako wyjątkowy portret. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
     "feteDesPeres": {
       "promo": "Dzień Ojca —",
-      "promoFort": "zamów do {date}",
+      "promoFort": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie.",
       "heroTitre1": "Prezent na Dzień Ojca,",
       "heroTitre2": "który nie jest krawatem",
-      "heroSous": "Jego zdjęcie, narysowane w świecie, który kocha. Podgląd w 2 dni, nieograniczone poprawki."
+      "heroSous": "Jego zdjęcie, narysowane w świecie, który kocha. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
     "halloween": {
       "promo": "Halloween tuż-tuż —",
-      "promoFort": "zamów do {date}",
+      "promoFort": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie.",
       "heroTitre1": "Twój portret,",
       "heroTitre2": "edycja Halloween",
-      "heroSous": "Cała rodzina w stylu cartoon. Podgląd w 2 dni, nieograniczone poprawki."
+      "heroSous": "Cała rodzina w stylu cartoon. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
     "blackFriday": {
       "promo": "Trwa Black Friday —",
       "promoFort": "najlepszy moment na prezent",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "podaruj coś oryginalnego",
-      "heroSous": "Portret zamiast kolejnego gadżetu. Podgląd w 2 dni, nieograniczone poprawki."
+      "heroSous": "Portret zamiast kolejnego gadżetu. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
     "noel": {
       "promo": "Święta —",
-      "promoFort": "zamów do {date}",
+      "promoFort": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie.",
       "heroTitre1": "Świąteczny prezent,",
       "heroTitre2": "którego nikt nie zapomni",
-      "heroSous": "Twoje zdjęcie jako wyjątkowy portret, gotowy przed 25 grudnia. Podgląd w 2 dni."
+      "heroSous": "Twoje zdjęcie jako wyjątkowy portret. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki."
     },
-    "phaseNumerique": "portret cyfrowy wciąż dotrze na czas, jeśli zamówisz do {date}"
+    "phaseNumerique": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie."
   },
   "gift": {
-    "generic": "Prezent na konkretną datę? Cyfrowo w {digitalDays} dni albo w {daysMin}–{days} dni roboczych jako wydruk.",
-    "deadline": "{event}: zamów do {date}, żeby zdążyć.",
+    "generic": "Pierwszy podgląd w ciągu {digitalDays} dni roboczych od otrzymania płatności i zdjęć. Szacowana dostawa wydruku w {daysMin}–{days} dni roboczych przy szybkim zatwierdzeniu; transport jest osobnym etapem.",
+    "deadline": "{event} : Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie.",
     "event_saintValentin": "Walentynki",
     "event_feteDesMeres": "Dzień Matki",
     "event_feteDesPeres": "Dzień Ojca",
     "event_halloween": "Halloween",
     "event_blackFriday": "Black Friday",
     "event_noel": "Święta",
-    "deadlineDouble": "{event}: zamów do {date}, aby dostać wydruk, lub do {dateNumerique} w wersji cyfrowej.",
-    "deadlineNumerique": "{event}: na wydruk jest już za późno, ale portret cyfrowy dotrze na czas, jeśli zamówisz do {date}."
+    "deadlineDouble": "{event}: terminy orientacyjne po otrzymaniu płatności i zdjęć do {date} dla wydruku lub {dateNumerique} dla wersji cyfrowej. Zatwierdzenie i transport mogą opóźnić dostawę.",
+    "deadlineNumerique": "{event} : Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie."
   },
   "exitIntent": {
     "title": "Już uciekasz?",
@@ -657,7 +657,7 @@
     "howItWorksLink": "Jak to działa?",
     "satisfiedOrRefunded": "Zwrot pieniędzy",
     "handDrawn": "Z Twojego zdjęcia",
-    "delivered48h": "Dostawa w 2 dni",
+    "delivered48h": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "portraitsCreated": "Portretów stworzonych",
     "averageRating": "Średnia ocena",
     "delivery": "Dostawa",
@@ -671,7 +671,7 @@
     "step2Title": "Rysujemy Cię",
     "step2Desc": "Tworzymy Twój wyjątkowy portret.",
     "step3Title": "Odbierz portret",
-    "step3Desc": "Plik cyfrowy dostajesz w 2 dni.",
+    "step3Desc": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć.",
     "startNow": "Zaczynam →",
     "galleryTitle": "Nasze realizacje",
     "gallerySubtitle": "Zobacz, co możemy stworzyć z Twoich zdjęć!",
@@ -681,15 +681,15 @@
     "whyUs1Desc": "Nieograniczone darmowe poprawki i zwrot pieniędzy, jeśli nie będziesz przekonany.",
     "whyUs2Title": "Na zamówienie",
     "whyUs2Desc": "Każdy portret powstaje z Twoich zdjęć, tylko dla Ciebie.",
-    "whyUs3Title": "Dostawa w 2 dni",
-    "whyUs3Desc": "Portret cyfrowy dostajesz najpóźniej w 2 dni.",
+    "whyUs3Title": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
+    "whyUs3Desc": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć.",
     "reviewsTitle": "Co mówią nasi klienci",
     "verifiedReviewsCount": "Nieograniczone poprawki",
     "verified": "Zweryfikowana",
     "viewAllReviews": "Zobacz wszystkie opinie →",
     "faqTitle": "Najczęstsze pytania",
     "faqQ1": "Ile trwa wykonanie portretu?",
-    "faqA1": "Rysunek powstaje w 2 dni. Przy wydruku (plakat, płótno, rama) doliczamy 3 dni robocze na produkcję i dostawę.",
+    "faqA1": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "faqQ2": "Czy wszystkie osoby muszą być na jednym zdjęciu?",
     "faqA2": "Wcale nie. Prześlij osobne zdjęcia, a połączymy wszystkich w jednym kadrze.",
     "faqQ3": "Co jeśli nie będę zadowolony?",
@@ -700,10 +700,10 @@
     "faqA5": "Tak. Przedmioty, pojazdy, tła i dodatki dorysujemy za niewielką dopłatą.",
     "ctaTitle": "Gotowy, żeby zostać postacią z kreskówki?",
     "ctaSubtitle": "Chcesz portret, który naprawdę Cię przypomina? Teraz Twoja kolej.",
-    "ctaReassurance": "Z Twojego zdjęcia · Dostawa w 2 dni · Zwrot pieniędzy",
+    "ctaReassurance": "Z Twojego zdjęcia · Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach · Zwrot pieniędzy",
     "portraitAlt": "Portret rysowany",
     "realizationAlt": "Realizacja",
-    "trustBar": "Z Twojego zdjęcia · Dostawa w 2 dni · Zwrot pieniędzy"
+    "trustBar": "Z Twojego zdjęcia · Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach · Zwrot pieniędzy"
   },
   "socialProof": {
     "names": [
@@ -719,13 +719,13 @@
   },
   "tj": {
     "promo": "Wyjątkowy portret, nieograniczone poprawki —",
-    "promoFort": "podgląd w 2 dni",
+    "promoFort": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "navStyles": "Style",
     "navEtapes": "Jak to działa",
     "navFaq": "Pytania",
     "navTousStyles": "Zobacz wszystkie 36 stylów",
     "heroOeil": "Spersonalizowany portret",
-    "heroNote": "Twój portret w 2 dni, nieograniczone poprawki",
+    "heroNote": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki.",
     "etapesTitre": "Trzy kroki,",
     "etapesAccent": "i tyle",
     "etapesSous": "Bez zakładania konta, bez programów. Wystarczy jedno zdjęcie.",
@@ -742,7 +742,7 @@
     "atoutsAccent": "różnicę",
     "atoutsSous": "Każdy portret powstaje z Twojego zdjęcia i z niczego innego.",
     "atout1T": "Szybki podgląd",
-    "atout1D": "Twój portret dociera w 2 dni. W wersji cyfrowej plik w wysokiej rozdzielczości trafia od razu na e-mail; przy wydruku akceptujesz podgląd przed drukiem.",
+    "atout1D": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "atout2T": "Nieograniczone poprawki",
     "atout2D": "Poprawiamy, aż będzie dobrze — tyle razy, ile trzeba, bez dopłat.",
     "atout3T": "Każde zdjęcie się nada",
@@ -770,7 +770,7 @@
     "hiwStep2Titre": "Prześlij zdjęcie",
     "hiwStep2Texte": "Prześlij zdjęcia z telefonu albo z mediów społecznościowych — teraz lub później.",
     "hiwStep3Titre": "Odbierz portret",
-    "hiwStep3Texte": "Plik cyfrowy dostajesz w 2 dni. Wolisz na ścianę? Wybierz plakat, płótno albo oprawiony portret.",
+    "hiwStep3Texte": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Wolisz na ścianę? Wybierz plakat, płótno albo oprawiony portret.",
     "hiwChoisirDecor": "Wybierz tło",
     "hiwChoisirFichiers": "Wybierz pliki",
     "hiwCommande": "Zamówione",
@@ -781,7 +781,7 @@
     "ctaTitre": "Gotowy, żeby zobaczyć siebie",
     "ctaAccent": "jako postać z kreskówki",
     "ctaTexte": "Podaruj prezent, którego nikt inny nie da.",
-    "ctaAtout1": "Gotowe w 2 dni",
+    "ctaAtout1": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach",
     "ctaAtout2": "Nieograniczone poprawki",
     "ctaAtout3": "Każde zdjęcie się nada",
     "piedBaseline": "Wyjątkowe portrety tworzone z Twoich zdjęć.",
@@ -834,12 +834,12 @@
     "garantieImprime": "Akceptujesz portret, zanim go wydrukujemy. Po poprawkach nadal nie przekonuje? Zwrot pieniędzy.",
     "garantieNumerique": "Poprawki, aż go pokochasz. Nie przekonuje? Zwrot pieniędzy.",
     "offerts": "Gratis do portretu: tapeta, awatar i kartka do wydruku.",
-    "tuileDelai": "2 dni"
+    "tuileDelai": "Pierwszy podgląd: 2 dni robocze po płatności + zdjęciach"
   },
   "metaPages": {
     "aPropos": {
       "title": "O Cartoonova — spersonalizowane portrety",
-      "description": "Za Cartoonova stoją portrety tworzone pojedynczo z Twoich zdjęć. Podgląd w 48 godzin, nieograniczone poprawki, wydruki dostarczane w 3–7 dni roboczych."
+      "description": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy."
     },
     "avis": {
       "title": "Opinie klientów — co mówią o swoim portrecie Cartoonova",
@@ -913,11 +913,11 @@
     "surtitre": "Boże Narodzenie",
     "titre": "Prezent na święta,",
     "accent": "którego się nie zapomina",
-    "sous": "Portret cartoon narysowany ze zdjęcia. Do kiedy zamówić, żeby dotarł na czas.",
+    "sous": "Portret cartoon na podstawie twojego zdjęcia. Terminy orientacyjne, zależne od otrzymania płatności i zdjęć.",
     "impressionTitre": "Plakat, płótno lub rama",
-    "impressionTexte": "Zamów do {date}: 2 dni rysowania, 1 dzień na akceptację podglądu, potem druk i dostawa.",
+    "impressionTexte": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "numeriqueTitre": "Wersja cyfrowa",
-    "numeriqueTexte": "Zamów do {date}: portret przychodzi e-mailem, gotowy do wydruku w domu lub podarowania na ekranie.",
+    "numeriqueTexte": "Termin orientacyjny: otrzymanie płatności i zdjęć do {date}, bez gwarancji dostawy w tej dacie. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć.",
     "bonTitre": "Karta podarunkowa",
     "bonTexte": "Do wieczora {date}: nic nie trzeba wysyłać, karta przychodzi e-mailem w kilka sekund, gotowa pod choinkę.",
     "bonCta": "Podaruj kartę",
@@ -952,17 +952,17 @@
     "photoBoutonAutre": "Dodaj kolejne zdjęcie",
     "photoGlisser": "lub przeciągnij je tutaj z komputera",
     "ajouterPrecision": "+ Dodaj uwagę",
-    "dateNumerique": "Zamów dziś → twój portret: {date}",
-    "dateExpress": "Zamów dziś → twój portret jutro, {date}",
-    "dateImprime": "Zamów dziś → podgląd: {apercu}, portret u ciebie między {debut} a {fin}",
-    "dateImprimeExpress": "Zamów dziś → podgląd jutro, {apercu}, portret u ciebie między {debut} a {fin}",
+    "dateNumerique": "Jeśli otrzymamy płatność i zdjęcia dzisiaj: pierwszy podgląd przewidywany na {date}.",
+    "dateExpress": "Jeśli otrzymamy płatność i zdjęcia dzisiaj: pierwszy podgląd przewidywany na {date}. Pierwszy podgląd w ciągu 24 godzin, także w weekendy, od otrzymania płatności i zdjęć.",
+    "dateImprime": "Jeśli otrzymamy płatność i zdjęcia dzisiaj: pierwszy podgląd przewidywany na {apercu}. Szacowana dostawa wydruku między {debut} a {fin}, zależnie od zatwierdzenia i transportu.",
+    "dateImprimeExpress": "Jeśli otrzymamy płatność i zdjęcia dzisiaj: pierwszy podgląd przewidywany na {apercu}. Szacowana dostawa wydruku między {debut} a {fin}, zależnie od zatwierdzenia i transportu. Pierwszy podgląd w ciągu 24 godzin, także w weekendy, od otrzymania płatności i zdjęć.",
     "qRessembleQ": "A jeśli nie będzie podobny?",
     "qRessembleR": "Poprawiamy portret tyle razy, ile trzeba, bezpłatnie: podobieństwo, kolory, szczegóły. Jeśli nadal cię nie przekonuje, zwracamy całą kwotę. W przypadku portretu drukowanego zgłoś to przed zatwierdzeniem podglądu: po zatwierdzeniu ruszamy z drukiem.",
     "qPhotosQ": "Ile zdjęć wysłać?",
     "qPhotosR": "Wystarczy jedno ostre zdjęcie na osobę (i na zwierzę): z przodu, dobrze oświetlone, z wyraźnie widoczną twarzą. Możesz wysłać maksymalnie {max}.",
     "qPhotosLien": "Jakie zdjęcie wybrać?",
     "qPlusTardQ": "Czy mogę zapłacić teraz, a zdjęcia wysłać później?",
-    "qPlusTardR": "Tak. Zaraz po płatności dostaniesz e-mailem link do przesłania zdjęć. Czas realizacji liczy się od ich otrzymania."
+    "qPlusTardR": "Tak. Zaraz po płatności dostaniesz e-mailem link do przesłania zdjęć. Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć."
   },
   "guidePhoto": {
     "lienPied": "Jakie zdjęcie wysłać?",
@@ -1090,7 +1090,7 @@
     "v2Titre": "Gwarancja zadowolenia",
     "v2Texte": "Nieograniczone, bezpłatne poprawki. Nie przestajemy, dopóki nie będziesz zachwycony.",
     "v3Titre": "Szybko i pewnie",
-    "v3Texte": "Podgląd w 2 dni, wydruki wykonane i dostarczone w 3–7 dni roboczych. Przesyłka ze śledzeniem na cały świat.",
+    "v3Texte": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Przy wydruku najpierw zatwierdzasz podgląd; potem produkcja i wysyłka trwają od 3 do 7 dni roboczych, zależnie od miejsca dostawy.",
     "v4Titre": "Na całym świecie",
     "v4Texte": "Dostawa do ponad 50 krajów i wsparcie, które naprawdę odpowiada."
   },

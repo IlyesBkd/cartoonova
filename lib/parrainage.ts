@@ -1,3 +1,4 @@
+import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { randomInt } from "crypto";
 import { ensurePaidAtSchema, sql } from "./db";
 import { ensurePromoSchema, normalizeCode } from "./promoCodes";
@@ -148,7 +149,7 @@ export async function recompenserParrain(order: {
 
     const parrain = promo.parrain_email.trim().toLowerCase();
     if (parrain === order.customer_email.trim().toLowerCase()) {
-      console.log(`[parrainage] auto-parrainage ignoré: ${code} sur ${order.id}`);
+      console.log(`[parrainage] auto-parrainage ignoré: [code privé] sur ${order.id}`);
       return;
     }
 
@@ -188,6 +189,6 @@ export async function recompenserParrain(order: {
       proprietes: { order_id: order.id, code_ami: code, bon: bon.code, value: montant, currency: devise },
     }).catch(() => {});
   } catch (erreur) {
-    console.error("[parrainage] récompense impossible pour", order.id, erreur);
+    console.error("[parrainage] récompense impossible pour", order.id, diagnosticJournal(erreur));
   }
 }

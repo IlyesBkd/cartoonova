@@ -1,3 +1,4 @@
+import { diagnosticJournal, bilanJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { alerteDiscord, COULEUR_ALERTE, COULEUR_ATTENTION } from "@/lib/discord";
@@ -186,11 +187,11 @@ export async function GET(req: NextRequest) {
         : null;
 
     const result = { enAttente: enAttente.length, recap };
-    console.log("[CRON retouches]", JSON.stringify(result));
+    console.log("[CRON retouches]", JSON.stringify(bilanJournal(result)));
     return NextResponse.json({ ok: true, ...result });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[CRON retouches] Error:", message);
+    console.error("[CRON retouches] Error:", diagnosticJournal(error));
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

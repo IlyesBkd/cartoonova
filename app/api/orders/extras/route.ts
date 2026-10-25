@@ -7,6 +7,7 @@ import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { genererCarteVoeux } from "@/lib/extras/carteVoeux";
 import { genererCalendrier } from "@/lib/extras/calendrier";
 import { envoyerEmail } from "@/lib/envoiEmail";
+import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
 
 /**
  * Carte de voeux et calendrier (options F-6/F-7) : genere les PDF a partir du
@@ -58,11 +59,7 @@ export async function POST(req: NextRequest) {
     const ref = order.id.slice(0, 8);
 
     /* L'image est telechargee une seule fois pour les deux documents. */
-    const reponse = await fetch(order.final_image_url);
-    if (!reponse.ok) {
-      return NextResponse.json({ error: `Portrait injoignable (${reponse.status}).` }, { status: 502 });
-    }
-    const image = new Uint8Array(await reponse.arrayBuffer());
+    const { bytes: image } = await downloadFinalImage(order.final_image_url);
 
     const fichiers: { cle: "carteVoeux" | "calendrier"; libelle: string; url: string }[] = [];
 
@@ -118,17 +115,17 @@ export async function POST(req: NextRequest) {
     });
 
     if (envoi.error) {
-      console.error("[EXTRAS] envoi refuse :", order.id, envoi.error);
+      console.error("[EXTRAS] envoi refusé.");
       return NextResponse.json(
-        { error: `Fichiers generes mais e-mail non envoye : ${envoi.error.message}`, fichiers },
+        { error: "Fichiers générés mais e-mail non envoyé.", fichiers },
         { status: 502 }
       );
     }
 
     return NextResponse.json({ ok: true, fichiers, emailId: envoi.data?.id ?? null });
   } catch (erreur) {
-    const message = erreur instanceof Error ? erreur.message : "Erreur inconnue";
-    console.error("[EXTRAS] echec :", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    const message = erreur instanceof FinalImageError ? erreur.message : "Génération des extras impossible.";
+    console.error("[EXTRAS] Échec de génération.");
+    return NextResponse.json({ error: message }, { status: erreur instanceof FinalImageError ? erreur.status : 500 });
   }
 }
