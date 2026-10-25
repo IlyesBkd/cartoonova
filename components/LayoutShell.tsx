@@ -53,10 +53,13 @@ export default function LayoutShell({
      La liste des articles est exclue a dessein : on y est encore en train de
      choisir, l'interruption y serait gratuite. */
   const surArticle = /\/blog\/[^/]+/.test(pathname);
+  // Une page dédiée à une occasion garde son propre discours et ses délais.
+  // La barre globale ne doit pas lui substituer la campagne du moment.
+  const occasionDediee = /^\/[^/]+\/(?:noel|cadeau|bon-cadeau)(?:\/|$)/.test(pathname);
 
   return (
     <>
-      <Navbar vignettes={vignettes} evenement={evenement} />
+      <Navbar vignettes={vignettes} evenement={occasionDediee ? null : evenement} />
       <main>{children}</main>
       <FooterCartoon />
       <ChatWidget />

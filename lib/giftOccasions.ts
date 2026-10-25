@@ -82,7 +82,7 @@ const fr: OccasionTable = {
       {
         question: "Peut-on offrir un portrait sans l'avoir reçu à temps ?",
         answer:
-          "Oui : tu peux offrir la version numérique le jour J et faire livrer l'impression ensuite. Beaucoup de commandes de dernière minute se passent comme ça.",
+          `${PREVIEW_PROMISE.fr} ${PRINT_PROMISE.fr}`,
       },
     ],
   },
@@ -229,7 +229,7 @@ const en: OccasionTable = {
       {
         question: "Can I give the portrait if the print hasn't arrived yet?",
         answer:
-          "Yes: you can give the digital version on the day and have the print delivered afterwards. Plenty of last-minute orders work exactly like that.",
+          `${PREVIEW_PROMISE.en} ${PRINT_PROMISE.en}`,
       },
     ],
   },
@@ -376,7 +376,7 @@ const es: OccasionTable = {
       {
         question: "¿Se puede regalar aunque la impresión no haya llegado?",
         answer:
-          "Sí: puedes regalar la versión digital el mismo día y recibir la impresión después. Muchos pedidos de última hora funcionan así.",
+          `${PREVIEW_PROMISE.es} ${PRINT_PROMISE.es}`,
       },
     ],
   },
@@ -523,7 +523,7 @@ const de: OccasionTable = {
       {
         question: "Kann man schenken, bevor der Druck da ist?",
         answer:
-          "Ja: Du verschenkst am Tag selbst die digitale Fassung und lässt den Druck später liefern. Viele Last-Minute-Bestellungen laufen genau so.",
+          `${PREVIEW_PROMISE.de} ${PRINT_PROMISE.de}`,
       },
     ],
   },
@@ -670,7 +670,7 @@ const it: OccasionTable = {
       {
         question: "Si può regalare prima che arrivi la stampa?",
         answer:
-          "Sì: puoi regalare la versione digitale il giorno stesso e far consegnare la stampa dopo. Molti ordini dell'ultimo minuto funzionano così.",
+          `${PREVIEW_PROMISE.it} ${PRINT_PROMISE.it}`,
       },
     ],
   },
@@ -821,7 +821,7 @@ const nl: OccasionTable = {
       {
         question: "Kan ik iets geven dat nog niet binnen is?",
         answer:
-          "Ja: geef de digitale versie op de dag zelf en laat de print daarna bezorgen. Veel last-minute bestellingen gaan precies zo.",
+          `${PREVIEW_PROMISE.nl} ${PRINT_PROMISE.nl}`,
       },
     ],
   },
@@ -972,7 +972,7 @@ const pl: OccasionTable = {
       {
         question: "Czy mogę podarować portret, którego jeszcze nie mam?",
         answer:
-          "Tak: wręcz wersję cyfrową w dniu Świąt, a wydruk zamów z dostawą później. Wiele zamówień na ostatnią chwilę wygląda właśnie tak.",
+          `${PREVIEW_PROMISE.pl} ${PRINT_PROMISE.pl}`,
       },
     ],
   },
@@ -1122,7 +1122,7 @@ const sv: OccasionTable = {
       {
         question: "Kan jag ge bort ett porträtt som inte hunnit fram?",
         answer:
-          "Ja: ge den digitala versionen på julafton och låt trycket komma efteråt. Många sena beställningar går till precis så.",
+          `${PREVIEW_PROMISE.sv} ${PRINT_PROMISE.sv}`,
       },
     ],
   },
@@ -1271,7 +1271,7 @@ const da: OccasionTable = {
       {
         question: "Kan jeg give et portræt, der ikke er nået frem?",
         answer:
-          "Ja: giv den digitale version juleaften og lad trykket komme bagefter. Mange sene bestillinger foregår præcis sådan.",
+          `${PREVIEW_PROMISE.da} ${PRINT_PROMISE.da}`,
       },
     ],
   },
@@ -1422,7 +1422,7 @@ const pt: OccasionTable = {
       {
         question: "Posso oferecer um retrato que ainda não chegou?",
         answer:
-          "Sim: ofereces a versão digital no próprio dia e a impressão chega depois. Muitas encomendas de última hora funcionam assim.",
+          `${PREVIEW_PROMISE.pt} ${PRINT_PROMISE.pt}`,
       },
     ],
   },

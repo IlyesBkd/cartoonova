@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
  * justement verifier si on a ecrit au client.
  */
 export async function GET(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

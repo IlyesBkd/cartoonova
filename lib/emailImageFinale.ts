@@ -1,4 +1,4 @@
-import { markFinalImageSent, setOrderLastOutboundMessageId, programmerEnvoiImageFinale } from "./db";
+import { getOrderById, markFinalImageSent, setOrderLastOutboundMessageId, programmerEnvoiImageFinale } from "./db";
 import { finalImageEmail, avisLiens, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
 import { SITE_URL } from "./site";
@@ -9,7 +9,7 @@ import { infosParrainage } from "./parrainage";
 import { parrainageTextes } from "./i18n/relances";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { optionsLivraisonCadeau, echapperMessageCadeau, validerLivraisonCadeau } from "./livraisonCadeau";
-import { downloadFinalImage, validateFinalImageUrl } from "./finalImage";
+import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "./finalImage";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -43,6 +43,12 @@ export interface DestinataireImageFinale {
 export async function envoyerImageFinale(
   order: DestinataireImageFinale
 ): Promise<{ id: string | null; deferredUntil?: string }> {
+  const saved = await getOrderById(order.id);
+  if (!saved?.final_image_url) throw new FinalImageError("Commande sans portrait enregistré.", 409);
+  if (saved.final_image_url !== order.final_image_url || saved.customer_email !== order.customer_email) {
+    throw new FinalImageError("La commande a changé. Rechargez-la avant l'envoi.", 409);
+  }
+  order = { ...saved, final_image_url: saved.final_image_url };
   const lang = langueCommande(order);
   const t = finalImageEmail[lang];
   const options = optionsLivraisonCadeau(order.options);
@@ -76,6 +82,12 @@ export async function envoyerImageFinale(
   }
   const tp = parrainageTextes[lang];
 
+  const current = await getOrderById(order.id);
+  if (!current || current.final_image_url !== order.final_image_url ||
+      current.customer_email !== order.customer_email ||
+      JSON.stringify(optionsLivraisonCadeau(current.options)) !== JSON.stringify(options)) {
+    throw new FinalImageError("La commande a changé. Rechargez-la avant l'envoi.", 409);
+  }
   const result = await envoyerEmail({
     from: EXPEDITEUR,
     to: [destinataire],

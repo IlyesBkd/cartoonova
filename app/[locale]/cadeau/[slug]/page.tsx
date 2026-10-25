@@ -118,6 +118,8 @@ export default async function GiftOccasionPage({
 
   const { locale, product, occasion, occasionKey, styleName } = data;
   const t = await getTranslations({ locale, namespace: "giftPage" });
+  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tBon = await getTranslations({ locale, namespace: "bonCadeau" });
   let initialPrices: Prices | null = null;
   try {
     initialPrices = await prixEnCache("EUR");
@@ -156,7 +158,11 @@ export default async function GiftOccasionPage({
             </h1>
             <p style={{ color: "var(--encre-doux)", maxWidth: "56ch" }}>{occasion.intro}</p>
             <div className="mt-6">
-              <GiftDeadlineNote />
+              <GiftDeadlineNote occasion={occasionKey} />
+              <p className="mt-3 text-sm text-black/70">
+                {tBon("sous")} {tBon("etape1")} {tBon("etape2")}{" "}
+                <Link href={`/${locale}/bon-cadeau`} className="font-bold underline underline-offset-4">{tBon("titre")} {tBon("accent")}</Link>
+              </p>
             </div>
           </header>
 
@@ -204,6 +210,12 @@ export default async function GiftOccasionPage({
             </GiftConfiguratorLink>
             <p className="mt-4 text-sm font-bold text-black/60">{t("ctaNote")}</p>
           </section>
+
+          <nav className="flex flex-wrap gap-5 mb-12 font-bold underline underline-offset-4" aria-label={tNav("about")}>
+            <Link href={`/${locale}/portfolio`}>{tNav("portfolio")}</Link>
+            <Link href={`/${locale}/a-propos`}>{tNav("about")}</Link>
+            {locale === "fr" && <Link href="/fr/portrait-personnalise-cartoon">Portrait personnalisé cartoon</Link>}
+          </nav>
 
           <section className="mb-12">
             <h2 className="text-2xl font-black text-black mb-5">{t("faqTitle")}</h2>

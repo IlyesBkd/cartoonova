@@ -102,7 +102,7 @@ export const LEGAL_SV: PagesLegales = {
         titre: "Artikel 10 — Immateriella rättigheter",
         blocs: [
           "De karikatyrer som skapas av Cartoonova är originalverk som skyddas av upphovsrätten. Efter full betalning erhåller Kunden en **personlig och icke-kommersiell nyttjanderätt** till verket.",
-          "Cartoonova förbehåller sig rätten att använda de utförda karikatyrerna i marknadsföringssyfte (portfolio, sociala medier), om inte Kunden uttryckligen begär annat.",
+          "Källfoton används för att utföra beställningen; färdiga porträtt är de levererade verken. Cartoonova publicerar inget av dessa för marknadsföring (portfolio, sociala nätverk, reklam) utan separat tillstånd som är uttryckligt och kan återkallas. Att beställa eller ladda upp foton ger inte tillstånd till publicering. Kontakta support@cartoonova.com för att återkalla ett tillstånd som getts separat.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_SV: PagesLegales = {
         titre: "Artikel 12 — Dataskydd",
         blocs: [
           "Personuppgifter som samlas in i samband med beställningar behandlas i enlighet med vår [Integritetspolicy](/politique-de-confidentialite).",
-          "De foton som Kunden överlämnar används uteslutande för att utföra beställningen och raderas inom 90 dagar efter leverans, om inte Kunden begär att de ska sparas.",
+          "Källfoton och färdiga porträtt lagras via offentliga lagringslänkar: alla med länken kan komma åt filen. Automatisk radering enligt en fast tidsplan är för närvarande inte implementerad; filer kan finnas kvar efter leverans. Att ta bort en miniatyrbild från formuläret raderar inte den lagrade filen. Begäran om radering granskas manuellt via support@cartoonova.com med hänsyn till tillämpliga rättsliga skyldigheter; ingen tidsfrist för automatisk radering garanteras.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_SV: PagesLegales = {
               "**Rättsliga förpliktelser:** bevarande av fakturor och bokföringsuppgifter i enlighet med gällande regler.",
             ],
           },
+          "Källfoton används för att utföra beställningen; färdiga porträtt är de levererade verken. Cartoonova publicerar inget av dessa för marknadsföring (portfolio, sociala nätverk, reklam) utan separat tillstånd som är uttryckligt och kan återkallas. Att beställa eller ladda upp foton ger inte tillstånd till publicering. Kontakta support@cartoonova.com för att återkalla ett tillstånd som getts separat.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_SV: PagesLegales = {
           {
             liste: [
               "**Beställningsuppgifter:** 3 år efter den senaste beställningen.",
-              "**Överlämnade foton:** raderas inom 90 dagar efter leverans av beställningen, om inte Kunden begär annat.",
+              "Källfoton och färdiga porträtt lagras via offentliga lagringslänkar: alla med länken kan komma åt filen. Automatisk radering enligt en fast tidsplan är för närvarande inte implementerad; filer kan finnas kvar efter leverans. Att ta bort en miniatyrbild från formuläret raderar inte den lagrade filen. Begäran om radering granskas manuellt via support@cartoonova.com med hänsyn till tillämpliga rättsliga skyldigheter; ingen tidsfrist för automatisk radering garanteras.",
               "**Bokföringsuppgifter:** 10 år i enlighet med rättsliga förpliktelser.",
               "**Surfcookies:** högst 13 månader.",
               "**Uppgifter för direktmarknadsföring:** 3 år efter den senaste kontakten.",

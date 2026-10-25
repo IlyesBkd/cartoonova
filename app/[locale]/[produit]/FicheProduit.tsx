@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { uploadImage } from "@/lib/uploadClient";
+import PhotoPrivacyNotice from "@/components/PhotoPrivacyNotice";
 import dynamic from "next/dynamic";
 
 /* 1 100 lignes qui n'entrent en jeu qu'apres un clic sur « commander ». En
@@ -161,7 +162,8 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
   // formatted in the newly selected currency, even for a single frame.
   const prix = devisePrete && grille?.currency === currency ? grille.prices : null;
   const erreurPrix = devisePrete && grille?.currency === currency && grille.error;
-  const messagesPrix = PRICE_MESSAGES[useLocale()] ?? PRICE_MESSAGES.en;
+  const locale = useLocale();
+  const messagesPrix = PRICE_MESSAGES[locale] ?? PRICE_MESSAGES.en;
   const [caisseOuverte, setCaisseOuverte] = useState(false);
 
   const champFichier = useRef<HTMLInputElement>(null);
@@ -1112,6 +1114,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
                   e.target.value = "";
                 }}
               />
+              <PhotoPrivacyNotice locale={locale} />
               {erreurEnvoi && (
                 <div className="depot__erreur" role="alert">
                   {erreurEnvoi}

@@ -1,4 +1,5 @@
 import postgres from "postgres";
+import { estPhysique } from "./supportCommande";
 import { timingSafeEqual } from "node:crypto";
 import type { Duplex } from "node:stream";
 import { Client as SshClient } from "ssh2";
@@ -244,6 +245,9 @@ export interface DbOrder {
       Null = rien de programme (jamais programme, annule, ou deja parti). */
   final_image_scheduled_at: string | null;
   poster_confirmation_token: string | null;
+  poster_confirmation_image_url: string | null;
+  poster_confirmation_email: string | null;
+  poster_confirmation_message_id: string | null;
   poster_confirmation_sent_at: string | null;
   poster_confirmation_status: "confirmed" | "changes_requested" | null;
   poster_confirmation_responded_at: string | null;
@@ -551,8 +555,18 @@ export async function marquerExpediee(orderId: string): Promise<void> {
 }
 
 export async function updateOrderFinalImage(orderId: string, finalImageUrl: string): Promise<void> {
+  await ensurePosterConfirmationSchema();
   await sql`
-    UPDATE orders SET final_image_url = ${finalImageUrl} WHERE id = ${orderId}::uuid
+    UPDATE orders SET final_image_url = ${finalImageUrl},
+      final_image_scheduled_at = NULL,
+      poster_confirmation_token = NULL,
+      poster_confirmation_sent_at = NULL,
+      poster_confirmation_status = NULL,
+      poster_confirmation_responded_at = NULL,
+      poster_confirmation_image_url = NULL,
+      poster_confirmation_email = NULL,
+      poster_confirmation_message_id = NULL
+    WHERE id = ${orderId}::uuid AND final_image_url IS DISTINCT FROM ${finalImageUrl}
   `;
 }
 
@@ -619,22 +633,33 @@ export async function annulerEnvoiImageFinale(orderId: string): Promise<void> {
  * coup repousserait l'envoi d'un ou deux jours de plus a chaque correction, et
  * remplacer l'image d'une commande deja livree en programmerait un second envoi.
  *
- * Renvoie la date retenue, ou null si rien n'a ete pose.
+ * Renvoie la date canonique (sans déplacer un rendez-vous existant), ou null
+ * si la version a changé, l'accord physique ne correspond plus, ou l'envoi est
+ * déjà parti. L'appelant doit traiter cette absence de ligne comme un conflit.
  */
 export async function programmerEnvoiImageFinaleSiLibre(
   orderId: string,
-  quand: Date
+  quand: Date,
+  version: Pick<DbOrder, "final_image_url" | "customer_email" | "options">
 ): Promise<Date | null> {
   await ensureEnvoiProgrammeSchema();
+  const physique = estPhysique(version.options);
   const rows = await sql`
     UPDATE orders
-    SET final_image_scheduled_at = ${quand.toISOString()}
+    SET final_image_scheduled_at = COALESCE(final_image_scheduled_at, ${quand.toISOString()}::timestamptz)
     WHERE id = ${orderId}::uuid
-      AND final_image_scheduled_at IS NULL
       AND final_image_sent_at IS NULL
+      AND final_image_url = ${version.final_image_url}
+      AND customer_email = ${version.customer_email}
+      AND options IS NOT DISTINCT FROM ${JSON.stringify(version.options)}::text::jsonb
+      AND (${!physique} OR (
+        poster_confirmation_status = 'confirmed'
+        AND poster_confirmation_image_url = final_image_url
+        AND poster_confirmation_email = customer_email
+      ))
     RETURNING final_image_scheduled_at
   `;
-  return rows.length ? quand : null;
+  return rows.length ? new Date(rows[0].final_image_scheduled_at) : null;
 }
 
 /** Commande dont l'illustration finale doit partir maintenant. */
@@ -688,6 +713,14 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
        photo de reference — et sans ce champ le client devait sortir de la page
        pour envoyer un e-mail. C'est exactement ce qui s'est passe en mai. */
     await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_photos JSONB`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_image_url TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_email TEXT`;
+    await sql`ALTER TABLE orders ADD COLUMN IF NOT EXISTS poster_confirmation_message_id TEXT`;
+    // Legacy invitations have no proven sent-image version. Do not guess it
+    // from the current portrait: it might already have been replaced.
+    await sql`UPDATE orders SET poster_confirmation_token = NULL
+      WHERE poster_confirmation_token IS NOT NULL
+        AND (poster_confirmation_image_url IS NULL OR poster_confirmation_email IS NULL)`;
     /* Ce que la commande a coute, EN EUROS.
        Le chiffre d'affaires arrive en neuf devises ; la depense, elle, se
        fait dans une seule — imprimeur, expedition, illustrateur. Stocker les
@@ -711,17 +744,31 @@ async function ensurePosterConfirmationSchema(): Promise<void> {
   return posterConfirmationSchemaReady;
 }
 
-export async function setPosterConfirmationToken(orderId: string, token: string): Promise<void> {
+export async function setPosterConfirmationToken(orderId: string, token: string, imageUrl: string, email: string): Promise<boolean> {
   await ensurePosterConfirmationSchema();
-  await sql`
+  const rows = await sql`
     UPDATE orders
     SET poster_confirmation_token = ${token},
+        poster_confirmation_image_url = ${imageUrl},
+        poster_confirmation_email = ${email},
+        poster_confirmation_message_id = NULL,
         poster_confirmation_sent_at = NOW(),
         poster_confirmation_status = NULL,
         poster_confirmation_responded_at = NULL,
         poster_confirmation_note = NULL,
         poster_confirmation_photos = NULL
     WHERE id = ${orderId}::uuid
+      AND final_image_url = ${imageUrl} AND customer_email = ${email}
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+/** Link the provider message to precisely the invitation that produced it. */
+export async function recordPosterConfirmationMessage(orderId: string, token: string, messageId: string): Promise<void> {
+  await sql`
+    UPDATE orders SET poster_confirmation_message_id = ${messageId}
+    WHERE id = ${orderId}::uuid AND poster_confirmation_token = ${token}
   `;
 }
 
@@ -729,6 +776,8 @@ export async function getOrderByConfirmationToken(token: string): Promise<DbOrde
   await ensurePosterConfirmationSchema();
   const rows = await sql`
     SELECT * FROM orders WHERE poster_confirmation_token = ${token}
+      AND poster_confirmation_image_url = final_image_url
+      AND poster_confirmation_email = customer_email
   `;
   return (rows[0] as unknown as DbOrder) || null;
 }
@@ -750,6 +799,8 @@ export async function recordPosterConfirmationResponse(
         poster_confirmation_note = ${normalizedNote},
         poster_confirmation_photos = ${normalizedPhotos}::text::jsonb
     WHERE poster_confirmation_token = ${token}
+      AND poster_confirmation_image_url = final_image_url
+      AND poster_confirmation_email = customer_email
       AND (
         (${previousRespondedAt ?? null}::timestamptz IS NULL AND poster_confirmation_responded_at IS NULL)
         OR poster_confirmation_responded_at = ${previousRespondedAt ?? null}::timestamptz

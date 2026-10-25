@@ -10,7 +10,7 @@ const LOT_MAX = 30;
 
 /** Traduit en francais les textes clients affiches dans l'admin. */
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

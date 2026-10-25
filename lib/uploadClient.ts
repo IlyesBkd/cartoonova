@@ -1,7 +1,7 @@
 "use client";
 import { upload } from "@vercel/blob/client";
 
-type UploadScope = { purpose: "checkout"; product: string } | { purpose: "depot" | "poster"; token: string } | { purpose: "admin"; orderId: string; password: string };
+type UploadScope = { purpose: "checkout"; product: string } | { purpose: "depot" | "poster"; token: string } | { purpose: "admin"; orderId: string };
 type Context = { context: string; prefix: string; expiresAt: number };
 const contexts = new Map<string, Promise<Context>>();
 // Concurrent products must not mint competing first-session cookies. Browser
@@ -13,11 +13,10 @@ export async function uploadImage(file: File, scope: UploadScope) {
   let pending = contexts.get(key);
   if (!pending || (await pending).expiresAt <= Date.now() + 120_000) {
     const issue = async () => {
-      const { password, ...body } = scope.purpose === "admin" ? scope : { ...scope, password: undefined };
       const response = await fetch("/api/upload/context", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(password ? { "x-admin-password": password } : {}) },
-        body: JSON.stringify(body),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(scope),
       });
       if (!response.ok) throw new Error("Dépôt indisponible ou quota atteint.");
       return await response.json() as Context;

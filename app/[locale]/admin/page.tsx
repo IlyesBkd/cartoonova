@@ -1,5 +1,6 @@
 "use client";
 
+import { adminFetch } from "@/lib/adminFetch";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { estPhysique, decrireSupport } from "@/lib/supportCommande";
 import { toEUR } from "@/lib/currency";
@@ -162,16 +163,15 @@ export default function AdminPage() {
   const [sortants, setSortants] = useState<SupportReply[]>([]);
 
   const headers = useCallback(
-    () => ({ "Content-Type": "application/json", "x-admin-password": password }),
-    [password]
+    () => ({ "Content-Type": "application/json" }),
+    []
   );
 
   const fetchOrders = useCallback(async () => {
     setLoadingOrders(true);
     setOrdersError("");
     try {
-      const r = await fetch("/api/orders", {
-        headers: { "x-admin-password": password },
+      const r = await adminFetch("/api/orders", {
         cache: "no-store",
         signal: AbortSignal.timeout(20_000),
       });
@@ -184,36 +184,36 @@ export default function AdminPage() {
     } finally {
       setLoadingOrders(false);
     }
-  }, [password]);
+  }, []);
 
   const fetchPrices = useCallback(async () => {
     try {
-      const r = await fetch("/api/prices/all", { headers: { "x-admin-password": password } });
+      const r = await adminFetch("/api/prices/all", { headers: {  } });
       if (r.ok) setPricesByCurrency(await r.json());
     } catch {}
-  }, [password]);
+  }, []);
 
   const fetchSupportMessages = useCallback(async () => {
     setLoadingSupport(true);
     try {
-      const r = await fetch("/api/support/messages", { headers: { "x-admin-password": password } });
+      const r = await adminFetch("/api/support/messages", { headers: {  } });
       if (r.ok) setSupportMessages(await r.json());
     } catch {}
     setLoadingSupport(false);
-  }, [password]);
+  }, []);
 
   const fetchSupportOutbox = useCallback(async () => {
     try {
-      const r = await fetch("/api/support/outbox", { headers: { "x-admin-password": password } });
+      const r = await adminFetch("/api/support/outbox", { headers: {  } });
       if (r.ok) setSortants(await r.json());
     } catch {}
-  }, [password]);
+  }, []);
 
   const handleSyncSupport = async () => {
     setSyncingSupport(true);
     setSyncError(null);
     try {
-      const r = await fetch("/api/support/sync", { method: "POST", headers: headers() });
+      const r = await adminFetch("/api/support/sync", { method: "POST", headers: headers() });
       if (r.ok) {
         await fetchSupportMessages();
       } else {
@@ -234,7 +234,7 @@ export default function AdminPage() {
     setRedactionEnCours(cle);
     setErreurReponse((prev) => ({ ...prev, [cle]: "" }));
     try {
-      const r = await fetch("/api/support/draft", {
+      const r = await adminFetch("/api/support/draft", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify(rattachement(cible)),
@@ -262,7 +262,7 @@ export default function AdminPage() {
     setEnvoiEnCours(cle);
     setErreurReponse((prev) => ({ ...prev, [cle]: "" }));
     try {
-      const r = await fetch("/api/support/reply", {
+      const r = await adminFetch("/api/support/reply", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({
@@ -419,7 +419,7 @@ export default function AdminPage() {
   const enregistrerCout = async () => {
     if (!selectedOrder) return;
     const valeur = coutSaisi.trim() === "" ? null : coutSaisi.trim();
-    await fetch("/api/orders", {
+    await adminFetch("/api/orders", {
       method: "PATCH",
       headers: headers(),
       body: JSON.stringify({ id: selectedOrder.id, cout: valeur, coutNote: coutNoteSaisie }),
@@ -456,7 +456,7 @@ export default function AdminPage() {
   const enregistrerExpedition = async () => {
     if (!selectedOrder) return;
     setErreurExpedition(null);
-    const r = await fetch("/api/orders/expedition", {
+    const r = await adminFetch("/api/orders/expedition", {
       method: "PATCH",
       headers: headers(),
       body: corpsExpedition(),
@@ -476,7 +476,7 @@ export default function AdminPage() {
     setEnvoiExpedition(true);
     setErreurExpedition(null);
     try {
-      const r = await fetch("/api/orders/expedition", {
+      const r = await adminFetch("/api/orders/expedition", {
         method: "POST",
         headers: headers(),
         body: corpsExpedition(),
@@ -509,7 +509,7 @@ export default function AdminPage() {
 
   const handleMarkSupportRead = async (id: number) => {
     setSupportMessages((prev) => prev.map((m) => (m.id === id ? { ...m, read_at: new Date().toISOString() } : m)));
-    await fetch("/api/support/messages", {
+    await adminFetch("/api/support/messages", {
       method: "PATCH",
       headers: headers(),
       body: JSON.stringify({ id }),
@@ -521,7 +521,7 @@ export default function AdminPage() {
     try {
       let remaining = Infinity;
       while (remaining > 0) {
-        const r = await fetch("/api/support/classify-backlog", { method: "POST", headers: headers() });
+        const r = await adminFetch("/api/support/classify-backlog", { method: "POST", headers: headers() });
         if (!r.ok) break;
         const data = await r.json();
         remaining = data.remaining ?? 0;
@@ -531,6 +531,46 @@ export default function AdminPage() {
       await fetchSupportMessages();
     } catch {}
     setClassifyingBacklog(false);
+  };
+
+  const clearAdminSession = useCallback(() => {
+    setAuthed(false);
+    setPassword("");
+    setOrders([]);
+    setSelectedOrder(null);
+    setSupportMessages([]);
+    setSortants([]);
+    setBrouillons({});
+    setObjets({});
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const expired = () => clearAdminSession();
+    const check = async () => {
+      try {
+        const response = await adminFetch("/api/admin/auth");
+        if (active && response.ok) setAuthed(true);
+      } catch { /* A network error never grants a new session. */ }
+    };
+    window.addEventListener("admin-session-expired", expired);
+    window.addEventListener("focus", check);
+    const timer = window.setInterval(check, 30_000);
+    void check();
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("admin-session-expired", expired);
+      window.removeEventListener("focus", check);
+    };
+  }, [clearAdminSession]);
+
+  const handleLogout = async () => {
+    try {
+      const response = await adminFetch("/api/admin/auth", { method: "DELETE" });
+      if (!response.ok) throw new Error("Déconnexion serveur impossible. Réessayez.");
+      clearAdminSession();
+    } catch { window.alert("Déconnexion serveur impossible. Réessayez."); }
   };
 
   // Login
@@ -543,12 +583,14 @@ export default function AdminPage() {
     setLoginPending(true);
     setLoginError("");
     try {
-      const r = await fetch("/api/admin/auth", {
+      const r = await adminFetch("/api/admin/auth", {
         method: "POST",
-        headers: { "x-admin-password": password },
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
         cache: "no-store",
       });
       if (r.ok) {
+        setPassword("");
         setAuthed(true);
       } else {
         const data = await r.json().catch(() => null);
@@ -608,7 +650,7 @@ export default function AdminPage() {
   // Forcer un statut, ou `null` pour revenir au calcul automatique.
   const forcerStatut = async (id: string, statutForce: StatutCommande | null) => {
     try {
-      const r = await fetch("/api/orders", {
+      const r = await adminFetch("/api/orders", {
         method: "PATCH",
         headers: headers(),
         body: JSON.stringify({ id, statutForce }),
@@ -637,7 +679,7 @@ export default function AdminPage() {
   // Save prices
   const savePrices = async () => {
     setSavingPrices(true);
-    await fetch("/api/prices/all", {
+    await adminFetch("/api/prices/all", {
       method: "PUT",
       headers: headers(),
       body: JSON.stringify(pricesByCurrency),
@@ -659,12 +701,12 @@ export default function AdminPage() {
     if (!selectedOrder) return;
     setUploadingImage(true);
     try {
-      const blob = await uploadImage(file, { purpose: "admin", orderId: selectedOrder.id, password });
+      const blob = await uploadImage(file, { purpose: "admin", orderId: selectedOrder.id });
       // Save to DB
       /* Le depot pose aussi le rendez-vous d'envoi : c'est la reponse qui dit
          pour quand, et si elle l'a pose — un tirage physique pas encore valide
          par le client, lui, n'est pas programme tout seul. */
-      const r = await fetch("/api/orders/send-final-image", {
+      const r = await adminFetch("/api/orders/send-final-image", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({
@@ -676,18 +718,18 @@ export default function AdminPage() {
       });
       const data = await r.json().catch(() => ({}));
 
-      // Update local state with new URL
-      const updated = {
-        ...selectedOrder,
-        final_image_url: blob.url,
-        final_image_scheduled_at:
-          data.scheduledAt ?? selectedOrder.final_image_scheduled_at ?? null,
-        /* Express : l'image est partie au depot, sans programmation. */
-        ...(data.envoyeImmediatement ? { final_image_sent_at: new Date().toISOString() } : {}),
-      };
+      if (!r.ok) throw new Error(data.error || `Le serveur a répondu ${r.status}.`);
+
+      // Approval, invitation and schedule belong to the persisted image version.
+      // Never merge the previous portrait's state, including explicit nulls.
+      const refreshed = await adminFetch("/api/orders", { cache: "no-store" });
+      if (!refreshed.ok) throw new Error(`Rechargement impossible (${refreshed.status}).`);
+      const canonical: DbOrder[] = await refreshed.json();
+      const updated = canonical.find((o) => o.id === selectedOrder.id);
+      if (!updated) throw new Error("Commande introuvable après le dépôt.");
+      setOrders(canonical);
+      setSelectedOrder((prev) => prev?.id === updated.id ? updated : prev);
       if (data.envoyeImmediatement) alert("⚡ Commande express : le portrait vient d'être envoyé au client.");
-      setSelectedOrder(updated);
-      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
     } catch (err) {
       alert(`Erreur upload: ${err instanceof Error ? err.message : "Erreur inconnue"}`);
     }
@@ -702,7 +744,7 @@ export default function AdminPage() {
     if (!confirm("Générer la carte / le calendrier et les envoyer au client par e-mail ?")) return;
     setEnvoiExtrasEnCours(true);
     try {
-      const r = await fetch("/api/orders/extras", {
+      const r = await adminFetch("/api/orders/extras", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({ orderId }),
@@ -756,7 +798,7 @@ export default function AdminPage() {
 
     setProgrammationEnCours(true);
     try {
-      const r = await fetch("/api/orders/send-final-image", {
+      const r = await adminFetch("/api/orders/send-final-image", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({ orderId: selectedOrder.id, action: "schedule", scheduledAt }),
@@ -774,7 +816,7 @@ export default function AdminPage() {
     if (!selectedOrder || programmationEnCours) return;
     setProgrammationEnCours(true);
     try {
-      const r = await fetch("/api/orders/send-final-image", {
+      const r = await adminFetch("/api/orders/send-final-image", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({ orderId: selectedOrder.id, action: "cancel" }),
@@ -816,7 +858,7 @@ export default function AdminPage() {
     setSendingImage(true);
     setImageSent(false);
     try {
-      const r = await fetch("/api/orders/send-final-image", {
+      const r = await adminFetch("/api/orders/send-final-image", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({
@@ -862,7 +904,7 @@ export default function AdminPage() {
     setAskingReview(true);
     setReviewAsked(null);
     try {
-      const r = await fetch("/api/orders/review-request", {
+      const r = await adminFetch("/api/orders/review-request", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({ orderId: selectedOrder.id }),
@@ -881,7 +923,7 @@ export default function AdminPage() {
     setSendingConfirmation(true);
     setConfirmationSent(false);
     try {
-      const r = await fetch("/api/orders/send-poster-confirmation", {
+      const r = await adminFetch("/api/orders/send-poster-confirmation", {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({
@@ -1008,7 +1050,7 @@ export default function AdminPage() {
           </button>
         </nav>
         <div className="p-4 border-t border-gray-700">
-          <button onClick={() => { setAuthed(false); setPassword(""); }} className="text-xs text-gray-400 hover:text-white transition-colors cursor-pointer">
+          <button onClick={handleLogout} className="text-xs text-gray-400 hover:text-white transition-colors cursor-pointer">
             🚪 Déconnexion
           </button>
         </div>
@@ -1262,7 +1304,7 @@ export default function AdminPage() {
                                         {e.recu.body_text.length > 700 ? e.recu.body_text.slice(0, 700) + "…" : e.recu.body_text}
                                       </p>
                                     )}
-                                    <TraductionFr texte={e.recu.body_text} motDePasse={password} compact />
+                                    <TraductionFr texte={e.recu.body_text} compact />
                                   </div>
                                 ) : (
                                   courrierEnvoye(e.envoye!)
@@ -1441,7 +1483,7 @@ export default function AdminPage() {
                             {consigne.question ? "❓ Consigne — LE CLIENT POSE UNE QUESTION" : "✏️ Consigne du client"}
                           </p>
                           <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{consigne.texte}</p>
-                          <TraductionFr texte={consigne.texte} motDePasse={password} />
+                          <TraductionFr texte={consigne.texte} />
                           {/* Le `mailto:` qui se trouvait ici partait du
                               logiciel de messagerie de la machine, sans rien
                               rattacher ni enregistrer. La réponse s'écrit
@@ -1684,7 +1726,7 @@ export default function AdminPage() {
                                           {r.note && (
                                             <p className="text-xs text-amber-900 whitespace-pre-wrap">{r.note}</p>
                                           )}
-                                          <TraductionFr texte={r.note} motDePasse={password} compact />
+                                          <TraductionFr texte={r.note} compact />
                                           {Array.isArray(r.photos) && r.photos.length > 0 && (
                                             <div className="grid grid-cols-4 gap-2">
                                               {r.photos.map((url: string, k: number) => (
@@ -2066,7 +2108,7 @@ export default function AdminPage() {
                               <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
                                 {m.body_text || "(pas de contenu texte)"}
                               </div>
-                              <TraductionFr texte={m.body_text} motDePasse={password} />
+                              <TraductionFr texte={m.body_text} />
 
                               {/* Ce qui est déjà parti. Le relire avant
                                   d'écrire évite la faute qui use un client qui
@@ -2295,10 +2337,10 @@ export default function AdminPage() {
         })()}
 
         {/* ═══ PRICES TAB ═══ */}
-        {tab === "promos" && <PromoCodesPanel password={password} />}
+        {tab === "promos" && <PromoCodesPanel />}
 
         {/* ═══ AVIS TAB ═══ */}
-        {tab === "avis" && <ReviewsPanel password={password} />}
+        {tab === "avis" && <ReviewsPanel />}
 
         {tab === "prices" && (
           <>

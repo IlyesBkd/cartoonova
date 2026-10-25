@@ -1,5 +1,6 @@
 "use client";
 
+import { adminFetch } from "@/lib/adminFetch";
 import { useCallback, useEffect, useState } from "react";
 import type { Avis, StatutAvis } from "@/lib/reviewsDb";
 import TraductionFr from "@/components/admin/TraductionFr";
@@ -17,20 +18,14 @@ const STATUTS: Record<StatutAvis, { label: string; classe: string }> = {
  * quand ils arrivent ici : ce panneau sert aux avis sans preuve d'achat, et a
  * depublier le cas echeant. Il n'est donc pas une etape du parcours normal.
  */
-export default function ReviewsPanel({ password }: { password: string }) {
+export default function ReviewsPanel() {
   const [avis, setAvis] = useState<Avis[]>([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
 
-  const [motDePasseCharge, setMotDePasseCharge] = useState(password);
-  if (motDePasseCharge !== password) {
-    setMotDePasseCharge(password);
-    setChargement(true);
-    setErreur("");
-  }
 
   const charger = useCallback(() =>
-    fetch("/api/reviews", { headers: { "x-admin-password": password } })
+    adminFetch("/api/reviews", {})
       .then((res) => {
         if (!res.ok) throw new Error("load_failed");
         return res.json();
@@ -38,7 +33,7 @@ export default function ReviewsPanel({ password }: { password: string }) {
       .then(setAvis)
       .catch(() => setErreur("Impossible de charger les avis."))
       .finally(() => setChargement(false)),
-  [password]);
+  []);
 
   useEffect(() => {
     charger();
@@ -55,9 +50,9 @@ export default function ReviewsPanel({ password }: { password: string }) {
     // l'impression que le clic n'a pas ete pris en compte.
     setAvis((liste) => liste.map((a) => (a.id === id ? { ...a, statut } : a)));
     try {
-      const res = await fetch("/api/reviews", {
+      const res = await adminFetch("/api/reviews", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "x-admin-password": password },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, statut }),
       });
       if (!res.ok) throw new Error("patch_failed");
@@ -116,7 +111,7 @@ export default function ReviewsPanel({ password }: { password: string }) {
 
             <p className="text-sm text-gray-700 whitespace-pre-wrap">{a.texte}</p>
             <div className="mb-3">
-              <TraductionFr texte={a.texte} motDePasse={password} />
+              <TraductionFr texte={a.texte} />
             </div>
 
             <div className="flex gap-2">

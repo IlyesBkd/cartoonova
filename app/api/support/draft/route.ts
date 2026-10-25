@@ -18,7 +18,7 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
  * enregistre, par `/api/support/reply`.
  */
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

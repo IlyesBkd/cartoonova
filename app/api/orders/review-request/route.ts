@@ -30,11 +30,11 @@ import { envoyerEmail } from "@/lib/envoiEmail";
  * exactement ce qui distingue un avis d'un temoignage inventé.
  */
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
-    const { orderId } = await req.json();
+    const { orderId, customerEmail, finalImageUrl } = await req.json();
     if (!orderId) {
       return NextResponse.json({ error: "orderId manquant." }, { status: 400 });
     }
@@ -45,6 +45,10 @@ export async function POST(req: NextRequest) {
     }
     if (!order.customer_email) {
       return NextResponse.json({ error: "Commande sans adresse e-mail." }, { status: 400 });
+    }
+    if ((customerEmail !== undefined && customerEmail !== order.customer_email) ||
+        (finalImageUrl !== undefined && finalImageUrl !== order.final_image_url)) {
+      return NextResponse.json({ error: "Commande modifiée. Rechargez-la avant l'envoi." }, { status: 409 });
     }
 
     /* Un client qui a deja depose son avis ne doit pas etre relance : c'est le

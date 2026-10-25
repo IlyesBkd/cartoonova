@@ -42,7 +42,8 @@ const FAITS = `Faits Cartoonova (ils font foi, n'en invente aucun autre) :
 - Retouches gratuites et illimitees jusqu'a satisfaction. Elles portent sur des ajustements raisonnables (ressemblance, couleurs, details), pas sur un changement complet de style ou d'une composition deja validee.
 - Garantie de satisfaction : si, apres les retouches, le portrait ne convient toujours pas, remboursement integral sur demande. Pour un imprime, la demande se fait avant de valider l'apercu ; ensuite seul un produit endommage ou non conforme est rembourse ou echange (signalement sous 14 jours apres reception).
 - Les oeuvres etant personnalisees, le droit de retractation ne s'applique pas une fois le travail commence (article L221-28 du Code de la consommation).
-- Les photos du client sont supprimees 90 jours apres la livraison.
+- Les photos sources servent a realiser la commande ; les portraits finaux sont les oeuvres livrees. Aucune utilisation promotionnelle des photos ou portraits sans autorisation separee, explicite et revocable ; commander ou deposer ne vaut pas autorisation.
+- Les fichiers utilisent des liens de stockage publics accessibles a toute personne disposant du lien. Aucun effacement automatique a echeance fixe n'est implemente ; retirer une vignette ne supprime pas le fichier stocke. Les demandes de suppression sont examinees manuellement a support@cartoonova.com, sous reserve des obligations legales applicables. Ne promets aucun delai de suppression automatique.
 - Le support repond sous 24 h ouvrees, a support@cartoonova.com.`;
 
 const CONSIGNES = `Tu rediges la reponse du support de Cartoonova, une boutique qui cree des portraits cartoon personnalises a partir des photos du client.

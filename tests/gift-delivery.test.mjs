@@ -13,13 +13,14 @@ const portraitPath='/final/gift-fixture/portrait.png';
 // A complete PNG, independently decoded below; not just a matching signature.
 const portraitPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADElEQVQImWP4dUYUAASfAdxNa9nPAAAAAElFTkSuQmCC','base64');
 let sends=[], marked=[], scheduled=[], referrals=[], downloads=[];
+let savedOrder;
 let agent, previousDispatcher, previousStorageOrigin;
 const order={id:'11111111-1111-4111-8111-111111111111',customer_email:'buyer@example.invalid',customer_name:'Private Buyer',detected_country:'FR',langue:'en',final_image_url:storageOrigin+portraitPath,options:{printKey:'digital',gift:{recipientEmail:'recipient@example.invalid',message:'Happy <script>alert("gift")</script> & birthday!\nEnjoy',deliverAfter:null}}};
 function load(file,replacements={},cache=new Map()) {
  file=path.resolve(root,file);if(cache.has(file))return cache.get(file).exports;
  const m=new Module(file);m.filename=file;cache.set(file,m);const original=createRequire(file);
  const defaults={
-  '@/lib/db':{markFinalImageSent:async id=>marked.push(id),setOrderLastOutboundMessageId:async()=>{},programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date}),getOrderById:async()=>structuredClone(order)},
+  '@/lib/db':{markFinalImageSent:async id=>marked.push(id),setOrderLastOutboundMessageId:async()=>{},programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date}),getOrderById:async()=>structuredClone(savedOrder)},
   '@/lib/envoiEmail':{envoyerEmail:async payload=>{sends.push(payload);return {data:{id:'captured'},error:null};}},
   '@/lib/analyticsServeur':{mesureServeur:async()=>{}},
   '@/lib/parrainage':{infosParrainage:async(...args)=>{referrals.push(args);return null;}},
@@ -29,7 +30,7 @@ function load(file,replacements={},cache=new Map()) {
  m._compile(ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,file);return m.exports;
 }
 beforeEach(async()=>{
- sends=[];marked=[];scheduled=[];referrals=[];downloads=[];
+ sends=[];marked=[];scheduled=[];referrals=[];downloads=[];savedOrder=structuredClone(order);
  previousStorageOrigin=process.env.FINAL_IMAGE_STORAGE_ORIGIN;
  process.env.FINAL_IMAGE_STORAGE_ORIGIN=storageOrigin;
  previousDispatcher=getGlobalDispatcher();
@@ -68,7 +69,7 @@ test('server route rejects impossible gift date before saving or sending',async(
 test('past and today gifts deliver; blank recipient falls back to buyer with buyer-only links',async()=>{
  for(const date of ['2026-10-24','2026-10-25']) for(const recipient of ['recipient@example.invalid','  ',null]){
   const input=structuredClone(order);input.options.gift.deliverAfter=date;input.options.gift.recipientEmail=recipient;
-  input.options=JSON.stringify(input.options);
+  input.options=JSON.stringify(input.options);savedOrder=structuredClone(input);
   await load('lib/emailImageFinale.ts').envoyerImageFinale(input);
   const mail=sends.at(-1);assert.deepEqual(mail.to,[recipient?.trim()||order.customer_email]);
   if(!recipient?.trim())assert.match(mail.html,/PRIVATE_BUYER_TOKEN/);
@@ -78,7 +79,7 @@ test('past and today gifts deliver; blank recipient falls back to buyer with buy
 });
 
 test('UTC midnight boundary controls gift eligibility independently of host timezone',async()=>{
- const input=structuredClone(order);input.options.gift.deliverAfter='2026-10-26';
+ const input=structuredClone(order);input.options.gift.deliverAfter='2026-10-26';savedOrder=structuredClone(input);
  mock.timers.setTime(Date.parse('2026-10-25T23:59:59.999Z'));
  await load('lib/emailImageFinale.ts').envoyerImageFinale(input);assert.equal(sends.length,0);
  assert.equal(downloads.length,0);
@@ -105,7 +106,7 @@ test('cron reschedules a stale future gift without counting a delivery',async()=
  const stored=structuredClone(order);stored.options.gift.deliverAfter='2026-10-26';
  const empty=async()=>[];
  const db=Object.fromEntries(['getOrdersDueForReviewRequest','getOrdersDueForReviewReminder','getOrdersDueForReorderEmail','getOrdersDueForAbandonedEmail','getSubscribersDueForWelcome','getOrdersAwaitingPhotos'].map(k=>[k,empty]));
- Object.assign(db,{runtimeSchemaBootstrapEnabled:false,sql:empty,getOrdersDueForFinalImage:async()=>[stored],programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date})});
+ Object.assign(db,{runtimeSchemaBootstrapEnabled:false,sql:empty,getOrderById:async()=>stored,getOrdersDueForFinalImage:async()=>[stored],programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date})});
  const {GET}=load('app/api/cron/lifecycle-emails/route.ts',{'@/lib/db':db,stripe:class {},'@/lib/leadsCaisse':{getLeadsARelancer:empty},'@/lib/welcomeSequence':{WELCOME_DELAYS_DAYS:{2:1,3:2}},'@/lib/emailOutbox':{drainerEmails:async()=>0},'@/lib/finaliserCommande':{},'@/lib/alerteServeur':{signalerPanne:async()=>{}},'@/lib/discord':{}});
  const old=process.env.CRON_SECRET;process.env.CRON_SECRET='local-only';
  try {const response=await GET(new Request('http://local/api/cron/lifecycle-emails',{headers:{authorization:'Bearer local-only'}}));assert.equal(response.status,200);const body=await response.json();assert.equal(body.imagesFinales.sent,0);assert.equal(body.imagesFinales.deferred,1);assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(scheduled[0].date.toISOString(),'2026-10-26T09:00:00.000Z');}
@@ -119,7 +120,7 @@ test('manual and express routes use persisted recipient and language, and cannot
   const stored=structuredClone(order);stored.options.express=saveOnly;stored.options.gift.deliverAfter=future?'2026-10-26':null;
   const db={getOrderById:async()=>stored,updateOrderFinalImage:async()=>{},markFinalImageSent:async id=>marked.push(id),setOrderLastOutboundMessageId:async()=>{},programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date}),programmerEnvoiImageFinaleSiLibre:async(id,date)=>{scheduled.push({id,date});return date;}};
   const {POST}=load('app/api/orders/send-final-image/route.ts',{'@/lib/db':db,'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
-  const response=await POST(new Request('http://local/api/orders/send-final-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({orderId:order.id,finalImageUrl:order.final_image_url,customerEmail:'forged@example.invalid',detectedCountry:'FR',saveOnly})}));
+  const response=await POST(new Request('http://local/api/orders/send-final-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({orderId:order.id,finalImageUrl:order.final_image_url,customerEmail:order.customer_email,detectedCountry:'FR',saveOnly})}));
   assert.equal(response.status,200);const body=await response.json();
   assert.equal(downloads.length,future?1:2,'route validates before persistence; actual delivery validates again');
   if(future){assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(body.scheduledAt,'2026-10-26T09:00:00.000Z');assert.notEqual(body.envoyeImmediatement,true);}
@@ -129,7 +130,7 @@ test('manual and express routes use persisted recipient and language, and cannot
 
 test('invalid persisted gift email or impossible calendar date fails closed before side effects',async()=>{
  for(const gift of [{recipientEmail:'bad\r\nBcc: victim@example.invalid'},{recipientEmail:'two@example.invalid,other@example.invalid'},{deliverAfter:'2026-02-30'},{deliverAfter:'2026-13-01'},{deliverAfter:'tomorrow'}]){
-  const input=structuredClone(order);Object.assign(input.options.gift,gift);
+  const input=structuredClone(order);Object.assign(input.options.gift,gift);savedOrder=structuredClone(input);
   await assert.rejects(load('lib/emailImageFinale.ts').envoyerImageFinale(input),/invalide/);
  }
  assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(scheduled.length,0);
@@ -138,7 +139,7 @@ test('invalid persisted gift email or impossible calendar date fails closed befo
 
 test('future gift is deferred without delivery or delivered marker, using UTC calendar days',async()=>{
  const {envoyerImageFinale}=load('lib/emailImageFinale.ts');
- const input=structuredClone(order);input.options.gift.deliverAfter='2026-10-26';
+ const input=structuredClone(order);input.options.gift.deliverAfter='2026-10-26';savedOrder=structuredClone(input);
  const result=await envoyerImageFinale(input);
  assert.equal(result.deferredUntil,'2026-10-26T09:00:00.000Z');
  assert.equal(sends.length,0);assert.equal(marked.length,0);

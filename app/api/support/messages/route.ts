@@ -6,7 +6,7 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

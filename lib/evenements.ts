@@ -301,11 +301,12 @@ export interface EvenementActif {
 export function evenementActif(
   locale: Locale,
   maintenant: Date = new Date(),
-  { livraisonSeulement = false }: { livraisonSeulement?: boolean } = {}
+  { livraisonSeulement = false, cle }: { livraisonSeulement?: boolean; cle?: CleEvenement } = {}
 ): EvenementActif | null {
   let meilleur: EvenementActif | null = null;
 
   for (const def of EVENEMENTS) {
+    if (cle && def.cle !== cle) continue;
     if (livraisonSeulement && !def.livraison) continue;
 
     // Deux annees : fin decembre, la prochaine Saint-Valentin est celle de

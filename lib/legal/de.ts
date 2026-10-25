@@ -102,7 +102,7 @@ export const LEGAL_DE: PagesLegales = {
         titre: "Artikel 10 — Geistiges Eigentum",
         blocs: [
           "Die von Cartoonova erstellten Karikaturen sind urheberrechtlich geschützte Originalwerke. Nach vollständiger Zahlung erhält der Kunde ein **persönliches, nicht kommerzielles Nutzungsrecht** an dem Werk.",
-          "Cartoonova behält sich das Recht vor, die angefertigten Karikaturen zu Werbezwecken (Portfolio, soziale Netzwerke) zu verwenden, sofern der Kunde dem nicht ausdrücklich widerspricht.",
+          "Ausgangsfotos dienen zur Ausführung der Bestellung; die fertigen Porträts sind die gelieferten Werke. Cartoonova veröffentlicht weder Fotos noch Porträts zu Werbezwecken (Portfolio, soziale Netzwerke, Werbung) ohne gesonderte Zustimmung, die ausdrücklich und widerruflich ist. Eine Bestellung oder das Hochladen von Fotos erlaubt keine Veröffentlichung. Zum Widerruf einer separat erteilten Zustimmung kontaktieren Sie support@cartoonova.com.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_DE: PagesLegales = {
         titre: "Artikel 12 — Datenschutz",
         blocs: [
           "Die im Rahmen der Bestellungen erhobenen personenbezogenen Daten werden gemäß unserer [Datenschutzerklärung](/politique-de-confidentialite) verarbeitet.",
-          "Die vom Kunden übermittelten Fotos werden ausschließlich für die Ausführung der Bestellung verwendet und innerhalb von 90 Tagen nach der Lieferung gelöscht, sofern der Kunde nicht deren Aufbewahrung verlangt.",
+          "Ausgangsfotos und die fertigen Porträts werden über öffentliche Speicherlinks gehostet: Jeder mit dem Link kann auf die Datei zugreifen. Eine automatische Löschung nach einer festen Frist ist derzeit nicht implementiert; die Dateien können nach der Lieferung gespeichert bleiben. Das Entfernen eines Vorschaubilds aus dem Formular löscht die gespeicherte Datei nicht. Löschanfragen werden unter support@cartoonova.com manuell geprüft, unter Berücksichtigung geltender gesetzlicher Pflichten; eine automatische Löschfrist wird nicht garantiert.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_DE: PagesLegales = {
               "**Gesetzliche Pflichten:** Aufbewahrung von Rechnungen und Buchhaltungsdaten gemäß den geltenden Vorschriften.",
             ],
           },
+          "Ausgangsfotos dienen zur Ausführung der Bestellung; die fertigen Porträts sind die gelieferten Werke. Cartoonova veröffentlicht weder Fotos noch Porträts zu Werbezwecken (Portfolio, soziale Netzwerke, Werbung) ohne gesonderte Zustimmung, die ausdrücklich und widerruflich ist. Eine Bestellung oder das Hochladen von Fotos erlaubt keine Veröffentlichung. Zum Widerruf einer separat erteilten Zustimmung kontaktieren Sie support@cartoonova.com.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_DE: PagesLegales = {
           {
             liste: [
               "**Bestelldaten:** 3 Jahre nach der letzten Bestellung.",
-              "**Übermittelte Fotos:** werden innerhalb von 90 Tagen nach Lieferung der Bestellung gelöscht, sofern der Kunde nichts anderes verlangt.",
+              "Ausgangsfotos und die fertigen Porträts werden über öffentliche Speicherlinks gehostet: Jeder mit dem Link kann auf die Datei zugreifen. Eine automatische Löschung nach einer festen Frist ist derzeit nicht implementiert; die Dateien können nach der Lieferung gespeichert bleiben. Das Entfernen eines Vorschaubilds aus dem Formular löscht die gespeicherte Datei nicht. Löschanfragen werden unter support@cartoonova.com manuell geprüft, unter Berücksichtigung geltender gesetzlicher Pflichten; eine automatische Löschfrist wird nicht garantiert.",
               "**Buchhaltungsdaten:** 10 Jahre gemäß den gesetzlichen Pflichten.",
               "**Browser-Cookies:** höchstens 13 Monate.",
               "**Daten zur Kundenakquise:** 3 Jahre nach dem letzten Kontakt.",

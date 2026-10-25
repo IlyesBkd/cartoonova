@@ -4,32 +4,22 @@ import { useSyncExternalStore } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   evenementActif,
-  DRAWING_BUSINESS_DAYS,
-  TOTAL_BUSINESS_DAYS,
-  TOTAL_MIN_BUSINESS_DAYS,
   type CleEvenement,
-  type EvenementActif,
 } from "@/lib/evenements";
+import type { OccasionKey } from "@/lib/giftOccasions";
 import Icone, { type NomIcone } from "@/components/tj/Icone";
 import type { Locale } from "@/i18n/config";
 
-// La date limite depend du jour courant : calculee au rendu serveur, elle
-// resterait figee a la date du build. On la calcule donc cote client, une seule
-// fois par chargement de page (getSnapshot doit renvoyer une valeur stable).
-//
-// Le cache est indexe par marche : la fete des meres ne tombe pas le meme jour
-// en France, au Royaume-Uni et en Allemagne.
-const instantanes = new Map<string, EvenementActif | null>();
-
+// Primitive stable pour React, relue à chaque rendu : ni cache de campagne
+// périmé après minuit, ni campagne d'une autre occasion réutilisée.
 const subscribe = () => () => {};
-const getSnapshot = (locale: Locale) => (): EvenementActif | null => {
-  if (!instantanes.has(locale)) {
-    instantanes.set(locale, evenementActif(locale, new Date(), { livraisonSeulement: true }));
-  }
-  return instantanes.get(locale) ?? null;
+const getSnapshot = () => new Date().toDateString();
+const getServerSnapshot = () => "";
+const EVENEMENT_OCCASION: Partial<Record<OccasionKey, CleEvenement>> = {
+  noel: "noel",
+  "saint-valentin": "saintValentin",
+  "fete-des-meres": "feteDesMeres",
 };
-// Cote serveur, on rend le repere generique : toujours vrai, quelle que soit la date.
-const getServerSnapshot = (): EvenementActif | null => null;
 
 const ICONES: Record<CleEvenement, NomIcone> = {
   noel: "sapin",
@@ -51,21 +41,25 @@ const formatJour = (locale: Locale, date: Date) =>
  */
 export default function GiftDeadlineNote({
   variante = "pastille",
+  occasion,
 }: {
   variante?: "ligne" | "pastille";
+  occasion?: OccasionKey;
 }) {
   const t = useTranslations("gift");
+  const tDelai = useTranslations("faq");
   const locale = useLocale() as Locale;
-  const evenement = useSyncExternalStore(subscribe, getSnapshot(locale), getServerSnapshot);
+  const jour = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const cle = occasion ? EVENEMENT_OCCASION[occasion] : undefined;
+  // Une occasion sans date connue reste générique. Hors campagne, idem.
+  const evenement = jour && (!occasion || cle)
+    ? evenementActif(locale, new Date(), { livraisonSeulement: true, cle })
+    : null;
 
   const contenu = !evenement ? (
     <>
       <Icone nom="cadeau" taille={15} style={{ display: "inline-block", verticalAlign: "-2px", marginRight: 7 }} />
-      {t("generic", {
-        digitalDays: DRAWING_BUSINESS_DAYS,
-        daysMin: TOTAL_MIN_BUSINESS_DAYS,
-        days: TOTAL_BUSINESS_DAYS,
-      })}
+      {tDelai("a1")}
     </>
   ) : (
     <>
@@ -86,6 +80,7 @@ export default function GiftDeadlineNote({
             date: formatJour(locale, evenement.commanderAvant as Date),
             dateNumerique: formatJour(locale, evenement.commanderAvantNumerique as Date),
           })}
+      {" "}{tDelai("a1")}
     </>
   );
 

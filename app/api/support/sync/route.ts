@@ -4,7 +4,7 @@ import { syncSupportInbox } from "@/lib/imapSync";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

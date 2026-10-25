@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { uploadImage } from "@/lib/uploadClient";
+import PhotoPrivacyNotice from "@/components/PhotoPrivacyNotice";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { posterConfirmationPage, type Lang } from "@/lib/email-i18n";
 import { mesure } from "@/lib/analytics";
@@ -168,6 +169,7 @@ export default function ConfirmClient({
             >
               {envoiPhotos ? t.sending : `📎 ${t.attachPhotos}`}
             </button>
+            <PhotoPrivacyNotice locale={lang} />
             {photos.length > 0 && (
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {photos.map((url, i) => (

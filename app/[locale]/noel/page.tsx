@@ -48,6 +48,7 @@ export default async function NoelPage({ params }: { params: Promise<{ locale: s
   if (!(locales as readonly string[]).includes(brut)) notFound();
   const locale = brut as Locale;
   const t = await getTranslations({ locale, namespace: "noel" });
+  const tBon = await getTranslations({ locale, namespace: "bonCadeau" });
 
   const noel = prochainNoel(locale);
   const jour = (d: Date) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(d);
@@ -56,7 +57,8 @@ export default async function NoelPage({ params }: { params: Promise<{ locale: s
   const dates = [
     { cle: "impression", titre: t("impressionTitre"), texte: t("impressionTexte", { date: jour(getOrderByDate(noel)) }) },
     { cle: "numerique", titre: t("numeriqueTitre"), texte: t("numeriqueTexte", { date: jour(getDigitalOrderByDate(noel)) }) },
-    { cle: "bon", titre: t("bonTitre"), texte: t("bonTexte", { date: jour(new Date(noel.getTime() - 86400000)) }) },
+    // Le bon est envoyé après paiement ; ce n'est pas le portrait dessiné.
+    { cle: "bon", titre: t("bonTitre"), texte: `${tBon("etape1")} ${tBon("etape2")} ${tBon("sous")}` },
   ];
 
   // Fil d'Ariane (donnees structurees) : Accueil > cette page.

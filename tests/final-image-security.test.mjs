@@ -39,10 +39,10 @@ test('real bonus route never proxies HTML and returns only verified bytes with n
 });
 test('real poster route attaches verified content, never a provider-fetched path',async()=>{
  let captured;let writes=0;
- const {POST}=load('app/api/orders/send-poster-confirmation/route.ts',{'@/lib/db':{getOrderById:async()=>({langue:'en'}),setPosterConfirmationToken:async()=>writes++,setOrderLastOutboundMessageId:async()=>{}},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null},'@/lib/envoiEmail':{envoyerEmail:async p=>{captured=p;return {data:{id:'captured'}};}}});
+ const {POST}=load('app/api/orders/send-poster-confirmation/route.ts',{'@/lib/db':{getOrderById:async()=>({id:'synthetic',customer_email:'captured@example.invalid',final_image_url:url,langue:'en'}),setPosterConfirmationToken:async()=>{writes++;return true;},recordPosterConfirmationMessage:async()=>{},setOrderLastOutboundMessageId:async()=>{}},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null},'@/lib/envoiEmail':{envoyerEmail:async p=>{captured=p;return {data:{id:'captured'}};}}});
  const req=image=>new Request('https://local/api/orders/send-poster-confirmation',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({orderId:'synthetic',customerEmail:'captured@example.invalid',finalImageUrl:image})});
  await transport(async pool=>{
-  assert.equal((await POST(req('https://127.0.0.1/final/x.png'))).status,400);assert.equal(writes,0);assert.equal(captured,undefined);
+  assert.equal((await POST(req('https://127.0.0.1/final/x.png'))).status,409);assert.equal(writes,0);assert.equal(captured,undefined);
   pool.intercept({path:'/final/context/portrait.png'}).reply(200,png,{headers:{'content-type':'image/png'}});
   assert.equal((await POST(req(url))).status,200);
   assert.equal(captured.attachments[0].path,undefined);assert.deepEqual(Buffer.from(captured.attachments[0].content,'base64'),png);assert.match(captured.attachments[0].filename,/\.png$/);
@@ -58,7 +58,7 @@ test('manual persistence rejects untrusted portraits before writing, including s
 });
 test('real final email helper checks saved portrait before provider and delivered marker',async()=>{
  let sends=0;let marks=0;
- const {envoyerImageFinale}=load('lib/emailImageFinale.ts',{'@/lib/db':{markFinalImageSent:async()=>marks++,setOrderLastOutboundMessageId:async()=>{}},'@/lib/envoiEmail':{envoyerEmail:async()=>{sends++;return {data:{id:'capture'}};}},'@/lib/analyticsServeur':{mesureServeur:async()=>{}},'@/lib/parrainage':{infosParrainage:async()=>null},'@/lib/emailToken':{orderTrackingToken:()=> 'synthetic'}});
+ const {envoyerImageFinale}=load('lib/emailImageFinale.ts',{'@/lib/db':{getOrderById:async()=>order,markFinalImageSent:async()=>marks++,setOrderLastOutboundMessageId:async()=>{}},'@/lib/envoiEmail':{envoyerEmail:async()=>{sends++;return {data:{id:'capture'}};}},'@/lib/analyticsServeur':{mesureServeur:async()=>{}},'@/lib/parrainage':{infosParrainage:async()=>null},'@/lib/emailToken':{orderTrackingToken:()=> 'synthetic'}});
  const order={id:'synthetic',customer_email:'capture@example.invalid',customer_name:null,detected_country:null,langue:'en',final_image_url:url,options:{}};
  await transport(async pool=>{
   pool.intercept({path:'/final/context/portrait.png'}).reply(200,'<html>bad</html>',{headers:{'content-type':'image/png'}});
@@ -94,7 +94,7 @@ test('poster uses real Resend SDK transport with captured bytes and no remote at
  const key=process.env.RESEND_API_KEY;process.env.RESEND_API_KEY='re_synthetic_local_only';
  const agent=new MockAgent();agent.disableNetConnect();const previous=getGlobalDispatcher();setGlobalDispatcher(agent);
  try {
-  const {POST}=load('app/api/orders/send-poster-confirmation/route.ts',{'@/lib/db':{getOrderById:async()=>({langue:'en'}),setPosterConfirmationToken:async()=>{},setOrderLastOutboundMessageId:async()=>{}},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
+  const {POST}=load('app/api/orders/send-poster-confirmation/route.ts',{'@/lib/db':{getOrderById:async()=>({id:'synthetic',customer_email:'captured@example.invalid',final_image_url:url,langue:'en'}),setPosterConfirmationToken:async()=>true,recordPosterConfirmationMessage:async()=>{},setOrderLastOutboundMessageId:async()=>{}},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
   agent.get(origin).intercept({path:'/final/context/portrait.png'}).reply(200,png,{headers:{'content-type':'image/png'}});
   let captured;
   agent.get('https://api.resend.com').intercept({path:'/emails',method:'POST'}).reply(200,({body})=>{captured=JSON.parse(body);return {id:'synthetic-capture'};});

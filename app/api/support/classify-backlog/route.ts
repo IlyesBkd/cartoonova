@@ -11,7 +11,7 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 const BATCH_SIZE = 20;
 
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

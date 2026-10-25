@@ -102,7 +102,7 @@ export const LEGAL_PL: PagesLegales = {
         titre: "Artykuł 10 — Własność intelektualna",
         blocs: [
           "Karykatury tworzone przez Cartoonova są oryginalnymi utworami chronionymi prawem autorskim. Po zapłacie całej ceny Klient otrzymuje **prawo do osobistego i niekomercyjnego korzystania** z utworu.",
-          "Cartoonova zastrzega sobie prawo do wykorzystywania wykonanych karykatur w celach promocyjnych (portfolio, media społecznościowe), chyba że Klient wyraźnie zażąda inaczej.",
+          "Zdjęcia źródłowe służą do realizacji zamówienia; gotowe portrety to dostarczone dzieła. Cartoonova nie publikuje żadnych z nich w celach promocyjnych (portfolio, sieci społecznościowe, reklamy) bez odrębnej zgody, która jest wyraźna i możliwa do wycofania. Złożenie zamówienia lub przesłanie zdjęć nie oznacza zgody na publikację. Aby wycofać zgodę udzieloną osobno, należy skontaktować się z support@cartoonova.com.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_PL: PagesLegales = {
         titre: "Artykuł 12 — Ochrona danych",
         blocs: [
           "Dane osobowe zbierane w związku z zamówieniami są przetwarzane zgodnie z naszą [Polityką Prywatności](/politique-de-confidentialite).",
-          "Zdjęcia przesłane przez Klienta są wykorzystywane wyłącznie do realizacji zamówienia i są usuwane w terminie 90 dni od dostawy, chyba że Klient zażąda ich przechowania.",
+          "Zdjęcia źródłowe i gotowe portrety są przechowywane pod publicznymi linkami: każdy, kto ma link, może uzyskać dostęp do pliku. Obecnie nie wdrożono automatycznego usuwania w ustalonym terminie; pliki mogą pozostać w magazynie po dostawie. Usunięcie miniatury z formularza nie usuwa zapisanego pliku. Wnioski o usunięcie są rozpatrywane ręcznie pod adresem support@cartoonova.com z uwzględnieniem obowiązujących wymogów prawnych; termin automatycznego usunięcia nie jest gwarantowany.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_PL: PagesLegales = {
               "**Obowiązki prawne:** przechowywanie faktur i danych księgowych zgodnie z obowiązującymi przepisami.",
             ],
           },
+          "Zdjęcia źródłowe służą do realizacji zamówienia; gotowe portrety to dostarczone dzieła. Cartoonova nie publikuje żadnych z nich w celach promocyjnych (portfolio, sieci społecznościowe, reklamy) bez odrębnej zgody, która jest wyraźna i możliwa do wycofania. Złożenie zamówienia lub przesłanie zdjęć nie oznacza zgody na publikację. Aby wycofać zgodę udzieloną osobno, należy skontaktować się z support@cartoonova.com.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_PL: PagesLegales = {
           {
             liste: [
               "**Dane dotyczące zamówień:** 3 lata od ostatniego zamówienia.",
-              "**Przesłane zdjęcia:** usuwane w terminie 90 dni od dostawy zamówienia, chyba że Klient zażąda inaczej.",
+              "Zdjęcia źródłowe i gotowe portrety są przechowywane pod publicznymi linkami: każdy, kto ma link, może uzyskać dostęp do pliku. Obecnie nie wdrożono automatycznego usuwania w ustalonym terminie; pliki mogą pozostać w magazynie po dostawie. Usunięcie miniatury z formularza nie usuwa zapisanego pliku. Wnioski o usunięcie są rozpatrywane ręcznie pod adresem support@cartoonova.com z uwzględnieniem obowiązujących wymogów prawnych; termin automatycznego usunięcia nie jest gwarantowany.",
               "**Dane księgowe:** 10 lat zgodnie z obowiązkami prawnymi.",
               "**Pliki cookie dotyczące przeglądania:** maksymalnie 13 miesięcy.",
               "**Dane marketingowe (pozyskiwanie klientów):** 3 lata od ostatniego kontaktu.",

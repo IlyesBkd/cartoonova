@@ -17,8 +17,8 @@ const PRICE_FIELDS: (keyof PriceSet)[] = [
   "shipping",
 ];
 
-function checkAuth(req: Request): NextResponse | null {
-  return refuserSiPasAdmin(req);
+async function checkAuth(req: Request): Promise<NextResponse | null> {
+  return await refuserSiPasAdmin(req);
 }
 
 function validatePayload(body: unknown): PricesByCurrency | string {
@@ -41,7 +41,7 @@ function validatePayload(body: unknown): PricesByCurrency | string {
 }
 
 export async function GET(req: NextRequest) {
-  const unauthorized = checkAuth(req);
+  const unauthorized = await checkAuth(req);
   if (unauthorized) return unauthorized;
   try {
     return NextResponse.json(await withFreshDatabaseClient((db) => getAllPrices(db)));
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const unauthorized = checkAuth(req);
+  const unauthorized = await checkAuth(req);
   if (unauthorized) return unauthorized;
   try {
     const body = await req.json();

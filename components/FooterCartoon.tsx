@@ -98,6 +98,9 @@ export default function FooterCartoon() {
               <div className="footer__block footer__block--menu">
                 <p className="bold">{tf("about")}</p>
                 <ul className="v-stack gap-1">
+                  <li><Link href={lien("/a-propos")}>{tn("about")}</Link></li>
+                  <li><Link href={lien("/portfolio")}>{tn("portfolio")}</Link></li>
+                  {locale === "fr" && <li><Link href="/fr/portrait-personnalise-cartoon">Portrait personnalisé cartoon</Link></li>}
                   <li>
                     <Link href={lien("/contact")}>{tf("becomeAffiliate")}</Link>
                   </li>

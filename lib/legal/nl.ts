@@ -102,7 +102,7 @@ export const LEGAL_NL: PagesLegales = {
         titre: "Artikel 10 — Intellectuele eigendom",
         blocs: [
           "De door Cartoonova gemaakte karikaturen zijn originele werken die door het auteursrecht worden beschermd. Na volledige betaling ontvangt de Klant een **persoonlijk en niet-commercieel gebruiksrecht** op het werk.",
-          "Cartoonova behoudt zich het recht voor de gemaakte karikaturen te gebruiken voor promotionele doeleinden (portfolio, sociale netwerken), tenzij de Klant uitdrukkelijk anders verzoekt.",
+          "Bronfoto’s worden gebruikt om de bestelling uit te voeren; de uiteindelijke portretten zijn de geleverde werken. Cartoonova publiceert geen van beide voor promotie (portfolio, sociale netwerken, reclame) zonder afzonderlijke toestemming die uitdrukkelijk en herroepbaar is. Bestellen of foto’s uploaden geeft geen toestemming voor publicatie. Neem contact op met support@cartoonova.com om afzonderlijk gegeven toestemming in te trekken.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_NL: PagesLegales = {
         titre: "Artikel 12 — Gegevensbescherming",
         blocs: [
           "De in het kader van bestellingen verzamelde persoonsgegevens worden verwerkt overeenkomstig ons [Privacybeleid](/politique-de-confidentialite).",
-          "De door de Klant aangeleverde foto's worden uitsluitend gebruikt voor de uitvoering van de bestelling en worden binnen 90 dagen na levering verwijderd, tenzij de Klant verzoekt ze te bewaren.",
+          "Bronfoto’s en de uiteindelijke portretten worden via openbare opslaglinks gehost: iedereen met de link kan het bestand openen. Automatische verwijdering op een vast tijdstip is momenteel niet geïmplementeerd; bestanden kunnen na levering opgeslagen blijven. Een miniatuur uit het formulier verwijderen wist het opgeslagen bestand niet. Verwijderingsverzoeken worden handmatig beoordeeld via support@cartoonova.com, rekening houdend met toepasselijke wettelijke verplichtingen; er wordt geen automatische verwijderingstermijn gegarandeerd.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_NL: PagesLegales = {
               "**Wettelijke verplichtingen:** bewaring van facturen en boekhoudgegevens overeenkomstig de geldende regelgeving.",
             ],
           },
+          "Bronfoto’s worden gebruikt om de bestelling uit te voeren; de uiteindelijke portretten zijn de geleverde werken. Cartoonova publiceert geen van beide voor promotie (portfolio, sociale netwerken, reclame) zonder afzonderlijke toestemming die uitdrukkelijk en herroepbaar is. Bestellen of foto’s uploaden geeft geen toestemming voor publicatie. Neem contact op met support@cartoonova.com om afzonderlijk gegeven toestemming in te trekken.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_NL: PagesLegales = {
           {
             liste: [
               "**Bestelgegevens:** 3 jaar na de laatste bestelling.",
-              "**Aangeleverde foto's:** verwijderd binnen 90 dagen na de levering van de bestelling, tenzij de Klant anders verzoekt.",
+              "Bronfoto’s en de uiteindelijke portretten worden via openbare opslaglinks gehost: iedereen met de link kan het bestand openen. Automatische verwijdering op een vast tijdstip is momenteel niet geïmplementeerd; bestanden kunnen na levering opgeslagen blijven. Een miniatuur uit het formulier verwijderen wist het opgeslagen bestand niet. Verwijderingsverzoeken worden handmatig beoordeeld via support@cartoonova.com, rekening houdend met toepasselijke wettelijke verplichtingen; er wordt geen automatische verwijderingstermijn gegarandeerd.",
               "**Boekhoudgegevens:** 10 jaar overeenkomstig de wettelijke verplichtingen.",
               "**Navigatiecookies:** maximaal 13 maanden.",
               "**Prospectiegegevens:** 3 jaar na het laatste contact.",

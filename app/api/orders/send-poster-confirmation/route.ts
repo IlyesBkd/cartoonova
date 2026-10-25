@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { getOrderById, setPosterConfirmationToken, setOrderLastOutboundMessageId } from "@/lib/db";
+import { getOrderById, setPosterConfirmationToken, recordPosterConfirmationMessage, setOrderLastOutboundMessageId } from "@/lib/db";
 import { langueCommande, posterConfirmationEmail } from "@/lib/email-i18n";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
@@ -8,32 +8,36 @@ import { envoyerEmail } from "@/lib/envoiEmail";
 import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
 
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
-    const { orderId, customerEmail, customerName, finalImageUrl, orderRef, detectedCountry } = await req.json();
+    const { orderId, customerEmail, finalImageUrl } = await req.json();
 
     if (!orderId || !finalImageUrl || !customerEmail) {
       return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
     }
 
+    const commande = await getOrderById(orderId);
+    if (!commande) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
+    if (customerEmail !== commande.customer_email || finalImageUrl !== commande.final_image_url) {
+      return NextResponse.json({ error: "Destinataire différent de la commande enregistrée." }, { status: 409 });
+    }
     const image = await downloadFinalImage(finalImageUrl);
     const extension = image.contentType === "image/jpeg" ? "jpg" : image.contentType.split("/")[1];
     const token = randomBytes(24).toString("hex");
-    await setPosterConfirmationToken(orderId, token);
+    if (!await setPosterConfirmationToken(orderId, token, commande.final_image_url!, commande.customer_email)) {
+      return NextResponse.json({ error: "La commande a changé. Rechargez-la avant l'envoi." }, { status: 409 });
+    }
 
-    /* La langue vient de la commande (langue du site au paiement), le pays
-       envoye par l'admin ne sert que si la commande est introuvable. */
-    const commande = await getOrderById(orderId);
-    const lang = langueCommande(commande ?? { detected_country: detectedCountry });
+    const lang = langueCommande(commande);
     const t = posterConfirmationEmail[lang];
-    const ref = (orderRef || orderId).slice(0, 8);
+    const ref = commande.id.slice(0, 8);
     const confirmUrl = `${new URL(req.url).origin}/confirm-poster/${token}`;
 
     const result = await envoyerEmail({
       from: EXPEDITEUR,
-      to: [customerEmail],
+      to: [commande.customer_email],
       replyTo: SUPPORT_EMAIL,
       subject: t.subject,
       attachments: [
@@ -50,7 +54,7 @@ export async function POST(req: NextRequest) {
               ${t.title}
             </h1>
             <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #000;">
-              ${t.greeting(customerName)}
+              ${t.greeting(commande.customer_name)}
             </p>
             <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #555;">
               ${t.intro(ref)}
@@ -87,6 +91,7 @@ export async function POST(req: NextRequest) {
     if (result.error) throw new Error("Envoi du portrait refusé.");
 
     if (result.data?.id) {
+      await recordPosterConfirmationMessage(orderId, token, result.data.id);
       await setOrderLastOutboundMessageId(orderId, result.data.id);
     }
 

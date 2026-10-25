@@ -26,12 +26,13 @@ import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "@/li
  */
 
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
     const {
       orderId,
+      customerEmail,
       finalImageUrl,
       saveOnly,
       action,
@@ -87,9 +88,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Recipient, gift promise and language come exclusively from the saved order.
-    const order = await getOrderById(orderId);
+    let order = await getOrderById(orderId);
     if (!order) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
-    const options = optionsLivraisonCadeau(order.options);
+    if (customerEmail !== undefined && customerEmail !== order.customer_email) {
+      return NextResponse.json({ error: "Destinataire différent de la commande enregistrée." }, { status: 409 });
+    }
+    if (!saveOnly && finalImageUrl !== order.final_image_url) {
+      return NextResponse.json({ error: "Image différente de la commande enregistrée. Déposez-la avant l'envoi." }, { status: 409 });
+    }
+    let options = optionsLivraisonCadeau(order.options);
     validerLivraisonCadeau(options);
 
     // ── Depot de l'image ─────────────────────────────────────────────
@@ -97,6 +104,13 @@ export async function POST(req: NextRequest) {
     await downloadFinalImage(finalImageUrl);
     if (saveOnly) {
       await updateOrderFinalImage(orderId, finalImageUrl);
+      const saved = await getOrderById(orderId);
+      if (!saved || saved.final_image_url !== finalImageUrl || saved.customer_email !== order.customer_email) {
+        throw new FinalImageError("La commande a changé. Rechargez-la avant l'envoi.", 409);
+      }
+      order = saved;
+      options = optionsLivraisonCadeau(saved.options);
+      validerLivraisonCadeau(options);
 
       /* Un tirage physique que le client n'a pas encore valide ne se programme
          pas tout seul. L'e-mail dit « telechargez votre portrait » ; sur une
@@ -133,21 +147,21 @@ export async function POST(req: NextRequest) {
 
       const quand = await programmerEnvoiImageFinaleSiLibre(
         orderId,
-        dateEnvoiProgramme(new Date(), options, order?.created_at)
+        dateEnvoiProgramme(new Date(), options, order?.created_at),
+        order
       );
+
+      if (!quand) throw new FinalImageError("La commande a changé ou a déjà été envoyée. Rechargez-la avant de programmer.", 409);
 
       return NextResponse.json({
         ok: true,
         saved: true,
-        /* null quand un rendez-vous existait deja, ou que la commande est deja
-           partie : le tableau de bord affiche alors ce qu'il avait en memoire. */
-        scheduledAt: quand ? quand.toISOString() : null,
+        scheduledAt: quand.toISOString(),
       });
     }
 
     // ── Envoi immediat ───────────────────────────────────────────────
-    await updateOrderFinalImage(orderId, finalImageUrl);
-
+    // Sending is not an upload: never overwrite an image changed since the read.
     const result = await envoyerImageFinale({
       ...order,
       options,

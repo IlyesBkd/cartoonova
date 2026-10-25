@@ -42,7 +42,7 @@ export async function createUploadContext(req: Request, input: { purpose?: unkno
     } else {
       let rows;
       if (purpose === "admin") {
-        const refused = refuserSiPasAdmin(req);
+        const refused = await refuserSiPasAdmin(req);
         if (refused) throw new UploadError("Non autorisé.", refused.status);
         if (typeof input.orderId !== "string" || !/^[a-f0-9-]{36}$/i.test(input.orderId)) throw new UploadError("Commande invalide.");
         rows = await tx`SELECT id FROM orders WHERE id = ${input.orderId}`;

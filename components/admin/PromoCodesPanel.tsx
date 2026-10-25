@@ -1,5 +1,6 @@
 "use client";
 
+import { adminFetch } from "@/lib/adminFetch";
 import { useCallback, useEffect, useState } from "react";
 import { currencies, type Currency } from "@/lib/currency";
 import type { PromoCode, PromoKind } from "@/lib/promoCodes";
@@ -8,7 +9,7 @@ const inputClass =
   "w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-yellow-400";
 const labelClass = "text-xs font-semibold text-gray-500 uppercase mb-1 block";
 
-export default function PromoCodesPanel({ password }: { password: string }) {
+export default function PromoCodesPanel() {
   const [codes, setCodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,15 +23,9 @@ export default function PromoCodesPanel({ password }: { password: string }) {
   const [maxUses, setMaxUses] = useState("");
   const [endsAt, setEndsAt] = useState("");
 
-  const [loadedPassword, setLoadedPassword] = useState(password);
-  if (loadedPassword !== password) {
-    setLoadedPassword(password);
-    setLoading(true);
-    setError("");
-  }
 
   const load = useCallback(() =>
-    fetch("/api/promo", { headers: { "x-admin-password": password } })
+    adminFetch("/api/promo", {})
       .then((res) => {
         if (!res.ok) throw new Error("load_failed");
         return res.json();
@@ -38,7 +33,7 @@ export default function PromoCodesPanel({ password }: { password: string }) {
       .then(setCodes)
       .catch(() => setError("Impossible de charger les codes."))
       .finally(() => setLoading(false)),
-  [password]);
+  []);
 
   useEffect(() => {
     load();
@@ -55,9 +50,9 @@ export default function PromoCodesPanel({ password }: { password: string }) {
     setSaving(true);
     setError("");
     try {
-      const res = await fetch("/api/promo", {
+      const res = await adminFetch("/api/promo", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-password": password },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code,
           kind,
@@ -85,9 +80,9 @@ export default function PromoCodesPanel({ password }: { password: string }) {
   };
 
   const toggle = async (target: PromoCode) => {
-    await fetch("/api/promo", {
+    await adminFetch("/api/promo", {
       method: "PATCH",
-      headers: { "Content-Type": "application/json", "x-admin-password": password },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: target.code, active: !target.active }),
     });
     await reload();

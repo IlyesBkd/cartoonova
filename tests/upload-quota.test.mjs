@@ -13,7 +13,7 @@ const runtime = mkdtempSync(path.join(tmpdir(), 'upload-quota-'));
 const bin = '/usr/lib/postgresql/18/bin';
 const env = Object.fromEntries(['PATH','HOME','TMPDIR','LANG'].filter(k=>process.env[k]).map(k=>[k,process.env[k]]));
 const pg = (cmd,args) => execFileSync(path.join(bin,cmd),args,{env,timeout:15000,stdio:'pipe'});
-let db, started, policy;
+let db, started, policy, adminAuth;
 const previousSecret=process.env.NEWSLETTER_SECRET, previousAdmin=process.env.ADMIN_PASSWORD;
 process.env.NEWSLETTER_SECRET='synthetic-upload-test-secret';
 process.env.ADMIN_PASSWORD='synthetic-admin-test-secret';
@@ -24,9 +24,16 @@ before(async()=>{
  db=postgres(`postgresql://upload_test@127.0.0.1:${port}/postgres`,{max:10,onnotice(){}});
  // Migration is applied only to this freshly started random-port instance.
  await db.unsafe(readFileSync(new URL('../migrations/20261025_upload_quotas.sql',import.meta.url),'utf8'));
- policy=load('lib/uploadPolicy.ts',{'@/lib/db':{withFreshDatabaseClient:fn=>fn(db)}});
+ const connection=await db.reserve();try{await connection.unsafe(readFileSync(new URL('../migrations/20261025_admin_sessions.sql',import.meta.url),'utf8'));}finally{connection.release();}
+ adminAuth=load('lib/adminAuth.ts',{'@/lib/db':{withFreshDatabaseClient:fn=>fn(db)}});
+ policy=load('lib/uploadPolicy.ts',{'@/lib/db':{withFreshDatabaseClient:fn=>fn(db)},'@/lib/adminAuth':adminAuth});
 });
 after(async()=>{if(previousSecret===undefined)delete process.env.NEWSLETTER_SECRET;else process.env.NEWSLETTER_SECRET=previousSecret;if(previousAdmin===undefined)delete process.env.ADMIN_PASSWORD;else process.env.ADMIN_PASSWORD=previousAdmin;if(db)await db.end({timeout:2});if(started)pg('pg_ctl',['-D',path.join(runtime,'pg'),'-m','fast','-w','stop']);});
+async function authenticatedAdminRequest() {
+ const response=await adminAuth.loginAdmin(new Request('http://localhost/api/admin/auth',{method:'POST',headers:{origin:'http://localhost','content-type':'application/json'},body:JSON.stringify({password:process.env.ADMIN_PASSWORD})}));
+ assert.equal(response.status,204);
+ return new Request('http://localhost/api/upload',{headers:{origin:'http://localhost',cookie:response.headers.get('set-cookie').split(';')[0]}});
+}
 async function reset() { await db`TRUNCATE upload_reservations, upload_contexts, upload_quota_buckets`; }
 const sessionCookie='__Host-cartoonova-photo='+'a'.repeat(64);
 const req=()=>new Request('http://localhost/api/upload',{headers:{origin:'http://localhost',cookie:sessionCookie}});
@@ -192,7 +199,7 @@ test('authenticated admin context budget is separate from public IP budget and s
  await db`INSERT INTO orders(id,paid_at) VALUES (${id},now()) ON CONFLICT(id) DO UPDATE SET paid_at=now()`;
  await Promise.all(Array.from({length:12},()=>policy.createUploadContext(req(),{purpose:'checkout',product:'simpson'})));
  await assert.rejects(policy.createUploadContext(req(),{purpose:'checkout',product:'simpson'}),e=>e.status===429);
- const adminReq=new Request('http://localhost/api/upload',{headers:{origin:'http://localhost','x-admin-password':'synthetic-admin-test-secret'}});
+ const adminReq=await authenticatedAdminRequest();
  for(let i=0;i<13;i++) await policy.createUploadContext(adminReq,{purpose:'admin',orderId:id});
  assert.equal(Number((await db`SELECT used FROM upload_quota_buckets WHERE key LIKE 'issue:admin:ip:%'`)[0].used),13);
  await db`UPDATE upload_quota_buckets SET used=127 WHERE key LIKE 'issue:admin:ip:%'`;
@@ -212,7 +219,7 @@ test('admin byte envelope bypasses exhausted public IP only, not context/subject
  await policy.reserveUpload(req(),`${publicContext.prefix}seed.jpg`,publicContext.context);
  await db`UPDATE upload_quota_buckets SET used=64*10485760 WHERE key LIKE 'bytes:ip:%'`;
  await assert.rejects(policy.reserveUpload(req(),`${publicContext.prefix}blocked.jpg`,publicContext.context),e=>e.status===429);
- const adminReq=new Request('http://localhost/api/upload',{headers:{origin:'http://localhost','x-admin-password':'synthetic-admin-test-secret'}});
+ const adminReq=await authenticatedAdminRequest();
  const c=await policy.createUploadContext(adminReq,{purpose:'admin',orderId:id});
  await policy.reserveUpload(req(),`${c.prefix}seed.jpg`,c.context);
  await db`UPDATE upload_quota_buckets SET used=${255*10485760} WHERE key LIKE 'bytes:admin:ip:%'`;
@@ -240,7 +247,7 @@ test('depot/poster need paid legitimate orders; admin needs real admin authentic
  }
  const depot=await policy.createUploadContext(req(),{purpose:'depot',token:signed});
  const poster=await policy.createUploadContext(req(),{purpose:'poster',token:'poster-synthetic-token'});
- const adminReq=new Request('http://localhost/api/upload',{headers:{origin:'http://localhost','x-admin-password':'synthetic-admin-test-secret'}});
+ const adminReq=await authenticatedAdminRequest();
  const admin=await policy.createUploadContext(adminReq,{purpose:'admin',orderId:id});
  assert.match(depot.prefix,/^orders\//);assert.match(poster.prefix,/^retouches\//);assert.match(admin.prefix,/^final\//);
  // Exercise the actual upload handler with a mocked provider only.

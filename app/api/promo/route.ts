@@ -6,14 +6,9 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
-function unauthorized(req: NextRequest): boolean {
-  return refuserSiPasAdmin(req) !== null;
-}
-
 export async function GET(req: NextRequest) {
-  if (unauthorized(req)) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refusal = await refuserSiPasAdmin(req);
+  if (refusal) return refusal;
   try {
     return NextResponse.json(await listPromoCodes());
   } catch (error) {
@@ -23,9 +18,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (unauthorized(req)) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refusal = await refuserSiPasAdmin(req);
+  if (refusal) return refusal;
 
   try {
     const body = await req.json();
@@ -71,9 +65,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (unauthorized(req)) {
-    return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
-  }
+  const refusal = await refuserSiPasAdmin(req);
+  if (refusal) return refusal;
   try {
     const { code, active } = await req.json();
     if (typeof code !== "string" || !code.trim()) {

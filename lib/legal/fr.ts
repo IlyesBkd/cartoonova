@@ -106,7 +106,7 @@ export const LEGAL_FR: PagesLegales = {
         titre: "Article 10 — Propriété intellectuelle",
         blocs: [
           "Les caricatures créées par Cartoonova sont des œuvres originales protégées par le droit d'auteur. Après paiement intégral, le Client reçoit un **droit d'usage personnel et non commercial** de l'œuvre.",
-          "Cartoonova se réserve le droit d'utiliser les caricatures réalisées à des fins de promotion (portfolio, réseaux sociaux), sauf demande contraire explicite du Client.",
+          "Les photos sources servent à réaliser la commande ; les portraits finaux sont les œuvres livrées. Cartoonova ne publie ni les unes ni les autres à des fins promotionnelles (portfolio, réseaux sociaux, publicité) sans autorisation séparée, explicite et révocable. Commander ou déposer des photos ne vaut pas autorisation de publication. Pour retirer une autorisation donnée séparément, contactez support@cartoonova.com.",
         ],
       },
       {
@@ -119,7 +119,7 @@ export const LEGAL_FR: PagesLegales = {
         titre: "Article 12 — Protection des données",
         blocs: [
           "Les données personnelles collectées dans le cadre des commandes sont traitées conformément à notre [Politique de Confidentialité](/politique-de-confidentialite).",
-          "Les photos transmises par le Client sont utilisées exclusivement pour la réalisation de la commande et sont supprimées dans un délai de 90 jours après livraison, sauf demande de conservation du Client.",
+          "Les photos sources et les portraits finaux sont hébergés via des liens de stockage publics : toute personne disposant du lien peut accéder au fichier. Aucun effacement automatique à échéance fixe n’est actuellement mis en œuvre pour ces fichiers ; ils peuvent rester stockés après la livraison. Retirer une vignette du formulaire ne supprime pas le fichier du stockage. Les demandes de suppression sont examinées manuellement à support@cartoonova.com, en tenant compte des obligations légales applicables ; aucun délai d’effacement automatique n’est garanti.",
         ],
       },
       {
@@ -276,6 +276,7 @@ export const LEGAL_FR: PagesLegales = {
               "**Obligations légales :** conservation des factures et données comptables conformément à la réglementation en vigueur.",
             ],
           },
+          "Les photos sources servent à réaliser la commande ; les portraits finaux sont les œuvres livrées. Cartoonova ne publie ni les unes ni les autres à des fins promotionnelles (portfolio, réseaux sociaux, publicité) sans autorisation séparée, explicite et révocable. Commander ou déposer des photos ne vaut pas autorisation de publication. Pour retirer une autorisation donnée séparément, contactez support@cartoonova.com.",
         ],
       },
       {
@@ -298,7 +299,7 @@ export const LEGAL_FR: PagesLegales = {
           {
             liste: [
               "**Données de commande :** 3 ans après la dernière commande.",
-              "**Photos transmises :** supprimées dans un délai de 90 jours après la livraison de la commande, sauf demande contraire du Client.",
+              "Les photos sources et les portraits finaux sont hébergés via des liens de stockage publics : toute personne disposant du lien peut accéder au fichier. Aucun effacement automatique à échéance fixe n’est actuellement mis en œuvre pour ces fichiers ; ils peuvent rester stockés après la livraison. Retirer une vignette du formulaire ne supprime pas le fichier du stockage. Les demandes de suppression sont examinées manuellement à support@cartoonova.com, en tenant compte des obligations légales applicables ; aucun délai d’effacement automatique n’est garanti.",
               "**Données comptables :** 10 ans conformément aux obligations légales.",
               "**Cookies de navigation :** 13 mois maximum.",
               "**Données de prospection :** 3 ans après le dernier contact.",

@@ -33,7 +33,11 @@ before(async()=>{
  await db.unsafe(readFileSync(new URL('../migrations/20261025_upload_quotas.sql',import.meta.url),'utf8'));
  await db`CREATE TABLE orders(id uuid PRIMARY KEY, photo_urls jsonb DEFAULT '[]',customer_email text DEFAULT 'synthetic@example.invalid',created_at timestamptz DEFAULT now(),paid_at timestamptz DEFAULT now(),poster_confirmation_token text,poster_confirmation_status text,poster_confirmation_responded_at timestamptz,poster_confirmation_note text,poster_confirmation_photos jsonb, options jsonb DEFAULT '{}')`;
  await db`ALTER TABLE orders ADD COLUMN last_outbound_message_id text`;
- await db`INSERT INTO orders(id,poster_confirmation_token) VALUES (${id},'poster-own'),(${other},'poster-other')`;
+ await db`ALTER TABLE orders ADD COLUMN final_image_url text DEFAULT 'https://synthetic.public.blob.vercel-storage.com/final/photo-fixture.png'`;
+ await db.unsafe(readFileSync(new URL('../migrations/20261025_order_notification_versions.sql',import.meta.url),'utf8'));
+ await db`INSERT INTO orders(id,poster_confirmation_token,poster_confirmation_image_url,poster_confirmation_email)
+   VALUES (${id},'poster-own','https://synthetic.public.blob.vercel-storage.com/final/photo-fixture.png','synthetic@example.invalid'),
+          (${other},'poster-other','https://synthetic.public.blob.vercel-storage.com/final/photo-fixture.png','synthetic@example.invalid')`;
  const client=new Proxy(db,{get:(target,key)=>key==='end'?async()=>{}:Reflect.get(target,key)});
  database=load('lib/db.ts',{'postgres':()=>client});
  signed=load('lib/emailToken.ts').orderTrackingToken(id);

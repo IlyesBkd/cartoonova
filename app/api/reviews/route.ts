@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
 
 /** Liste complete, pour la moderation depuis l'administration. */
 export async function GET(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
 const STATUTS: StatutAvis[] = ["publie", "en_attente", "rejete"];
 
 export async function PATCH(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

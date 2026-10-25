@@ -102,7 +102,7 @@ export const LEGAL_EN: PagesLegales = {
         titre: "Article 10 — Intellectual property",
         blocs: [
           "The caricatures created by Cartoonova are original works protected by copyright. After payment in full, the Customer receives a **personal, non-commercial right of use** of the work.",
-          "Cartoonova reserves the right to use the caricatures produced for promotional purposes (portfolio, social networks), unless the Customer explicitly requests otherwise.",
+          "Source photos are used to fulfil the order; final portraits are the delivered artworks. Cartoonova does not publish either for promotion (portfolio, social networks, advertising) without separate authorisation that is explicit and revocable. Ordering or uploading photos does not authorise publication. To withdraw authorisation given separately, contact support@cartoonova.com.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_EN: PagesLegales = {
         titre: "Article 12 — Data protection",
         blocs: [
           "Personal data collected in connection with orders is processed in accordance with our [Privacy Policy](/politique-de-confidentialite).",
-          "Photos submitted by the Customer are used exclusively to fulfil the order and are deleted within 90 days of delivery, unless the Customer requests that they be kept.",
+          "Source photos and final portraits are hosted through public storage links: anyone with the link can access the file. No automatic deletion on a fixed schedule is currently implemented for these files; they may remain stored after delivery. Removing a thumbnail from the form does not delete the stored file. Deletion requests are reviewed manually at support@cartoonova.com, taking applicable legal obligations into account; no automatic deletion deadline is guaranteed.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_EN: PagesLegales = {
               "**Legal obligations:** retention of invoices and accounting data in accordance with the regulations in force.",
             ],
           },
+          "Source photos are used to fulfil the order; final portraits are the delivered artworks. Cartoonova does not publish either for promotion (portfolio, social networks, advertising) without separate authorisation that is explicit and revocable. Ordering or uploading photos does not authorise publication. To withdraw authorisation given separately, contact support@cartoonova.com.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_EN: PagesLegales = {
           {
             liste: [
               "**Order data:** 3 years after the last order.",
-              "**Submitted photos:** deleted within 90 days of delivery of the order, unless the Customer requests otherwise.",
+              "Source photos and final portraits are hosted through public storage links: anyone with the link can access the file. No automatic deletion on a fixed schedule is currently implemented for these files; they may remain stored after delivery. Removing a thumbnail from the form does not delete the stored file. Deletion requests are reviewed manually at support@cartoonova.com, taking applicable legal obligations into account; no automatic deletion deadline is guaranteed.",
               "**Accounting data:** 10 years in accordance with legal obligations.",
               "**Browsing cookies:** 13 months maximum.",
               "**Prospecting data:** 3 years after the last contact.",

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { uploadImage } from "@/lib/uploadClient";
+import PhotoPrivacyNotice from "@/components/PhotoPrivacyNotice";
 import { depotPhotosPage, type Lang } from "@/lib/email-i18n";
 import { depotBouton } from "@/lib/i18n/fiche";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
@@ -147,6 +148,7 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
         }}
       />
 
+      <PhotoPrivacyNotice locale={lang} />
       <p className="text-xs text-black/50">{t.hint}</p>
 
       {photos.length > 0 && (

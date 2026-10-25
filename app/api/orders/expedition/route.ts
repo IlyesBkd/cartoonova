@@ -120,7 +120,7 @@ async function lireCorps(req: NextRequest) {
 
 /** Enregistre le dossier sans prevenir le client. */
 export async function PATCH(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
@@ -150,7 +150,7 @@ export async function PATCH(req: NextRequest) {
 
 /** Enregistre, puis previent le client dans sa langue. */
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

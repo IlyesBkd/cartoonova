@@ -102,7 +102,7 @@ export const LEGAL_DA: PagesLegales = {
         titre: "Artikel 10 — Immaterielle rettigheder",
         blocs: [
           "De karikaturer, som Cartoonova fremstiller, er originale værker beskyttet af ophavsretten. Efter fuld betaling modtager Kunden en **personlig og ikke-kommerciel brugsret** til værket.",
-          "Cartoonova forbeholder sig ret til at bruge de udførte karikaturer i markedsføringsøjemed (portfolio, sociale medier), medmindre Kunden udtrykkeligt anmoder om andet.",
+          "Kildefotos bruges til at udføre bestillingen; færdige portrætter er de leverede værker. Cartoonova offentliggør ingen af delene til markedsføring (portfolio, sociale netværk, reklamer) uden særskilt tilladelse, som er udtrykkelig og kan trækkes tilbage. En bestilling eller upload af fotos giver ikke tilladelse til offentliggørelse. Kontakt support@cartoonova.com for at trække en særskilt tilladelse tilbage.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_DA: PagesLegales = {
         titre: "Artikel 12 — Databeskyttelse",
         blocs: [
           "Personoplysninger, der indsamles i forbindelse med bestillinger, behandles i overensstemmelse med vores [Privatlivspolitik](/politique-de-confidentialite).",
-          "De fotos, Kunden fremsender, bruges udelukkende til udførelsen af bestillingen og slettes inden for 90 dage efter levering, medmindre Kunden anmoder om, at de opbevares.",
+          "Kildefotos og færdige portrætter hostes via offentlige lagerlinks: alle med linket kan få adgang til filen. Automatisk sletning efter en fast frist er ikke implementeret i øjeblikket; filer kan forblive gemt efter levering. At fjerne en miniature fra formularen sletter ikke den gemte fil. Anmodninger om sletning gennemgås manuelt via support@cartoonova.com under hensyntagen til gældende retlige forpligtelser; der garanteres ingen frist for automatisk sletning.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_DA: PagesLegales = {
               "**Retlige forpligtelser:** opbevaring af fakturaer og regnskabsoplysninger i overensstemmelse med gældende regler.",
             ],
           },
+          "Kildefotos bruges til at udføre bestillingen; færdige portrætter er de leverede værker. Cartoonova offentliggør ingen af delene til markedsføring (portfolio, sociale netværk, reklamer) uden særskilt tilladelse, som er udtrykkelig og kan trækkes tilbage. En bestilling eller upload af fotos giver ikke tilladelse til offentliggørelse. Kontakt support@cartoonova.com for at trække en særskilt tilladelse tilbage.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_DA: PagesLegales = {
           {
             liste: [
               "**Bestillingsoplysninger:** 3 år efter den seneste bestilling.",
-              "**Fremsendte fotos:** slettes inden for 90 dage efter levering af bestillingen, medmindre Kunden anmoder om andet.",
+              "Kildefotos og færdige portrætter hostes via offentlige lagerlinks: alle med linket kan få adgang til filen. Automatisk sletning efter en fast frist er ikke implementeret i øjeblikket; filer kan forblive gemt efter levering. At fjerne en miniature fra formularen sletter ikke den gemte fil. Anmodninger om sletning gennemgås manuelt via support@cartoonova.com under hensyntagen til gældende retlige forpligtelser; der garanteres ingen frist for automatisk sletning.",
               "**Regnskabsoplysninger:** 10 år i overensstemmelse med retlige forpligtelser.",
               "**Browsingcookies:** højst 13 måneder.",
               "**Oplysninger til direkte markedsføring:** 3 år efter den seneste kontakt.",

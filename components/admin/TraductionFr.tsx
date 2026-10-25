@@ -1,5 +1,6 @@
 "use client";
 
+import { adminFetch } from "@/lib/adminFetch";
 import { useEffect, useState } from "react";
 
 /**
@@ -27,7 +28,6 @@ const cache = new Map<string, Traduction>();
 const enVol = new Map<string, Promise<Traduction>>();
 let file: { texte: string; resoudre: (t: Traduction) => void }[] = [];
 let minuteur: ReturnType<typeof setTimeout> | null = null;
-let motDePasseCourant = "";
 
 function envoyerLeLot() {
   minuteur = null;
@@ -36,9 +36,9 @@ function envoyerLeLot() {
 
   for (let k = 0; k < lot.length; k += LOT_MAX) {
     const tranche = lot.slice(k, k + LOT_MAX);
-    fetch("/api/traductions", {
+    adminFetch("/api/traductions", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-admin-password": motDePasseCourant },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ textes: tranche.map((d) => d.texte) }),
     })
       .then(async (r) => {
@@ -55,13 +55,12 @@ function envoyerLeLot() {
   }
 }
 
-function demanderTraduction(texte: string, motDePasse: string): Promise<Traduction> {
+function demanderTraduction(texte: string): Promise<Traduction> {
   const connue = cache.get(texte);
   if (connue) return Promise.resolve(connue);
   const enCours = enVol.get(texte);
   if (enCours) return enCours;
 
-  motDePasseCourant = motDePasse;
   const promesse = new Promise<Traduction>((resoudre) => {
     file.push({ texte, resoudre });
     if (!minuteur) minuteur = setTimeout(envoyerLeLot, 40);
@@ -104,11 +103,9 @@ const DEPUIS: Record<string, string> = {
 
 export default function TraductionFr({
   texte,
-  motDePasse,
   compact = false,
 }: {
   texte: string | null | undefined;
-  motDePasse: string;
   /** Pour les blocs etroits de la fiche commande : texte plus petit, tronque. */
   compact?: boolean;
 }) {
@@ -117,13 +114,13 @@ export default function TraductionFr({
   useEffect(() => {
     if (!texte || !texte.trim()) return;
     let actif = true;
-    demanderTraduction(texte, motDePasse).then((traduction) => {
+    demanderTraduction(texte).then((traduction) => {
       if (actif) setEtat({ texte, traduction });
     });
     return () => {
       actif = false;
     };
-  }, [texte, motDePasse]);
+  }, [texte]);
 
   /* L'etat peut appartenir au texte precedent quand l'encadre est reutilise
      pour un autre message : on ne l'affiche que s'il correspond. */

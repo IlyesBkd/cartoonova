@@ -39,7 +39,7 @@ function objetDeReponse(sujet: string | null): string {
  * repondre.
  */
 export async function POST(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {

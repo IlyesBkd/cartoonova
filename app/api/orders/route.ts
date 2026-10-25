@@ -8,7 +8,7 @@ import { retouchesParCommande } from "@/lib/retouches";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
 
   try {
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-  const refus = refuserSiPasAdmin(req);
+  const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
     const { id, statutForce, cout, coutNote }: {
       id: string;

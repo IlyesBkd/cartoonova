@@ -102,7 +102,7 @@ export const LEGAL_PT: PagesLegales = {
         titre: "Artigo 10 — Propriedade intelectual",
         blocs: [
           "As caricaturas criadas pela Cartoonova são obras originais protegidas pelo direito de autor. Após o pagamento integral, o Cliente recebe um **direito de utilização pessoal e não comercial** da obra.",
-          "A Cartoonova reserva-se o direito de utilizar as caricaturas realizadas para fins promocionais (portefólio, redes sociais), salvo pedido expresso em contrário do Cliente.",
+          "As fotografias originais servem para realizar a encomenda; os retratos finais são as obras entregues. A Cartoonova não publica nenhum deles para promoção (portefólio, redes sociais, publicidade) sem autorização separada, explícita e revogável. Encomendar ou enviar fotografias não autoriza a publicação. Para retirar uma autorização concedida separadamente, contacte support@cartoonova.com.",
         ],
       },
       {
@@ -115,7 +115,7 @@ export const LEGAL_PT: PagesLegales = {
         titre: "Artigo 12 — Proteção de dados",
         blocs: [
           "Os dados pessoais recolhidos no âmbito das encomendas são tratados em conformidade com a nossa [Política de Privacidade](/politique-de-confidentialite).",
-          "As fotografias transmitidas pelo Cliente são utilizadas exclusivamente para a execução da encomenda e são eliminadas no prazo de 90 dias após a entrega, salvo pedido de conservação por parte do Cliente.",
+          "As fotografias originais e os retratos finais são alojados através de ligações de armazenamento públicas: qualquer pessoa com a ligação pode aceder ao ficheiro. Atualmente não está implementada a eliminação automática num prazo fixo; os ficheiros podem continuar armazenados após a entrega. Remover uma miniatura do formulário não elimina o ficheiro armazenado. Os pedidos de eliminação são analisados manualmente através de support@cartoonova.com, tendo em conta as obrigações legais aplicáveis; não é garantido um prazo de eliminação automática.",
         ],
       },
       {
@@ -272,6 +272,7 @@ export const LEGAL_PT: PagesLegales = {
               "**Obrigações legais:** conservação das faturas e dos dados contabilísticos em conformidade com a regulamentação em vigor.",
             ],
           },
+          "As fotografias originais servem para realizar a encomenda; os retratos finais são as obras entregues. A Cartoonova não publica nenhum deles para promoção (portefólio, redes sociais, publicidade) sem autorização separada, explícita e revogável. Encomendar ou enviar fotografias não autoriza a publicação. Para retirar uma autorização concedida separadamente, contacte support@cartoonova.com.",
         ],
       },
       {
@@ -294,7 +295,7 @@ export const LEGAL_PT: PagesLegales = {
           {
             liste: [
               "**Dados da encomenda:** 3 anos após a última encomenda.",
-              "**Fotografias transmitidas:** eliminadas no prazo de 90 dias após a entrega da encomenda, salvo pedido em contrário do Cliente.",
+              "As fotografias originais e os retratos finais são alojados através de ligações de armazenamento públicas: qualquer pessoa com a ligação pode aceder ao ficheiro. Atualmente não está implementada a eliminação automática num prazo fixo; os ficheiros podem continuar armazenados após a entrega. Remover uma miniatura do formulário não elimina o ficheiro armazenado. Os pedidos de eliminação são analisados manualmente através de support@cartoonova.com, tendo em conta as obrigações legais aplicáveis; não é garantido um prazo de eliminação automática.",
               "**Dados contabilísticos:** 10 anos, em conformidade com as obrigações legais.",
               "**Cookies de navegação:** 13 meses, no máximo.",
               "**Dados de prospeção comercial:** 3 anos após o último contacto.",
