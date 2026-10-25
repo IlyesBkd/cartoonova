@@ -905,7 +905,10 @@
     "modifier": "Alterar",
     "payer": "Pagar {prix}",
     "paiementEnCours": "Pagamento em curso…",
-    "conditions": "Válido 12 meses, utilizável em várias vezes, na moeda de compra. Não reembolsável em dinheiro. Fica sempre pelo menos 1 por pagar em cada encomenda; o saldo restante continua disponível.",
+    "conditions": "Válido durante 12 meses a contar da compra, numa ou em várias encomendas na moeda de compra. O saldo não utilizado fica disponível até à data de validade original. Não convertível em dinheiro.",
+    "minimum": "Quem recebe o vale paga pelo menos {minimum} em cada encomenda, mesmo que o vale pudesse cobrir tudo. O valor a pagar pode ser maior se o saldo não cobrir a encomenda.",
+    "minimumLegal": "Quem recebe o vale paga pelo menos 1 unidade da moeda de compra por encomenda ({devises}, consoante a moeda). O valor a pagar pode ser maior se o saldo não cobrir a encomenda.",
+    "exemple": "Exemplo ilustrativo, não é um preço de retrato: compras um vale de {achat}. Para uma encomenda hipotética de {commande} na mesma moeda, o vale cobre {utilise} e quem o recebe paga {paiement}. Ficam {reste} no vale, utilizáveis antes da data de validade original, 12 meses após a compra.",
     "erreurEmail": "Indica um email válido.",
     "erreur": "Não foi possível preparar o pagamento. Tenta novamente daqui a pouco."
   },

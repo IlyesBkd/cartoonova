@@ -905,7 +905,10 @@
     "modifier": "Ändra",
     "payer": "Betala {prix}",
     "paiementEnCours": "Betalning pågår…",
-    "conditions": "Giltigt i 12 månader, kan användas vid flera tillfällen, i köpvalutan. Kan inte lösas in mot kontanter. Minst 1 återstår att betala på varje beställning; resterande saldo kan fortsatt användas.",
+    "conditions": "Giltigt i 12 månader från köpet, för en eller flera beställningar i köpvalutan. Oanvänt saldo finns kvar till det ursprungliga utgångsdatumet. Kan inte lösas in mot kontanter.",
+    "minimum": "Mottagaren betalar minst {minimum} per beställning, även om presentkortet skulle kunna täcka allt. Beloppet kan bli högre om saldot inte täcker beställningen.",
+    "minimumLegal": "Mottagaren betalar minst 1 enhet av köpvalutan per beställning ({devises}, beroende på valuta). Beloppet kan bli högre om saldot inte täcker beställningen.",
+    "exemple": "Räkneexempel, inte ett porträttpris: du köper ett presentkort på {achat}. För en tänkt beställning på {commande} i samma valuta täcker kortet {utilise} och mottagaren betalar {paiement}. Kortet har {reste} kvar att använda före det ursprungliga utgångsdatumet, 12 månader efter köpet.",
     "erreurEmail": "Ange en giltig e-postadress.",
     "erreur": "Betalningen kunde inte förberedas. Försök igen om en stund."
   },

@@ -905,7 +905,10 @@
     "modifier": "Ändern",
     "payer": "{prix} bezahlen",
     "paiementEnCours": "Zahlung läuft…",
-    "conditions": "12 Monate gültig, auf mehrere Bestellungen verteilbar, in der Kaufwährung. Keine Barauszahlung. Pro Bestellung bleibt mindestens 1 zu zahlen; das Restguthaben bleibt nutzbar.",
+    "conditions": "Ab Kauf 12 Monate gültig, für eine oder mehrere Bestellungen in der Kaufwährung. Nicht genutztes Guthaben bleibt bis zum ursprünglichen Ablaufdatum verfügbar. Keine Barauszahlung.",
+    "minimum": "Die beschenkte Person zahlt pro Bestellung mindestens {minimum}, selbst wenn der Gutschein alles abdecken könnte. Reicht das Guthaben nicht aus, kann mehr zu zahlen sein.",
+    "minimumLegal": "Die beschenkte Person zahlt pro Bestellung mindestens 1 Einheit der Kaufwährung ({devises}, je nach Währung). Reicht das Guthaben nicht aus, kann mehr zu zahlen sein.",
+    "exemple": "Rechenbeispiel, kein Porträtpreis: Du kaufst einen Gutschein über {achat}. Bei einer angenommenen Bestellung über {commande} in derselben Währung deckt der Gutschein {utilise} ab. Die beschenkte Person zahlt {paiement}. Auf dem Gutschein bleiben {reste}, nutzbar bis zum ursprünglichen Ablaufdatum, 12 Monate nach dem Kauf.",
     "erreurEmail": "Bitte gib eine gültige E-Mail-Adresse ein.",
     "erreur": "Die Zahlung konnte nicht vorbereitet werden. Bitte versuche es gleich noch einmal."
   },

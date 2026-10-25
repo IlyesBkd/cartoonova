@@ -43,6 +43,20 @@ test('browser helper recovers when a context refresh fails', async()=>{
   assert.equal(calls,3);
  }finally{globalThis.fetch=previous;}
 });
+test('parallel checkout product uploads establish one cookie session before issuing another context',async()=>{
+ const previous=globalThis.fetch;let calls=0,release;
+ const firstGate=new Promise(r=>{release=r;});
+ globalThis.fetch=async()=>{calls++;if(calls===1)await firstGate;return Response.json({context:'x',prefix:'orders/test/',expiresAt:Date.now()+600000});};
+ try {
+  const helper=load('lib/uploadClient.ts',{'@vercel/blob/client':{upload:async()=>({url:'https://blob.invalid/test'})}});
+  const file=new File(['synthetic'],'a.jpg',{type:'image/jpeg'});
+  const a=helper.uploadImage(file,{purpose:'checkout',product:'simpson'});
+  const b=helper.uploadImage(file,{purpose:'checkout',product:'naruto'});
+  await new Promise(r=>setImmediate(r));
+  assert.equal(calls,1,'second context must await the first Set-Cookie response');
+  release();await Promise.all([a,b]);assert.equal(calls,2);
+ }finally{release();globalThis.fetch=previous;}
+});
 test('fabricated context cannot authorize a provider token', async () => {
   const before = provider.generated;
   const response = await POST(request({ type: 'blob.generate-client-token', payload: { pathname: 'final/stolen.jpg', clientPayload: 'fabricated' } }));

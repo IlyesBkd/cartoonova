@@ -905,7 +905,10 @@
     "modifier": "Zmień",
     "payer": "Zapłać {prix}",
     "paiementEnCours": "Trwa płatność…",
-    "conditions": "Ważna 12 miesięcy, do wykorzystania w kilku zamówieniach, w walucie zakupu. Nie podlega wymianie na gotówkę. Przy każdym zamówieniu pozostaje do zapłaty co najmniej 1; pozostałe saldo można dalej wykorzystać.",
+    "conditions": "Ważna przez 12 miesięcy od zakupu, na jedno lub kilka zamówień w walucie zakupu. Niewykorzystane saldo pozostaje dostępne do pierwotnego terminu ważności. Nie podlega wymianie na gotówkę.",
+    "minimum": "Obdarowana osoba płaci co najmniej {minimum} przy każdym zamówieniu, nawet jeśli karta mogłaby pokryć całość. Kwota do zapłaty może być wyższa, jeśli saldo nie pokrywa zamówienia.",
+    "minimumLegal": "Obdarowana osoba płaci co najmniej 1 jednostkę waluty zakupu za każde zamówienie ({devises}, zależnie od waluty). Kwota do zapłaty może być wyższa, jeśli saldo nie pokrywa zamówienia.",
+    "exemple": "Przykład poglądowy, nie cena portretu: kupujesz kartę o wartości {achat}. Przy hipotetycznym zamówieniu na {commande} w tej samej walucie karta pokrywa {utilise}, a obdarowana osoba płaci {paiement}. Na karcie pozostaje {reste} do wykorzystania przed pierwotnym terminem ważności, 12 miesięcy od zakupu.",
     "erreurEmail": "Podaj prawidłowy adres e-mail.",
     "erreur": "Nie udało się przygotować płatności. Spróbuj ponownie za chwilę."
   },

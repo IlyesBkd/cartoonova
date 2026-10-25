@@ -1,4 +1,5 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { checkoutPhotoSession, checkoutPhotoSubject } from "@/lib/checkoutPhotoSession";
 import { withFreshDatabaseClient } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
@@ -33,10 +34,11 @@ export async function createUploadContext(req: Request, input: { purpose?: unkno
   const purpose = input.purpose;
   if (!["checkout", "depot", "poster", "admin"].includes(String(purpose))) throw new UploadError("Contexte invalide.");
   let subject = "";
+  const photoSession = purpose === "checkout" ? checkoutPhotoSession(req) ?? randomBytes(32).toString("hex") : null;
   return withFreshDatabaseClient(async db => db.begin(async tx => {
     if (purpose === "checkout") {
       if (typeof input.product !== "string" || !SLUGS_PRODUIT_TOUTES_LANGUES.includes(input.product)) throw new UploadError("Produit invalide.");
-      subject = `checkout:${ipHash(req)}`;
+      subject = checkoutPhotoSubject(photoSession!);
     } else {
       let rows;
       if (purpose === "admin") {
@@ -70,7 +72,7 @@ export async function createUploadContext(req: Request, input: { purpose?: unkno
     const [row] = await tx`INSERT INTO upload_contexts (id, token_hash, purpose, subject, ip_hash, prefix, expires_at)
       VALUES (${id}, ${hash(context)}, ${String(purpose)}, ${subject}, ${ipHash(req)}, ${prefix}, now() + interval '15 minutes')
       RETURNING expires_at`;
-    return { context, prefix, expiresAt: new Date(row.expires_at).getTime() };
+    return { context, prefix, expiresAt: new Date(row.expires_at).getTime(), photoSession };
   }));
 }
 export async function reserveUpload(req: Request, pathname: string, context: string | null) {
@@ -80,6 +82,10 @@ export async function reserveUpload(req: Request, pathname: string, context: str
     const [c] = await tx`SELECT * FROM upload_contexts WHERE token_hash = ${hash(context)}
       AND ip_hash = ${ipHash(req)} AND expires_at > now() FOR UPDATE`;
     if (!c) throw new UploadError("Contexte expiré ou invalide.");
+    if (c.purpose === "checkout") {
+      const session = checkoutPhotoSession(req);
+      if (!session || c.subject !== checkoutPhotoSubject(session)) throw new UploadError("Session de photos invalide.");
+    }
     if (!pathname.startsWith(c.prefix) || !/^[a-zA-Z0-9_-]+\.(jpg|jpeg|png|webp|heic|heif)$/i.test(pathname.slice(c.prefix.length))) {
       throw new UploadError("Chemin de dépôt interdit.");
     }

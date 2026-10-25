@@ -1,9 +1,10 @@
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
+import { validatePhotoOwnership } from "@/lib/photoOwnership";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { libelleSupportCourt } from "@/lib/supportCommande";
 import { enregistrerRetouche, nombreRetouches } from "@/lib/retouches";
-import { recordPosterConfirmationResponse, setOrderLastOutboundMessageId, type DbOrder } from "@/lib/db";
+import { getOrderByConfirmationToken, recordPosterConfirmationResponse, setOrderLastOutboundMessageId, type DbOrder } from "@/lib/db";
 import { langueCommande } from "@/lib/email-i18n";
 import { accuseRetoucheEmail } from "@/lib/i18n/serveur";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
@@ -161,12 +162,20 @@ export async function POST(req: NextRequest) {
 
     const status = action === "confirm" ? "confirmed" : "changes_requested";
 
-    /* Meme validation de forme que les photos de commande : seules des URL
-       https du stockage, dedoublonnees et plafonnees. Le corps de la requete
-       vient du navigateur, on ne recopie pas ce qu'il envoie. */
-    const jointes = action === "changes" ? parsePhotoUrls(photos) : [];
+    const orderBefore = await getOrderByConfirmationToken(token);
+    if (!orderBefore) {
+      return NextResponse.json({ error: "Lien invalide ou expiré." }, { status: 404 });
+    }
+    // Only this authenticated order's persisted attachments can be retained.
+    const jointes = action === "changes" ? parsePhotoUrls(photos, orderBefore.poster_confirmation_photos) : [];
     if (photosInvalides(jointes)) {
       return NextResponse.json({ error: jointes.error }, { status: 400 });
+    }
+    if (jointes.length) {
+      const ownershipError = await validatePhotoOwnership(jointes, orderBefore, "poster");
+      if (ownershipError) {
+        return NextResponse.json({ error: ownershipError.error }, { status: 403 });
+      }
     }
     const result = await recordPosterConfirmationResponse(
       token,

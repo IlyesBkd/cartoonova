@@ -905,7 +905,10 @@
     "modifier": "Cambiar",
     "payer": "Pagar {prix}",
     "paiementEnCours": "Procesando el pago…",
-    "conditions": "Válida 12 meses, utilizable en varias veces, en la moneda de compra. No canjeable por dinero. Queda al menos 1 por pagar en cada pedido; el saldo restante sigue disponible.",
+    "conditions": "Válida durante 12 meses desde la compra, en uno o varios pedidos en la moneda de compra. El saldo no utilizado sigue disponible hasta la fecha de caducidad original. No canjeable por dinero en efectivo.",
+    "minimum": "La persona que recibe la tarjeta paga al menos {minimum} en cada pedido, aunque la tarjeta pudiera cubrirlo todo. Puede pagar más si el saldo no cubre el pedido.",
+    "minimumLegal": "La persona que recibe la tarjeta paga al menos 1 unidad de la moneda de compra por pedido ({devises}, según la moneda). Puede pagar más si el saldo no cubre el pedido.",
+    "exemple": "Ejemplo ilustrativo, no es un precio de retrato: compras una tarjeta de {achat}. Para un pedido hipotético de {commande} en la misma moneda, la tarjeta cubre {utilise} y la persona paga {paiement}. Quedan {reste} en la tarjeta, utilizables hasta su caducidad original, 12 meses después de la compra.",
     "erreurEmail": "Indica un correo electrónico válido.",
     "erreur": "No hemos podido preparar el pago. Inténtalo de nuevo en un momento."
   },

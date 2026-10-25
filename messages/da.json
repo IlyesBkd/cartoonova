@@ -905,7 +905,10 @@
     "modifier": "Ret",
     "payer": "Betal {prix}",
     "paiementEnCours": "Betaling i gang…",
-    "conditions": "Gyldigt i 12 måneder, kan bruges over flere gange, i købsvalutaen. Kan ikke ombyttes til kontanter. Der er mindst 1 at betale på hver ordre; restbeløbet kan fortsat bruges.",
+    "conditions": "Gyldigt i 12 måneder fra købet, til en eller flere ordrer i købsvalutaen. Ubrugt saldo er tilgængelig indtil den oprindelige udløbsdato. Kan ikke ombyttes til kontanter.",
+    "minimum": "Modtageren betaler mindst {minimum} pr. ordre, selv hvis gavekortet kunne dække det hele. Beløbet kan være højere, hvis saldoen ikke dækker ordren.",
+    "minimumLegal": "Modtageren betaler mindst 1 enhed af købsvalutaen pr. ordre ({devises}, afhængigt af valutaen). Beløbet kan være højere, hvis saldoen ikke dækker ordren.",
+    "exemple": "Regneeksempel, ikke en portrætpris: du køber et gavekort på {achat}. Ved en tænkt ordre på {commande} i samme valuta dækker kortet {utilise}, og modtageren betaler {paiement}. Der er {reste} tilbage på kortet, som kan bruges før den oprindelige udløbsdato, 12 måneder efter købet.",
     "erreurEmail": "Angiv en gyldig e-mailadresse.",
     "erreur": "Betalingen kunne ikke forberedes. Prøv igen om lidt."
   },

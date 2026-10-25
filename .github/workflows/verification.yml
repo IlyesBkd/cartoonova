@@ -1,14 +1,15 @@
 name: Verification
 
-# Vercel deploie chaque push sur main : une erreur de type ou de lint n'y est
-# vue qu'au build, apres coup. Ce controle la signale sur le commit lui-meme.
-# Pas de `next build` ici : il demanderait les secrets et la base.
-
+# Signale les echecs sur le commit. Vercel deploie en parallele : ce workflow
+# ne bloque PAS son deploiement et ne configure pas la protection de branche.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
+permissions:
+  contents: read
 
 concurrency:
   group: verification-${{ github.ref }}
@@ -16,20 +17,44 @@ concurrency:
 
 jobs:
   verifier:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      # typegen ecrit next-env.d.ts et les types de routes (PageProps…), que
-      # le depot ne versionne pas : sans eux, tsc echoue sur un poste neuf.
+      - run: npm ci --no-audit --no-fund
+      # Les fixtures demarrent elles-memes PG18 sur un port loopback aleatoire.
+      # Aucun service externe, DATABASE_URL, tunnel ou secret GitHub.
+      - name: Installer PostgreSQL 18
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          curl --fail --silent --show-error https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
+          printf '%s\n' 'deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main' | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends postgresql-18
+          sudo systemctl stop postgresql
+      - name: Installer Chromium et ses bibliotheques
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Tests metier, PostgreSQL jetable et navigateurs mocks
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: npm test
+      - name: Conserver manifeste, TAP bornes et bilan (meme en echec)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-tap
+          path: |
+            ${{ runner.temp }}/tap-*/manifest.json
+            ${{ runner.temp }}/tap-*/summary.json
+            ${{ runner.temp }}/tap-*/*.tap
+          if-no-files-found: warn
+          retention-days: 7
+      # typegen produit les types de routes non versionnes.
       - name: Types
-        run: npx next typegen && npx tsc --noEmit
-      # Le code du site seulement : portable-content-publisher est un outil a
-      # part, avec sa propre configuration pm2 en CommonJS.
+        run: npx --no-install next typegen && npx --no-install tsc --noEmit
       - name: Lint (erreurs seulement)
-        run: npx eslint --quiet app components lib hooks actions i18n proxy.ts next.config.ts
+        run: npx --no-install eslint --quiet app components lib hooks actions i18n proxy.ts next.config.ts

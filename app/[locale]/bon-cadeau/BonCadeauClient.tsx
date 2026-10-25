@@ -94,8 +94,9 @@ function Paiement({ libelle, enCours, montant, devise }: { libelle: string; enCo
 export default function BonCadeauClient() {
   const t = useTranslations("bonCadeau");
   const locale = useLocale();
-  const { currency, formatRaw } = useCurrency();
+  const { currency, formatRaw, pret } = useCurrency();
   const montants = montantsBon(currency);
+  const prixExplicite = (valeur: number) => pret ? `${formatRaw(valeur)} (${currency})` : formatRaw(valeur);
 
   const [montant, setMontant] = useState<number>(montants[1]);
   const [email, setEmail] = useState("");
@@ -132,6 +133,27 @@ export default function BonCadeauClient() {
     }
   };
 
+  // Illustration du plafond actuel de remise (MIN_PAYABLE = 1), pas un tarif
+  // de portrait. Aucun calcul du paiement ni du solde reel n'est modifie ici.
+  const informationsSolde = (
+    <>
+      <p className="bon-achat__minimum">
+        <strong>{t("minimum", { minimum: pret ? `1 ${currency}` : "…" })}</strong>
+      </p>
+      {pret && (
+        <p className="bon-achat__exemple">
+          {t("exemple", {
+            achat: `${montantValide} ${currency}`,
+            commande: `${montantValide} ${currency}`,
+            utilise: `${montantValide - 1} ${currency}`,
+            paiement: `1 ${currency}`,
+            reste: `1 ${currency}`,
+          })}
+        </p>
+      )}
+    </>
+  );
+
   return (
     <div className="section">
       <div className="enveloppe bon-achat">
@@ -164,10 +186,12 @@ export default function BonCadeauClient() {
                       mesure(MESURES.bonCadeauMontant, { value: m, currency });
                     }}
                   >
-                    <span className="vignette__nom">{formatRaw(m)}</span>
+                    <span className="vignette__nom">{prixExplicite(m)}</span>
                   </button>
                 ))}
               </div>
+
+              {informationsSolde}
 
               <div className="champ-groupe">
                 <label className="champ-etiquette" htmlFor="bon-email">{t("email")}</label>
@@ -190,19 +214,20 @@ export default function BonCadeauClient() {
                 </p>
               )}
               <button type="button" className="bouton bouton--primaire" disabled={chargement} onClick={continuer}>
-                {t("continuer", { prix: formatRaw(montantValide) })}
+                {t("continuer", { prix: prixExplicite(montantValide) })}
               </button>
             </>
           ) : (
             <Elements stripe={stripePromise} options={{ clientSecret: secret, appearance: APPARENCE, loader: "always" }}>
               <p className="bon-achat__recap">
-                {t("recap", { prix: formatRaw(montantValide) })}
+                {t("recap", { prix: prixExplicite(montantValide) })}
                 <button type="button" className="lien-retour" onClick={() => setSecret("")}>
                   {t("modifier")}
                 </button>
               </p>
+              {informationsSolde}
               <Paiement
-                libelle={t("payer", { prix: formatRaw(montantValide) })}
+                libelle={t("payer", { prix: prixExplicite(montantValide) })}
                 enCours={t("paiementEnCours")}
                 montant={montantValide}
                 devise={currency}

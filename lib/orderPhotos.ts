@@ -36,28 +36,51 @@ export interface PhotosInvalides {
 /**
  * Renvoie la liste nettoyee — eventuellement vide.
  *
- * N'accepte que des URL https : les photos sont deposees sur un stockage blob
- * distant, jamais fournies en ligne par le navigateur. Une entree hors format
- * est ecartee en silence plutot que de faire echouer la commande — c'est du
- * bruit, pas une intention.
- *
- * Le type de retour garde sa forme d'union : `parsePhotoUrls` ne renvoie plus
- * d'erreur aujourd'hui, mais les appelants la traitent deja et une regle
- * future (un format refuse, un quota) retrouverait sa place sans les rouvrir.
+ * N'accepte que les URL parseables du store Blob configuré par le même jeton
+ * que l'upload. Une entrée invalide fait échouer toute la liste explicitement :
+ * elle ne peut pas disparaître silencieusement derrière huit photos valides.
+ * Cette validation synchrone porte sur la forme et le stockage, pas la propriété
+ * de l'objet : les dépôts authentifiés vérifient aussi le registre CODE-04 via
+ * `validatePhotoOwnership` avant toute écriture.
  */
-export function parsePhotoUrls(raw: unknown): string[] | PhotosInvalides {
-  // Champ absent ou mal forme : commande sans photo, pas commande invalide.
-  if (!Array.isArray(raw)) return [];
+export function parsePhotoUrls(raw: unknown, previouslyAttached: unknown = []): string[] | PhotosInvalides {
+  // Supply only the persisted list from an already authenticated order, never
+  // request data. Checkout uses the strict default with no legacy exception.
+  const attached = new Set(Array.isArray(previouslyAttached) ? previouslyAttached : []);
+  if (raw == null) return [];
+  if (!Array.isArray(raw)) return { error: "La liste des photos est invalide." };
 
   const propres: string[] = [];
   for (const entree of raw) {
-    if (typeof entree !== "string") continue;
+    if (typeof entree !== "string") return { error: "Une URL de photo est invalide." };
     const url = entree.trim();
-    if (!url || url.length > MAX_URL_LENGTH) continue;
-    if (!/^https:\/\//i.test(url)) continue;
+    if (!url || url.length > MAX_URL_LENGTH) return { error: "Une URL de photo est invalide." };
+    try {
+      const parsed = new URL(url);
+      // Match the SDK's getStoreIdFromToken/constructBlobUrl contract. No DNS,
+      // wildcard Blob host or provider request is used to discover the store.
+      const store = /^vercel_blob_rw_([a-zA-Z0-9-]+)_[a-zA-Z0-9_-]+$/.exec(process.env.BLOB_READ_WRITE_TOKEN ?? "")?.[1];
+      const origin = store && /^[a-zA-Z0-9-]+$/.test(store)
+        ? `https://${store.toLowerCase()}.public.blob.vercel-storage.com` : null;
+      if (!origin) return { error: "Configuration du stockage des photos manquante ou invalide." };
+      if (parsed.protocol !== "https:" || parsed.origin !== origin || !url.startsWith(origin + "/") || parsed.href !== url || /[?#]/.test(url) || parsed.username || parsed.password) {
+        return { error: "Origine de photo interdite." };
+      }
+      const decodedPath = decodeURIComponent(parsed.pathname);
+      // The old browser used timestamp + original filename (spaces and accents
+      // included). Decode once, but never admit escaped separators/double escapes.
+      const standardPath = /^\/(orders|retouches)\/(?:[a-zA-Z0-9_-]+\/)?[\p{L}\p{N}\p{M} _().-]+\.(?:jpe?g|png|webp|heic|heif)$/iu.test(decodedPath);
+      const retainedLegacyPath = entree === url && attached.has(url)
+        && /^\/(orders|retouches)\/\d+-[\p{L}\p{N}\p{M} _().+,\x27-]+\.(?:jpe?g|png|webp|heic|heif)$/iu.test(decodedPath);
+      if (!/^\/(orders|retouches)\//.test(parsed.pathname) || /%(?:2f|5c|25)/i.test(parsed.pathname) || !(standardPath || retainedLegacyPath)) {
+        return { error: "Chemin de photo interdit." };
+      }
+    } catch {
+      return { error: "Une URL de photo est invalide." };
+    }
     if (propres.includes(url)) continue;
     propres.push(url);
-    if (propres.length === MAX_PHOTOS) break;
+    if (propres.length > MAX_PHOTOS) return { error: `Un maximum de ${MAX_PHOTOS} photos est autorisé.` };
   }
 
   return propres;

@@ -8,6 +8,13 @@ import { execFileSync } from 'node:child_process';
 import { createRequire, Module } from 'node:module';
 import ts from 'typescript';
 import postgres from 'postgres';
+import { chromium } from 'playwright';
+import { blobMock } from './upload-harness.mjs';
+import { MockAgent, getGlobalDispatcher, setGlobalDispatcher } from 'undici';
+const previousDispatcher=getGlobalDispatcher(),offline=new MockAgent();
+offline.disableNetConnect();setGlobalDispatcher(offline);
+const previousFetch=globalThis.fetch;
+globalThis.fetch=async()=>{throw new Error('External transport forbidden in order tests');};
 
 // Real route + real PostgreSQL. Only Stripe and outbound effects are replaced.
 // No inherited database URL or provider credential is used.
@@ -18,7 +25,7 @@ const pgBin = process.env.TEST_PG_BIN || '/usr/lib/postgresql/18/bin';
 const runtime = mkdtempSync(path.join(tmpdir(), 'cartoonova-order-regression-'));
 const pgData = path.join(runtime, 'pg');
 const cleanEnv = Object.fromEntries(['PATH', 'HOME', 'LANG', 'LC_ALL', 'TMPDIR'].filter(k => process.env[k]).map(k => [k, process.env[k]]));
-let db, started = false, POST, CHECKOUT;
+let db, started = false, POST, CHECKOUT, uploadContext, uploadPolicy;
 let checkoutCount = 0;
 const effects = { promos: 0, analytics: 0, alerts: 0 };
 const intents = new Map();
@@ -57,6 +64,11 @@ before(async () => {
   const [identity] = await db`SELECT current_database() AS name, inet_server_port() AS port`;
   assert.equal(identity.port, port);
   assert.equal(identity.name, 'postgres');
+  await db.unsafe(readFileSync(path.join(root,'migrations/20261025_upload_quotas.sql'),'utf8'));
+  const database = { sql: db, runtimeSchemaBootstrapEnabled: false, withFreshDatabaseClient: fn => fn(db) };
+  uploadPolicy = loadTs('lib/uploadPolicy.ts', {'@/lib/db':database});
+  uploadContext = loadTs('app/api/upload/context/route.ts', {'@/lib/uploadPolicy':uploadPolicy}).POST;
+  const ownership = loadTs('lib/photoOwnership.ts', {'@/lib/db':database});
   await db`CREATE TABLE orders (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(), payment_intent_id text UNIQUE NOT NULL,
     customer_email text, customer_name text, customer_address text,
@@ -74,7 +86,8 @@ before(async () => {
         return created;
       },
     }; },
-    '@/lib/db': { sql: db, runtimeSchemaBootstrapEnabled: false },
+    '@/lib/db': database,
+    '@/lib/photoOwnership': ownership,
     '@/lib/promoCodes': { consumePromoCode: async () => { effects.promos++; } },
     '@/lib/analyticsServeur': { mesureServeur: async () => { effects.analytics++; } },
     '@/lib/alerteServeur': { signalerPanne: async () => { effects.alerts++; } },
@@ -97,11 +110,38 @@ before(async () => {
 after(async () => {
   if (db) await db.end({ timeout: 2 });
   if (started) pg('pg_ctl', ['-D', pgData, '-m', 'fast', '-w', 'stop']);
+  globalThis.fetch=previousFetch;setGlobalDispatcher(previousDispatcher);await offline.close();
 });
 
 function request(paymentIntentId, overrides = {}) {
   return { json: async () => ({ paymentIntentId, email: 'retry@example.invalid', firstName: 'Test', format: 'portrait', people: 1, animals: 0, printKey: 'digital', photoUrls: [], ...overrides }) };
 }
+
+const photoOrigin='https://synthetic.public.blob.vercel-storage.com';
+async function browserPhoto(cookie) {
+ process.env.BLOB_READ_WRITE_TOKEN='vercel_blob_rw_synthetic_localonly';
+ const issued=await uploadContext(new Request('https://localhost/api/upload/context',{method:'POST',headers:{origin:'https://localhost','content-type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify({purpose:'checkout',product:'simpson'})}));
+ assert.equal(issued.status,200);
+ cookie=issued.headers.get('set-cookie').split(';')[0];
+ const c=await issued.json();
+ await uploadPolicy.reserveUpload(new Request('https://localhost/api/upload',{headers:{origin:'https://localhost',cookie}}),c.prefix+'photo.jpg',c.context);
+ return {cookie,url:photoOrigin+'/'+c.prefix+'photo.jpg'};
+}
+function photoRequest(body,cookie) {
+ return new Request('https://localhost/api/checkout',{method:'POST',headers:{origin:'https://localhost','content-type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify(body)});
+}
+test('CODE11 checkout and new orders reject another browser photo on the same IP before payment, SQL or effects',async()=>{
+ const a=await browserPhoto(),b=await browserPhoto();
+ const count=checkoutCount, before={...effects};
+ for(const cookie of [undefined,b.cookie,'__Host-cartoonova-photo='+'f'.repeat(64)]) {
+  const checkout=await CHECKOUT(photoRequest({orderConfig:digitalConfig,currency:'EUR',photoUrls:[a.url]},cookie));
+  assert.equal(checkout.status,403);
+  const created=await POST(photoRequest({paymentIntentId:'pi_foreign_photo',email:'synthetic@example.invalid',...digitalConfig,photoUrls:[a.url]},cookie));
+  assert.equal(created.status,403);
+ }
+ assert.equal(checkoutCount,count);assert.deepEqual(effects,before);
+ assert.equal((await db`SELECT count(*)::int n FROM orders WHERE payment_intent_id='pi_foreign_photo'`)[0].n,0);
+});
 
 test('CODE-01: digital one-person quote cannot create a ten-person canvas order', async () => {
   const id = 'pi_quote_digital_canvas_attack';
@@ -275,6 +315,102 @@ test('paid options, discount and shipping are delivered from the frozen quote on
   assert.equal(Number(order.total_price), snapshot.amount / 100);
 });
 
+
+test('CODE11 owned photos survive expiry, duplicate input, payment retries and concurrent order creation',async()=>{
+ const a=await browserPhoto();
+ await db`UPDATE upload_contexts SET expires_at=now()-interval '1 day'`;
+ const checkout=await CHECKOUT(photoRequest({orderConfig:digitalConfig,currency:'EUR',photoUrls:[a.url,a.url]},a.cookie));
+ assert.equal(checkout.status,200);
+ const paymentIntentId=(await checkout.json()).clientSecret.split('_secret_')[0];
+ const body={paymentIntentId,email:'owned@example.invalid',...digitalConfig,photoUrls:[a.url,a.url]};
+ const before={...effects};
+ const responses=await Promise.all(Array.from({length:12},()=>POST(photoRequest(body,a.cookie))));
+ assert.ok(responses.every(r=>r.status===200));
+ const ids=await Promise.all(responses.map(async r=>(await r.json()).orderId));
+ assert.equal(new Set(ids).size,1);
+ const rows=await db`SELECT * FROM orders WHERE payment_intent_id=${paymentIntentId}`;
+ assert.equal(rows.length,1);assert.deepEqual(rows[0].photo_urls,[a.url]);
+ assert.equal(effects.analytics-before.analytics,1);
+ assert.equal((await POST(photoRequest(body,a.cookie))).status,200);
+ assert.deepEqual((await db`SELECT * FROM orders WHERE payment_intent_id=${paymentIntentId}`)[0],rows[0]);
+});
+test('CODE11 rejects unreserved modern/legacy objects and wrong-purpose reservations even with a valid browser cookie',async()=>{
+ const a=await browserPhoto();
+ const prefix=new URL(a.url).pathname.slice(1).split('/').slice(0,-1).join('/')+'/';
+ const [wrongScope]=await db`INSERT INTO upload_contexts(id,token_hash,purpose,subject,ip_hash,prefix,expires_at)
+  SELECT gen_random_uuid(),repeat('e',64),'depot',subject,ip_hash,'orders/wrong-purpose/',now()+interval '1 hour' FROM upload_contexts WHERE prefix=${prefix} RETURNING id`;
+ await db`INSERT INTO upload_reservations(id,context_id,pathname,reserved_bytes) VALUES (gen_random_uuid(),${wrongScope.id},'orders/wrong-purpose/photo.jpg',10485760)`;
+ const [oldIpScope]=await db`INSERT INTO upload_contexts(id,token_hash,purpose,subject,ip_hash,prefix,expires_at)
+  SELECT gen_random_uuid(),repeat('d',64),'checkout','checkout:'||ip_hash,ip_hash,'orders/old-ip-scope/',now()+interval '1 hour' FROM upload_contexts WHERE prefix=${prefix} RETURNING id`;
+ await db`INSERT INTO upload_reservations(id,context_id,pathname,reserved_bytes) VALUES (gen_random_uuid(),${oldIpScope.id},'orders/old-ip-scope/photo.jpg',10485760)`;
+ const before={...effects},count=checkoutCount;
+ for(const url of [photoOrigin+'/orders/wrong-purpose/photo.jpg',photoOrigin+'/orders/old-ip-scope/photo.jpg',photoOrigin+'/orders/1792890000000-old%20image.jpg',photoOrigin+'/orders/12345678-1234-1234-1234-123456789abc/unreserved.jpg',photoOrigin+'/retouches/unattached.jpg']) {
+  assert.equal((await CHECKOUT(photoRequest({orderConfig:digitalConfig,currency:'EUR',photoUrls:[url]},a.cookie))).status,403);
+  assert.equal((await POST(photoRequest({paymentIntentId:'pi_unreserved',email:'synthetic@example.invalid',...digitalConfig,photoUrls:[url]},a.cookie))).status,403);
+ }
+ assert.deepEqual(effects,before);assert.equal(checkoutCount,count);
+ assert.equal((await db`SELECT count(*)::int n FROM orders WHERE payment_intent_id='pi_unreserved'`)[0].n,0);
+});
+test('CODE11 ledger outage fails closed, while no-photo checkout/create require neither cookie nor storage configuration',async()=>{
+ const a=await browserPhoto();
+ await db`ALTER TABLE upload_reservations RENAME TO upload_reservations_unavailable`;
+ const count=checkoutCount;
+ try {
+  assert.equal((await CHECKOUT(photoRequest({orderConfig:digitalConfig,currency:'EUR',photoUrls:[a.url]},a.cookie))).status,500);
+  assert.equal((await POST(photoRequest({paymentIntentId:'pi_sql_photo',email:'synthetic@example.invalid',...digitalConfig,photoUrls:[a.url]},a.cookie))).status,500);
+  assert.equal(checkoutCount,count);
+  assert.equal((await db`SELECT count(*)::int n FROM orders WHERE payment_intent_id='pi_sql_photo'`)[0].n,0);
+  delete process.env.BLOB_READ_WRITE_TOKEN;
+  const response=await CHECKOUT(photoRequest({orderConfig:digitalConfig,currency:'EUR',photoUrls:[]}));
+  assert.equal(response.status,200);
+  const paymentIntentId=(await response.json()).clientSecret.split('_secret_')[0];
+  assert.equal((await POST(photoRequest({paymentIntentId,email:'no-photo@example.invalid',...digitalConfig,photoUrls:[]}))).status,200);
+ }finally{await db`ALTER TABLE upload_reservations_unavailable RENAME TO upload_reservations`;process.env.BLOB_READ_WRITE_TOKEN='vercel_blob_rw_synthetic_localonly';}
+});
+
+test('CODE11 two Chromium browser contexts isolate HttpOnly photo cookies through real handlers and SQL',async()=>{
+ process.env.BLOB_READ_WRITE_TOKEN='vercel_blob_rw_synthetic_localonly';
+ const browser=await chromium.launch({headless:true});
+ const upload=loadTs('app/api/upload/route.ts',{'@/lib/uploadPolicy':uploadPolicy,'@vercel/blob/client':blobMock}).POST;
+ const handlers={'/api/upload/context':uploadContext,'/api/upload':upload,'/api/checkout':CHECKOUT,'/api/order/create':POST};
+ try {
+  const contexts=await Promise.all([browser.newContext(),browser.newContext()]);
+  for(const context of contexts)await context.route('**/*',async route=>{
+   const r=route.request(),u=new URL(r.url());
+   if(u.origin!=='https://photos.invalid')return route.abort();
+   if(u.pathname==='/')return route.fulfill({contentType:'text/html',body:'<!doctype html><title>Photo session test</title>'});
+   const handler=handlers[u.pathname];if(!handler)return route.abort();
+   const response=await handler(new Request(r.url(),{method:r.method(),headers:await r.allHeaders(),body:r.postData()}));
+   await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});
+  });
+  const [a,b]=await Promise.all(contexts.map(async c=>{const page=await c.newPage();await page.goto('https://photos.invalid/');return page;}));
+  const call=(page,path,body)=>page.evaluate(async({path,body})=>{const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return {status:r.status,body:await r.json()};},{path,body});
+  const [ac,bc]=await Promise.all([a,b].map(p=>call(p,'/api/upload/context',{purpose:'checkout',product:'simpson'})));
+  assert.equal(ac.status,200);assert.equal(bc.status,200);
+  assert.equal(Object.hasOwn(ac.body,'photoSession'),false,'session capability must never appear in JSON');
+  const [cookiesA,cookiesB]=await Promise.all(contexts.map(c=>c.cookies()));
+  assert.equal(cookiesA.length,1);assert.equal(cookiesB.length,1);
+  assert.equal(cookiesA[0].httpOnly,true);assert.equal(cookiesA[0].secure,true);assert.equal(cookiesA[0].sameSite,'Strict');
+  assert.notEqual(cookiesA[0].value,cookiesB[0].value);
+  assert.equal(await a.evaluate(()=>document.cookie),'');assert.equal(await b.evaluate(()=>document.cookie),'');
+  const body={type:'blob.generate-client-token',payload:{pathname:ac.body.prefix+'browser.jpg',clientPayload:ac.body.context}};
+  assert.equal((await call(b,'/api/upload',body)).status,403);
+  assert.equal((await call(a,'/api/upload',body)).status,200);
+  const photo=photoOrigin+'/'+body.payload.pathname;
+  const quoteBody={orderConfig:digitalConfig,currency:'EUR',photoUrls:[photo]};
+  assert.equal((await call(b,'/api/checkout',quoteBody)).status,403);
+  const quoted=await call(a,'/api/checkout',quoteBody);assert.equal(quoted.status,200);
+  const paymentIntentId=quoted.body.clientSecret.split('_secret_')[0];
+  const createBody={paymentIntentId,email:'browser@example.invalid',...digitalConfig,photoUrls:[photo]};
+  assert.equal((await call(b,'/api/order/create',createBody)).status,403);
+  const created=await call(a,'/api/order/create',createBody);assert.equal(created.status,200);
+  assert.deepEqual(await call(a,'/api/order/create',createBody),created);
+  const rows=await db`SELECT photo_urls FROM orders WHERE payment_intent_id=${paymentIntentId}`;
+  assert.equal(rows.length,1);assert.deepEqual(rows[0].photo_urls,[photo]);
+  const scopes=await db`SELECT ip_hash,subject FROM upload_contexts WHERE prefix IN ${db([ac.body.prefix,bc.body.prefix])}`;
+  assert.equal(scopes[0].ip_hash,scopes[1].ip_hash);assert.notEqual(scopes[0].subject,scopes[1].subject);
+ }finally{await browser.close();}
+});
 
 test('malformed gift instructions are refused before an order is recorded', async () => {
   const invalid = [

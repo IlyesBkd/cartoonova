@@ -905,7 +905,10 @@
     "modifier": "Modifica",
     "payer": "Paga {prix}",
     "paiementEnCours": "Pagamento in corso…",
-    "conditions": "Valida 12 mesi, utilizzabile in più volte, nella valuta d'acquisto. Non convertibile in denaro. Su ogni ordine resta almeno 1 da pagare; il credito residuo resta utilizzabile.",
+    "conditions": "Valida per 12 mesi dall’acquisto, su uno o più ordini nella valuta d’acquisto. Il credito non utilizzato resta disponibile fino alla scadenza originale. Non convertibile in contanti.",
+    "minimum": "Chi riceve la carta paga almeno {minimum} su ogni ordine, anche se la carta potrebbe coprire tutto. L’importo può essere maggiore se il credito non copre l’ordine.",
+    "minimumLegal": "Chi riceve la carta paga almeno 1 unità della valuta d’acquisto per ordine ({devises}, secondo la valuta). L’importo può essere maggiore se il credito non copre l’ordine.",
+    "exemple": "Esempio illustrativo, non è un prezzo di ritratto: acquisti una carta da {achat}. Per un ordine ipotetico da {commande} nella stessa valuta, la carta copre {utilise} e chi la riceve paga {paiement}. Sulla carta restano {reste}, utilizzabili entro la scadenza originale, 12 mesi dopo l’acquisto.",
     "erreurEmail": "Inserisci un indirizzo e-mail valido.",
     "erreur": "Non è stato possibile preparare il pagamento. Riprova tra un attimo."
   },

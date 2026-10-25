@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { enregistrerPhotosCommande, getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
+import { validatePhotoOwnership } from "@/lib/photoOwnership";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
@@ -31,9 +32,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Lien invalide." }, { status: 403 });
     }
 
-    /* Meme nettoyage qu'a la commande : seules des URL https du stockage
-       distant passent, doublons retires, plafond applique. */
-    const photos = parsePhotoUrls(photoUrls);
+    const avant = await getOrderById(orderId);
+    if (!avant) {
+      return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
+    }
+
+    /* Authenticate and load the persisted attachments before any legacy exception. */
+    const photos = parsePhotoUrls(photoUrls, avant.photo_urls);
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });
     }
@@ -41,9 +46,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Aucune photo exploitable." }, { status: 400 });
     }
 
-    const avant = await getOrderById(orderId);
-    if (!avant) {
-      return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
+    const ownershipError = await validatePhotoOwnership(photos, avant, "depot");
+    if (ownershipError) {
+      return NextResponse.json({ error: ownershipError.error }, { status: 403 });
     }
 
     const apres = await enregistrerPhotosCommande(orderId, photos);

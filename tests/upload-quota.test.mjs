@@ -28,7 +28,8 @@ before(async()=>{
 });
 after(async()=>{if(previousSecret===undefined)delete process.env.NEWSLETTER_SECRET;else process.env.NEWSLETTER_SECRET=previousSecret;if(previousAdmin===undefined)delete process.env.ADMIN_PASSWORD;else process.env.ADMIN_PASSWORD=previousAdmin;if(db)await db.end({timeout:2});if(started)pg('pg_ctl',['-D',path.join(runtime,'pg'),'-m','fast','-w','stop']);});
 async function reset() { await db`TRUNCATE upload_reservations, upload_contexts, upload_quota_buckets`; }
-const req=()=>new Request('http://localhost/api/upload',{headers:{origin:'http://localhost'}});
+const sessionCookie='__Host-cartoonova-photo='+'a'.repeat(64);
+const req=()=>new Request('http://localhost/api/upload',{headers:{origin:'http://localhost',cookie:sessionCookie}});
 test('context HTTP endpoint issues a checkout scope and denies foreign origins',async()=>{
  const {POST}=load('app/api/upload/context/route.ts',{'@/lib/uploadPolicy':policy});
  const request=(origin)=>new Request('http://localhost/api/upload/context',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({purpose:'checkout',product:'simpson'})});
@@ -129,6 +130,25 @@ test('new contexts cannot bypass shared IP, subject, or global reservations and 
  }
 });
 
+test('rotating checkout photo sessions cannot rotate the independent IP quota',async()=>{
+ await reset();
+ const sessions=Array.from({length:8},(_,i)=>new Request('http://localhost/api/upload',{headers:{origin:'http://localhost',cookie:'__Host-cartoonova-photo='+String(i+1).repeat(64)}}));
+ const contexts=await Promise.all(sessions.map(r=>policy.createUploadContext(r,{purpose:'checkout',product:'simpson'})));
+ await policy.reserveUpload(sessions[0],contexts[0].prefix+'seed.jpg',contexts[0].context);
+ await db`UPDATE upload_quota_buckets SET used=63*10485760 WHERE key LIKE 'bytes:ip:%'`;
+ const outcomes=await Promise.allSettled(contexts.map((c,i)=>policy.reserveUpload(sessions[i],c.prefix+'concurrent.jpg',c.context)));
+ assert.equal(outcomes.filter(r=>r.status==='fulfilled').length,1);
+ assert.ok(outcomes.filter(r=>r.status==='rejected').every(r=>r.reason.status===429));
+ assert.equal((await db`SELECT count(*)::int n FROM upload_reservations`)[0].n,2);
+ assert.equal(Number((await db`SELECT used FROM upload_quota_buckets WHERE key LIKE 'bytes:ip:%'`)[0].used),64*10485760);
+ assert.equal(Number((await db`SELECT used FROM upload_quota_buckets WHERE key LIKE 'bytes:global:%'`)[0].used),2*10485760);
+ assert.equal((await db`SELECT count(DISTINCT subject)::int n FROM upload_contexts`)[0].n,8);
+ await reset();
+ const issued=await Promise.allSettled(Array.from({length:24},(_,i)=>policy.createUploadContext(new Request('http://localhost/api/upload',{headers:{origin:'http://localhost',cookie:'__Host-cartoonova-photo='+i.toString(16).padStart(64,'0')}}),{purpose:'checkout',product:'simpson'})));
+ assert.equal(issued.filter(r=>r.status==='fulfilled').length,12);
+ assert.ok(issued.filter(r=>r.status==='rejected').every(r=>r.reason.status===429));
+ assert.equal((await db`SELECT count(*)::int n FROM upload_contexts`)[0].n,12);
+});
 test('public context issuance itself is shared, bounded and atomic',async()=>{
  await reset();
  const outcomes=await Promise.allSettled(Array.from({length:24},()=>policy.createUploadContext(req(),{purpose:'checkout',product:'simpson'})));
@@ -147,18 +167,18 @@ test('provider failure keeps its pessimistic reservation and DB errors fail clos
  const c=await policy.createUploadContext(req(),{purpose:'checkout',product:'simpson'});
  const failedProvider={handleUpload:async o=>{await o.onBeforeGenerateToken(o.body.payload.pathname,o.body.payload.clientPayload,false);throw new Error('synthetic provider outage');}};
  const {POST}=load('app/api/upload/route.ts',{'@vercel/blob/client':failedProvider,'@/lib/uploadPolicy':policy});
- const r=await POST(new Request('http://localhost/api/upload',{method:'POST',headers:{origin:'http://localhost','content-type':'application/json'},body:JSON.stringify({type:'blob.generate-client-token',payload:{pathname:`${c.prefix}a.jpg`,clientPayload:c.context}})}));
+ const r=await POST(new Request('http://localhost/api/upload',{method:'POST',headers:{origin:'http://localhost',cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({type:'blob.generate-client-token',payload:{pathname:`${c.prefix}a.jpg`,clientPayload:c.context}})}));
  assert.equal(r.status,503);assert.equal((await db`SELECT count(*)::int n FROM upload_reservations`)[0].n,1);
  await assert.rejects(policy.reserveUpload(req(),`${c.prefix}a.jpg`,c.context),e=>e.status===409);
  const broken=load('lib/uploadPolicy.ts',{'@/lib/db':{withFreshDatabaseClient:async()=>{throw new Error('synthetic SQL outage');}}});
  let providerCalled=false;
  const route=load('app/api/upload/route.ts',{'@/lib/uploadPolicy':broken,'@vercel/blob/client':{handleUpload:async o=>{await o.onBeforeGenerateToken(`${c.prefix}a.jpg`,c.context,false);providerCalled=true;}}});
- assert.equal((await route.POST(new Request('http://localhost/api/upload',{method:'POST',headers:{origin:'http://localhost','content-type':'application/json'},body:JSON.stringify({type:'blob.generate-client-token',payload:{pathname:`${c.prefix}a.jpg`,clientPayload:c.context}})}))).status,503);
+ assert.equal((await route.POST(new Request('http://localhost/api/upload',{method:'POST',headers:{origin:'http://localhost',cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({type:'blob.generate-client-token',payload:{pathname:`${c.prefix}a.jpg`,clientPayload:c.context}})}))).status,503);
  assert.equal(providerCalled,false);
 });
 test('IP binding uses only the trusted Vercel header, not caller X-Forwarded-For',async()=>{
  await reset(); const old=process.env.VERCEL;process.env.VERCEL='1';
- const request=ip=>new Request('http://localhost/api/upload',{headers:{origin:'http://localhost','x-vercel-forwarded-for':ip,'x-forwarded-for':'attacker-controlled'}});
+ const request=ip=>new Request('http://localhost/api/upload',{headers:{origin:'http://localhost',cookie:sessionCookie,'x-vercel-forwarded-for':ip,'x-forwarded-for':'attacker-controlled'}});
  try {
   const c=await policy.createUploadContext(request('192.0.2.1'),{purpose:'checkout',product:'simpson'});
   await assert.rejects(policy.reserveUpload(request('192.0.2.2'),`${c.prefix}a.jpg`,c.context),e=>e.status===403);
@@ -226,7 +246,7 @@ test('depot/poster need paid legitimate orders; admin needs real admin authentic
  // Exercise the actual upload handler with a mocked provider only.
  const {POST}=load('app/api/upload/route.ts',{'@vercel/blob/client':blobMock,'@/lib/uploadPolicy':policy});
  for(const c of [depot,poster,admin]) {
-  const response=await POST(new Request('http://localhost/api/upload',{method:'POST',headers:{origin:'http://localhost','content-type':'application/json'},body:JSON.stringify({type:'blob.generate-client-token',payload:{pathname:`${c.prefix}photo.jpg`,clientPayload:c.context}})}));
+  const response=await POST(new Request('http://localhost/api/upload',{method:'POST',headers:{origin:'http://localhost',cookie:sessionCookie,'content-type':'application/json'},body:JSON.stringify({type:'blob.generate-client-token',payload:{pathname:`${c.prefix}photo.jpg`,clientPayload:c.context}})}));
   assert.equal(response.status,200);
  }
  await db`UPDATE orders SET paid_at=NULL`;

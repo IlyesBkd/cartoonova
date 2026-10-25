@@ -68,7 +68,7 @@ for (const scenario of scenarios) for(const kind of ['gift','portrait']) test(`$
    assert.deepEqual(offers.map(o=>o.price),scenario.denominations);
    for(let i=0;i<offers.length;i++){
     const text=await page.locator('.bon-achat__montants button').nth(i).innerText();
-    assert.equal(text, new Intl.NumberFormat(scenario.locale,{style:'currency',currency:scenario.currency,maximumFractionDigits:0}).format(offers[i].price));
+    assert.equal(text, new Intl.NumberFormat(scenario.locale,{style:'currency',currency:scenario.currency,maximumFractionDigits:0}).format(offers[i].price) + ` (${scenario.currency})`);
     assert.equal(offers[i].shippingDetails.shippingRate.value,0);
    }
   }else{
@@ -148,7 +148,7 @@ test('GBP portrait: only publish offers from the exact approved grid visible in 
 test('GBP gift: real hydrated page JSON-LD prices equal visible denomination buttons',async()=>{
  const {browser,page,errors}=await open({currency:'GBP'});try{
   await page.waitForFunction(()=>document.querySelector('#currency').textContent==='GBP');
-  assert.deepEqual((await page.locator('.bon-achat__montants button').allTextContents()).map(s=>s.replace(/\s/g,' ')),['20 £GB','35 £GB','50 £GB']);
+  assert.deepEqual((await page.locator('.bon-achat__montants button').allTextContents()).map(s=>s.replace(/\s/g,' ')),['20 £GB (GBP)','35 £GB (GBP)','50 £GB (GBP)']);
   const [product]=await products(page);assert.ok(product);assert.deepEqual(product.offers.map(o=>o.price),[20,35,50]);assert.ok(product.offers.every(o=>o.priceCurrency==='GBP'&&o.shippingDetails.shippingRate.currency==='GBP'&&o.shippingDetails.shippingRate.value===0));assert.deepEqual(errors,[]);
  }finally{await browser.close();}
 });

@@ -905,7 +905,10 @@
     "modifier": "Modifier",
     "payer": "Payer {prix}",
     "paiementEnCours": "Paiement en cours…",
-    "conditions": "Valable 12 mois, utilisable en plusieurs fois, dans la devise d'achat. Non remboursable en espèces. Il reste au moins 1 à payer sur chaque commande ; le solde restant reste utilisable.",
+    "conditions": "Valable 12 mois à compter de l’achat, en une ou plusieurs commandes dans la devise d’achat. Le solde non utilisé reste disponible jusqu’à la date d’expiration initiale. Non échangeable contre des espèces.",
+    "minimum": "Le bénéficiaire paie au moins {minimum} sur chaque commande, même si le bon pourrait tout couvrir. Le montant à payer peut être plus élevé si le solde ne couvre pas la commande.",
+    "minimumLegal": "Le bénéficiaire paie au moins 1 unité de la devise d’achat par commande ({devises}, selon la devise). Ce montant peut être plus élevé si le solde ne couvre pas la commande.",
+    "exemple": "Exemple illustratif, pas un tarif de portrait : tu achètes un bon de {achat}. Pour une commande hypothétique de {commande} dans la même devise, le bon prend en charge {utilise} et le bénéficiaire paie {paiement}. Il reste {reste} sur le bon, utilisable avant son expiration initiale, 12 mois après l’achat.",
     "erreurEmail": "Indique une adresse e-mail valide.",
     "erreur": "Le paiement n'a pas pu être préparé. Réessaie dans un instant."
   },

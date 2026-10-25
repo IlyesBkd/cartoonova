@@ -905,7 +905,10 @@
     "modifier": "Wijzigen",
     "payer": "{prix} betalen",
     "paiementEnCours": "Betaling bezig…",
-    "conditions": "12 maanden geldig, in meerdere keren te gebruiken, in de valuta van aankoop. Niet inwisselbaar voor geld. Per bestelling blijft minstens 1 te betalen; het resterende saldo blijft bruikbaar.",
+    "conditions": "Geldig tot 12 maanden na aankoop, voor één of meer bestellingen in de aankoopvaluta. Ongebruikt tegoed blijft beschikbaar tot de oorspronkelijke vervaldatum. Niet inwisselbaar voor contant geld.",
+    "minimum": "De ontvanger betaalt per bestelling minstens {minimum}, ook als de bon alles zou kunnen dekken. Het te betalen bedrag kan hoger zijn als het tegoed niet voldoende is.",
+    "minimumLegal": "De ontvanger betaalt per bestelling minstens 1 eenheid van de aankoopvaluta ({devises}, afhankelijk van de valuta). Het te betalen bedrag kan hoger zijn als het tegoed niet voldoende is.",
+    "exemple": "Rekenvoorbeeld, geen portretprijs: je koopt een bon van {achat}. Bij een denkbeeldige bestelling van {commande} in dezelfde valuta dekt de bon {utilise} en betaalt de ontvanger {paiement}. Er blijft {reste} op de bon staan, te gebruiken vóór de oorspronkelijke vervaldatum, 12 maanden na aankoop.",
     "erreurEmail": "Vul een geldig e-mailadres in.",
     "erreur": "De betaling kon niet worden voorbereid. Probeer het zo opnieuw."
   },

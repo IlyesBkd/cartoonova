@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import { runtimeSchemaBootstrapEnabled, sql } from "@/lib/db";
 import { consumePromoCode } from "@/lib/promoCodes";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
+import { validateCheckoutPhotoOwnership } from "@/lib/photoOwnership";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
 import { toEUR } from "@/lib/currency";
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
 
     /* Les photos sont nettoyees, plus exigees : la commande peut naitre sans,
        et le client les depose apres paiement par un lien signe. Ce qui reste
-       verrouille, c'est leur forme — voir `lib/orderPhotos.ts`. */
+       verrouille, c'est leur forme et leur appartenance à la session de dépôt. */
     const photos = parsePhotoUrls(photoUrls);
 
     /* Le cookie d'origine est modifiable par le visiteur : on ne recopie que
@@ -119,6 +120,8 @@ export async function POST(req: NextRequest) {
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });
     }
+    const ownershipError = await validateCheckoutPhotoOwnership(req, photos);
+    if (ownershipError) return NextResponse.json(ownershipError, { status: 403 });
 
     await ensureOrderPromoSchema();
 

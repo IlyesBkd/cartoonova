@@ -905,7 +905,10 @@
     "modifier": "Change",
     "payer": "Pay {prix}",
     "paiementEnCours": "Processing payment…",
-    "conditions": "Valid for 12 months, usable over several orders, in the purchase currency. Not redeemable for cash. At least 1 remains to pay on each order; any remaining balance stays usable.",
+    "conditions": "Valid for 12 months from purchase, over one or more orders in the purchase currency. Unused credit remains available until the original expiry date. Not redeemable for cash.",
+    "minimum": "The recipient pays at least {minimum} on every order, even if the gift card could cover it all. They may pay more if the balance does not cover the order.",
+    "minimumLegal": "The recipient pays at least 1 unit of the purchase currency per order ({devises}, depending on the currency). They may pay more if the balance does not cover the order.",
+    "exemple": "Illustration, not a portrait price: you buy a gift card worth {achat}. For a hypothetical order of {commande} in the same currency, the card covers {utilise} and the recipient pays {paiement}. The card has {reste} left to use before its original expiry, 12 months after purchase.",
     "erreurEmail": "Please enter a valid email address.",
     "erreur": "We couldn't prepare the payment. Please try again in a moment."
   },

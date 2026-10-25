@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
 import { reservePromoForCheckout, releaseExpiredPromoReservations } from "@/lib/promoReservations";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
+import { validateCheckoutPhotoOwnership } from "@/lib/photoOwnership";
 import { OPTIONS_PAYANTES, parseOrderPricingInput } from "@/lib/pricing";
 import { LANGS } from "@/lib/email-i18n";
 import { signalerPanne } from "@/lib/alerteServeur";
@@ -20,11 +21,13 @@ export async function POST(req: NextRequest) {
 
     /* Les photos sont nettoyees mais plus exigees : une commande peut naitre
        sans, le client les depose apres paiement (voir `lib/orderPhotos.ts`).
-       Le nettoyage reste — seules des URL https du stockage distant passent. */
+       Les URL doivent appartenir au stockage ET à la session opaque de dépôt. */
     const photos = parsePhotoUrls(photoUrls);
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });
     }
+    const ownershipError = await validateCheckoutPhotoOwnership(req, photos);
+    if (ownershipError) return NextResponse.json(ownershipError, { status: 403 });
 
     // Le montant n'est plus accepte depuis le navigateur : il est recalcule
     // ici a partir des prix en base, sinon n'importe qui pourrait payer 1 €

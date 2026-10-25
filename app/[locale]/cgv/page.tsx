@@ -5,6 +5,7 @@ import { pagesLegales } from "@/lib/legal";
 import PageLegale from "@/components/PageLegale";
 import JsonLd from "@/components/JsonLd";
 import { filAriane, pageWeb } from "@/lib/donneesStructurees";
+import { currencies } from "@/lib/currency";
 
 const CHEMIN = "/cgv";
 
@@ -20,7 +21,18 @@ export default async function CGV({ params }: { params: Promise<{ locale: string
   const { locale } = await params;
   setRequestLocale(locale);
   const textes = pagesLegales(locale);
-  const document = textes.cgv;
+  const tBon = await getTranslations({ locale, namespace: "bonCadeau" });
+  // L'article conserve ses clauses de vente et de retractation. Seule la
+  // formulation du solde est partagee avec la page d'achat, dans les dix langues.
+  const document = {
+    ...textes.cgv,
+    sections: textes.cgv.sections.map((section) => section.titre.includes("9 bis") ? {
+      ...section,
+      blocs: section.blocs.map((bloc, index) => index === 1
+        ? `${tBon("conditions")} ${tBon("minimumLegal", { devises: currencies.map((devise) => `1 ${devise}`).join(" / ") })}`
+        : bloc),
+    } : section),
+  };
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const url = urlAbsolue(locale, CHEMIN);
   return (
