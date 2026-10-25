@@ -719,7 +719,7 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
  * son fichier.
  *
  */
-async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed: number }> {
+async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed: number; deferred: number }> {
   /* Cette tache passe en premier — c'est la seule que le client attend
      vraiment. Elle ne doit donc surtout pas emporter les quatre autres avec
      elle : une lecture qui echoue est comptee, pas propagee. */
@@ -733,10 +733,12 @@ async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed
   let sent = 0;
   let failed = 0;
 
+  let deferred = 0;
   for (const commande of commandes) {
     try {
-      await envoyerImageFinale(commande);
-      sent++;
+      const result = await envoyerImageFinale(commande);
+      if (result.deferredUntil) deferred++;
+      else sent++;
     } catch (error: unknown) {
       /* Le rendez-vous reste pose : `markFinalImageSent` n'est atteint qu'apres
          un envoi reussi, donc la commande repassera demain. Un portrait livre
@@ -750,7 +752,7 @@ async function envoyerImagesFinalesProgrammees(): Promise<{ sent: number; failed
     }
   }
 
-  return { sent, failed };
+  return { sent, failed, deferred };
 }
 
 export async function GET(req: NextRequest) {

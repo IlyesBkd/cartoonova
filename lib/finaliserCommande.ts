@@ -11,7 +11,6 @@ import { attendDesPhotos } from "@/lib/orderPhotos";
 import { lireConsigne, pourDiscord } from "@/lib/consigneClient";
 import { lienEmail } from "./utmEmail";
 import { formatPrix } from "@/lib/i18n/relances";
-import { debiterBonCadeau } from "./promoCodes";
 import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 import { envoyerConversionChatgpt } from "@/lib/conversionsChatgpt";
@@ -260,14 +259,9 @@ export async function finaliserCommande(
 
   console.log(`[finaliser] commande ${order.id} finalisée par ${source}`);
 
-  /* Bon cadeau : le solde se debite ICI, une fois le paiement acquis — pas a
-     la creation de la commande, ou un paiement abandonne l'aurait consomme.
-     Sans effet sur un code promo classique. */
-  if (order.promo_code && order.discount_amount) {
-    await debiterBonCadeau(order.promo_code, Number(order.discount_amount)).catch((erreur) =>
-      console.error("[finaliser] débit du bon cadeau impossible:", order.promo_code, erreur)
-    );
-  }
+  // Credit + quota were consumed by the orders paid_at trigger in the same
+  // SQL transaction as PAID and the durable confirmation intent. Never debit
+  // here: a crash/retry after PAID must not lose or duplicate consumption.
 
   await Promise.all([
     drainerEmails(`order:${order.id}`, 1),

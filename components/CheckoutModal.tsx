@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { lireOrigine } from "@/lib/origineVisite";
 import {
   loadStripe,
@@ -659,7 +659,13 @@ export default function CheckoutModal({
   const [addressLine2, setAddressLine2] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [countryCode, setCountryCode] = useState("FR");
+  // La fiche charge cette modale avec ssr: false : le cookie est disponible
+  // des son premier rendu, sans changer le HTML pendant une hydratation.
+  const [countryCode, setCountryCode] = useState(() => {
+    const detected = typeof document === "undefined" ? undefined
+      : document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1]?.toUpperCase();
+    return detected && COUNTRIES.some((c) => c.code === detected) ? detected : "FR";
+  });
   /* Suggestions d'adresse : actives pendant la frappe dans le champ adresse,
      coupees des qu'une proposition est choisie ou que le champ est quitte. */
   const locale = useLocale();
@@ -680,7 +686,7 @@ export default function CheckoutModal({
     mesure(MESURES.adresseSuggeree, { country: countryCode, style: orderConfig.style });
     document.getElementById("checkout-adresse2")?.focus();
   };
-  const [phonePrefix, setPhonePrefix] = useState("+33");
+  const [phonePrefix, setPhonePrefix] = useState(() => getCallingCode(countryCode));
   const [phone, setPhone] = useState("");
   const [formError, setFormError] = useState("");
   const tCountry = useTranslations("checkout.countries");
@@ -715,15 +721,6 @@ export default function CheckoutModal({
   const [promoOuvert, setPromoOuvert] = useState(false);
   const promoVisible = promoOuvert || Boolean(applied) || Boolean(promoError);
 
-  // Prefill country/phone prefix from the IP-detected country cookie
-  useEffect(() => {
-    const detected = document.cookie.match(/(?:^| )cartoonova_country=([^;]+)/)?.[1]?.toUpperCase();
-    if (detected && COUNTRIES.some((c) => c.code === detected)) {
-      setCountryCode(detected);
-      setPhonePrefix(getCallingCode(detected));
-    }
-  }, []);
-
   /* Comparaison sur la cle du support, pas sur son libelle : `printOption` est
      traduit, et vaut "Digitale" en italien. La comparaison au mot "Digital"
      echouait donc, et le client italien devait remplir nom, adresse, ville,
@@ -733,26 +730,26 @@ export default function CheckoutModal({
   const { currency, formatRaw: formatPrice } = useCurrency();
   /* Lue dans l'effet d'ouverture sans en devenir une dependance, comme la configuration. */
   const deviseCourante = useRef(currency);
-  deviseCourante.current = currency;
-
   const configCourante = useRef(orderConfig);
-  configCourante.current = orderConfig;
+  useLayoutEffect(() => {
+    deviseCourante.current = currency;
+    configCourante.current = orderConfig;
+  }, [currency, orderConfig]);
 
   /** Signature du montant pour lequel `clientSecret` a ete cree, "" si aucun. */
   const signaturePreparee = useRef("");
   /** Numero de la derniere requete lancee : une reponse plus ancienne est ignoree. */
   const numeroRequete = useRef(0);
 
-  // Reset on open/close + track modal open
-  useEffect(() => {
+  // Ajuster uniquement l'etat de cette modale avant de rendre sa fermeture.
+  const [ouverturePrecedente, setOuverturePrecedente] = useState(open);
+  if (ouverturePrecedente !== open) {
+    setOuverturePrecedente(open);
     if (!open) {
       setStep("info");
       setClientSecret("");
       setSignatureSecret("");
-      // Le secret prepare meurt avec la modale : rouverte, la commande peut
-      // avoir change de support ou de devise.
-      signaturePreparee.current = "";
-      numeroRequete.current++;
+
       setFormError("");
       setPromoOuvert(false);
       setPromoInput("");
@@ -764,6 +761,14 @@ export default function CheckoutModal({
       setEmailDestinataire("");
       setDateRemise("");
       setPosterAjoute(false);
+    }
+  }
+
+  // Invalider les requetes fermees et mesurer uniquement les ouvertures.
+  useEffect(() => {
+    if (!open) {
+      signaturePreparee.current = "";
+      numeroRequete.current++;
       return;
     }
     /* Lu dans une reference : `orderConfig` est un objet neuf a chaque rendu
@@ -801,7 +806,9 @@ export default function CheckoutModal({
      `step` est lu dans une reference : le gestionnaire de fermeture est fige
      a la premiere ouverture et lirait sinon toujours "info". */
   const etapeCourante = useRef(step);
-  etapeCourante.current = step;
+  useLayoutEffect(() => {
+    etapeCourante.current = step;
+  }, [step]);
 
   const fermer = useCallback(() => {
     if (etapeCourante.current !== "success") {

@@ -15,6 +15,7 @@ import { LANGS } from "@/lib/email-i18n";
 import { signalerPanne } from "@/lib/alerteServeur";
 import { codePostalValide } from "@/lib/codePostal";
 import { estOccasion } from "@/lib/occasions";
+import { validerLivraisonCadeau } from "@/lib/livraisonCadeau";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
@@ -80,6 +81,17 @@ export async function POST(req: NextRequest) {
     if (!emailValide(email)) {
       return NextResponse.json({ error: "Adresse e-mail invalide." }, { status: 400 });
     }
+    if (gift != null) {
+      if (typeof gift !== "object" || Array.isArray(gift)) {
+        return NextResponse.json({ error: "Options cadeau invalides." }, { status: 400 });
+      }
+      try {
+        validerLivraisonCadeau({ gift });
+      } catch {
+        return NextResponse.json({ error: "Adresse, date ou message cadeau invalide." }, { status: 400 });
+      }
+    }
+
     /* Meme controle que la caisse, ici aussi pour le paiement express dont
        l'adresse vient du portefeuille. Seulement pour un tirage, et seulement
        si le client a transmis le code pays (les anciennes versions de la page
@@ -156,7 +168,7 @@ export async function POST(req: NextRequest) {
       gift && typeof gift === "object"
         ? {
             message: texte(gift.message, 300),
-            recipientEmail: texte(gift.recipientEmail, 160),
+            recipientEmail: texte(gift.recipientEmail, 254),
             deliverAfter: /^\d{4}-\d{2}-\d{2}$/.test(String(gift.deliverAfter ?? ""))
               ? String(gift.deliverAfter)
               : null,

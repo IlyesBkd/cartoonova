@@ -1,4 +1,4 @@
-import { markFinalImageSent, setOrderLastOutboundMessageId } from "./db";
+import { markFinalImageSent, setOrderLastOutboundMessageId, programmerEnvoiImageFinale } from "./db";
 import { finalImageEmail, avisLiens, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
 import { SITE_URL } from "./site";
@@ -8,6 +8,7 @@ import { MESURES } from "./evenementsMesure";
 import { infosParrainage } from "./parrainage";
 import { parrainageTextes } from "./i18n/relances";
 import { envoyerEmail } from "@/lib/envoiEmail";
+import { optionsLivraisonCadeau, echapperMessageCadeau, validerLivraisonCadeau } from "./livraisonCadeau";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -25,6 +26,9 @@ export interface DestinataireImageFinale {
   customer_name: string | null;
   detected_country: string | null;
   final_image_url: string;
+  langue?: string | null;
+  /** Canonical saved options, required on every delivery path (including cron). */
+  options: unknown;
 }
 
 /**
@@ -37,20 +41,33 @@ export interface DestinataireImageFinale {
  */
 export async function envoyerImageFinale(
   order: DestinataireImageFinale
-): Promise<{ id: string | null }> {
+): Promise<{ id: string | null; deferredUntil?: string }> {
   const lang = langueCommande(order);
   const t = finalImageEmail[lang];
+  const options = optionsLivraisonCadeau(order.options);
+  validerLivraisonCadeau(options);
+  const gift = options?.gift;
+  // The promise is a UTC calendar day, not the buyer's or server's timezone.
+  // A deferred gift is aligned with the daily cron at 09:00 UTC.
+  if (gift?.deliverAfter && gift.deliverAfter > new Date().toISOString().slice(0, 10)) {
+    const date = new Date(`${gift.deliverAfter}T09:00:00.000Z`);
+    await programmerEnvoiImageFinale(order.id, date);
+    return { id: null, deferredUntil: date.toISOString() };
+  }
+  const destinataire = gift?.recipientEmail?.trim() || order.customer_email;
+  const tiers = destinataire.toLowerCase() !== order.customer_email.toLowerCase();
   const ref = order.id.slice(0, 8);
   /* Les cadeaux offerts (fond d'ecran, avatar, carte a imprimer) : la page
      s'ouvre une fois la commande marquee livree, ce qui suit cet envoi. */
-  const lienBonus = `${SITE_URL}/bonus/${orderTrackingToken(order.id)}`;
+  const token = tiers ? null : orderTrackingToken(order.id);
+  const lienBonus = `${SITE_URL}/bonus/${token}`;
 
   /* Le code ami se montre ici parce que c'est le moment ou le client est le
      plus content de nous : il vient de decouvrir son portrait. Un echec de
      creation ne retient pas la livraison — le bloc disparait, c'est tout. */
   let parrainage: { code: string; recompense: string } | null = null;
   try {
-    parrainage = await infosParrainage(order.customer_email, lang);
+    if (!tiers) parrainage = await infosParrainage(order.customer_email, lang);
   } catch (erreur) {
     console.error("[IMAGE-FINALE] code de parrainage indisponible:", order.id, erreur);
   }
@@ -58,7 +75,7 @@ export async function envoyerImageFinale(
 
   const result = await envoyerEmail({
     from: EXPEDITEUR,
-    to: [order.customer_email],
+    to: [destinataire],
     replyTo: SUPPORT_EMAIL,
     subject: t.subject,
     html: `
@@ -68,11 +85,12 @@ export async function envoyerImageFinale(
             ${t.title}
           </h1>
           <p style="font-size: 16px; text-align: center; margin: 0 0 30px 0; color: #000;">
-            ${t.greeting(order.customer_name)}
+            ${t.greeting(tiers ? null : order.customer_name)}
           </p>
           <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #555;">
             ${t.ready(ref)}
           </p>
+          ${gift?.message ? `<p style="white-space: pre-wrap; text-align: center;">${echapperMessageCadeau(gift.message)}</p>` : ""}
           <div style="text-align: center; margin: 20px 0;">
             <img src="${order.final_image_url}" alt="Cartoonova" style="max-width: 100%; border: 3px solid #000; border-radius: 12px; box-shadow: 6px 6px 0px rgba(0,0,0,1);" />
           </div>
@@ -83,15 +101,15 @@ export async function envoyerImageFinale(
             <a href="${order.final_image_url}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
               ${t.download}
             </a>
-            <div style="margin-top: 14px;">
+            ${!tiers ? `<div style="margin-top: 14px;">
               <a href="${lienBonus}" target="_blank" style="display: inline-block; background: #fff; color: #000; font-weight: 900; padding: 12px 26px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px;">
                 🎁 ${bonusLiens[lang].email}
               </a>
             </div>
             <p style="font-size: 14px; margin: 14px 0 0; color: #333;">
               ${avisLiens[lang].texte}
-              <a href="${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}" target="_blank" style="color: #000; font-weight: bold;">${avisLiens[lang].bouton} →</a>
-            </p>
+              <a href="${SITE_URL}/${lang}/avis/nouveau?c=${token}" target="_blank" style="color: #000; font-weight: bold;">${avisLiens[lang].bouton} →</a>
+            </p>` : ""}
           </div>
           <!-- L'invitation a la retouche etait en gris, 14px, sous le bouton :
                la place qu'on donne aux mentions legales. Elle porte pourtant la
@@ -137,7 +155,7 @@ export async function envoyerImageFinale(
   /* L'envoi compte autant que le clic : sans denominateur,
      un taux d'ouverture n'est pas un taux. */
   await mesureServeur(MESURES.emailEnvoye, {
-    identifiant: order.customer_email,
+    identifiant: destinataire,
     proprietes: { campagne: "image_finale" },
   }).catch(() => {});
 

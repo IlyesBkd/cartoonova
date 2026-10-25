@@ -168,33 +168,13 @@ export async function validatePromoCode(
   return { ok: true, code: promo.code, discount };
 }
 
-/** Increment atomique, borne par max_uses : deux commandes simultanees ne peuvent pas depasser le quota. */
-export async function consumePromoCode(code: string): Promise<void> {
-  await ensurePromoSchema();
-  await sql`
-    UPDATE promo_codes
-    SET used_count = used_count + 1
-    WHERE code = ${normalizeCode(code)}
-      AND (max_uses IS NULL OR used_count < max_uses)
-  `;
-}
-
-/**
- * Debite un bon cadeau apres paiement. Atomique et borne : deux commandes
- * simultanees ne peuvent pas faire passer le solde sous zero. Sans effet sur
- * un code promo classique (`solde` null).
- *
- * Appele depuis `finaliserCommande`, qui ne s'execute qu'une fois par
- * commande : le debit ne peut donc pas etre compte deux fois.
+/** @deprecated Kept for order/create's legacy callback. PENDING is not a use.
+ * Consumption now belongs to the transactional orders paid_at trigger installed
+ * by migrations/20261025_promo_reservations.sql, keyed by PaymentIntent.
  */
-export async function debiterBonCadeau(code: string, montant: number): Promise<void> {
-  if (!(montant > 0)) return;
-  await ensurePromoSchema();
-  await sql`
-    UPDATE promo_codes
-    SET solde = GREATEST(solde - ${montant}, 0)
-    WHERE code = ${normalizeCode(code)} AND solde IS NOT NULL
-  `;
+export async function consumePromoCode(_code: string): Promise<void> {
+  // Deliberately no SQL: retries and abandoned orders must not debit a quota.
+  void _code;
 }
 
 export async function createPromoCode(input: {

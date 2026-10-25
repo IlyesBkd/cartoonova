@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { uploadImage } from "@/lib/uploadClient";
 import dynamic from "next/dynamic";
 
@@ -18,6 +18,8 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { useProductTracking } from "@/hooks/useProductTracking";
 import { computeOrderSubtotal, computeShipping, type PrintKey } from "@/lib/pricing";
 import type { Prices } from "@/lib/types";
+import { loadProductPrices, PRICE_MESSAGES } from "@/lib/productPrices";
+import type { Currency } from "@/lib/currency";
 import type { Decor, LegendeVisuel } from "@/lib/visuels";
 
 /* Plafond partage avec la validation serveur : deux constantes qui divergent
@@ -90,7 +92,7 @@ export interface DonneesFiche {
    personnes, animaux, decor, support, photos, note — pour que le calcul du
    prix cote serveur reste inchange. */
 
-export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
+export default function FicheProduit({ donnees, prixInitial = null }: { donnees: DonneesFiche; prixInitial?: Prices | null }) {
   const t = useTranslations("tj");
   const tp = useTranslations("product");
   const tf = useTranslations("fiche");
@@ -150,7 +152,15 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
   const enSaison = useSyncExternalStore(pasDAbonnement, saisonCartesEtCalendrier, saisonServeur);
   const carteVoeuxChoisie = enSaison && carteVoeux;
   const calendrierChoisi = enSaison && calendrier;
-  const [prix, setPrix] = useState<Prices | null>(null);
+  const [grille, setGrille] = useState<{ currency: Currency; prices: Prices | null; error: boolean } | null>(
+    () => prixInitial ? { currency: "EUR", prices: prixInitial, error: false } : null,
+  );
+  const [tentativePrix, setTentativePrix] = useState(0);
+  // Gate during render, not just in the effect: an old amount must never be
+  // formatted in the newly selected currency, even for a single frame.
+  const prix = devisePrete && grille?.currency === currency ? grille.prices : null;
+  const erreurPrix = devisePrete && grille?.currency === currency && grille.error;
+  const messagesPrix = PRICE_MESSAGES[useLocale()] ?? PRICE_MESSAGES.en;
   const [caisseOuverte, setCaisseOuverte] = useState(false);
 
   const champFichier = useRef<HTMLInputElement>(null);
@@ -162,11 +172,21 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
     // Avant la lecture du cookie, la devise est celle par defaut : la
     // demander ferait une requete pour rien, suivie de la bonne.
     if (!devisePrete) return;
-    fetch(`/api/prices?currency=${currency}`)
-      .then((r) => r.json())
-      .then(setPrix)
-      .catch(() => setPrix(null));
-  }, [currency, devisePrete]);
+    const controller = new AbortController();
+    // Reuse the approved EUR read already performed for the static page's
+    // structured data. Never seed with DEFAULT_PRICE_SET after a DB failure.
+    const lecture = currency === "EUR" && prixInitial
+      ? Promise.resolve(prixInitial)
+      : loadProductPrices(currency, { signal: controller.signal });
+    lecture
+      .then((prices) => {
+        if (!controller.signal.aborted) setGrille({ currency, prices, error: false });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setGrille({ currency, prices: null, error: true });
+      });
+    return () => controller.abort();
+  }, [currency, devisePrete, tentativePrix, prixInitial]);
 
   /* Barre d'achat collante. Le bouton reel se trouve a 1808px du haut sur
      bureau et a 2749px sur mobile : passe ce point, plus rien ne permettait
@@ -360,6 +380,7 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
      client atteignait le formulaire de carte bancaire. On l'arrete ici, en le
      ramenant a l'etape d'envoi plutot qu'en lui opposant un simple refus. */
   const ouvrirCaisse = (emplacement: "principal" | "barre_collante" = "principal") => {
+    if (!prix) return;
     trackBuyClicked(emplacement, total, currency);
 
     /* La caisse s'ouvre desormais sans photo. Le refus qui se trouvait ici
@@ -641,6 +662,15 @@ export default function FicheProduit({ donnees }: { donnees: DonneesFiche }) {
               <span>{tp("totalLabel")}</span>
               {port > 0 && <small className="panneau__port">{tp("shippingLine", { montant: formatPrix(port) })}</small>}
             </div>
+            {erreurPrix && (
+              <div className="depot__erreur" role="alert">
+                <p>{messagesPrix.unavailable}</p>
+                <button type="button" className="bouton bouton--contour" onClick={() => {
+                  setGrille(null);
+                  setTentativePrix((n) => n + 1);
+                }}>{messagesPrix.retry}</button>
+              </div>
+            )}
             <DateApercu physique={support !== "digital"} express={express} />
 
             <p className="panneau__accroche">{donnees.description}</p>

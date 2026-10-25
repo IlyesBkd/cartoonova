@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { serializeCheckoutQuote } from "@/lib/checkoutQuote";
 import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
+import { reservePromoForCheckout, releaseExpiredPromoReservations } from "@/lib/promoReservations";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { OPTIONS_PAYANTES, parseOrderPricingInput } from "@/lib/pricing";
 import { LANGS } from "@/lib/email-i18n";
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
     // Le montant n'est plus accepte depuis le navigateur : il est recalcule
     // ici a partir des prix en base, sinon n'importe qui pourrait payer 1 €
     // une commande a 59 € en modifiant la requete.
+    await releaseExpiredPromoReservations(promoCode, stripe);
     const result = await quoteOrder({ orderConfig, currency, promoCode });
 
     if ("error" in result) {
@@ -71,6 +73,19 @@ export async function POST(req: NextRequest) {
         lang: langue,
       },
     });
+
+    // Never expose a discounted secret before its credit/quota is guaranteed.
+    // On an uncertain SQL outcome, retain any hold: a failed cancellation must
+    // never make the same credit available to a second payable intent.
+    try {
+      if (!await reservePromoForCheckout(paymentIntent.id, quote)) {
+        await stripe.paymentIntents.cancel(paymentIntent.id);
+        return NextResponse.json({ error: "Ce code vient d’être réservé. Veuillez actualiser votre devis." }, { status: 409 });
+      }
+    } catch (error) {
+      await stripe.paymentIntents.cancel(paymentIntent.id).catch(() => {});
+      throw error;
+    }
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

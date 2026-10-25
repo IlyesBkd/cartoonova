@@ -85,7 +85,13 @@ before(async () => {
     './db': { getPricesForCurrency: async () => ({ ...DEFAULT_PRICE_SET }) },
     './promoCodes': { validatePromoCode: async () => ({ ok: true, discount: 1, code: 'TEST' }) },
   });
-  CHECKOUT = loadTs('app/api/checkout/route.ts', { ...replacements, '@/lib/orderQuote': orderQuote }).POST;
+  CHECKOUT = loadTs('app/api/checkout/route.ts', { ...replacements, '@/lib/orderQuote': orderQuote,
+    // This suite isolates quote binding; real reservations have PostgreSQL coverage separately.
+    '@/lib/promoReservations': {
+      reservePromoForCheckout: async () => true,
+      releaseExpiredPromoReservations: async () => {},
+    },
+  }).POST;
 });
 
 after(async () => {
@@ -267,4 +273,22 @@ test('paid options, discount and shipping are delivered from the frozen quote on
   assert.equal(Number(order.discount_amount), 1);
   assert.equal(order.promo_code, 'TEST');
   assert.equal(Number(order.total_price), snapshot.amount / 100);
+});
+
+
+test('malformed gift instructions are refused before an order is recorded', async () => {
+  const invalid = [
+    { recipientEmail: 'not-an-email' },
+    { deliverAfter: '2026-02-30' },
+    { deliverAfter: 'tomorrow' },
+    { message: { text: 'not a string' } },
+    'not an object',
+    [],
+  ];
+  for (const [i, gift] of invalid.entries()) {
+    const id = `pi_invalid_gift_${i}`;
+    const response = await POST(request(id, { gift }));
+    assert.equal(response.status, 400, `gift variant ${i}`);
+    assert.equal((await db`SELECT id FROM orders WHERE payment_intent_id = ${id}`).length, 0);
+  }
 });

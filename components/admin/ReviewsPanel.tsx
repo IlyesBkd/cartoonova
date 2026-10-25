@@ -19,26 +19,36 @@ const STATUTS: Record<StatutAvis, { label: string; classe: string }> = {
  */
 export default function ReviewsPanel({ password }: { password: string }) {
   const [avis, setAvis] = useState<Avis[]>([]);
-  const [chargement, setChargement] = useState(false);
+  const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
 
-  const charger = useCallback(async () => {
+  const [motDePasseCharge, setMotDePasseCharge] = useState(password);
+  if (motDePasseCharge !== password) {
+    setMotDePasseCharge(password);
     setChargement(true);
     setErreur("");
-    try {
-      const res = await fetch("/api/reviews", { headers: { "x-admin-password": password } });
-      if (!res.ok) throw new Error("load_failed");
-      setAvis(await res.json());
-    } catch {
-      setErreur("Impossible de charger les avis.");
-    } finally {
-      setChargement(false);
-    }
-  }, [password]);
+  }
+
+  const charger = useCallback(() =>
+    fetch("/api/reviews", { headers: { "x-admin-password": password } })
+      .then((res) => {
+        if (!res.ok) throw new Error("load_failed");
+        return res.json();
+      })
+      .then(setAvis)
+      .catch(() => setErreur("Impossible de charger les avis."))
+      .finally(() => setChargement(false)),
+  [password]);
 
   useEffect(() => {
     charger();
   }, [charger]);
+
+  const recharger = () => {
+    setChargement(true);
+    setErreur("");
+    return charger();
+  };
 
   const changerStatut = async (id: number, statut: StatutAvis) => {
     // Mise a jour optimiste : l'aller-retour reseau ne doit pas donner
@@ -53,7 +63,7 @@ export default function ReviewsPanel({ password }: { password: string }) {
       if (!res.ok) throw new Error("patch_failed");
     } catch {
       setErreur("La modification n'a pas été enregistrée.");
-      charger();
+      recharger();
     }
   };
 
@@ -66,7 +76,7 @@ export default function ReviewsPanel({ password }: { password: string }) {
           {avis.length} avis · {enAttente} en attente
         </p>
         <button
-          onClick={charger}
+          onClick={recharger}
           disabled={chargement}
           className="px-3 py-2 text-sm font-semibold bg-white border border-gray-300 rounded-lg"
         >

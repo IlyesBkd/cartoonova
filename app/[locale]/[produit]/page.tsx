@@ -18,7 +18,7 @@ import { visuelsProduit } from "@/lib/visuels";
 import { MINIMUM_BALISAGE_AVIS } from "@/lib/reviewsDb";
 import { contenuFicheEnCache, prixEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache";
 import { offresPortrait } from "@/lib/donneesStructurees";
-import { DEFAULT_PRICE_SET } from "@/lib/types";
+import { DEFAULT_PRICE_SET, type Prices } from "@/lib/types";
 import FicheProduit, { type DonneesFiche } from "./FicheProduit";
 import { OG_LOCALE, alternatesPour, couper, titreSeo } from "@/lib/seo";
 
@@ -110,8 +110,10 @@ export default async function Page({
 
   /* Grille tarifaire, pour la fourchette du balisage Product. */
   let prix = DEFAULT_PRICE_SET;
+  let prixInitial: Prices | null = null;
   try {
     prix = await prixEnCache("EUR");
+    prixInitial = prix;
   } catch {
     // Repli : la fiche reste servie meme si la base est injoignable.
   }
@@ -234,7 +236,7 @@ export default async function Page({
           }),
         }}
       />
-      <FicheProduit donnees={donnees} />
+      <FicheProduit donnees={donnees} prixInitial={prixInitial} />
     </>
   );
 }

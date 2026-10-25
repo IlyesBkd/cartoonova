@@ -10,30 +10,19 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { envoyerImageFinale } from "@/lib/emailImageFinale";
 import { dateEnvoiProgramme, reporterApresDateCadeau } from "@/lib/envoiProgramme";
 import { estPhysique } from "@/lib/supportCommande";
+import { optionsLivraisonCadeau, validerLivraisonCadeau, LivraisonCadeauInvalide } from "@/lib/livraisonCadeau";
 
 /**
  * Depot de l'illustration finale, et son envoi.
  *
  * Trois gestes passent par ici, distingues par `action` :
  *   - depot   (`saveOnly`)   : enregistre l'image et pose le rendez-vous d'envoi
- *   - envoi   (defaut)       : envoie maintenant, quel que soit le rendez-vous
+ *   - envoi   (defaut)       : envoie maintenant, sauf date cadeau future
  *   - report / annulation    : deplace ou retire le rendez-vous
  *
  * Le rendez-vous existe parce qu'un portrait livre dans l'heure se lit comme un
  * portrait genere dans l'heure. Le detail du calcul est dans lib/envoiProgramme.
  */
-
-/** `options` revient parfois en texte de la base selon le chemin de lecture. */
-function lireOptions(brut: unknown) {
-  if (typeof brut === "string") {
-    try {
-      return JSON.parse(brut);
-    } catch {
-      return null;
-    }
-  }
-  return brut ?? null;
-}
 
 export async function POST(req: NextRequest) {
   const refus = refuserSiPasAdmin(req);
@@ -42,10 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     const {
       orderId,
-      customerEmail,
-      customerName,
       finalImageUrl,
-      detectedCountry,
       saveOnly,
       action,
       scheduledAt,
@@ -84,9 +70,11 @@ export async function POST(req: NextRequest) {
 
       /* Une date saisie a la main reste soumise a la date du cadeau : c'est une
          promesse faite au client qui paie, pas un defaut qu'on ecrase. */
+      const options = optionsLivraisonCadeau(order.options);
+      validerLivraisonCadeau(options);
       const quand = demandee
-        ? reporterApresDateCadeau(demandee, lireOptions(order.options))
-        : dateEnvoiProgramme(new Date(), lireOptions(order.options), order.created_at);
+        ? reporterApresDateCadeau(demandee, options)
+        : dateEnvoiProgramme(new Date(), options, order.created_at);
 
       await programmerEnvoiImageFinale(orderId, quand);
       return NextResponse.json({ ok: true, scheduledAt: quand.toISOString() });
@@ -96,12 +84,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
     }
 
+    // Recipient, gift promise and language come exclusively from the saved order.
+    const order = await getOrderById(orderId);
+    if (!order) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
+    const options = optionsLivraisonCadeau(order.options);
+    validerLivraisonCadeau(options);
+
     // ── Depot de l'image ─────────────────────────────────────────────
     if (saveOnly) {
       await updateOrderFinalImage(orderId, finalImageUrl);
-
-      const order = await getOrderById(orderId);
-      const options = lireOptions(order?.options);
 
       /* Un tirage physique que le client n'a pas encore valide ne se programme
          pas tout seul. L'e-mail dit « telechargez votre portrait » ; sur une
@@ -126,15 +117,13 @@ export async function POST(req: NextRequest) {
          passe qu'une fois par jour a 09:00 UTC — une image deposee a 10 h
          partirait le lendemain. On l'envoie donc tout de suite, sauf si le
          client a demande une remise a une date de cadeau ulterieure. */
-      const dateCadeau = options?.gift?.deliverAfter ? new Date(options.gift.deliverAfter) : null;
-      if (options?.express && order && !(dateCadeau && dateCadeau > new Date())) {
+      if (options?.express) {
         const envoi = await envoyerImageFinale({
-          id: orderId,
-          customer_email: order.customer_email,
-          customer_name: order.customer_name ?? null,
-          detected_country: order.detected_country ?? null,
+          ...order,
+          options,
           final_image_url: finalImageUrl,
         });
+        if (envoi.deferredUntil) return NextResponse.json({ ok: true, saved: true, scheduledAt: envoi.deferredUntil });
         return NextResponse.json({ ok: true, saved: true, scheduledAt: null, envoyeImmediatement: true, emailId: envoi.id });
       }
 
@@ -153,24 +142,20 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Envoi immediat ───────────────────────────────────────────────
-    if (!customerEmail) {
-      return NextResponse.json({ error: "Email client manquant." }, { status: 400 });
-    }
-
     await updateOrderFinalImage(orderId, finalImageUrl);
 
     const result = await envoyerImageFinale({
-      id: orderId,
-      customer_email: customerEmail,
-      customer_name: customerName ?? null,
-      detected_country: detectedCountry ?? null,
+      ...order,
+      options,
       final_image_url: finalImageUrl,
     });
+
+    if (result.deferredUntil) return NextResponse.json({ ok: true, scheduledAt: result.deferredUntil });
 
     return NextResponse.json({ ok: true, emailId: result.id });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[POST /api/orders/send-final-image] Error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: error instanceof LivraisonCadeauInvalide ? 400 : 500 });
   }
 }

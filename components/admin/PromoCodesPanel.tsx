@@ -10,7 +10,7 @@ const labelClass = "text-xs font-semibold text-gray-500 uppercase mb-1 block";
 
 export default function PromoCodesPanel({ password }: { password: string }) {
   const [codes, setCodes] = useState<PromoCode[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -22,23 +22,33 @@ export default function PromoCodesPanel({ password }: { password: string }) {
   const [maxUses, setMaxUses] = useState("");
   const [endsAt, setEndsAt] = useState("");
 
-  const load = useCallback(async () => {
+  const [loadedPassword, setLoadedPassword] = useState(password);
+  if (loadedPassword !== password) {
+    setLoadedPassword(password);
     setLoading(true);
     setError("");
-    try {
-      const res = await fetch("/api/promo", { headers: { "x-admin-password": password } });
-      if (!res.ok) throw new Error("load_failed");
-      setCodes(await res.json());
-    } catch {
-      setError("Impossible de charger les codes.");
-    } finally {
-      setLoading(false);
-    }
-  }, [password]);
+  }
+
+  const load = useCallback(() =>
+    fetch("/api/promo", { headers: { "x-admin-password": password } })
+      .then((res) => {
+        if (!res.ok) throw new Error("load_failed");
+        return res.json();
+      })
+      .then(setCodes)
+      .catch(() => setError("Impossible de charger les codes."))
+      .finally(() => setLoading(false)),
+  [password]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const reload = () => {
+    setLoading(true);
+    setError("");
+    return load();
+  };
 
   const create = async () => {
     if (!code.trim() || saving) return;
@@ -66,7 +76,7 @@ export default function PromoCodesPanel({ password }: { password: string }) {
       setCode("");
       setMaxUses("");
       setEndsAt("");
-      await load();
+      await reload();
     } catch {
       setError("Erreur réseau.");
     } finally {
@@ -80,7 +90,7 @@ export default function PromoCodesPanel({ password }: { password: string }) {
       headers: { "Content-Type": "application/json", "x-admin-password": password },
       body: JSON.stringify({ code: target.code, active: !target.active }),
     });
-    await load();
+    await reload();
   };
 
   return (
