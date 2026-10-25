@@ -949,6 +949,7 @@
     "erreurServeur": "Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę albo napisz do nas bezpośrednio na support@cartoonova.com."
   },
   "fiche": {
+    "modifierSupport": "Zmień format : {support}",
     "etapeQui": "Kto jest na portrecie?",
     "lignePersonnes": "Osoby",
     "photoBouton": "Dodaj zdjęcie",

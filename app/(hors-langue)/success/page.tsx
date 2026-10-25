@@ -1,5 +1,6 @@
 import Stripe from "stripe";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { checkoutProofFromRequest, verifyCheckoutProof } from "@/lib/checkoutProof";
 import { getOrderByPaymentId } from "@/lib/db";
 import SuccessClient from "@/app/(hors-langue)/success/SuccessClient";
 import EtatPaiement from "@/app/(hors-langue)/success/EtatPaiement";
@@ -35,9 +36,10 @@ type Issue =
 
 /** Ce que Stripe et la base disent de ce paiement. Aucun rendu ici : le
     rendu se fait hors du try/catch (regle react-hooks/error-boundaries). */
-async function issueDuPaiement(paymentIntentId: string): Promise<Issue> {
+async function issueDuPaiement(paymentIntentId: string, proof: string): Promise<Issue> {
   try {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (!verifyCheckoutProof(paymentIntent, proof)) return { etat: "erreur" };
 
     /* Pas de finalisation en attente : elle partira du webhook Stripe a la
        confirmation. La page se relance d'elle-meme en attendant. */
@@ -106,7 +108,13 @@ export default async function SuccessPage(props: {
     return <EtatPaiement titre={t.missingTitle} texte={t.missingBody} action={boutique} />;
   }
 
-  const issue = await issueDuPaiement(paymentIntentId);
+  // Do not serialize an order, sign a link or finalize a gift before possession
+  // is checked. Duplicate cookies are ambiguous and must not authorize a read.
+  const proof = checkoutProofFromRequest({ headers: await headers() }, paymentIntentId);
+  if (!proof || !/^[a-f0-9]{64}$/.test(proof)) {
+    return <EtatPaiement titre={t.errorTitle} texte={t.errorBody} action={boutique} />;
+  }
+  const issue = await issueDuPaiement(paymentIntentId, proof);
 
   switch (issue.etat) {
     case "succes":

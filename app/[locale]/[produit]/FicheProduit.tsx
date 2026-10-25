@@ -260,6 +260,14 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
     : [];
 
   const supportChoisi = supports.find((s) => s.cle === support);
+  // Le choix existe avant les tarifs (SSR, chargement ou erreur reseau).
+  // Son libelle ne doit donc jamais dependre de leur disponibilite.
+  const libelleSupport = supportChoisi?.libelle ?? {
+    digital: tp("digital"),
+    posterSimple: tp("posterOption"),
+    canvas: tp("canvas"),
+    framed: tp("poster"),
+  }[support];
 
   /* Le second decor n'a de sens que s'il en existe au moins deux. */
   const decorSupPossible = donnees.decors.length > 1;
@@ -322,7 +330,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
     `${personnes} ${personnes > 1 ? tp("peoplePlural") : tp("peopleSingular")}`,
     animaux > 0 ? `${animaux} ${animaux > 1 ? tp("animalsPlural") : tp("animalsSingular")}` : null,
     aDesDecors ? libelleDecor(donnees.decors[decor]) : null,
-    supportChoisi?.libelle,
+    libelleSupport,
     banderole ? tp("optBanner") : null,
     decorSupChoisi ? tp("optExtraDecorRecap", { decor: libelleDecor(donnees.decors[indexSup]) }) : null,
     express ? tp("optExpressRecap") : null,
@@ -434,21 +442,25 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
    * `balayageEnCours` empeche le geste de balayage de se terminer en
    * agrandissement : sur mobile, un doigt qui glisse leve aussi un clic. */
   const [agrandi, setAgrandi] = useState(false);
+  const dialogueAgrandissement = useRef<HTMLDialogElement>(null);
   const balayageEnCours = useRef(false);
   useRetourFerme(agrandi, () => setAgrandi(false));
 
   useEffect(() => {
     if (!agrandi) return;
-    const auClavier = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setAgrandi(false);
-    };
-    window.addEventListener("keydown", auClavier);
+    const dialogue = dialogueAgrandissement.current;
+    if (!dialogue) return;
+    const declencheur = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // La top layer echappe au contexte d'empilement de la galerie sticky.
+    // showModal rend aussi le reste de la page inerte et place le focus dedans.
+    dialogue.showModal();
     // Le fond ne doit pas defiler derriere l'agrandissement.
     const avant = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      window.removeEventListener("keydown", auClavier);
+      dialogue.close();
       document.body.style.overflow = avant;
+      if (declencheur?.isConnected) declencheur.focus({ preventScroll: true });
     };
   }, [agrandi]);
 
@@ -575,11 +587,19 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
             </div>
 
             {agrandi && visuelPrincipal && (
-              <div
+              <dialog
+                ref={dialogueAgrandissement}
                 className="agrandissement"
-                role="dialog"
                 aria-modal="true"
                 aria-label={donnees.titre}
+                onCancel={(e) => { e.preventDefault(); setAgrandi(false); }}
+                onKeyDown={(e) => {
+                  // L'unique commande reste le point de tabulation, dans les deux sens.
+                  if (e.key === "Tab") {
+                    e.preventDefault();
+                    dialogueAgrandissement.current?.querySelector<HTMLButtonElement>("button")?.focus();
+                  }
+                }}
                 onClick={() => setAgrandi(false)}
               >
                 <button
@@ -598,7 +618,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
                   className="agrandissement__vue"
                   sizes="92vw"
                 />
-              </div>
+              </dialog>
             )}
 
             {/* Les vignettes etaient six <img> avec un onClick : ni focusables,
@@ -1205,8 +1225,8 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
                   {libelleDecor(donnees.decors[decor])}
                 </button>
               )}
-              <button type="button" data-cta="recap_support" onClick={() => allerA("etape-support")}>
-                {supportChoisi?.libelle}
+              <button type="button" data-cta="recap_support" aria-label={tf("modifierSupport", { support: libelleSupport })} onClick={() => allerA("etape-support")}>
+                {libelleSupport}
               </button>
             </div>
 

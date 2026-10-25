@@ -1,0 +1,125 @@
+TAP version 13
+# Subtest: product and revision uploads show the same notice in real React/intl across ten locales on mobile
+ok 1 - product and revision uploads show the same notice in real React/intl across ten locales on mobile
+  ---
+  duration_ms: 8112.7815
+  type: 'test'
+  ...
+# Subtest: ten rendered legal translations distinguish source photos and final portraits, forbid default promotion, disclose real deletion limits
+ok 2 - ten rendered legal translations distinguish source photos and final portraits, forbid default promotion, disclose real deletion limits
+  ---
+  duration_ms: 134.420313
+  type: 'test'
+  ...
+# Subtest: legacy product reassurance catalogues no longer promise unimplemented 30-day deletion
+ok 3 - legacy product reassurance catalogues no longer promise unimplemented 30-day deletion
+  ---
+  duration_ms: 17.849188
+  type: 'test'
+  ...
+# Subtest: support draft prompt states the real storage policy without claiming automatic deletion
+ok 4 - support draft prompt states the real storage policy without claiming automatic deletion
+  ---
+  duration_ms: 212.371118
+  type: 'test'
+  ...
+# Subtest: post-payment upload renders a short localised no-promotion notice and a local privacy link without consent controls
+ok 5 - post-payment upload renders a short localised no-promotion notice and a local privacy link without consent controls
+  ---
+  duration_ms: 134.991454
+  type: 'test'
+  ...
+# Subtest: approved initial EUR grid enables Commander without waiting for a prices API round trip
+ok 6 - approved initial EUR grid enables Commander without waiting for a prices API round trip
+  ---
+  duration_ms: 932.065145
+  type: 'test'
+  ...
+# {"UI":"real React / isolated browser","timeoutMs":8000,"currencyRace":"passed","retryPreservesOptions":true}
+# Subtest: real product React UI: currency race hides old grid and ignores late responses
+ok 7 - real product React UI: currency race hides old grid and ignores late responses
+  ---
+  duration_ms: 1367.179915
+  type: 'test'
+  ...
+# Subtest: gift EUR: SSR hydration and each real rendered option agree with JSON-LD
+ok 8 - gift EUR: SSR hydration and each real rendered option agree with JSON-LD
+  ---
+  duration_ms: 1237.855372
+  type: 'test'
+  ...
+# Subtest: portrait EUR: SSR hydration and each real rendered option agree with JSON-LD
+ok 9 - portrait EUR: SSR hydration and each real rendered option agree with JSON-LD
+  ---
+  duration_ms: 1275.908367
+  type: 'test'
+  ...
+# Subtest: gift GBP: SSR hydration and each real rendered option agree with JSON-LD
+ok 10 - gift GBP: SSR hydration and each real rendered option agree with JSON-LD
+  ---
+  duration_ms: 956.690004
+  type: 'test'
+  ...
+# Subtest: portrait GBP: SSR hydration and each real rendered option agree with JSON-LD
+ok 11 - portrait GBP: SSR hydration and each real rendered option agree with JSON-LD
+  ---
+  duration_ms: 1229.043474
+  type: 'test'
+  ...
+# Subtest: gift USD: SSR hydration and each real rendered option agree with JSON-LD
+ok 12 - gift USD: SSR hydration and each real rendered option agree with JSON-LD
+  ---
+  duration_ms: 893.316873
+  type: 'test'
+  ...
+# Subtest: portrait USD: SSR hydration and each real rendered option agree with JSON-LD
+ok 13 - portrait USD: SSR hydration and each real rendered option agree with JSON-LD
+  ---
+  duration_ms: 1254.878708
+  type: 'test'
+  ...
+# Subtest: no-cookie fallback is EUR in fr, GBP in en, never an EUR offer labelled GBP
+ok 14 - no-cookie fallback is EUR in fr, GBP in en, never an EUR offer labelled GBP
+  ---
+  duration_ms: 2002.34414
+  type: 'test'
+  ...
+# Subtest: portrait currency race removes stale offers, ignores late USD, and publishes no fallback on failure
+ok 15 - portrait currency race removes stale offers, ignores late USD, and publishes no fallback on failure
+  ---
+  duration_ms: 1324.718959
+  type: 'test'
+  ...
+# Subtest: failed server grid never emits fictitious default offers before a successful local API response
+ok 16 - failed server grid never emits fictitious default offers before a successful local API response
+  ---
+  duration_ms: 963.571686
+  type: 'test'
+  ...
+# Subtest: gift manual EUR → GBP → USD updates actual denominations and all offer/shipping currencies
+ok 17 - gift manual EUR → GBP → USD updates actual denominations and all offer/shipping currencies
+  ---
+  duration_ms: 918.772156
+  type: 'test'
+  ...
+# Subtest: GBP portrait: only publish offers from the exact approved grid visible in the real configurator
+ok 18 - GBP portrait: only publish offers from the exact approved grid visible in the real configurator
+  ---
+  duration_ms: 988.903488
+  type: 'test'
+  ...
+# Subtest: GBP gift: real hydrated page JSON-LD prices equal visible denomination buttons
+ok 19 - GBP gift: real hydrated page JSON-LD prices equal visible denomination buttons
+  ---
+  duration_ms: 870.19673
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15270.591834

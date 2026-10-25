@@ -7,6 +7,8 @@ import Icone from "@/components/tj/Icone";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { BreadcrumbJsonLd, FAQJsonLd } from "@/components/structured-data";
 import GiftDeadlineNote from "@/components/GiftDeadlineNote";
+import GiftPilotGuide from "@/components/GiftPilotGuide";
+import { giftPilot } from "@/lib/giftPilots";
 import { prixEnCache } from "@/lib/lecturesCache";
 import type { Prices } from "@/lib/types";
 import { GiftPricingProvider, GiftStartingPrice, GiftConfiguratorLink } from "../GiftPricing";
@@ -118,6 +120,8 @@ export default async function GiftOccasionPage({
 
   const { locale, product, occasion, occasionKey, styleName } = data;
   const t = await getTranslations({ locale, namespace: "giftPage" });
+  const pilot = giftPilot(locale, product.slug, occasionKey);
+  const faq = pilot ? [...occasion.faq, ...pilot.faq] : occasion.faq;
   const tNav = await getTranslations({ locale, namespace: "nav" });
   const tBon = await getTranslations({ locale, namespace: "bonCadeau" });
   let initialPrices: Prices | null = null;
@@ -131,6 +135,24 @@ export default async function GiftOccasionPage({
   const otherOccasions = OCCASION_KEYS.filter((key) => key !== occasionKey);
   const otherStyles = GIFT_PRODUCTS.filter((p) => p.slug !== product.slug);
 
+  const heroImage = (
+    <div style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: "var(--rayon-lg)", overflow: "hidden", boxShadow: "var(--ombre)" }}>
+      {/* `priority` parce que c'est l'element du LCP. Sans lui, le
+          navigateur ne decouvrait cette image que 3,2 s apres la fin
+          du HTML : elle est en `fill`, donc sa taille depend d'une
+          mise en page que le scanner de prechargement ne connait pas
+          encore. Mesure : LCP 5 824 ms sur ce gabarit. */}
+      <Image
+        src={product.image}
+        alt={pilot?.imageAlt ?? `${styleName} — ${occasion.label}`}
+        fill
+        priority
+        sizes="(max-width: 768px) 100vw, 50vw"
+        className="object-cover"
+      />
+    </div>
+  );
+
   return (
     <GiftPricingProvider initialPrices={initialPrices}>
       <BreadcrumbJsonLd
@@ -140,7 +162,7 @@ export default async function GiftOccasionPage({
           { name: occasion.headline(styleName), item: `${SITE_URL}/${locale}/cadeau/${slug}` },
         ]}
       />
-      <FAQJsonLd faq={occasion.faq} />
+      <FAQJsonLd faq={faq} />
 
       <main className="page-tj">
         <div className="enveloppe">
@@ -156,7 +178,7 @@ export default async function GiftOccasionPage({
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-black leading-tight mb-5 text-balance">
               {occasion.headline(styleName)}
             </h1>
-            <p style={{ color: "var(--encre-doux)", maxWidth: "56ch" }}>{occasion.intro}</p>
+            <p style={{ color: "var(--encre-doux)", maxWidth: "56ch" }}>{pilot?.intro ?? occasion.intro}</p>
             <div className="mt-6">
               <GiftDeadlineNote occasion={occasionKey} />
               <p className="mt-3 text-sm text-black/70">
@@ -167,26 +189,17 @@ export default async function GiftOccasionPage({
           </header>
 
           <div className="grid md:grid-cols-2 gap-8 items-start mb-12">
-            <div style={{ position: "relative", aspectRatio: "4 / 5", borderRadius: "var(--rayon-lg)", overflow: "hidden", boxShadow: "var(--ombre)" }}>
-              {/* `priority` parce que c'est l'element du LCP. Sans lui, le
-                  navigateur ne decouvrait cette image que 3,2 s apres la fin
-                  du HTML : elle est en `fill`, donc sa taille depend d'une
-                  mise en page que le scanner de prechargement ne connait pas
-                  encore. Mesure : LCP 5 824 ms sur ce gabarit. */}
-              <Image
-                src={product.image}
-                alt={`${styleName} — ${occasion.label}`}
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-              />
-            </div>
+            {pilot ? (
+              <figure>
+                {heroImage}
+                <figcaption className="mt-3 text-sm text-black/70">Illustration existante du catalogue. {pilot.imageCaption} Ce visuel ne documente pas un anniversaire réel.</figcaption>
+              </figure>
+            ) : heroImage}
 
             <div>
               <h2 className="text-2xl font-black text-black mb-4">{t("whyTitle")}</h2>
               <ul className="flex flex-col gap-3 mb-6">
-                {occasion.bullets.map((bullet) => (
+                {(pilot ? [...pilot.reasons, occasion.bullets[2]] : occasion.bullets).map((bullet) => (
                   <li key={bullet} className="flex gap-3 text-black/75 font-medium leading-relaxed">
                     <Icone nom="coche" taille={15} style={{ color: "var(--soleil-fonce)" }} />
                     <span>{bullet}</span>
@@ -198,6 +211,8 @@ export default async function GiftOccasionPage({
               </p>
             </div>
           </div>
+
+          {pilot && <GiftPilotGuide pilot={pilot} style={product.slug} />}
 
           <section className="cta-cadeau">
             <h2 className="text-2xl sm:text-3xl font-black text-black mb-4">{t("ctaTitle")}</h2>
@@ -220,7 +235,7 @@ export default async function GiftOccasionPage({
           <section className="mb-12">
             <h2 className="text-2xl font-black text-black mb-5">{t("faqTitle")}</h2>
             <div className="flex flex-col gap-4">
-              {occasion.faq.map((item) => (
+              {faq.map((item) => (
                 <details key={item.question} className="bloc">
                   <summary className="font-black text-black cursor-pointer">{item.question}</summary>
                   <p className="mt-3 text-black/70 font-medium leading-relaxed">{item.answer}</p>

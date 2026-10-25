@@ -949,6 +949,7 @@
     "erreurServeur": "Din besked kunne ikke sendes. Prøv igen om et øjeblik, eller skriv direkte til support@cartoonova.com."
   },
   "fiche": {
+    "modifierSupport": "Skift format : {support}",
     "etapeQui": "Hvem er med på portrættet?",
     "lignePersonnes": "Personer",
     "photoBouton": "Tilføj et foto",

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { newCheckoutProof, setCheckoutProofCookie } from "@/lib/checkoutProof";
 import Stripe from "stripe";
 import { deviseValide, montantsBon } from "@/lib/bonCadeauMontants";
 import { LANGS } from "@/lib/email-i18n";
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
     }
     const lang = (LANGS as readonly string[]).includes(body.lang) ? body.lang : "en";
 
+    const proof = newCheckoutProof();
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(montant * 100),
       currency: devise.toLowerCase(),
@@ -46,6 +48,8 @@ export async function POST(req: NextRequest) {
       excluded_payment_method_types: ["amazon_pay"],
       metadata: {
         type: "bon_cadeau",
+        checkout_proof_hash: proof.hash,
+        checkout_proof_expires_at: proof.expiresAt,
         email,
         lang,
         prenom: court(body.prenom, 40),
@@ -53,7 +57,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    return setCheckoutProofCookie(NextResponse.json({ clientSecret: paymentIntent.client_secret }), paymentIntent.id, proof.token);
   } catch (erreur) {
     await signalerPanne("creation du paiement (bon cadeau)", erreur);
     return NextResponse.json({ error: "Erreur Stripe." }, { status: 500 });

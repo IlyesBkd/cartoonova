@@ -1,6 +1,7 @@
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { matchesCheckoutConfig, readCheckoutQuote } from "@/lib/checkoutQuote";
+import { checkoutProofFromRequest, verifyCheckoutProof } from "@/lib/checkoutProof";
 import { OPTIONS_PAYANTES } from "@/lib/pricing";
 import { decrireSupport } from "@/lib/supportCommande";
 import { validerOrigine } from "@/lib/origineVisite";
@@ -123,6 +124,14 @@ export async function POST(req: NextRequest) {
     const ownershipError = await validateCheckoutPhotoOwnership(req, photos);
     if (ownershipError) return NextResponse.json(ownershipError, { status: 403 });
 
+    // Authorize before ALL order reads, including the idempotent retry path.
+    const proof = typeof paymentIntentId === "string" ? checkoutProofFromRequest(req, paymentIntentId) : null;
+    if (!proof) return NextResponse.json({ error: "Accès au paiement non autorisé." }, { status: 403 });
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (!verifyCheckoutProof(paymentIntent, proof, "portrait_order")) {
+      return NextResponse.json({ error: "Accès au paiement non autorisé." }, { status: 403 });
+    }
+
     await ensureOrderPromoSchema();
 
     // Migration: existing orders (including paid/legacy ones) are read-only on retry.
@@ -137,7 +146,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ orderId: existingOrder[0].id });
     }
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     const quote = readCheckoutQuote(paymentIntent);
     if (!quote) {
       return NextResponse.json({

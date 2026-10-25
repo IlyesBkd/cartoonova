@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { serializeCheckoutQuote } from "@/lib/checkoutQuote";
+import { newCheckoutProof, setCheckoutProofCookie } from "@/lib/checkoutProof";
 import Stripe from "stripe";
 import { quoteOrder } from "@/lib/orderQuote";
 import { reservePromoForCheckout, releaseExpiredPromoReservations } from "@/lib/promoReservations";
@@ -55,6 +56,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Montant invalide." }, { status: 400 });
     }
 
+    const proof = newCheckoutProof();
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: quote.currency.toLowerCase(),
@@ -66,6 +68,9 @@ export async function POST(req: NextRequest) {
          tableau de bord. */
       excluded_payment_method_types: ["amazon_pay"],
       metadata: {
+        type: "portrait_order",
+        checkout_proof_hash: proof.hash,
+        checkout_proof_expires_at: proof.expiresAt,
         checkout_quote: checkoutQuote,
         style: typeof style === "string" ? style.slice(0, 40) : "",
         promo_code: quote.promoCode ?? "",
@@ -90,7 +95,7 @@ export async function POST(req: NextRequest) {
       throw error;
     }
 
-    return NextResponse.json({
+    return setCheckoutProofCookie(NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       subtotal: quote.subtotal,
       shipping: quote.shipping,
@@ -99,7 +104,7 @@ export async function POST(req: NextRequest) {
       currency: quote.currency,
       promoCode: quote.promoCode,
       promoRejected: quote.promoRejected,
-    });
+    }), paymentIntent.id, proof.token);
   } catch (error) {
     await signalerPanne("creation du paiement (caisse)", error);
     return NextResponse.json({ error: "Erreur Stripe." }, { status: 500 });

@@ -29,6 +29,8 @@ let db, started = false, POST, CHECKOUT, uploadContext, uploadPolicy;
 let checkoutCount = 0;
 const effects = { promos: 0, analytics: 0, alerts: 0 };
 const intents = new Map();
+const proofCookies = new Map();
+const { newCheckoutProof, checkoutProofCookieName } = require(path.join(root, 'lib/checkoutProof.ts'));
 const digitalConfig = { format: 'portrait', people: 1, animals: 0, printKey: 'digital', banner: false, extraDecor: false, express: false, carteVoeux: false, calendrier: false };
 function intent(overrides = {}) {
   return { object: 'payment_intent', amount: 3900, currency: 'eur', metadata: {
@@ -98,13 +100,21 @@ before(async () => {
     './db': { getPricesForCurrency: async () => ({ ...DEFAULT_PRICE_SET }) },
     './promoCodes': { validatePromoCode: async () => ({ ok: true, discount: 1, code: 'TEST' }) },
   });
-  CHECKOUT = loadTs('app/api/checkout/route.ts', { ...replacements, '@/lib/orderQuote': orderQuote,
+  const checkoutHandler = loadTs('app/api/checkout/route.ts', { ...replacements, '@/lib/orderQuote': orderQuote,
     // This suite isolates quote binding; real reservations have PostgreSQL coverage separately.
     '@/lib/promoReservations': {
       reservePromoForCheckout: async () => true,
       releaseExpiredPromoReservations: async () => {},
     },
   }).POST;
+  CHECKOUT = async req => {
+    const response = await checkoutHandler(req);
+    if (response.status === 200) {
+      const body = await response.clone().json();
+      proofCookies.set(body.clientSecret.split('_secret_')[0], response.headers.get('set-cookie').split(';')[0]);
+    }
+    return response;
+  };
 });
 
 after(async () => {
@@ -114,7 +124,16 @@ after(async () => {
 });
 
 function request(paymentIntentId, overrides = {}) {
-  return { json: async () => ({ paymentIntentId, email: 'retry@example.invalid', firstName: 'Test', format: 'portrait', people: 1, animals: 0, printKey: 'digital', photoUrls: [], ...overrides }) };
+  // Existing quote/retry fixtures represent the legitimate browser. New CODE-02
+  // tests separately exercise missing/foreign proof; do not bypass the guard.
+  if (!proofCookies.has(paymentIntentId)) {
+    const proof = newCheckoutProof(), pi = intents.get(paymentIntentId) ?? intent();
+    pi.id = paymentIntentId;
+    pi.metadata = { ...pi.metadata, type: 'portrait_order', checkout_proof_hash: proof.hash, checkout_proof_expires_at: proof.expiresAt };
+    intents.set(paymentIntentId, pi);
+    proofCookies.set(paymentIntentId, `${checkoutProofCookieName(paymentIntentId)}=${proof.token}`);
+  }
+  return { headers: new Headers({ cookie: proofCookies.get(paymentIntentId) }), json: async () => ({ paymentIntentId, email: 'retry@example.invalid', firstName: 'Test', format: 'portrait', people: 1, animals: 0, printKey: 'digital', photoUrls: [], ...overrides }) };
 }
 
 const photoOrigin='https://synthetic.public.blob.vercel-storage.com';
@@ -128,7 +147,8 @@ async function browserPhoto(cookie) {
  return {cookie,url:photoOrigin+'/'+c.prefix+'photo.jpg'};
 }
 function photoRequest(body,cookie) {
- return new Request('https://localhost/api/checkout',{method:'POST',headers:{origin:'https://localhost','content-type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify(body)});
+ const cookies = [cookie, proofCookies.get(body.paymentIntentId)].filter(Boolean).join('; ');
+ return new Request('https://localhost/api/checkout',{method:'POST',headers:{origin:'https://localhost','content-type':'application/json',...(cookies?{cookie:cookies}:{})},body:JSON.stringify(body)});
 }
 test('CODE11 checkout and new orders reject another browser photo on the same IP before payment, SQL or effects',async()=>{
  const a=await browserPhoto(),b=await browserPhoto();
@@ -261,14 +281,14 @@ test('invalid, missing, wrong-type and amount/currency-mismatched snapshots fail
     const id = `pi_quote_invalid_${i}`;
     intents.set(id, intent(overrides));
     const response = await POST(request(id));
-    assert.equal(response.status, 409, `variant ${i}`);
-    assert.match((await response.json()).error, /support sans repayer/);
+    assert.equal(response.status, overrides.object === 'setup_intent' ? 403 : 409, `variant ${i}`);
+    if (response.status === 409) assert.match((await response.json()).error, /support sans repayer/);
     assert.equal((await db`SELECT id FROM orders WHERE payment_intent_id = ${id}`).length, 0);
   }
   assert.deepEqual(effects, before);
 });
 
-test('existing legacy paid orders remain read-only without a quote on their PI', async () => {
+test('authorized existing paid orders remain read-only without a quote on their PI', async () => {
   const id = 'pi_legacy_paid';
   await db`INSERT INTO orders (payment_intent_id, customer_email, status, paid_at, options)
     VALUES (${id}, 'retry@example.invalid', 'PAID', NOW(), '{"people":1,"printKey":"digital"}')`;
@@ -351,7 +371,7 @@ test('CODE11 rejects unreserved modern/legacy objects and wrong-purpose reservat
  assert.deepEqual(effects,before);assert.equal(checkoutCount,count);
  assert.equal((await db`SELECT count(*)::int n FROM orders WHERE payment_intent_id='pi_unreserved'`)[0].n,0);
 });
-test('CODE11 ledger outage fails closed, while no-photo checkout/create require neither cookie nor storage configuration',async()=>{
+test('CODE11 ledger outage fails closed, while no-photo checkout/create need no photo cookie or storage configuration',async()=>{
  const a=await browserPhoto();
  await db`ALTER TABLE upload_reservations RENAME TO upload_reservations_unavailable`;
  const count=checkoutCount;

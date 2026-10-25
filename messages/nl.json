@@ -949,6 +949,7 @@
     "erreurServeur": "Je bericht kon niet worden verstuurd. Probeer het zo opnieuw of mail ons direct op support@cartoonova.com."
   },
   "fiche": {
+    "modifierSupport": "Formaat wijzigen : {support}",
     "etapeQui": "Wie staat er op het portret?",
     "lignePersonnes": "Personen",
     "photoBouton": "Foto toevoegen",

@@ -1,0 +1,242 @@
+TAP version 13
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (fr)
+not ok 1 - support recap has translated text and explicit accessible name from SSR through selection (fr)
+  ---
+  duration_ms: 1337.561022
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    + actual - expected
+    
+    + ''
+    - 'Fichier numérique'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Fichier numérique'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (en)
+not ok 2 - support recap has translated text and explicit accessible name from SSR through selection (en)
+  ---
+  duration_ms: 1223.368484
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    
+    '' !== 'Digital file'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Digital file'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (es)
+not ok 3 - support recap has translated text and explicit accessible name from SSR through selection (es)
+  ---
+  duration_ms: 1182.180003
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    + actual - expected
+    
+    + ''
+    - 'Archivo digital'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Archivo digital'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (de)
+not ok 4 - support recap has translated text and explicit accessible name from SSR through selection (de)
+  ---
+  duration_ms: 1177.17079
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    + actual - expected
+    
+    + ''
+    - 'Digitale Datei'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Digitale Datei'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (it)
+not ok 5 - support recap has translated text and explicit accessible name from SSR through selection (it)
+  ---
+  duration_ms: 1169.78206
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    + actual - expected
+    
+    + ''
+    - 'File digitale'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'File digitale'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (nl)
+not ok 6 - support recap has translated text and explicit accessible name from SSR through selection (nl)
+  ---
+  duration_ms: 1162.846636
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    + actual - expected
+    
+    + ''
+    - 'Digitaal bestand'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Digitaal bestand'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (pl)
+not ok 7 - support recap has translated text and explicit accessible name from SSR through selection (pl)
+  ---
+  duration_ms: 1163.689105
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    
+    '' !== 'Plik cyfrowy'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Plik cyfrowy'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (sv)
+not ok 8 - support recap has translated text and explicit accessible name from SSR through selection (sv)
+  ---
+  duration_ms: 1264.660702
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    
+    '' !== 'Digital fil'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Digital fil'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (da)
+not ok 9 - support recap has translated text and explicit accessible name from SSR through selection (da)
+  ---
+  duration_ms: 1186.11845
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    
+    '' !== 'Digital fil'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Digital fil'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: support recap has translated text and explicit accessible name from SSR through selection (pt)
+not ok 10 - support recap has translated text and explicit accessible name from SSR through selection (pt)
+  ---
+  duration_ms: 1174.699249
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:50:29'
+  failureType: 'testCodeFailure'
+  error: |-
+    server render never has an empty support
+    + actual - expected
+    
+    + ''
+    - 'Ficheiro digital'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'Ficheiro digital'
+  actual: ''
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:54:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 0
+# fail 10
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14306.288929

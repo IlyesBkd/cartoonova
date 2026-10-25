@@ -949,6 +949,7 @@
     "erreurServeur": "Não foi possível enviar a tua mensagem. Tenta novamente daqui a pouco ou escreve-nos diretamente para support@cartoonova.com."
   },
   "fiche": {
+    "modifierSupport": "Alterar o suporte : {support}",
     "etapeQui": "Quem está no retrato?",
     "lignePersonnes": "Pessoas",
     "photoBouton": "Adicionar uma foto",

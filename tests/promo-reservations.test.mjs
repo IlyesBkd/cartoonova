@@ -17,6 +17,7 @@ const pg = (cmd,args)=>execFileSync(path.join(pgBin,cmd),args,{env,encoding:'utf
 let db, started=false, checkout, createOrder, finaliser, outbox, promoModule, sequence=0;
 let failEmail=false;
 const intents = new Map();
+const proofCookies = new Map();
 const effects={created:0,canceled:0,alerts:0,emails:0,analytics:0};
 const config={format:'portrait',people:1,animals:0,printKey:'digital',banner:false,extraDecor:false,express:false,carteVoeux:false,calendrier:false};
 function load(relative,replacements={}) {
@@ -62,7 +63,7 @@ before(async()=>{
 });
 after(async()=>{if(db)await db.end({timeout:2});if(started)pg('pg_ctl',['-D',path.join(runtime,'pg'),'-m','fast','-w','stop']);});
 async function gift(code,solde=3,max=null){await db`INSERT INTO promo_codes(code,kind,value,currency,solde,max_uses) VALUES(${code},'amount',${solde},'EUR',${solde},${max})`;}
-async function accepted(code){const response=await checkout(request(code));assert.equal(response.status,200);const body=await response.json();return intents.get(body.clientSecret.split('_secret_')[0]);}
+async function accepted(code){const response=await checkout(request(code));assert.equal(response.status,200);const body=await response.json();const id=body.clientSecret.split('_secret_')[0];proofCookies.set(id,response.headers.get('set-cookie').split(';')[0]);return intents.get(id);}
 
 test('CODE-03: simultaneous gift checkouts cannot promise the same balance twice',async()=>{
  await gift('CONCURRENT');
@@ -105,7 +106,7 @@ test('real order retry and finalizer email retry never consume credit or quota t
  await gift('REALFLOW');const pi=await accepted('REALFLOW');
  const input={paymentIntentId:pi.id,email:'local@example.invalid',firstName:'Local',...config,photoUrls:[]};
  const before=effects.analytics;
- const responses=await Promise.all(Array.from({length:12},()=>createOrder({json:async()=>input})));
+ const responses=await Promise.all(Array.from({length:12},()=>createOrder({headers:new Headers({cookie:proofCookies.get(pi.id)}),json:async()=>input})));
  assert.ok(responses.every(r=>r.status===200));const bodies=await Promise.all(responses.map(r=>r.json()));
  assert.equal(new Set(bodies.map(b=>b.orderId)).size,1);assert.equal(effects.analytics-before,1);
  const [p0]=await db`SELECT * FROM promo_codes WHERE code='REALFLOW'`;assert.equal(Number(p0.solde),3);assert.equal(p0.used_count,0);

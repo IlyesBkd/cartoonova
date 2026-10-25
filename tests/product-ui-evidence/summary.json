@@ -1,0 +1,238 @@
+{
+  "greenUniqueTests": 51,
+  "greenNames": [
+    "zoom real desktop click above Navbar: 35 products x ten languages",
+    "zoom real mobile tap above Navbar: 35 products x ten languages",
+    "support recap has translated text and explicit accessible name from SSR through selection (fr)",
+    "support recap has translated text and explicit accessible name from SSR through selection (en)",
+    "support recap has translated text and explicit accessible name from SSR through selection (es)",
+    "support recap has translated text and explicit accessible name from SSR through selection (de)",
+    "support recap has translated text and explicit accessible name from SSR through selection (it)",
+    "support recap has translated text and explicit accessible name from SSR through selection (nl)",
+    "support recap has translated text and explicit accessible name from SSR through selection (pl)",
+    "support recap has translated text and explicit accessible name from SSR through selection (sv)",
+    "support recap has translated text and explicit accessible name from SSR through selection (da)",
+    "support recap has translated text and explicit accessible name from SSR through selection (pt)",
+    "zoom keyboard focus, Escape, Back and background lock (fr/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (fr/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (en/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (en/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (es/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (es/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (de/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (de/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (it/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (it/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (nl/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (nl/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (pl/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (pl/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (sv/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (sv/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (da/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (da/mobile)",
+    "zoom keyboard focus, Escape, Back and background lock (pt/desktop)",
+    "zoom keyboard focus, Escape, Back and background lock (pt/mobile)",
+    "product and revision uploads show the same notice in real React/intl across ten locales on mobile",
+    "ten rendered legal translations distinguish source photos and final portraits, forbid default promotion, disclose real deletion limits",
+    "legacy product reassurance catalogues no longer promise unimplemented 30-day deletion",
+    "support draft prompt states the real storage policy without claiming automatic deletion",
+    "post-payment upload renders a short localised no-promotion notice and a local privacy link without consent controls",
+    "approved initial EUR grid enables Commander without waiting for a prices API round trip",
+    "real product React UI: currency race hides old grid and ignores late responses",
+    "gift EUR: SSR hydration and each real rendered option agree with JSON-LD",
+    "portrait EUR: SSR hydration and each real rendered option agree with JSON-LD",
+    "gift GBP: SSR hydration and each real rendered option agree with JSON-LD",
+    "portrait GBP: SSR hydration and each real rendered option agree with JSON-LD",
+    "gift USD: SSR hydration and each real rendered option agree with JSON-LD",
+    "portrait USD: SSR hydration and each real rendered option agree with JSON-LD",
+    "no-cookie fallback is EUR in fr, GBP in en, never an EUR offer labelled GBP",
+    "portrait currency race removes stale offers, ignores late USD, and publishes no fallback on failure",
+    "failed server grid never emits fictitious default offers before a successful local API response",
+    "gift manual EUR → GBP → USD updates actual denominations and all offer/shipping currencies",
+    "GBP portrait: only publish offers from the exact approved grid visible in the real configurator",
+    "GBP gift: real hydrated page JSON-LD prices equal visible denomination buttons"
+  ],
+  "logs": {
+    "red-focus-before-fix.log": {
+      "tests": 2,
+      "pass": 0,
+      "fail": 2,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "red-support-before-fix.log": {
+      "tests": 10,
+      "pass": 0,
+      "fail": 10,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "green-matrix.log": {
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "green-behavior.log": {
+      "tests": 30,
+      "pass": 30,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "green-regressions.log": {
+      "tests": 19,
+      "pass": 19,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "red-baseline.log": {
+      "tests": 3,
+      "pass": 0,
+      "fail": 3,
+      "cancelled": 0,
+      "skipped": 0
+    }
+  },
+  "matrix": [
+    {
+      "locale": "da",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "de",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "en",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "es",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "fr",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "it",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "nl",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "pl",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "pt",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "sv",
+      "mobile": false,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "da",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "de",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "en",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "es",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "fr",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "it",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "nl",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "pl",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "pt",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    },
+    {
+      "locale": "sv",
+      "mobile": true,
+      "passed": 35,
+      "total": 35
+    }
+  ],
+  "renderedProductCases": 700,
+  "sha256": {
+    "app/[locale]/[produit]/FicheProduit.tsx": "412e1e27d310b55ac330ce59142a5f3d4895dcea99c452fd787a43fa68d06531",
+    "app/toonjaune-app.css": "d14b7921d2eeb84bb4a081df5d0af50398ed5c2040313bc777c1be0cf7e1ee0a",
+    "tests/product-ui-browser.test.mjs": "933b89a0e857d933e87e05ed8229c0ec56fbcd59fa2ddda52dff9b82e686c292",
+    "messages/fr.json": "9e5b63ad5d6345c11dccd84babf2f89095037fbb6d18668a6ce410e0f0d031ab",
+    "messages/en.json": "676c65cdb0a58a8fa61599f423d708e4b55cdb46dbb6985c9e3a81f6461b0c9a",
+    "messages/es.json": "6b17e9705d0430e1479dad7a7bac7964ad6dc23e3a5cc7aa0c50b74e05a89e9c",
+    "messages/de.json": "57373c57110e2881df30ca6c10cbb80e02d0959d1cdafa0c8f875c274153717d",
+    "messages/it.json": "74b9ead513e100edc3c7d449d0a96d78ccea61c963ec33794770181ceef8a408",
+    "messages/nl.json": "c8ece7cd01fae80d248f258ecac581883ad23468234ce5906d9ac4706fcd25f8",
+    "messages/pl.json": "8e310234265b593b4828febf9deb8b313d0c3521c68545e534167f38541e4181",
+    "messages/sv.json": "2c1548eec24521afe96d67939b5db56dcb36bafb4e2fe4f3675b6237b51fd455",
+    "messages/da.json": "2f92733900a23bd17795cae78dff2d798fa9cf028ae3335e4892213903d28a18",
+    "messages/pt.json": "56e43d5ec0d0e17de3066624e90da8a33da144bfa2c92b90d6edd54e0765a944"
+  }
+}

@@ -1,0 +1,57 @@
+TAP version 13
+# Subtest: zoom keyboard focus, Escape, Back and background lock (desktop)
+not ok 1 - zoom keyboard focus, Escape, Back and background lock (desktop)
+  ---
+  duration_ms: 1307.629722
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:47:34'
+  failureType: 'testCodeFailure'
+  error: |-
+    opening focuses the close control
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:51:9)
+    runNextTicks (node:internal/process/task_queues:64:5)
+    process.processImmediate (node:internal/timers:452:9)
+    process.callbackTrampoline (node:internal/async_hooks:130:17)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: zoom keyboard focus, Escape, Back and background lock (mobile)
+not ok 2 - zoom keyboard focus, Escape, Back and background lock (mobile)
+  ---
+  duration_ms: 1159.849068
+  type: 'test'
+  location: '/home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:47:34'
+  failureType: 'testCodeFailure'
+  error: |-
+    opening focuses the close control
+    
+    false !== true
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///home/hermes/projects/cartoonova/tests/product-ui-browser.test.mjs:51:9)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3694.168704

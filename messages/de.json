@@ -949,6 +949,7 @@
     "erreurServeur": "Deine Nachricht konnte nicht gesendet werden. Versuche es gleich noch einmal oder schreib uns direkt an support@cartoonova.com."
   },
   "fiche": {
+    "modifierSupport": "Format ändern : {support}",
     "etapeQui": "Wer ist auf dem Porträt?",
     "lignePersonnes": "Personen",
     "photoBouton": "Foto hinzufügen",
