@@ -63,6 +63,8 @@ export function proxy(request: NextRequest) {
     const cible = new URL(request.nextUrl.toString());
     cible.protocol = "https:";
     cible.host = "www.cartoonova.com";
+    // URL.host without an explicit port retains the incoming internal port.
+    cible.port = "";
     if (pathname === "/") {
       const chosen = request.cookies.get(COOKIE_LANGUE_CHOISIE)?.value;
       const valid = chosen && (locales as readonly string[]).includes(chosen) ? chosen : null;

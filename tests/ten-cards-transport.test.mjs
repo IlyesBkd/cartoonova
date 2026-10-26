@@ -20,7 +20,7 @@ test('poster transport attachments keep PNG/JPEG/WebP bytes, MIME and extension 
 
 test('apex redirects combine host/protocol/path and keep root locale temporary',()=>{
  const {proxy}=loadDeep('proxy.ts',{'next-intl/middleware':()=>()=>{throw Error('should not reach intl');}});
- for(const [path,target,status] of [['/?utm_source=fixture','/en?utm_source=fixture',307],['/simpson?x=1','/fr/simpson?x=1',308],['/de/collections','/de/collections',308]]){
-  const response=proxy(new NextRequest('http://cartoonova.com'+path,{headers:{host:'cartoonova.com'}}));assert.equal(response.status,status);assert.equal(response.headers.get('location'),'https://www.cartoonova.com'+target);
+ for(const port of ['',':38225']) for(const [path,target,status] of [['/?utm_source=fixture','/en?utm_source=fixture',307],['/simpson?x=1','/fr/simpson?x=1',308],['/de/collections','/de/collections',308]]){
+  const response=proxy(new NextRequest('http://cartoonova.com'+port+path,{headers:{host:'cartoonova.com'}}));assert.equal(response.status,status);assert.equal(response.headers.get('location'),'https://www.cartoonova.com'+target);
  }
 });

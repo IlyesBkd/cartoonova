@@ -25,6 +25,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      - name: Refuser secrets et artefacts interdits avant installation
+        run: node scripts/check-artifact-secrets.mjs
       - run: npm ci --no-audit --no-fund
       # Les fixtures demarrent elles-memes PG18 sur un port loopback aleatoire.
       # Aucun service externe, DATABASE_URL, tunnel ou secret GitHub.

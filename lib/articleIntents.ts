@@ -1,4 +1,5 @@
 import type { BlogArticle } from "./blogDb";
+import { REVIEWED_FRENCH_BODIES } from "./articleBodies";
 /** Editorial intent map, not evidence of cannibalisation. No merging without GSC evidence. */
 export const FRENCH_ARTICLE_INTENTS = {
  "idees-cadeaux-d-anniversaire-simples-originales-et-vraiment-marquantes": {
@@ -38,5 +39,5 @@ export function withEditorialIntent(article: BlogArticle): BlogArticle {
  if(article.locale!=="fr")return article;
  const intent=getFrenchArticleIntent(article.slug);
  if(!intent)return article;
- return {...article,title:intent.title,excerpt:intent.description,seo:{...article.seo,title:intent.title,description:intent.description}};
+ return {...article,body:REVIEWED_FRENCH_BODIES[article.slug] ?? article.body,title:intent.title,excerpt:intent.description,seo:{...article.seo,title:intent.title,description:intent.description}};
 }
