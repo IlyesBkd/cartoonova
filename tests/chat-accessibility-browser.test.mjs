@@ -185,3 +185,81 @@ for (const viewport of viewports) {
     assert.equal(await page.getByRole('dialog').count(),0,'closed dialogue is absent from accessibility tree');
   }));
 }
+
+for (const status of [500, 200]) {
+  test(`chat confirmation follows HTTP ${status}`, async()=>mount(viewports[0],async page=>{
+    await page.route('**/api/chat',r=>r.fulfill({status,contentType:'application/json',body:JSON.stringify(status===200?{ok:true}:{error:'server_error'})}));
+    await page.locator('.clavardage__lanceur').click();
+    await page.locator('.clavardage__lien--principal').click();
+    await page.getByRole('textbox',{name:messages.chat.emailAria}).fill('client@example.invalid');
+    await page.getByRole('button',{name:messages.chat.continuer}).click();
+    const input=page.getByRole('textbox',{name:messages.chat.saisieAria});
+    await input.fill('Message test'); await page.locator('.clavardage__envoi').click();
+    if(status===500) { await page.getByText(messages.contactForm.erreurServeur).waitFor(); assert.equal(await input.inputValue(),'Message test'); assert.equal(await page.getByText(messages.chat.botMerci).count(),0); }
+    else { await page.locator('.bulle').filter({hasText:messages.chat.botMerci}).waitFor(); assert.equal(await input.inputValue(),''); }
+  }));
+}
+
+test('changing topic preserves an oversized draft but blocks sending until corrected',async()=>mount(viewports[0],async page=>{
+ await page.locator('.clavardage__lanceur').click(); await page.locator('.clavardage__lien--principal').click();
+ await page.getByRole('textbox',{name:messages.chat.emailAria}).fill('client@example.invalid'); await page.getByRole('button',{name:messages.chat.continuer}).click();
+ const input=page.getByRole('textbox',{name:messages.chat.saisieAria});
+ await input.fill('x'.repeat(5000)); await page.locator('.clavardage__retour').click();
+ await page.getByText(messages.chat.sujetCommande,{exact:true}).click();
+ assert.equal((await input.inputValue()).length,5000,'draft is not truncated');
+ const max=Number(await input.getAttribute('maxlength'));
+ assert.ok(max<5000); assert.match(await page.locator(`#${await input.getAttribute('aria-describedby')}`).textContent(),new RegExp(String(max)));
+ assert.equal(await page.locator('.clavardage__envoi').isDisabled(),true,'oversized draft cannot be sent');
+}));
+
+test('keyboard retry retains focus and idempotency key after an uncertain response',async()=>mount(viewports[0],async page=>{
+ const bodies=[]; let release; const gate=new Promise(r=>release=r);
+ await page.route('**/api/chat',async r=>{bodies.push(r.request().postDataJSON()); if(bodies.length===1){await gate;return r.abort();} return r.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'});});
+ await page.locator('.clavardage__lanceur').click();await page.locator('.clavardage__lien--principal').click();
+ await page.getByRole('textbox',{name:messages.chat.emailAria}).fill('client@example.invalid');await page.getByRole('button',{name:messages.chat.continuer}).click();
+ const input=page.getByRole('textbox',{name:messages.chat.saisieAria});await input.fill('Retry');await input.press('Enter');
+ await page.waitForFunction(()=>document.querySelector('.clavardage__frappe'));
+ assert.equal(await focused(input),true,'focus remains while sending');release();
+ await page.getByRole('alert').waitFor();assert.equal(await focused(input),true,'focus remains after failure');
+ assert.equal(await input.getAttribute('readonly'),'','uncertain draft cannot be edited');
+ assert.match(await page.getByRole('alert').textContent(),/incertaine/);
+ assert.equal(await page.locator('.clavardage__retour').isDisabled(),true);
+ await page.keyboard.press('Escape'); await page.waitForFunction(()=>!history.state?.retourFerme);
+ await page.locator('.clavardage__lanceur').click();
+ assert.equal(await input.inputValue(),'Retry','closing preserves the uncertain draft');
+ assert.equal(await input.getAttribute('readonly'),'');
+ await input.press('Enter');await page.locator('.bulle').filter({hasText:messages.chat.botMerci}).waitFor();
+ assert.equal(await page.getByRole('status').textContent(),messages.chat.botMerci,'success is announced');
+ assert.equal(await input.getAttribute('readonly'),null,'editing resumes after confirmation');
+ assert.match(bodies[0].idempotencyKey,/^[0-9a-f-]{36}$/);assert.deepEqual(bodies[0],bodies[1],'retry sends the same payload and key');
+}));
+
+
+test('uncertain submission survives reload and retry reuses the exact payload',async()=>mount(viewports[0],async page=>{
+ const bodies=[]; await page.route('**/api/chat',async r=>{bodies.push(r.request().postDataJSON()); if(bodies.length===1)return r.abort();return r.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'});});
+ await page.locator('.clavardage__lanceur').click();await page.getByText(messages.chat.sujetCommande,{exact:true}).click();
+ await page.getByRole('textbox',{name:messages.chat.emailAria}).fill('client@example.invalid');await page.getByRole('button',{name:messages.chat.continuer}).click();
+ await page.getByRole('textbox',{name:messages.chat.saisieAria}).fill('Reload retry');await page.locator('.clavardage__envoi').click();await page.getByRole('alert').waitFor();
+ await page.reload();await page.addStyleTag({content:css});await page.evaluate(messages=>{window.messages=messages;},messages);await page.addScriptTag({content:bundle.outputFiles[0].text});
+ await page.locator('.clavardage__lanceur').click();const input=page.getByRole('textbox',{name:messages.chat.saisieAria});await input.waitFor();
+ assert.equal(await input.inputValue(),'Reload retry');assert.equal(await input.getAttribute('readonly'),'');
+ await input.press('Enter');await page.locator('.bulle').filter({hasText:messages.chat.botMerci}).waitFor();assert.deepEqual(bodies[1],bodies[0]);
+ assert.equal(await page.evaluate(()=>sessionStorage.length),0,'successful retry cleans persisted personal data');
+}));
+
+for (const [status,error] of [[400,'invalid_input'],[413,'body_too_large'],[429,'rate_limited']]) test(`definite ${status} rejection allows correcting the draft`,async()=>mount(viewports[0],async page=>{
+ const bodies=[];await page.route('**/api/chat',r=>{bodies.push(r.request().postDataJSON());return r.fulfill({status:bodies.length===1?status:200,contentType:'application/json',body:JSON.stringify(bodies.length===1?{error}:{ok:true})});});
+ await page.locator('.clavardage__lanceur').click();await page.locator('.clavardage__lien--principal').click();await page.getByRole('textbox',{name:messages.chat.emailAria}).fill('client@example.invalid');await page.getByRole('button',{name:messages.chat.continuer}).click();
+ const input=page.getByRole('textbox',{name:messages.chat.saisieAria});await input.fill('Original');await input.press('Enter');await page.getByRole('alert').waitFor();
+ assert.equal(await input.getAttribute('readonly'),null);assert.doesNotMatch(await page.getByRole('alert').textContent(),/incertaine/);assert.equal(await page.evaluate(()=>sessionStorage.length),0);
+ await input.fill('Corrigé');await input.press('Enter');await page.locator('.bulle').filter({hasText:messages.chat.botMerci}).waitFor();assert.notEqual(bodies[0].idempotencyKey,bodies[1].idempotencyKey);
+}));
+
+
+test('rate limit after ambiguous attempt cannot unlock or discard the original retry',async()=>mount(viewports[0],async page=>{
+ const bodies=[];await page.route('**/api/chat',r=>{bodies.push(r.request().postDataJSON());if(bodies.length===1)return r.abort();if(bodies.length===2)return r.fulfill({status:429,contentType:'application/json',body:'{"error":"rate_limited"}'});return r.fulfill({status:200,contentType:'application/json',body:'{"ok":true}'});});
+ await page.locator('.clavardage__lanceur').click();await page.locator('.clavardage__lien--principal').click();await page.getByRole('textbox',{name:messages.chat.emailAria}).fill('client@example.invalid');await page.getByRole('button',{name:messages.chat.continuer}).click();
+ const input=page.getByRole('textbox',{name:messages.chat.saisieAria});await input.fill('Ambiguous');await input.press('Enter');await page.getByRole('alert').waitFor();await input.press('Enter');await page.getByRole('alert').waitFor();
+ assert.equal(await input.getAttribute('readonly'),'');assert.match(await page.getByRole('alert').textContent(),/incertaine/);assert.equal(await page.evaluate(()=>sessionStorage.length),1);
+ await input.press('Enter');await page.locator('.bulle').filter({hasText:messages.chat.botMerci}).waitFor();assert.deepEqual(bodies[0],bodies[1]);assert.deepEqual(bodies[0],bodies[2]);
+}));

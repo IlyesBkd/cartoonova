@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { mesure, identifier } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import Icone, { type NomIcone } from "@/components/tj/Icone";
@@ -41,9 +41,35 @@ const SUJETS: { id: string; icone: NomIcone; cle: "Commande" | "Modif" | "Retouc
 
 /** Initiales des conseillers, pour les têtes qui se chevauchent dans l'en-tête. */
 const EQUIPE = ["L", "M", "S"];
+// Onglet uniquement, jamais localStorage : ne conserver que la tentative en vol.
+const BROUILLON_CHAT = "cartoonova:chat:pending:v1";
+const DUREE_BROUILLON = 24 * 60 * 60 * 1000;
+type Tentative = { email: string; corps: string; key: string; texte: string; sujet: string | null; premier: boolean; date: number };
+function effacerBrouillon() { try { sessionStorage.removeItem(BROUILLON_CHAT); } catch { /* stockage indisponible */ } }
+function expirerBrouillon(d: Tentative) {
+  try {
+    const courant = JSON.parse(sessionStorage.getItem(BROUILLON_CHAT) || "null");
+    if (courant?.key === d.key && courant?.date === d.date) effacerBrouillon();
+  } catch { effacerBrouillon(); }
+}
+
+const INFOS: Record<string, { incertain: string; limite: (n: number) => string }> = {
+  fr: { incertain: "La réception est incertaine. Réessayez sans modifier ce message pour éviter un doublon.", limite: n => `Maximum : ${n} caractères pour ce message.` },
+  en: { incertain: "Delivery is uncertain. Retry without editing this message to avoid duplicates.", limite: n => `Maximum: ${n} characters for this message.` },
+  es: { incertain: "La recepción es incierta. Reintenta sin modificar el mensaje para evitar duplicados.", limite: n => `Máximo: ${n} caracteres para este mensaje.` },
+  de: { incertain: "Der Empfang ist ungewiss. Versuche es ohne Änderungen erneut, um Duplikate zu vermeiden.", limite: n => `Maximum: ${n} Zeichen für diese Nachricht.` },
+  it: { incertain: "La ricezione è incerta. Riprova senza modificare il messaggio per evitare duplicati.", limite: n => `Massimo: ${n} caratteri per questo messaggio.` },
+  nl: { incertain: "Ontvangst is onzeker. Probeer opnieuw zonder dit bericht te wijzigen om duplicaten te voorkomen.", limite: n => `Maximum: ${n} tekens voor dit bericht.` },
+  pl: { incertain: "Odbiór jest niepewny. Ponów bez zmiany wiadomości, aby uniknąć duplikatów.", limite: n => `Maksimum: ${n} znaków w tej wiadomości.` },
+  sv: { incertain: "Mottagandet är osäkert. Försök igen utan att ändra meddelandet för att undvika dubbletter.", limite: n => `Maximalt ${n} tecken i detta meddelande.` },
+  da: { incertain: "Modtagelsen er usikker. Prøv igen uden at ændre beskeden for at undgå dubletter.", limite: n => `Højst ${n} tegn i denne besked.` },
+  pt: { incertain: "A receção é incerta. Tenta novamente sem alterar a mensagem para evitar duplicados.", limite: n => `Máximo: ${n} caracteres nesta mensagem.` },
+};
 
 export default function ChatWidget() {
   const t = useTranslations("chat");
+  const tContact = useTranslations("contactForm");
+  const infos = INFOS[useLocale().split("-")[0]] ?? INFOS.en;
   const [ouvert, setOuvert] = useState(false);
   const [ecran, setEcran] = useState<Ecran>("accueil");
   const [sujet, setSujet] = useState<string | null>(null);
@@ -53,13 +79,34 @@ export default function ChatWidget() {
   const [saisie, setSaisie] = useState("");
   const [envoiEnCours, setEnvoiEnCours] = useState(false);
   const [premierEnvoi, setPremierEnvoi] = useState(true);
+  const [erreurEnvoi, setErreurEnvoi] = useState(false);
+  const [erreurCertaine, setErreurCertaine] = useState(false);
+  const [annonce, setAnnonce] = useState("");
+  const limiteId = useId();
 
+  const tentativeRef = useRef<Tentative | null>(null);
   const filRef = useRef<HTMLDivElement>(null);
   const dialogueId = useId();
   const demarrerRef = useRef<HTMLButtonElement>(null);
   const lanceurRef = useRef<HTMLButtonElement>(null);
   const champEmailRef = useRef<HTMLInputElement>(null);
   const champSaisieRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const brut = sessionStorage.getItem(BROUILLON_CHAT);
+      if (!brut) return;
+      const d = JSON.parse(brut) as Tentative;
+      if (typeof d.email !== "string" || !emailValide(d.email.trim()) || typeof d.texte !== "string" || !d.texte.trim() || d.texte.length > 5000 || typeof d.corps !== "string" || d.corps.length > 5000 || typeof d.key !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(d.key) || typeof d.premier !== "boolean" || (d.sujet !== null && !SUJETS.some(s => s.id === d.sujet)) || typeof d.date !== "number" || d.date > Date.now() || Date.now() - d.date >= DUREE_BROUILLON) { effacerBrouillon(); return; }
+      tentativeRef.current = d;
+      // La lecture navigateur après hydratation évite un rendu serveur divergent.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEmail(d.email); setSujet(d.sujet); setPremierEnvoi(d.premier); setSaisie(d.texte);
+      setEcran("fil"); setErreurEnvoi(true);
+      const minuterie = window.setTimeout(() => expirerBrouillon(d), DUREE_BROUILLON - (Date.now() - d.date));
+      return () => window.clearTimeout(minuterie);
+    } catch { effacerBrouillon(); }
+  }, []);
 
   /* Le fil colle au dernier message. */
   useEffect(() => {
@@ -146,50 +193,65 @@ export default function ChatWidget() {
 
   const envoyer = async () => {
     const texte = saisie.trim();
-    if (!texte || envoiEnCours) return;
+    if (!texte || envoiEnCours || saisie.length > limite) return;
 
-    setMessages((m) => [...m, { de: "moi", texte }]);
-    setSaisie("");
+    const dejaIncertain = erreurEnvoi;
+    setErreurEnvoi(false);
+    setErreurCertaine(false);
+    setAnnonce("");
     setEnvoiEnCours(true);
 
     /* Le sujet choisi sur l'accueil accompagne le premier message : l'équipe
        arrive dans Discord avec le contexte, sans champ supplémentaire côté API. */
     const choisi = SUJETS.find((s) => s.id === sujet);
     const corps = premierEnvoi && choisi ? `[${choisi.discord}] ${texte}` : texte;
+    if (!tentativeRef.current || tentativeRef.current.email !== email || tentativeRef.current.corps !== corps) {
+      tentativeRef.current = { email, corps, key: crypto.randomUUID(), texte, sujet, premier: premierEnvoi, date: Date.now() };
+    }
+    const idempotencyKey = tentativeRef.current.key;
+    // Enregistrer AVANT fetch : un reload pendant l'envoi est aussi incertain.
+    try {
+      const tentative = tentativeRef.current;
+      sessionStorage.setItem(BROUILLON_CHAT, JSON.stringify(tentative));
+      window.setTimeout(() => expirerBrouillon(tentative), Math.max(0, DUREE_BROUILLON - (Date.now() - tentative.date)));
+    } catch { /* reprise en mémoire seulement */ }
     /* Le contenu du message ne part pas dans la mesure — il est deja dans
        Discord, et il contient des numeros de commande. Seul le fait qu'un
        message ait ete envoye compte ici. */
-    mesure(MESURES.messageAideEnvoye, {
-      topic: choisi?.id ?? "libre",
-      premier: premierEnvoi,
-    });
-    setPremierEnvoi(false);
-
     try {
-      await fetch("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, message: corps }),
+        body: JSON.stringify({ email, message: corps, idempotencyKey }),
       });
+      if (!response.ok) {
+        // Seuls les refus pré-insertion documentés prouvent l'absence d'effet,
+        // et uniquement si aucune tentative précédente n'était incertaine.
+        const payload = await response.json().catch(() => null);
+        const rejetCertain = !dejaIncertain && ((response.status === 400 && ["invalid_input", "invalid_body"].includes(payload?.error)) || (response.status === 413 && payload?.error === "body_too_large") || (response.status === 429 && payload?.error === "rate_limited"));
+        if (rejetCertain) {
+          tentativeRef.current = null; effacerBrouillon(); setErreurCertaine(true);
+          return;
+        }
+        throw new Error("chat_send_failed");
+      }
+      tentativeRef.current = null;
+      effacerBrouillon();
+      setMessages((m) => [...m, { de: "moi", texte }, { de: "bot", texte: premierEnvoi ? t("botMerci") : t("botNote") }]);
+      setAnnonce(premierEnvoi ? t("botMerci") : t("botNote"));
+      setSaisie("");
+      mesure(MESURES.messageAideEnvoye, { topic: choisi?.id ?? "libre", premier: premierEnvoi });
+      setPremierEnvoi(false);
     } catch {
-      /* échec silencieux : le message reste affiché, l'équipe relance par e-mail */
-    }
-
-    /* L'accusé de réception ne se dit qu'une fois : répété à l'identique sous
-       chaque message, il donnait l'impression d'un robot cassé. */
-    setTimeout(() => {
-      setMessages((m) => [
-        ...m,
-        {
-          de: "bot",
-          texte: premierEnvoi ? t("botMerci") : t("botNote"),
-        },
-      ]);
+      setErreurEnvoi(true);
+    } finally {
       setEnvoiEnCours(false);
-    }, 800);
+    }
   };
 
   const enConversation = ecran !== "accueil";
+  const sujetActuel = SUJETS.find(s => s.id === sujet);
+  const limite = 5000 - (premierEnvoi && sujetActuel ? `[${sujetActuel.discord}] `.length : 0);
 
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3 pointer-events-none">
@@ -215,6 +277,7 @@ export default function ChatWidget() {
                   type="button"
                   className="clavardage__retour"
                   onClick={() => setEcran("accueil")}
+                  disabled={envoiEnCours || erreurEnvoi}
                   aria-label={t("ariaRetour")}
                 >
                   <Fleche />
@@ -375,11 +438,18 @@ export default function ChatWidget() {
               </div>
 
               <div className="clavardage__saisie">
+                <p role="status" className="sr-only">{annonce}</p>
+                {(erreurEnvoi || erreurCertaine) && <p role="alert">{tContact("erreurServeur")} {erreurEnvoi && infos.incertain}</p>}
+                <p id={limiteId}>{infos.limite(limite)}</p>
                 <div className="clavardage__pilule">
                   <input
                     ref={champSaisieRef}
                     type="text"
                     value={saisie}
+                    readOnly={envoiEnCours || erreurEnvoi}
+                    maxLength={limite}
+                    aria-describedby={limiteId}
+                    aria-busy={envoiEnCours}
                     onChange={(e) => setSaisie(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && envoyer()}
                     placeholder={t("saisiePlaceholder")}
@@ -388,8 +458,8 @@ export default function ChatWidget() {
                   <button
                     type="button"
                     onClick={envoyer}
-                    disabled={!saisie.trim() || envoiEnCours}
-                    className={`clavardage__envoi${saisie.trim() && !envoiEnCours ? " clavardage__envoi--actif" : ""}`}
+                    disabled={!saisie.trim() || envoiEnCours || saisie.length > limite}
+                    className={`clavardage__envoi${saisie.trim() && !envoiEnCours && saisie.length <= limite ? " clavardage__envoi--actif" : ""}`}
                     aria-label={t("ariaEnvoyer")}
                   >
                     <Icone nom="envoyer" taille={16} />

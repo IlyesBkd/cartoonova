@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
        pas (`uid-42@imap-fallback`) sont ecartes de la meme facon — ils ne
        designent rien, et un In-Reply-To qui pointe dans le vide desoriente
        certains clients au lieu de les aider. */
-    const referencable = message && !message.message_id.endsWith("@imap-fallback");
+    const referencable = message && !message.message_id.endsWith("@imap-fallback") && !/^chat-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(message.message_id);
     const reference = message
       ? message.message_id.startsWith("<")
         ? message.message_id

@@ -127,7 +127,7 @@ function capture() {
           result: { sent: 2, failed: 1, checked: 3, newMessages: 1, enAttente: 4, recap: { impressions: 2 }, erreur: raw, nested: { recipient: raw }, [raw]: raw },
           order, commande: order, lead: { id: 'synthetic-lead' }, orderId: order.id, paymentIntentId: 'pi_synthetic', pi: { id: 'pi_synthetic' },
           step: 2, tache: 'synthetic-task', source: 'webhook', code: 'CAPABILITY_private_123', produit: 'simpson', locale: 'fr', reparee: true,
-          r: { status: 422 }, resultError: error, envoi: { error }, resultResend: { error },
+          r: { status: 422 }, response: { status: 422, body: raw }, resultError: error, envoi: { error }, resultResend: { error },
           v: { directive: 'script-src', bloque: raw, page: `https://cartoonova.invalid/extras/CAPABILITY_private_123?email=${privateValues[0]}`, source: raw },
           cheminPropre: () => '/extras/CAPABILITY_private_123',
         };
@@ -157,6 +157,7 @@ test('all owned route/cron and dependent-library console arguments reject privat
   }
   assert.ok(captures.length > 80);
   assert.ok(captures.some(c => c.file.includes('lifecycle-emails') && JSON.stringify(c.args).includes('synthetic-order')));
+  assert.ok(captures.some(c => c.file === 'app/api/chat/route.ts' && c.args.includes('[POST /api/chat] Discord indisponible') && c.args.includes(422)), 'chat Discord rejection must log only its numeric status');
   if (process.env.PRIVACY_CAPTURE_DIR) {
     mkdirSync(process.env.PRIVACY_CAPTURE_DIR, { recursive: true });
     writeFileSync(path.join(process.env.PRIVACY_CAPTURE_DIR, 'route-console-arguments.json'), JSON.stringify(captures, null, 2));
