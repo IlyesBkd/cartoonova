@@ -1,3 +1,5 @@
+import { lireChoixMesure, enregistrerChoixMesure, observerChoixMesure, rechargerSansMesure } from "@/lib/consentementMesure";
+import { chargerPixelChatgpt } from "@/lib/pixelChatgpt";
 import type { PostHog, Properties, CaptureResult } from "posthog-js";
 import type { NomEvenement } from "@/lib/evenementsMesure";
 import { proprietesMesure } from "@/lib/confidentialiteMesure";
@@ -35,13 +37,8 @@ const CHEMIN_INGESTION = "/ingest";
    vaut `eu.i.posthog.com`, qui recoit les evenements mais ne sert aucune page. */
 const HOTE_INTERFACE = process.env.NEXT_PUBLIC_POSTHOG_UI_HOST || "https://eu.posthog.com";
 
-/* Bandeau de consentement. Tant que ce drapeau est absent, le comportement est
-   celui d'avant : PostHog mesure des l'arrivee. Mis a "1", plus rien n'est
-   capture avant un choix explicite, et un refus bascule en mode sans cookie
-   plutot qu'en silence complet — voir `components/BandeauConsentement.tsx`.
-   ATTENTION : le mode sans cookie doit aussi etre active dans les reglages du
-   projet PostHog, sinon ces evenements-la sont ignores a l'arrivee. */
-const CONSENTEMENT_REQUIS = process.env.NEXT_PUBLIC_CONSENT_BANNER === "1";
+/* Explicit opt-in is always required; no cookieless traffic on refusal. */
+const CONSENTEMENT_REQUIS = true;
 
 /* ═══ hygiene des donnees personnelles ══════════════════════════════════
    Trois fuites possibles, toutes fermees ici plutot que sur chaque appel :
@@ -86,7 +83,7 @@ function traficInterne(): boolean {
    deux clients sous une meme identite. Elle ne merite pas de rester hors de
    portee d'une verification. */
 export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResult | null {
-  if (traficInterne()) return null;
+  if (traficInterne() || lireChoixMesure() !== "granted") return null;
   if (!evenement?.properties) return evenement;
   const id = evenement.properties.distinct_id;
   if (typeof id === "string" && MOTIF_ADRESSE_TEST.test(id)) return null;
@@ -109,12 +106,32 @@ export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResul
 /* ═══ le client ═════════════════════════════════════════════════════════ */
 
 let chargement: Promise<PostHog | null> | null = null;
+let sdkActif: PostHog | null = null;
+observerChoixMesure((choix) => {
+  if (choix === "granted" || !sdkActif) return;
+  sdkActif.opt_out_capturing();
+  // The installed SDK's public opt-out does NOT discard already batched
+  // events; shutdown flushes them. Discard those queues BEFORE shutdown.
+  // These private shapes are exercised against the real installed SDK by
+  // consent-adversarial, including delayed transport. Recheck on upgrades.
+  const interne = sdkActif as unknown as {
+    _requestQueue?: { _queue: unknown[] };
+    _retryQueue?: { _queue: unknown[] };
+    __request_queue?: unknown[];
+  };
+  for (const file of [interne._requestQueue?._queue, interne._retryQueue?._queue, interne.__request_queue]) {
+    if (Array.isArray(file)) file.length = 0;
+  }
+  void sdkActif.shutdown();
+  sdkActif = null;
+  rechargerSansMesure(choix);
+});
 
 /** Proprietes globales posees avant que le SDK ne soit charge. */
 let globalesEnAttente: Properties = {};
 
 function client(): Promise<PostHog | null> {
-  if (typeof window === "undefined") return Promise.resolve(null);
+  if (typeof window === "undefined" || lireChoixMesure() !== "granted") return Promise.resolve(null);
 
   const cle = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   if (!cle) return Promise.resolve(null);
@@ -130,6 +147,10 @@ function client(): Promise<PostHog | null> {
 
   chargement ??= import("posthog-js")
     .then(({ default: posthog }) => {
+      if (lireChoixMesure() !== "granted") {
+        chargement = null;
+        return null;
+      }
       posthog.init(cle, {
         /* Notre domaine, reecrit vers PostHog. Voir CHEMIN_INGESTION. */
         api_host: CHEMIN_INGESTION,
@@ -200,10 +221,8 @@ function client(): Promise<PostHog | null> {
 
         ...(CONSENTEMENT_REQUIS
           ? ({
-              /* Rien avant un choix. Un refus bascule en mode sans cookie :
-                 le trafic reste compte, sans identifiant persistant. */
-              opt_out_capturing_by_default: true,
-              cookieless_mode: "on_reject",
+              /* SDK imported only after explicit consent. */
+              opt_out_capturing_by_default: false,
             } as const)
           : {}),
       });
@@ -215,11 +234,12 @@ function client(): Promise<PostHog | null> {
         posthog.register(globalesEnAttente);
       }
 
+      sdkActif = posthog;
       return posthog;
     })
     .catch(() => null);
 
-  return chargement;
+  return chargement.then((posthog) => lireChoixMesure() === "granted" ? posthog : null);
 }
 
 /* ═══ surface publique ══════════════════════════════════════════════════ */
@@ -288,17 +308,20 @@ export type EtatConsentement = "granted" | "denied" | "pending";
 
 /** Choix deja exprime, ou `pending` si le bandeau doit encore etre montre. */
 export async function etatConsentement(): Promise<EtatConsentement> {
-  const posthog = await client();
-  return posthog?.get_explicit_consent_status() ?? "pending";
+  return lireChoixMesure();
 }
 
 export function accepterMesure(): void {
+  enregistrerChoixMesure("granted");
+  chargerPixelChatgpt();
   void client().then((posthog) => posthog?.opt_in_capturing());
 }
 
 export function refuserMesure(): void {
-  void client().then((posthog) => posthog?.opt_out_capturing());
+  enregistrerChoixMesure("denied");
+  // Synchronous observer also handles preferences and other tabs.
+  sdkActif?.opt_out_capturing();
 }
 
-/** Le bandeau n'a de raison d'exister que si le drapeau est leve. */
+/** Always expose the explicit consent controls. */
 export const bandeauConsentementActif = CONSENTEMENT_REQUIS;

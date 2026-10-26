@@ -23,6 +23,7 @@ import { loadProductPrices, PRICE_MESSAGES } from "@/lib/productPrices";
 import type { Currency } from "@/lib/currency";
 import PortraitJsonLd from "@/components/PortraitJsonLd";
 import type { Decor, LegendeVisuel } from "@/lib/visuels";
+import { CATALOGUE_EN_LIGNE } from "@/lib/catalogue";
 
 /* Plafond partage avec la validation serveur : deux constantes qui divergent
    donneraient un formulaire qui accepte ce que le serveur refuse. */
@@ -1420,7 +1421,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
                   est dans le catalogue. */}
               <p className="similaires__tous">
                 <Link className="bouton bouton--contour" href={lien("/collections")}>
-                  {t("stylesTous")}
+                  {t("stylesTous", { count: CATALOGUE_EN_LIGNE.length })}
                 </Link>
               </p>
             </div>

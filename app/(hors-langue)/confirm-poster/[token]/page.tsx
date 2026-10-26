@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { canRespondToPreview } from "@/lib/clientOrderPolicy";
+import { clientActionCopy } from "@/lib/i18n/clientActions";
 import { getOrderByConfirmationToken } from "@/lib/db";
 import { posterConfirmationPage, langueCommande } from "@/lib/email-i18n";
 import ConfirmClient from "./ConfirmClient";
@@ -31,6 +33,7 @@ export default async function ConfirmPosterPage({
 
   const lang = langueCommande(order);
   const t = posterConfirmationPage[lang];
+  if (!canRespondToPreview(order)) return <main className="confirm-poster-main"><p>{clientActionCopy[lang].closed}</p></main>;
   const ref = order.id.slice(0, 8);
 
   return (

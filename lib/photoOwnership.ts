@@ -1,3 +1,4 @@
+import type { Sql, TransactionSql } from "postgres";
 import { withFreshDatabaseClient } from "@/lib/db";
 import type { PhotosInvalides } from "@/lib/orderPhotos";
 import { checkoutPhotoSession, checkoutPhotoSubject } from "@/lib/checkoutPhotoSession";
@@ -31,6 +32,7 @@ export async function validatePhotoOwnership(
   photos: string[],
   order: { id: string; photo_urls?: unknown; poster_confirmation_photos?: unknown },
   purpose: "depot" | "poster",
+  query?: TransactionSql,
 ): Promise<PhotosInvalides | null> {
   const previous = purpose === "depot" ? order.photo_urls : order.poster_confirmation_photos;
   const attached = new Set(Array.isArray(previous) ? previous.filter((v): v is string => typeof v === "string") : []);
@@ -45,7 +47,7 @@ export async function validatePhotoOwnership(
   // legacy filename supplied by a different customer.
   const pending = photos.filter(photo => !attached.has(photo));
   if (!pending.length) return null;
-  return withFreshDatabaseClient(async db => {
+  const check = async (db: Sql | TransactionSql) => {
     const paths = pending.map(photo => new URL(photo).pathname.slice(1));
     const rows = await db`
       SELECT r.pathname FROM upload_reservations r
@@ -55,5 +57,6 @@ export async function validatePhotoOwnership(
     const owned = new Set(rows.map(row => String(row.pathname)));
     return paths.every(path => owned.has(path)) ? null
       : { error: "Cette photo n'appartient pas à cette commande." };
-  });
+  };
+  return query ? check(query) : withFreshDatabaseClient(check);
 }

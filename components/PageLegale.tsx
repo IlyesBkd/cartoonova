@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CookiePreferences from "@/components/CookiePreferences";
 import type { ReactNode } from "react";
 import { ENTREPRISE, type CleEntreprise } from "@/lib/legal/entreprise";
 import type { Bloc, DocumentLegal } from "@/lib/legal/types";
@@ -103,6 +104,7 @@ export default function PageLegale({
             </section>
           ))}
         </div>
+        <CookiePreferences locale={locale} />
       </div>
     </div>
   );

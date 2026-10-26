@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_DE: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_DE: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "Die Website Cartoonova verwendet Cookies, um die Nutzererfahrung zu verbessern, den Datenverkehr zu analysieren und das ordnungsgemäße Funktionieren der Dienste zu ermöglichen. Wenn Sie weiter auf der Website surfen, stimmen Sie der Verwendung von Cookies gemäß unserer Datenschutzerklärung zu.",
+          COOKIE_CONSENT.de.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_DE: PagesLegales = {
               "**Zahlungsdienstleister:** Stripe und PayPal für die sichere Abwicklung der Zahlungen.",
               "**Druck- und Lieferdienste:** Lieferadresse für den Versand gedruckter Produkte.",
               "**Hosting-Anbieter:** Vercel Inc. für das technische Hosting der Website.",
-              "**Analysetools:** Google Analytics (anonymisierte Daten).",
+              "**Analysetools:** PostHog / ChatGPT Ads.",
             ],
           },
           "Alle unsere Dienstleister unterliegen strengen vertraglichen Verpflichtungen zur Vertraulichkeit und zum Datenschutz gemäß der DSGVO.",
@@ -328,15 +329,7 @@ export const LEGAL_DE: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "Die Website verwendet folgende Arten von Cookies:",
-          {
-            liste: [
-              "**Notwendige Cookies:** für das Funktionieren der Website erforderlich (Sitzung, Warenkorb, Authentifizierung).",
-              "**Analyse-Cookies:** ermöglichen es uns zu verstehen, wie die Website genutzt wird (Google Analytics) — vorbehaltlich Ihrer Einwilligung.",
-              "**Marketing-Cookies:** dienen der Personalisierung von Werbung — vorbehaltlich Ihrer Einwilligung.",
-            ],
-          },
-          "Sie können Ihre Cookie-Einstellungen jederzeit über die Einstellungen Ihres Browsers oder über unser Einwilligungsbanner verwalten.",
+          COOKIE_CONSENT.de.notice,
         ],
       },
       {

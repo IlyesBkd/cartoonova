@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { formatPrice, type Currency } from "@/lib/currency";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { bonusLiens, orderTrackingPage, langueCommande } from "@/lib/email-i18n";
 import { etapeAtteinte, etapesDeLaCommande, prochaineAction } from "@/lib/etapesSuivi";
 import { mesureServeur } from "@/lib/analyticsServeur";
 import { MESURES } from "@/lib/evenementsMesure";
+import { canDepositPhotos, canRespondToPreview } from "@/lib/clientOrderPolicy";
 
 /* Page de suivi de commande.
 
@@ -33,7 +36,7 @@ export default async function SuiviPage({
 
   // Une commande jamais payee n'a pas de suivi a montrer : on repond comme a un
   // lien invalide plutot que d'exposer une commande abandonnee.
-  if (!order || order.status === "PENDING") {
+  if (!order?.paid_at) {
     const t = orderTrackingPage.fr;
     const en = orderTrackingPage.en;
     return (
@@ -53,11 +56,22 @@ export default async function SuiviPage({
   const t = orderTrackingPage[lang];
   const ref = order.id.slice(0, 8);
   const opts = order.options;
+  const product = await getTranslations({ locale: lang, namespace: "product" });
+  // Old orders can contain an already-localized support label; retain it.
+  const supports: Record<string, string> = {
+    digital: product("digital"), canvas: product("canvas"),
+    posterSimple: product("posterOption"), framed: product("poster"),
+  };
   const courante = etapeAtteinte(order);
   const ordre = etapesDeLaCommande(order);
   const indexCourant = ordre.indexOf(courante);
   const photos = Array.isArray(order.photo_urls) ? order.photo_urls.length : 0;
-  const action = prochaineAction(order);
+  const candidate = prochaineAction(order);
+  const action = candidate?.type === "photos" && !canDepositPhotos(order)
+    ? null
+    : candidate?.type === "apercu" && !canRespondToPreview(order)
+      ? null
+      : candidate;
   const dateRetouche =
     action?.type === "retouche" && action.le
       ? new Intl.DateTimeFormat(lang, { dateStyle: "long", timeZone: "Europe/Paris" }).format(
@@ -176,7 +190,7 @@ export default async function SuiviPage({
           <dl className="suivi__liste">
             <div>
               <dt>{t.format}</dt>
-              <dd>{opts.format}</dd>
+              <dd>{product(opts.format === "fullbody" ? "fullbodyLabel" : "portraitBust")}</dd>
             </div>
             <div>
               <dt>{t.people}</dt>
@@ -190,12 +204,12 @@ export default async function SuiviPage({
             )}
             <div>
               <dt>{t.option}</dt>
-              <dd>{opts.printOption}</dd>
+              <dd>{supports[opts.printOption] ?? opts.printOption}</dd>
             </div>
             <div>
               <dt>{t.total}</dt>
               <dd>
-                {order.total_price} {order.currency}
+                {formatPrice(Number(order.total_price), order.currency as Currency, lang)}
               </dd>
             </div>
           </dl>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CATALOGUE_EN_LIGNE as STYLES_PUBLIES } from "@/lib/catalogue";
 import { getTranslations } from "next-intl/server";
 import { metadataPage, IMAGE_PARTAGE, urlAbsolue } from "@/lib/seo";
 import BonCadeauClient from "./BonCadeauClient";
@@ -11,7 +12,7 @@ const CHEMIN = "/bon-cadeau";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metaPages.bonCadeau" });
-  return metadataPage({ locale, chemin: CHEMIN, titre: t("title"), description: t("description") });
+  return metadataPage({ locale, chemin: CHEMIN, titre: t("title"), description: t("description", { count: STYLES_PUBLIES.length }) });
 }
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
@@ -25,7 +26,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         produit={{
           "@type": "Product",
           name: t("title"),
-          description: t("description"),
+          description: t("description", { count: STYLES_PUBLIES.length }),
           brand: { "@type": "Brand", name: "Cartoonova" },
           image: IMAGE_PARTAGE,
         }}

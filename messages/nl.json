@@ -723,14 +723,14 @@
     "navStyles": "Stijlen",
     "navEtapes": "Hoe het werkt",
     "navFaq": "Vragen",
-    "navTousStyles": "Bekijk alle 36 stijlen",
+    "navTousStyles": "Bekijk alle {count} stijlen",
     "heroOeil": "Gepersonaliseerd portret",
     "heroNote": "Eerste voorbeeld binnen 2 werkdagen na ontvangst van de betaling en de foto's. Onbeperkte aanpassingen.",
     "etapesTitre": "Drie stappen,",
     "etapesAccent": "meer niet",
     "etapesSous": "Geen account, geen software. Eén foto is genoeg.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Bekijk alle 36 stijlen",
+    "stylesTous": "Bekijk alle {count} stijlen",
     "temoinsTitre": "Gecartooniseerd…",
     "temoinsAccent": "en dolblij!",
     "temoinsTexte": "Elke review komt van een echte bestelling, en we publiceren hem zoals hij is.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Onbeperkt aanpassen, of geld terug",
     "contactTitre": "Nog een vraag voor je bestelt?",
     "contactHoraires": "Antwoord binnen 24 uur, maandag t/m vrijdag",
-    "catalogueTitre": "Vijfendertig werelden,",
+    "catalogueMetaTitle": "Persoonlijke cartoonportretten: alle stijlen",
+    "catalogueTitre": "{count} werelden,",
     "catalogueAccent": "één jij",
     "catalogueSous": "Elke stijl heeft zijn eigen lijn, decors en publiek. Kies die van jou.",
     "filtreTous": "Alle",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Cadeaubon voor een cartoonportret | Cartoonova",
-      "description": "Geef een cartoonportret zonder de foto te hebben: een printbare cadeaubon voor alle 36 stijlen, binnen enkele seconden gemaild."
+      "description": "Geef een cartoonportret zonder de foto te hebben: een printbare cadeaubon voor alle {count} stijlen, binnen enkele seconden gemaild."
     },
     "noel": {
       "title": "Gepersonaliseerd kerstcadeau: cartoonportret van je foto | Cartoonova",

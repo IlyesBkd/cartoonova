@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createRequire, Module } from 'node:module';
 import ts from 'typescript';
+import {deliveryBoundaryDouble} from './order-delivery-double.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 const require=createRequire(import.meta.url);
 const {MockAgent,setGlobalDispatcher,getGlobalDispatcher}=require('undici');
@@ -15,11 +16,12 @@ const portraitPng=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAC
 let sends=[], marked=[], scheduled=[], referrals=[], downloads=[];
 let savedOrder;
 let agent, previousDispatcher, previousStorageOrigin;
-const order={id:'11111111-1111-4111-8111-111111111111',customer_email:'buyer@example.invalid',customer_name:'Private Buyer',detected_country:'FR',langue:'en',final_image_url:storageOrigin+portraitPath,options:{printKey:'digital',gift:{recipientEmail:'recipient@example.invalid',message:'Happy <script>alert("gift")</script> & birthday!\nEnjoy',deliverAfter:null}}};
+const order={status:'PAID',paid_at:'2026-01-01',id:'11111111-1111-4111-8111-111111111111',customer_email:'buyer@example.invalid',customer_name:'Private Buyer',detected_country:'FR',langue:'en',final_image_url:storageOrigin+portraitPath,options:{printKey:'digital',gift:{recipientEmail:'recipient@example.invalid',message:'Happy <script>alert("gift")</script> & birthday!\nEnjoy',deliverAfter:null}}};
 function load(file,replacements={},cache=new Map()) {
  file=path.resolve(root,file);if(cache.has(file))return cache.get(file).exports;
  const m=new Module(file);m.filename=file;cache.set(file,m);const original=createRequire(file);
  const defaults={
+  '@/lib/orderDelivery':deliveryBoundaryDouble(id=>marked.push(id)),
   '@/lib/db':{markFinalImageSent:async id=>marked.push(id),setOrderLastOutboundMessageId:async()=>{},programmerEnvoiImageFinale:async(id,date)=>scheduled.push({id,date}),getOrderById:async()=>structuredClone(savedOrder)},
   '@/lib/envoiEmail':{envoyerEmail:async payload=>{sends.push(payload);return {data:{id:'captured'},error:null};}},
   '@/lib/analyticsServeur':{mesureServeur:async()=>{}},

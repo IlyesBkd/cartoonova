@@ -32,7 +32,7 @@ before(async()=>{
  db=postgres(process.env.DATABASE_URL,{onnotice(){}});
  await db.unsafe(readFileSync(new URL('../migrations/20261025_upload_quotas.sql',import.meta.url),'utf8'));
  await db`CREATE TABLE orders(id uuid PRIMARY KEY, photo_urls jsonb DEFAULT '[]',customer_email text DEFAULT 'synthetic@example.invalid',created_at timestamptz DEFAULT now(),paid_at timestamptz DEFAULT now(),poster_confirmation_token text,poster_confirmation_status text,poster_confirmation_responded_at timestamptz,poster_confirmation_note text,poster_confirmation_photos jsonb, options jsonb DEFAULT '{}')`;
- await db`ALTER TABLE orders ADD COLUMN last_outbound_message_id text`;
+ await db`ALTER TABLE orders ADD COLUMN last_outbound_message_id text, ADD COLUMN poster_confirmation_sent_at timestamptz, ADD COLUMN final_image_sent_at timestamptz, ADD COLUMN expedie_le timestamptz`;
  await db`ALTER TABLE orders ADD COLUMN final_image_url text DEFAULT 'https://synthetic.public.blob.vercel-storage.com/final/photo-fixture.png'`;
  await db.unsafe(readFileSync(new URL('../migrations/20261025_order_notification_versions.sql',import.meta.url),'utf8'));
  await db`INSERT INTO orders(id,poster_confirmation_token,poster_confirmation_image_url,poster_confirmation_email)
@@ -52,7 +52,15 @@ before(async()=>{
  const retouches=load('lib/retouches.ts',{'./db':database});
  deps['@/lib/retouches']=retouches;
  deps['@/lib/envoiEmail']={envoyerEmail:async()=>{effects++;return {data:{id:'synthetic'}};}};
- posterRoute=load('app/api/orders/confirm-poster/route.ts',deps);
+ const previewRoute=load('app/api/orders/confirm-poster/route.ts',deps);
+ // This validation suite alternates depot and preview phases on the same rows.
+ // Supply a sent invitation only while exercising the preview route; FLOW05
+ // has a separate persistent-phase matrix, including unpaid/unsent/closed cases.
+ posterRoute={POST:async(req)=>{
+  await db`UPDATE orders SET poster_confirmation_sent_at=now()`;
+  try{return await previewRoute.POST(req);}
+  finally{await db`UPDATE orders SET poster_confirmation_sent_at=NULL`;}
+ }};
 });
 after(async()=>{try{if(db)await db.end({timeout:2});}finally{if(started)pg('pg_ctl',['-D',path.join(runtime,'pg'),'-m','fast','-w','stop']);rmSync(runtime,{recursive:true,force:true});setGlobalDispatcher(previousDispatcher);await offline.close();}});
 async function reserved(purpose,orderId=id){
@@ -103,7 +111,7 @@ test('depot accepts its own reserved objects after context expiry, deduplicates 
  const own=await reserved('depot');
  await db`UPDATE upload_contexts SET expires_at=now()-interval '1 day'`;
  const r=await photosRoute.POST(request({token:signed,photoUrls:[own,own]}));
- assert.equal(r.status,200);assert.deepEqual(await r.json(),{ok:true,photos:1});
+ assert.equal(r.status,200);assert.deepEqual(await r.json(),{ok:true,photos:1,photoUrls:[own]});
  assert.deepEqual((await db`SELECT photo_urls FROM orders WHERE id=${id}`)[0].photo_urls,[own]);
  const repeat=await photosRoute.POST(request({token:signed,photoUrls:[own]}));
  assert.equal(repeat.status,200);

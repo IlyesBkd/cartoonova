@@ -723,14 +723,14 @@
     "navStyles": "Style",
     "navEtapes": "Jak to działa",
     "navFaq": "Pytania",
-    "navTousStyles": "Zobacz wszystkie 36 stylów",
+    "navTousStyles": "Zobacz wszystkie {count} stylów",
     "heroOeil": "Spersonalizowany portret",
     "heroNote": "Pierwszy podgląd w ciągu 2 dni roboczych od otrzymania płatności i zdjęć. Nielimitowane poprawki.",
     "etapesTitre": "Trzy kroki,",
     "etapesAccent": "i tyle",
     "etapesSous": "Bez zakładania konta, bez programów. Wystarczy jedno zdjęcie.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Zobacz wszystkie 36 stylów",
+    "stylesTous": "Zobacz wszystkie {count} stylów",
     "temoinsTitre": "Narysowani…",
     "temoinsAccent": "i zachwyceni!",
     "temoinsTexte": "Każda opinia pochodzi z prawdziwego zamówienia i publikujemy ją bez zmian.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Nieograniczone poprawki albo zwrot pieniędzy",
     "contactTitre": "Masz pytanie przed zamówieniem?",
     "contactHoraires": "Odpowiadamy w 24 h, od poniedziałku do piątku",
-    "catalogueTitre": "Trzydzieści pięć światów,",
+    "catalogueMetaTitle": "Personalizowane portrety cartoon: wszystkie style",
+    "catalogueTitre": "{count} światów,",
     "catalogueAccent": "jeden Ty",
     "catalogueSous": "Każdy styl ma własną kreskę, tła i publiczność. Wybierz swój.",
     "filtreTous": "Wszystkie",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Karta podarunkowa na portret cartoon | Cartoonova",
-      "description": "Podaruj portret cartoon bez zdjęcia: karta podarunkowa do wydruku, ważna dla 36 stylów, wysyłana e-mailem w kilka sekund."
+      "description": "Podaruj portret cartoon bez zdjęcia: karta podarunkowa do wydruku, ważna dla {count} stylów, wysyłana e-mailem w kilka sekund."
     },
     "noel": {
       "title": "Prezent na święta: portret cartoon ze zdjęcia",

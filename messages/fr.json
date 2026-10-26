@@ -723,14 +723,14 @@
     "navStyles": "Styles",
     "navEtapes": "Comment ça marche",
     "navFaq": "Questions",
-    "navTousStyles": "Voir les 36 styles",
+    "navTousStyles": "Voir les {count} styles",
     "heroOeil": "Portrait personnalisé",
     "heroNote": "Premier aperçu sous 2 jours ouvrés après réception du paiement et des photos. Retouches illimitées.",
     "etapesTitre": "Trois étapes,",
     "etapesAccent": "c'est tout",
     "etapesSous": "Pas de compte à créer, pas de logiciel. Une photo suffit.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Voir les 36 styles",
+    "stylesTous": "Voir les {count} styles",
     "temoinsTitre": "Cartoonisés…",
     "temoinsAccent": "et ravis !",
     "temoinsTexte": "Chaque avis vient d'une vraie commande, et on le publie tel quel.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Retouches illimitées, ou remboursé",
     "contactTitre": "Une question avant de commander ?",
     "contactHoraires": "Réponse sous 24 h, du lundi au vendredi",
-    "catalogueTitre": "Trente-six univers,",
+    "catalogueMetaTitle": "Portrait cartoon personnalisé : tous les styles",
+    "catalogueTitre": "{count} univers,",
     "catalogueAccent": "un seul toi",
     "catalogueSous": "Chaque style a son propre trait, ses décors et son public. Choisis le tien.",
     "filtreTous": "Tous",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Bon cadeau portrait cartoon | Cartoonova",
-      "description": "Offre un portrait cartoon sans avoir la photo : un bon cadeau imprimable, utilisable sur les 36 univers. Reçu par e-mail en quelques secondes."
+      "description": "Offre un portrait cartoon sans avoir la photo : un bon cadeau imprimable, utilisable sur les {count} univers. Reçu par e-mail en quelques secondes."
     },
     "noel": {
       "title": "Cadeau de Noël personnalisé : portrait cartoon d'après photo | Cartoonova",

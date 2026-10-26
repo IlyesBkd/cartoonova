@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_EN: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_EN: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "The Cartoonova site uses cookies to improve the user experience, analyse traffic and enable the services to function properly. By continuing to browse, you accept the use of cookies in accordance with our privacy policy.",
+          COOKIE_CONSENT.en.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_EN: PagesLegales = {
               "**Payment providers:** Stripe and PayPal for the secure processing of payments.",
               "**Printing and delivery services:** delivery address for shipping printed products.",
               "**Host:** Vercel Inc. for the technical hosting of the Site.",
-              "**Analytics tools:** Google Analytics (anonymised data).",
+              "**Analytics tools:** PostHog / ChatGPT Ads.",
             ],
           },
           "All our providers are subject to strict contractual obligations of confidentiality and data protection in compliance with the GDPR.",
@@ -328,15 +329,7 @@ export const LEGAL_EN: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "The Site uses the following types of cookies:",
-          {
-            liste: [
-              "**Essential cookies:** necessary for the Site to function (session, basket, authentication).",
-              "**Analytics cookies:** allow us to understand how the Site is used (Google Analytics) — subject to your consent.",
-              "**Marketing cookies:** used to personalise advertising — subject to your consent.",
-            ],
-          },
-          "You can manage your cookie preferences at any time via your browser settings or via our consent banner.",
+          COOKIE_CONSENT.en.notice,
         ],
       },
       {

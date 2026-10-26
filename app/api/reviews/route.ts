@@ -1,3 +1,6 @@
+import { getOrderById } from "@/lib/db";
+import { canReviewOrder } from "@/lib/clientOrderPolicy";
+import { ClientActionError } from "@/lib/clientActionError";
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
@@ -110,6 +113,12 @@ export async function POST(req: NextRequest) {
     }
 
     const orderId = jeton ? parseOrderTrackingToken(jeton) : null;
+    if (jeton && !orderId) return NextResponse.json({ error: "lien_invalide" }, { status: 403 });
+    if (orderId) {
+      const order = await getOrderById(orderId);
+      if (!order) return NextResponse.json({ error: "commande_introuvable" }, { status: 404 });
+      if (!canReviewOrder(order)) return NextResponse.json({ error: "avis_indisponible" }, { status: 409 });
+    }
 
     const resultat = await deposerAvis({
       orderId,
@@ -149,6 +158,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, statut: resultat.statut });
   } catch (error) {
+    if (error instanceof ClientActionError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("[POST /api/reviews]", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }

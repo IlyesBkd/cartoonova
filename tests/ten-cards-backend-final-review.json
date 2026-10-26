@@ -1,0 +1,159 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [
+    {
+      "id": "SHIPPING-PROVIDER-UNCERTAINTY",
+      "blocking": false,
+      "text": "Conserver la procédure de vérification fournisseur avant renvoi après un POST expédition en erreur : cette voie conserve volontairement son contrat de renvoi explicite, sans registre durable d'incertitude ni exactly-once. Un email accepté puis une réponse/validation SQL perdue peut laisser les jalons absents. Limite préexistante, explicitement documentée et non réintroduite par les correctifs examinés."
+    },
+    {
+      "id": "ROLLOUT-PREREQUISITES",
+      "blocking": false,
+      "text": "Appliquer la migration order_delivery_effects et les colonnes prérequises par la procédure de déploiement autorisée. Ne pas inventer d'empreinte pour l'historique sans preuve fournisseur/contenu. Prévoir contention et connexions longues : les verrous de commande restent volontairement détenus pendant les fournisseurs. Aucun déploiement effectué dans cette revue."
+    }
+  ],
+  "summary": "Revue indépendante finale backend favorable sur l'état local examiné : les trois familles de bugs préfix sont corrigées, y compris coût expédition canonique et notification sous verrou. Les six suites ciblées passent 88/88, les cinq suites complémentaires passent 45/45 ; quatre probes indépendants supplémentaires passent. Aucun nouveau défaut sécurité/logique confirmé dans le périmètre. Paiement paid_at, idempotence finale/extras, concurrence interprocessus et preuves durables restent préservés. Consentement hors périmètre ; aucune validation production ou exactly-once expédition revendiquée.",
+  "verification": {
+    "review_type": "independent_post_fix_read_only",
+    "base_head": "abbf837b4db417fa28ca365e3766017fc9f08059",
+    "state": "Arbre de travail local avec modifications suivies et fichiers backend non suivis ; revue du contenu réel, pas seulement du commit HEAD. Le rapport préfix tests/ten-cards-backend-review.json reste intact.",
+    "scope": [
+      "tests/ten-cards-delivery-integration-report.md et diagnostic préfix",
+      "lib/orderDelivery.ts, lib/orderDeliveryShipping.ts, migration durable et harnais/tests réels",
+      "lib/emailImageFinale.ts, routes send-final-image/extras/expedition et chemins manual/express/cron exercés par les suites",
+      "Diff backend lib/db.ts, lib/photoOwnership.ts, lib/retouches.ts, lib/reviewsDb.ts, routes confirm-poster/photos/reviews et politique client partagée",
+      "Interfaces FLOW05/FLOW07/FLOW09 affectées par les transactions et les jalons de livraison ; tests photos, retouches, avis, autorisation admin et sécurité image"
+    ],
+    "isolation": {
+      "environment": "env -i avec PATH, HOME et TMPDIR=/home/hermes/.hermes/profiles/cartoonova/cache/scratch seulement hérités",
+      "database": "PostgreSQL 18 jetable loopback créé par tests/order-delivery-harness.mjs, schéma synthétique et migration locale",
+      "boundaries": "SQL et gardes métier réels ; email, Blob, analytics et téléchargements/PDF interceptés ou synthétiques selon chaque suite. Les tests sécurité image incluent le transport SDK capturé.",
+      "forbidden_actions_not_performed": ["base métier ou production", "email/fournisseur réel", "facturation", "build", "commit", "push", "modification produit"],
+      "leftover_delivery_pg_pid_files": []
+    },
+    "executions": [
+      {
+        "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=/home/hermes/.hermes/profiles/cartoonova/cache/scratch node --test tests/order-delivery.test.mjs tests/order-delivery-payment.test.mjs tests/order-delivery-integration.test.mjs tests/gift-delivery.test.mjs tests/final-image-security.test.mjs tests/order-notification-consistency.test.mjs",
+        "exit_code": 0,
+        "tests": 88,
+        "pass": 88,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "duration_ms": 22109.546589,
+        "observations": "TAP réel retourné par terminal. Les logs des refus et pannes synthétiques sont attendus ; avertissement MockTimers expérimental dans la suite cadeau. Aucun échec masqué."
+      },
+      {
+        "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=/home/hermes/.hermes/profiles/cartoonova/cache/scratch node --test tests/ten-cards-client.test.mjs tests/photo-validation-routes.test.mjs tests/photo-validation.test.mjs tests/final-image-review.test.mjs tests/admin-callers.test.mjs",
+        "exit_code": 0,
+        "tests": 45,
+        "pass": 45,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "duration_ms": 4256.781703
+      },
+      {
+        "command": "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+        "environment": "env -i PATH HOME TMPDIR scratch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "node node_modules/eslint/bin/eslint.js lib/orderDelivery.ts lib/orderDeliveryShipping.ts app/api/orders/expedition/route.ts",
+        "environment": "env -i PATH HOME TMPDIR scratch",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "fixed_findings": [
+      {
+        "ids": ["BACKEND-APPROVAL-EMAIL"],
+        "status": "resolved",
+        "locations": ["lib/orderDelivery.ts:41-55"],
+        "proof": "Sous FOR NO KEY UPDATE, final_image physique exige confirmed, image de confirmation égale à final_image_url et poster_confirmation_email strictement égal à customer_email. Route réelle : ancien email -> 409 sans email ; correction de la confirmation -> 200. Changement du seul email de confirmation pendant la barrière de téléchargement -> 409 avant fournisseur."
+      },
+      {
+        "ids": ["BACKEND-EXTRAS-UNDLVD-VERSION"],
+        "status": "resolved",
+        "locations": ["lib/orderDelivery.ts:49-65", "app/api/orders/extras/route.ts:63-65"],
+        "proof": "Extras exigent une empreinte final_image status=sent correspondant au hash des octets effectivement téléchargés, aux options canoniques stables, au destinataire final normalisé et aux langue/pays actuels. A livré autorise extras ; B non livré ou octets C derrière la même URL -> 409 sans upload. Livraison réelle B/C -> autorisation ; changement acheteur/options -> refus avant livraison compatible ; cadeau au tiers puis extras acheteur valides ; URL différente avec mêmes octets -> rejeu sans nouvel effet. Historique timestamp seul -> 409 sans effacer la date."
+      },
+      {
+        "ids": ["BACKEND-SHIP-STALE-RECIPIENT", "BACKEND-SHIPPING-STALE-COST"],
+        "status": "resolved",
+        "locations": ["lib/orderDeliveryShipping.ts:18-45", "app/api/orders/expedition/route.ts:136", "app/api/orders/expedition/route.ts:163-206"],
+        "proof": "PATCH et POST calculent le coût depuis les options relues sous verrou ; canvas remplacé par framed avant acquisition -> 31.28. POST rend depuis saved canonique (email/langue/transporteur/suivi actuels), appelle le fournisseur avant libération du verrou et écrit jalons/threading sur la même transaction. Un pool concurrent est observé en pg_stat_activity.wait_event_type=Lock à la frontière fournisseur ; termine après libération sans deadlock. PATCH ne notifie jamais."
+      }
+    ],
+    "regression_checks": {
+      "payment": "Source de vérité paid_at, non le statut libre : matrice PAID/in_progress/PENDING avec paiement autorise extras/final/express/shipping/future-gift ; status=paid sans paid_at refuse les cinq chemins. Paiement relu sous le verrou, pas depuis le snapshot appelant.",
+      "distributed_concurrency": "Deux modules de route indépendants et six processus OS/pools PostgreSQL indépendants : un seul effet extras fournisseur ; doublons concurrents refusés ou rejoués. Gardes finales partagées entre chemins manuel/express/cron ; verrou canonique conservé jusqu'au fournisseur.",
+      "durable_effects": "Intent sending validé sur connexion indépendante avant fournisseur ; échec/timeout -> uncertain persistant qui bloque toutes nouvelles versions de ce kind. Checkpoints JSONB objets round-trip ; uploadPending écrit avant Blob et bloque réupload ambigu. Réconciliation explicite avec justification ; reprise réutilise les fichiers et n'invente pas de résultat fournisseur.",
+      "shipping_contract": "Champs absents conservés, null/vide efface, PATCH partiels concurrents préservent les champs distincts, coût réel et référence existants conservés, première date expedie_le conservée, date dernier email actualisée. Deux POST explicites restent deux envois. Erreur fournisseur -> 500 et pas de nouveau jalon de succès.",
+      "other_backend_interfaces": "Suites complémentaires vertes : ajout photos cumulatif, remplacement CAS, plafond sous concurrence, propriété et URL legacy exactes, retouche atomique avec historique/note/photos identiques, rollback si historique indisponible, signatures non suffisantes sans phase/paiement canonique, avis vérifié payés/livrés idempotents, autorisation admin attendue, formats d'image réellement décodables et limites téléchargement. Aucune régression d'interface confirmée."
+    },
+    "additional_independent_probes": {
+      "execution": "Probe inline node --input-type=module -e sous env -i, imports database/production SQL guards, assertions node:assert/strict, PostgreSQL jetable ; aucune écriture de script ou produit.",
+      "exit_code": 0,
+      "passed": true,
+      "sent_before_order_rollback": {
+        "method": "ctx.send réussit et inscrit sent durablement ; exception volontaire immédiatement après avant validation de la transaction commande ; relancer executeDelivery.",
+        "durable_status": "sent",
+        "order_marker_after_rollback": null,
+        "replay_duplicate": true,
+        "provider_calls": 1,
+        "milestone_repaired": true
+      },
+      "langue_fingerprint": {
+        "method": "Modifier langue seule après livraison A ; extras refusés ; vraie livraison finale compatible puis extras.",
+        "before_final": 409,
+        "after_final": "sent"
+      },
+      "detected_country_fingerprint": {
+        "method": "Modifier detected_country seul après livraison A ; extras refusés ; vraie livraison finale compatible puis extras.",
+        "before_final": 409,
+        "after_final": "sent"
+      },
+      "shipping_payment_revoked_while_waiting": {
+        "method": "Pool indépendant ouvre UPDATE paid_at=null sans commit, puis notifyShipping attend FOR NO KEY UPDATE. Attente Lock observée via pg_stat_activity ; commit du retrait de paiement ; vérifier refus sans fournisseur.",
+        "observed_sql_lock_wait": true,
+        "rejected": 409,
+        "provider_calls": 0,
+        "expedie_le": null
+      }
+    },
+    "final_state_sha256": {
+      "lib/orderDelivery.ts": "3976928d95229f8ef8537152921ed5bff9f6d412c2b24ab2655b3fec6bfd253e",
+      "lib/orderDeliveryShipping.ts": "ef34133e86426bee2cf513d6abdcd6eb4623feed6af46477461d0506a43e06df",
+      "lib/db.ts": "43748e558fca3a0704cbf9703265b7fa642e38686b3405a51d1b8b4fcbd1f99e",
+      "lib/emailImageFinale.ts": "966be2289f3780862437cf08e42c5a0a5ad1cbb29ac21de13181720df0764144",
+      "app/api/orders/expedition/route.ts": "fd703440a5af843cecd8853eb8c8a46b85dcb522f74f2c6ea8578a33a8623f98",
+      "app/api/orders/extras/route.ts": "31797d65a58cc61190a2013ad21b409c6173d649fb6c26ea55bc84a052f5fe7c",
+      "migrations/20261026_order_delivery_effects.sql": "dbf8a5107f4a7bf7c339890c145dd1339341f0fa7523e0a4fb769b8077c20efd",
+      "tests/order-delivery-integration.test.mjs": "edda952ac33ab32a13481bf093326f013e32bf6f68530c270d6b56999bfcea24",
+      "tests/ten-cards-backend-review.json": "7fc76ebb4d7c71ad186efbfdf25c9dca3a682c7b5bdee1fb1d37e6361a3c8373"
+    },
+    "limitations": [
+      "Revue du backend affecté et des interfaces adjacentes, non audit exhaustif de toute l'application ou des dix cartes frontend.",
+      "Code consentement revu séparément, hors périmètre.",
+      "Pas de suite globale npm test ni de build ; tests ciblés explicitement listés seulement.",
+      "Pas de garantie exactly-once expédition ou réception en boîte client. Les URL externes peuvent changer après téléchargement ; le hash prouve les octets téléchargés, non leur immuabilité ultérieure.",
+      "Probe rollback après sent : exception simulée dans le processus, pas panne électrique/kill -9. La suite six processus prouve la concurrence distribuée, pas une injection de panne machine.",
+      "Les preuves détaillées TAP sont dans les sorties réelles des outils de cette revue ; seuls les résultats et observations structurés sont archivés dans ce JSON."
+    ],
+    "files_created_or_modified_by_review": ["tests/ten-cards-backend-final-review.json"]
+  }
+}

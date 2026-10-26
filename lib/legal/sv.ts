@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_SV: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_SV: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "Cartoonovas webbplats använder cookies för att förbättra användarupplevelsen, analysera trafiken och säkerställa att tjänsterna fungerar korrekt. Genom att fortsätta surfa godkänner du användningen av cookies i enlighet med vår integritetspolicy.",
+          COOKIE_CONSENT.sv.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_SV: PagesLegales = {
               "**Betalningsleverantörer:** Stripe och PayPal för säker behandling av betalningar.",
               "**Tryck- och leveranstjänster:** leveransadress för att skicka tryckta produkter.",
               "**Webbhotell:** Vercel Inc. för teknisk drift av Webbplatsen.",
-              "**Analysverktyg:** Google Analytics (anonymiserade uppgifter).",
+              "**Analysverktyg:** PostHog / ChatGPT Ads.",
             ],
           },
           "Alla våra leverantörer omfattas av strikta avtalsenliga skyldigheter avseende sekretess och dataskydd i enlighet med GDPR.",
@@ -328,15 +329,7 @@ export const LEGAL_SV: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "Webbplatsen använder följande typer av cookies:",
-          {
-            liste: [
-              "**Nödvändiga cookies:** krävs för att Webbplatsen ska fungera (session, varukorg, inloggning).",
-              "**Analyscookies:** gör det möjligt för oss att förstå hur Webbplatsen används (Google Analytics) — kräver ditt samtycke.",
-              "**Marknadsföringscookies:** används för att anpassa annonser — kräver ditt samtycke.",
-            ],
-          },
-          "Du kan när som helst hantera dina cookieinställningar via webbläsarens inställningar eller via vår samtyckesbanner.",
+          COOKIE_CONSENT.sv.notice,
         ],
       },
       {

@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire, Module } from 'node:module';
 import path from 'node:path';
 import ts from 'typescript';
+import {deliveryBoundaryDouble} from './order-delivery-double.mjs';
 const root=path.resolve(import.meta.dirname,'..');
 function load(file,replacements={},cache=new Map()) {
  file=path.resolve(root,file);if(cache.has(file))return cache.get(file).exports;
@@ -58,8 +59,8 @@ test('manual persistence rejects untrusted portraits before writing, including s
 });
 test('real final email helper checks saved portrait before provider and delivered marker',async()=>{
  let sends=0;let marks=0;
- const {envoyerImageFinale}=load('lib/emailImageFinale.ts',{'@/lib/db':{getOrderById:async()=>order,markFinalImageSent:async()=>marks++,setOrderLastOutboundMessageId:async()=>{}},'@/lib/envoiEmail':{envoyerEmail:async()=>{sends++;return {data:{id:'capture'}};}},'@/lib/analyticsServeur':{mesureServeur:async()=>{}},'@/lib/parrainage':{infosParrainage:async()=>null},'@/lib/emailToken':{orderTrackingToken:()=> 'synthetic'}});
- const order={id:'synthetic',customer_email:'capture@example.invalid',customer_name:null,detected_country:null,langue:'en',final_image_url:url,options:{}};
+ const {envoyerImageFinale}=load('lib/emailImageFinale.ts',{'@/lib/orderDelivery':deliveryBoundaryDouble(()=>marks++),'@/lib/db':{getOrderById:async()=>order,markFinalImageSent:async()=>marks++,setOrderLastOutboundMessageId:async()=>{}},'@/lib/envoiEmail':{envoyerEmail:async()=>{sends++;return {data:{id:'capture'}};}},'@/lib/analyticsServeur':{mesureServeur:async()=>{}},'@/lib/parrainage':{infosParrainage:async()=>null},'@/lib/emailToken':{orderTrackingToken:()=> 'synthetic'}});
+ const order={status:'PAID',paid_at:'2026-01-01',id:'synthetic',customer_email:'capture@example.invalid',customer_name:null,detected_country:null,langue:'en',final_image_url:url,options:{}};
  await transport(async pool=>{
   pool.intercept({path:'/final/context/portrait.png'}).reply(200,'<html>bad</html>',{headers:{'content-type':'image/png'}});
   await assert.rejects(envoyerImageFinale(order),/Portrait/);assert.equal(sends,0);assert.equal(marks,0);

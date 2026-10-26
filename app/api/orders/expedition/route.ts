@@ -1,16 +1,10 @@
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getOrderById,
-  enregistrerExpedition,
-  marquerExpediee,
-  setOrderLastOutboundMessageId,
-} from "@/lib/db";
 import { shippingEmail, langueCommande } from "@/lib/email-i18n";
-import { COUT_ESTIME_EUR, decrireSupport, estPhysique, type OptionsSupport } from "@/lib/supportCommande";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
+import { patchShipping, notifyShipping, ShippingError } from "@/lib/orderDeliveryShipping";
 
 /**
  * Le dossier d'expedition d'une commande physique.
@@ -48,7 +42,7 @@ interface CorpsExpedition {
   transporteur?: string | null;
 }
 
-/** Vide et absent sont la meme chose ici : rien de saisi. */
+/** Empty strings and null explicitly clear; undefined is preserved by lireCorps. */
 function texteOuNull(valeur: unknown, max: number): string | null {
   if (typeof valeur !== "string") return null;
   return valeur.trim().slice(0, max) || null;
@@ -62,7 +56,7 @@ function texteOuNull(valeur: unknown, max: number): string | null {
  * produirait un lien mort une fois sorti du navigateur. Seuls `http` et
  * `https` absolus passent.
  */
-function lienSuiviValide(valeur: string | null): string | null {
+function lienSuiviValide(valeur: string | null | undefined): string | null {
   if (!valeur) return null;
   /* Refuse plutot que tronque : un lien coupe reste souvent analysable, donc
      il passerait la validation et arriverait mort chez le client. */
@@ -91,12 +85,6 @@ function lienDepuisNumero(valeur: string | null): string | null {
   return `https://t.17track.net/fr#nums=${numero.toUpperCase()}`;
 }
 
-/** Cout du tirage d'apres le support commande, ou null s'il n'est pas reconnu. */
-function coutEstime(brutes: unknown): number | null {
-  const options = typeof brutes === "string" ? JSON.parse(brutes) : brutes;
-  const { cle } = decrireSupport(options as OptionsSupport);
-  return cle && cle !== "digital" ? COUT_ESTIME_EUR[cle] : null;
-}
 
 /** Neutralise ce que l'admin a tape avant de le coller dans du HTML. */
 function echapper(texte: string): string {
@@ -109,12 +97,18 @@ function echapper(texte: string): string {
 
 /** Lit le corps commun aux deux verbes, une seule fois. */
 async function lireCorps(req: NextRequest) {
-  const corps = (await req.json()) as CorpsExpedition;
+  const corps = (await req.json().catch(() => { throw new ShippingError("Corps JSON invalide.", 400); })) as CorpsExpedition;
+  if (!corps || typeof corps !== "object" || Array.isArray(corps)) throw new ShippingError("Corps invalide.", 400);
+  for (const key of ["fournisseurRef", "suiviUrl", "transporteur"] as const) {
+    if (corps[key] !== undefined && corps[key] !== null && typeof corps[key] !== "string") {
+      throw new ShippingError("Les champs d'expédition doivent être du texte ou null.", 400);
+    }
+  }
   return {
     orderId: typeof corps.orderId === "string" ? corps.orderId : "",
-    fournisseurRef: texteOuNull(corps.fournisseurRef, 120),
-    suiviUrl: lienDepuisNumero(typeof corps.suiviUrl === "string" ? corps.suiviUrl.trim() || null : null),
-    transporteur: texteOuNull(corps.transporteur, 60),
+    fournisseurRef: corps.fournisseurRef === undefined ? undefined : texteOuNull(corps.fournisseurRef, 120),
+    suiviUrl: corps.suiviUrl === undefined ? undefined : lienDepuisNumero(typeof corps.suiviUrl === "string" ? corps.suiviUrl.trim() || null : null),
+    transporteur: corps.transporteur === undefined ? undefined : texteOuNull(corps.transporteur, 60),
   };
 }
 
@@ -139,12 +133,11 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const order = await getOrderById(orderId);
-    await enregistrerExpedition(orderId, fournisseurRef, suiviUrl, transporteur, coutEstime(order?.options));
+    await patchShipping(orderId, { fournisseurRef, suiviUrl, transporteur });
     return NextResponse.json({ ok: true });
   } catch (erreur) {
     console.error("[expedition PATCH] échec:", diagnosticJournal(erreur));
-    return NextResponse.json({ error: "Enregistrement impossible." }, { status: 500 });
+    return NextResponse.json({ error: erreur instanceof ShippingError ? erreur.message : "Enregistrement impossible." }, { status: erreur instanceof ShippingError ? erreur.status : 500 });
   }
 }
 
@@ -167,34 +160,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = await getOrderById(orderId);
-    if (!order) {
-      return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
-    }
-    if (!order.customer_email) {
-      return NextResponse.json({ error: "Commande sans adresse e-mail." }, { status: 400 });
-    }
-
-    /* Une commande numerique n'a pas de colis. Annoncer une expedition a un
-       client qui a paye un fichier lui ferait attendre un facteur qui ne
-       viendra pas — la meme confusion, dans l'autre sens, que celle qui a
-       impose `estPhysique` aux deux boutons d'envoi. */
-    const options = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
-    if (!estPhysique(options)) {
-      return NextResponse.json(
-        { error: "Cette commande est numérique : il n'y a pas de colis à suivre." },
-        { status: 409 }
-      );
-    }
-
-    await enregistrerExpedition(orderId, fournisseurRef, lien, transporteur, coutEstime(options));
-
+    const order = await notifyShipping(orderId, { fournisseurRef, suiviUrl: lien, transporteur }, async order => {
     const lang = langueCommande(order);
     const t = shippingEmail[lang];
     const ref = order.id.slice(0, 8);
-    const lienHtml = echapper(lien);
+    const lienHtml = echapper(order.suivi_url!);
 
-    const resultat = await envoyerEmail({
+    return envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
@@ -207,8 +179,8 @@ export async function POST(req: NextRequest) {
             <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.intro(ref)}</p>
             <p style="font-size: 16px; margin: 0 0 8px; color: #333;">${t.trackingIntro}</p>
             ${
-              transporteur
-                ? `<p style="font-size: 14px; margin: 0 0 16px; color: #555;">${t.carrierLabel} <strong>${echapper(transporteur)}</strong></p>`
+              order.suivi_transporteur
+                ? `<p style="font-size: 14px; margin: 0 0 16px; color: #555;">${t.carrierLabel} <strong>${echapper(order.suivi_transporteur)}</strong></p>`
                 : ""
             }
             <div style="text-align: center; margin: 24px 0;">
@@ -231,19 +203,11 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    /* Rattache les reponses du client a cette commande : « le suivi n'avance
-       pas » arrive en reponse a CET e-mail, et doit se lire sur la fiche. */
-    if (resultat.data?.id) {
-      await setOrderLastOutboundMessageId(orderId, resultat.data.id).catch((e) =>
-        console.error("[expedition] rattachement du message impossible:", diagnosticJournal(e))
-      );
-    }
+    });
 
-    await marquerExpediee(orderId);
-
-    return NextResponse.json({ ok: true, lang, email: order.customer_email });
+    return NextResponse.json({ ok: true, lang: langueCommande(order), email: order.customer_email });
   } catch (erreur) {
     console.error("[expedition POST] échec:", diagnosticJournal(erreur));
-    return NextResponse.json({ error: "Envoi impossible." }, { status: 500 });
+    return NextResponse.json({ error: erreur instanceof ShippingError ? erreur.message : "Envoi impossible." }, { status: erreur instanceof ShippingError ? erreur.status : 500 });
   }
 }

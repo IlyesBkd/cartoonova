@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CATALOGUE_EN_LIGNE as STYLES_PUBLIES } from "@/lib/catalogue";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { type Locale } from "@/i18n/config";
 import { SITE_URL } from "@/lib/site";
@@ -37,7 +38,7 @@ export async function generateMetadata({
   return metadataPage({
     locale,
     chemin: "/collections",
-    titre: `${t("catalogueTitre")} ${t("catalogueAccent")}`,
+    titre: t("catalogueMetaTitle"),
     description: t("catalogueSous"),
   });
 }
@@ -78,7 +79,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const tArianePage = await getTranslations({ locale: brut, namespace: "tj" });
   const ariane = filAriane([
     [tArianeNav("home"), urlAbsolue(brut)],
-    [tArianePage("catalogueTitre"), urlAbsolue(brut, "/collections")],
+    [tArianePage("catalogueTitre", { count: STYLES_PUBLIES.length }), urlAbsolue(brut, "/collections")],
   ]);
 
   return (

@@ -1,0 +1,332 @@
+{
+  "passed": false,
+  "security_concerns": [
+    {
+      "id": "BACKEND-SHIP-STALE-RECIPIENT",
+      "severity": "high",
+      "status": "confirmed_pre_fix",
+      "title": "POST expédition notifie un ancien destinataire après changement concurrent de commande",
+      "locations": [
+        "app/api/orders/expedition/route.ts:177-206",
+        "app/api/orders/expedition/route.ts:249-251",
+        "lib/orderDeliveryShipping.ts:13-29"
+      ],
+      "evidence": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "lang": "en",
+          "email": "old@example.invalid"
+        },
+        "mails": [
+          {
+            "to": [
+              "old@example.invalid"
+            ]
+          }
+        ],
+        "order": {
+          "customer_email": "new@example.invalid",
+          "final_image_url": "https://synthetic.invalid/final/B.png",
+          "options": {
+            "printKey": "framed"
+          },
+          "cout": "12.99",
+          "cout_note": "estimation Optimal Print",
+          "expedie_le": "2026-10-26T13:11:56.945Z",
+          "expedition_email_envoye_le": "2026-10-26T13:11:56.945Z"
+        }
+      },
+      "analysis": "La vraie lecture SQL est suivie d’une mutation SQL destinataire+image+support avant patchShipping. Le helper verrouille et relit la ligne courante mais ne compare pas la version attendue et son résultat est ignoré. Après libération du verrou, POST réutilise order.customer_email ancien, envoie le lien de suivi à old@example.invalid et marque expédiée la ligne désormais new@example.invalid / image B / framed. Risque de divulgation du suivi à un ancien destinataire. PATCH ne notifie pas : le défaut d’envoi concerne POST, conformément au contrat existant.",
+      "recommendation": "Lier mutation et notification à un snapshot canonique contrôlé sous verrou jusqu’à la frontière fournisseur ; rejeter une modification concurrente incompatible au lieu de notifier le snapshot ancien."
+    }
+  ],
+  "logic_errors": [
+    {
+      "id": "BACKEND-APPROVAL-EMAIL",
+      "severity": "high",
+      "status": "confirmed_pre_fix",
+      "title": "Une validation physique ancienne reste utilisable malgré un email de confirmation différent du client courant",
+      "locations": [
+        "lib/orderDelivery.ts:52-55",
+        "lib/emailImageFinale.ts:87-94",
+        "lib/db.ts:788-794",
+        "lib/db.ts:668-672"
+      ],
+      "evidence": {
+        "accepted": true,
+        "result": {
+          "id": "captured-approval"
+        },
+        "sent": [
+          [
+            "new@example.invalid"
+          ]
+        ],
+        "canonicalInvitationLookup": null,
+        "order": {
+          "customer_email": "new@example.invalid",
+          "poster_confirmation_email": "old@example.invalid",
+          "poster_confirmation_status": "confirmed",
+          "final_image_sent_at": "2026-10-26T13:11:56.621Z"
+        }
+      },
+      "analysis": "Le helper final réel et executeDelivery réel acceptent confirmed + même image sans vérifier poster_confirmation_email = customer_email. La même invitation est refusée par getOrderByConfirmationToken réel (null), et la programmation SQL exige déjà cette égalité : les gardes de canonicalisation ne sont pas cohérentes. Un envoi final a bien été capturé vers le nouveau client et final_image_sent_at écrit.",
+      "recommendation": "Exiger sous verrou que la confirmation porte à la fois sur l’image et sur le client courant ; conserver la règle FLOW03 existante, sans modifier les tests pour accepter une ancienne invitation."
+    },
+    {
+      "id": "BACKEND-EXTRAS-UNDLVD-VERSION",
+      "severity": "high",
+      "status": "confirmed_pre_fix",
+      "title": "Les extras d’une retouche non livrée utilisent le marqueur de livraison d’une ancienne image",
+      "locations": [
+        "lib/db.ts:570-583",
+        "lib/orderDelivery.ts:49-50",
+        "lib/orderDelivery.ts:90",
+        "app/api/orders/extras/route.ts:62-65"
+      ],
+      "evidence": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "fichiers": [
+            {
+              "cle": "carteVoeux",
+              "url": "https://synthetic.invalid/B.pdf",
+              "libelle": "Download the greeting card"
+            }
+          ],
+          "emailId": "extras-B",
+          "duplicate": false
+        },
+        "sends": 1,
+        "uploads": 1,
+        "downloaded": [
+          "https://synthetic.invalid/final/B.png"
+        ],
+        "oldDeliveryMarkerPreserved": true,
+        "effects": [
+          {
+            "kind": "extras",
+            "status": "sent",
+            "email_id": "extras-B"
+          },
+          {
+            "kind": "final_image",
+            "status": "sent",
+            "email_id": "portrait-A-delivered"
+          }
+        ]
+      },
+      "analysis": "Portrait A livré réellement via executeDelivery puis remplacement par B via updateOrderFinalImage réel. La mutation conserve final_image_sent_at historique. Les extras téléchargent B et envoient un PDF B (HTTP 200, un upload, un email) sans aucune livraison finale B ; le registre ne contient que portrait-A-delivered pour final_image. Un marqueur historique ne prouve pas la livraison du contenu courant.",
+      "recommendation": "Prouver la livraison de la version courante, idéalement par une empreinte liée au registre final_image, avant génération/upload/envoi des extras ; préserver la date historique si elle a une autre fonction métier."
+    },
+    {
+      "id": "BACKEND-SHIPPING-STALE-COST",
+      "severity": "medium",
+      "status": "confirmed_pre_fix",
+      "title": "PATCH et POST calculent le coût depuis des options antérieures à la ligne verrouillée",
+      "locations": [
+        "app/api/orders/expedition/route.ts:148-150",
+        "app/api/orders/expedition/route.ts:189-197",
+        "lib/orderDeliveryShipping.ts:13-27"
+      ],
+      "evidence": {
+        "PATCH": {
+          "status": 200,
+          "body": {
+            "ok": true
+          },
+          "mails": [],
+          "order": {
+            "customer_email": "new@example.invalid",
+            "final_image_url": "https://synthetic.invalid/final/B.png",
+            "options": {
+              "printKey": "framed"
+            },
+            "cout": "12.99",
+            "cout_note": "estimation Optimal Print",
+            "expedie_le": null,
+            "expedition_email_envoye_le": null
+          }
+        },
+        "POST": {
+          "status": 200,
+          "body": {
+            "ok": true,
+            "lang": "en",
+            "email": "old@example.invalid"
+          },
+          "mails": [
+            {
+              "to": [
+                "old@example.invalid"
+              ]
+            }
+          ],
+          "order": {
+            "customer_email": "new@example.invalid",
+            "final_image_url": "https://synthetic.invalid/final/B.png",
+            "options": {
+              "printKey": "framed"
+            },
+            "cout": "12.99",
+            "cout_note": "estimation Optimal Print",
+            "expedie_le": "2026-10-26T13:11:56.945Z",
+            "expedition_email_envoye_le": "2026-10-26T13:11:56.945Z"
+          }
+        }
+      },
+      "analysis": "Support canvas lu puis mutation SQL vers framed avant patchShipping : le coût persistant est 12.99, estimation du canvas calculée par la route avant verrouillage. Le helper relit bien les options mais utilise estimate fourni par l’appelant. PATCH retourne 200 sans email ni expedie_le : ce comportement respecte le contrat PATCH enregistre seulement ; son anomalie démontrée ici est l’estimation périmée.",
+      "recommendation": "Calculer l’estimation à partir des options de la ligne verrouillée ou refuser une version attendue périmée."
+    }
+  ],
+  "suggestions": [
+    {
+      "type": "tests",
+      "text": "Ajouter des régressions qui exigent le refus de ces états invalides (invitation email obsolète, retouche non livrée, changement concurrent POST et coût PATCH), puis relancer la revue indépendante après le correctif sa-0-aa16d48a. La suite existante verte ne couvre pas ces invariants."
+    },
+    {
+      "type": "excluded_false_positive",
+      "text": "Un probe supplémentaire simulait envoyerEmail retournant {error} sans lever et observait POST 200. Il est EXCLU du verdict : lib/envoiEmail.ts:24-30 transforme réellement tout refus SDK en exception. Ce double violait le contrat de la frontière et ne prouve pas une faille produit."
+    }
+  ],
+  "summary": "État PRÉ-CORRECTIF de l’agent sa-0-aa16d48a : passed=false. Paiement canonique paid_at résolu et 56/56 tests ciblés indépendamment relancés avec succès. Les anomalies de confirmation physique, extras retouchés non livrés, POST expédition sur snapshot ancien et estimation périmée restent reproduites. PATCH ne déclenche aucun envoi : le contrat réel est PATCH=enregistrement, POST=enregistrement+notification. Rapport non final après correctif ; une nouvelle revue sera nécessaire.",
+  "verification": {
+    "base_head": "abbf837b4db417fa28ca365e3766017fc9f08059",
+    "scope": "Lecture diff HEAD, fichiers non suivis backend livraison/orderDelivery/orderDeliveryShipping/migration/harnais/tests ; lecture mutations db.ts et règles confirmation et expédition. Aucun changement produit. Consentement hors périmètre. Snapshot observé avant le travail de correction concurrent annoncé par le parent.",
+    "executed_command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --test tests/order-delivery-payment.test.mjs tests/order-delivery.test.mjs tests/gift-delivery.test.mjs tests/final-image-security.test.mjs",
+    "result": {
+      "exit_code": 0,
+      "tests": 56,
+      "pass": 56,
+      "fail": 0,
+      "skipped": 0
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "files": [
+        "lib/db.ts",
+        "lib/emailImageFinale.ts",
+        "app/api/orders/expedition/route.ts",
+        "app/api/orders/extras/route.ts"
+      ]
+    },
+    "payment_conclusion": "Gardes paid_at observées lib/orderDelivery.ts:44, lib/orderDeliveryShipping.ts:18, lib/emailImageFinale.ts:49. Matrice PAID/in_progress/PENDING payés autorisés ; status=paid et paid_at=null refusé sur cinq chemins ; garde verrouillée relit le paiement SQL actuel. Rapport delivery-payment-integration.md cohérent avec cette exécution.",
+    "probe_exit_code": 0,
+    "isolation": "env -i, PostgreSQL 18 jetable loopback du harnais, aucun fournisseur/Blob/email réel. Modules métier/SQL réels, frontières admin, image/PDF/Blob/email/analytics synthétiques. Mutation concurrente déterministe SQL entre lecture route et helper SQL ; aucune prétention de test réseau ou production.",
+    "reproduce_probe": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --input-type=module -e '\nimport assert from '\"'\"'node:assert/strict'\"'\"';\nimport {database,loadDeep} from '\"'\"'./tests/order-delivery-harness.mjs'\"'\"';\nimport {load} from '\"'\"'./tests/upload-harness.mjs'\"'\"';\nconst pg=await database();const id='\"'\"'11111111-1111-4111-8111-111111111111'\"'\"';const out={};\nprocess.env.VERCEL='\"'\"'1'\"'\"';process.env.DATABASE_URL=pg.connectionUrl;\nconst proxy=new Proxy(pg.db,{get:(t,k)=>k==='\"'\"'end'\"'\"'?async()=>{}:Reflect.get(t,k)});\nconst db=loadDeep('\"'\"'lib/db.ts'\"'\"',{'\"'\"'postgres'\"'\"':()=>proxy});\nconst guard=pg.load('\"'\"'lib/orderDelivery.ts'\"'\"');\nconst req=(method,body)=>new Request('\"'\"'http://local/api/orders/expedition'\"'\"',{method,body:JSON.stringify({orderId:id,...body})});\ntry{\n await pg.migrate();\n await pg.db`ALTER TABLE orders ADD COLUMN poster_confirmation_email text, ADD COLUMN poster_confirmation_token text, ADD COLUMN poster_confirmation_sent_at timestamptz, ADD COLUMN poster_confirmation_responded_at timestamptz, ADD COLUMN poster_confirmation_message_id text, ADD COLUMN last_outbound_message_id text`;\n const reset=async(opts={printKey:'\"'\"'digital'\"'\"'})=>{await pg.db`DELETE FROM order_delivery_effects`;await pg.db`DELETE FROM orders`;await pg.db`INSERT INTO orders(id,status,paid_at,customer_email,customer_name,langue,detected_country,options,final_image_url) VALUES(${id},'\"'\"'in_progress'\"'\"',now(),'\"'\"'new@example.invalid'\"'\"','\"'\"'Buyer'\"'\"','\"'\"'en'\"'\"','\"'\"'FR'\"'\"',${pg.db.json(opts)},'\"'\"'https://synthetic.invalid/final/A.png'\"'\"')`;};\n await reset({printKey:'\"'\"'canvas'\"'\"'});\n await pg.db`UPDATE orders SET poster_confirmation_status='\"'\"'confirmed'\"'\"',poster_confirmation_image_url=final_image_url,poster_confirmation_email='\"'\"'old@example.invalid'\"'\"',poster_confirmation_token='\"'\"'old-invitation'\"'\"' WHERE id=${id}`;\n let sent=[];\n const helper=loadDeep('\"'\"'lib/emailImageFinale.ts'\"'\"',{\n '\"'\"'@/lib/db'\"'\"':db,'\"'\"'@/lib/orderDelivery'\"'\"':guard,\n '\"'\"'@/lib/finalImage'\"'\"':{validateFinalImageUrl:()=>{},downloadFinalImage:async()=>({bytes:Buffer.from('\"'\"'A'\"'\"')}),FinalImageError:class extends Error{constructor(m,s){super(m);this.status=s;}}},\n '\"'\"'@/lib/emailToken'\"'\"':{orderTrackingToken:()=> '\"'\"'synthetic'\"'\"'},'\"'\"'@/lib/analyticsServeur'\"'\"':{mesureServeur:async()=>{}},'\"'\"'@/lib/parrainage'\"'\"':{infosParrainage:async()=>null},'\"'\"'@/lib/envoiEmail'\"'\"':{envoyerEmail:async p=>{sent.push(p.to);return {data:{id:'\"'\"'captured-approval'\"'\"'}};}}});\n const lookup=await db.getOrderByConfirmationToken('\"'\"'old-invitation'\"'\"');\n const result=await helper.envoyerImageFinale(await db.getOrderById(id));\n out.approval_email_mismatch={accepted:true,result,sent,canonicalInvitationLookup:lookup,order:(await pg.db`SELECT customer_email,poster_confirmation_email,poster_confirmation_status,final_image_sent_at FROM orders WHERE id=${id}`)[0]};\n assert.equal(lookup,null);assert.equal(sent.length,1);\n await reset({printKey:'\"'\"'digital'\"'\"',carteVoeux:true});\n const a=await db.getOrderById(id);\n await guard.executeDelivery(a,'\"'\"'final_image'\"'\"',guard.deliveryContentHash(Buffer.from('\"'\"'A'\"'\"')),a.customer_email,async ctx=>ctx.send(async()=>({data:{id:'\"'\"'portrait-A-delivered'\"'\"'}})));\n const marker=(await db.getOrderById(id)).final_image_sent_at;\n await db.updateOrderFinalImage(id,'\"'\"'https://synthetic.invalid/final/B.png'\"'\"');\n let extrasSends=0,uploads=0;const downloaded=[];\n const extra=load('\"'\"'app/api/orders/extras/route.ts'\"'\"',{\n '\"'\"'@/lib/db'\"'\"':db,'\"'\"'@/lib/orderDelivery'\"'\"':guard,'\"'\"'@/lib/adminAuth'\"'\"':{refuserSiPasAdmin:async()=>null},\n '\"'\"'@/lib/finalImage'\"'\"':{downloadFinalImage:async url=>{downloaded.push(url);return {bytes:Buffer.from('\"'\"'B'\"'\"')};},FinalImageError:class extends Error{}},\n '\"'\"'@/lib/extras/carteVoeux'\"'\"':{genererCarteVoeux:async()=>Buffer.from('\"'\"'synthetic-pdf-B'\"'\"')},'\"'\"'@/lib/extras/calendrier'\"'\"':{genererCalendrier:async()=>Buffer.from('\"'\"'unused'\"'\"')},\n '\"'\"'@vercel/blob'\"'\"':{put:async()=>{uploads++;return {url:'\"'\"'https://synthetic.invalid/B.pdf'\"'\"'};}},'\"'\"'@/lib/envoiEmail'\"'\"':{envoyerEmail:async()=>{extrasSends++;return {data:{id:'\"'\"'extras-B'\"'\"'}};}}});\n const response=await extra.POST(req('\"'\"'POST'\"'\"',{}));\n out.extras_undelivered_retouch={status:response.status,body:await response.json(),sends:extrasSends,uploads,downloaded,oldDeliveryMarkerPreserved:new Date((await db.getOrderById(id)).final_image_sent_at).getTime()===new Date(marker).getTime(),effects:await pg.db`SELECT kind,status,email_id FROM order_delivery_effects ORDER BY kind`};\n assert.equal(response.status,200);assert.equal(extrasSends,1);\n const shipping=pg.load('\"'\"'lib/orderDeliveryShipping.ts'\"'\"');\n for(const method of ['\"'\"'PATCH'\"'\"','\"'\"'POST'\"'\"']){\n await reset({printKey:'\"'\"'canvas'\"'\"'});await pg.db`UPDATE orders SET customer_email='\"'\"'old@example.invalid'\"'\"' WHERE id=${id}`;\n let mails=[];let mutated=false;\n const route=load('\"'\"'app/api/orders/expedition/route.ts'\"'\"',{'\"'\"'@/lib/adminAuth'\"'\"':{refuserSiPasAdmin:async()=>null},'\"'\"'@/lib/orderDeliveryShipping'\"'\"':shipping,\n '\"'\"'@/lib/db'\"'\"':{...db,getOrderById:async orderId=>{const stale=await db.getOrderById(orderId);if(!mutated){mutated=true;await pg.db`UPDATE orders SET customer_email='\"'\"'new@example.invalid'\"'\"',final_image_url='\"'\"'https://synthetic.invalid/final/B.png'\"'\"',options='\"'\"'{\"printKey\":\"framed\"}'\"'\"' WHERE id=${id}`;}return stale;}},\n '\"'\"'@/lib/envoiEmail'\"'\"':{envoyerEmail:async p=>{mails.push({to:p.to});return {data:{id:'\"'\"'shipping-captured'\"'\"'}};}}});\n const r=await route[method](req(method,{fournisseurRef:'\"'\"'REF'\"'\"',suiviUrl:'\"'\"'https://tracking.invalid/parcel-A'\"'\"',transporteur:'\"'\"'DHL'\"'\"'}));\n out['\"'\"'shipping_stale_'\"'\"'+method]={status:r.status,body:await r.json(),mails,order:(await pg.db`SELECT customer_email,final_image_url,options,cout,cout_note,expedie_le,expedition_email_envoye_le FROM orders WHERE id=${id}`)[0]};\n assert.equal(r.status,200);assert.equal(mails.length,method==='\"'\"'POST'\"'\"'?1:0);\n }\n await reset({printKey:'\"'\"'canvas'\"'\"'});\n let attempted=0;\n const refusal=load('\"'\"'app/api/orders/expedition/route.ts'\"'\"',{'\"'\"'@/lib/adminAuth'\"'\"':{refuserSiPasAdmin:async()=>null},'\"'\"'@/lib/orderDeliveryShipping'\"'\"':shipping,'\"'\"'@/lib/db'\"'\"':db,'\"'\"'@/lib/envoiEmail'\"'\"':{envoyerEmail:async()=>{attempted++;return {data:null,error:{message:'\"'\"'synthetic provider refusal'\"'\"'}};}}});\n const r=await refusal.POST(req('\"'\"'POST'\"'\"',{suiviUrl:'\"'\"'https://tracking.invalid/rejected'\"'\"'}));out.shipping_provider_refusal={status:r.status,body:await r.json(),attempted,order:(await pg.db`SELECT expedie_le,expedition_email_envoye_le FROM orders WHERE id=${id}`)[0]};assert.equal(r.status,200);\n console.log(JSON.stringify(out,null,2));\n}finally{await pg.close();}\n'",
+    "probe_source": "\nimport assert from 'node:assert/strict';\nimport {database,loadDeep} from './tests/order-delivery-harness.mjs';\nimport {load} from './tests/upload-harness.mjs';\nconst pg=await database();const id='11111111-1111-4111-8111-111111111111';const out={};\nprocess.env.VERCEL='1';process.env.DATABASE_URL=pg.connectionUrl;\nconst proxy=new Proxy(pg.db,{get:(t,k)=>k==='end'?async()=>{}:Reflect.get(t,k)});\nconst db=loadDeep('lib/db.ts',{'postgres':()=>proxy});\nconst guard=pg.load('lib/orderDelivery.ts');\nconst req=(method,body)=>new Request('http://local/api/orders/expedition',{method,body:JSON.stringify({orderId:id,...body})});\ntry{\n await pg.migrate();\n await pg.db`ALTER TABLE orders ADD COLUMN poster_confirmation_email text, ADD COLUMN poster_confirmation_token text, ADD COLUMN poster_confirmation_sent_at timestamptz, ADD COLUMN poster_confirmation_responded_at timestamptz, ADD COLUMN poster_confirmation_message_id text, ADD COLUMN last_outbound_message_id text`;\n const reset=async(opts={printKey:'digital'})=>{await pg.db`DELETE FROM order_delivery_effects`;await pg.db`DELETE FROM orders`;await pg.db`INSERT INTO orders(id,status,paid_at,customer_email,customer_name,langue,detected_country,options,final_image_url) VALUES(${id},'in_progress',now(),'new@example.invalid','Buyer','en','FR',${pg.db.json(opts)},'https://synthetic.invalid/final/A.png')`;};\n await reset({printKey:'canvas'});\n await pg.db`UPDATE orders SET poster_confirmation_status='confirmed',poster_confirmation_image_url=final_image_url,poster_confirmation_email='old@example.invalid',poster_confirmation_token='old-invitation' WHERE id=${id}`;\n let sent=[];\n const helper=loadDeep('lib/emailImageFinale.ts',{\n '@/lib/db':db,'@/lib/orderDelivery':guard,\n '@/lib/finalImage':{validateFinalImageUrl:()=>{},downloadFinalImage:async()=>({bytes:Buffer.from('A')}),FinalImageError:class extends Error{constructor(m,s){super(m);this.status=s;}}},\n '@/lib/emailToken':{orderTrackingToken:()=> 'synthetic'},'@/lib/analyticsServeur':{mesureServeur:async()=>{}},'@/lib/parrainage':{infosParrainage:async()=>null},'@/lib/envoiEmail':{envoyerEmail:async p=>{sent.push(p.to);return {data:{id:'captured-approval'}};}}});\n const lookup=await db.getOrderByConfirmationToken('old-invitation');\n const result=await helper.envoyerImageFinale(await db.getOrderById(id));\n out.approval_email_mismatch={accepted:true,result,sent,canonicalInvitationLookup:lookup,order:(await pg.db`SELECT customer_email,poster_confirmation_email,poster_confirmation_status,final_image_sent_at FROM orders WHERE id=${id}`)[0]};\n assert.equal(lookup,null);assert.equal(sent.length,1);\n await reset({printKey:'digital',carteVoeux:true});\n const a=await db.getOrderById(id);\n await guard.executeDelivery(a,'final_image',guard.deliveryContentHash(Buffer.from('A')),a.customer_email,async ctx=>ctx.send(async()=>({data:{id:'portrait-A-delivered'}})));\n const marker=(await db.getOrderById(id)).final_image_sent_at;\n await db.updateOrderFinalImage(id,'https://synthetic.invalid/final/B.png');\n let extrasSends=0,uploads=0;const downloaded=[];\n const extra=load('app/api/orders/extras/route.ts',{\n '@/lib/db':db,'@/lib/orderDelivery':guard,'@/lib/adminAuth':{refuserSiPasAdmin:async()=>null},\n '@/lib/finalImage':{downloadFinalImage:async url=>{downloaded.push(url);return {bytes:Buffer.from('B')};},FinalImageError:class extends Error{}},\n '@/lib/extras/carteVoeux':{genererCarteVoeux:async()=>Buffer.from('synthetic-pdf-B')},'@/lib/extras/calendrier':{genererCalendrier:async()=>Buffer.from('unused')},\n '@vercel/blob':{put:async()=>{uploads++;return {url:'https://synthetic.invalid/B.pdf'};}},'@/lib/envoiEmail':{envoyerEmail:async()=>{extrasSends++;return {data:{id:'extras-B'}};}}});\n const response=await extra.POST(req('POST',{}));\n out.extras_undelivered_retouch={status:response.status,body:await response.json(),sends:extrasSends,uploads,downloaded,oldDeliveryMarkerPreserved:new Date((await db.getOrderById(id)).final_image_sent_at).getTime()===new Date(marker).getTime(),effects:await pg.db`SELECT kind,status,email_id FROM order_delivery_effects ORDER BY kind`};\n assert.equal(response.status,200);assert.equal(extrasSends,1);\n const shipping=pg.load('lib/orderDeliveryShipping.ts');\n for(const method of ['PATCH','POST']){\n await reset({printKey:'canvas'});await pg.db`UPDATE orders SET customer_email='old@example.invalid' WHERE id=${id}`;\n let mails=[];let mutated=false;\n const route=load('app/api/orders/expedition/route.ts',{'@/lib/adminAuth':{refuserSiPasAdmin:async()=>null},'@/lib/orderDeliveryShipping':shipping,\n '@/lib/db':{...db,getOrderById:async orderId=>{const stale=await db.getOrderById(orderId);if(!mutated){mutated=true;await pg.db`UPDATE orders SET customer_email='new@example.invalid',final_image_url='https://synthetic.invalid/final/B.png',options='{\"printKey\":\"framed\"}' WHERE id=${id}`;}return stale;}},\n '@/lib/envoiEmail':{envoyerEmail:async p=>{mails.push({to:p.to});return {data:{id:'shipping-captured'}};}}});\n const r=await route[method](req(method,{fournisseurRef:'REF',suiviUrl:'https://tracking.invalid/parcel-A',transporteur:'DHL'}));\n out['shipping_stale_'+method]={status:r.status,body:await r.json(),mails,order:(await pg.db`SELECT customer_email,final_image_url,options,cout,cout_note,expedie_le,expedition_email_envoye_le FROM orders WHERE id=${id}`)[0]};\n assert.equal(r.status,200);assert.equal(mails.length,method==='POST'?1:0);\n }\n await reset({printKey:'canvas'});\n let attempted=0;\n const refusal=load('app/api/orders/expedition/route.ts',{'@/lib/adminAuth':{refuserSiPasAdmin:async()=>null},'@/lib/orderDeliveryShipping':shipping,'@/lib/db':db,'@/lib/envoiEmail':{envoyerEmail:async()=>{attempted++;return {data:null,error:{message:'synthetic provider refusal'}};}}});\n const r=await refusal.POST(req('POST',{suiviUrl:'https://tracking.invalid/rejected'}));out.shipping_provider_refusal={status:r.status,body:await r.json(),attempted,order:(await pg.db`SELECT expedie_le,expedition_email_envoye_le FROM orders WHERE id=${id}`)[0]};assert.equal(r.status,200);\n console.log(JSON.stringify(out,null,2));\n}finally{await pg.close();}\n",
+    "probe_observations": {
+      "approval_email_mismatch": {
+        "accepted": true,
+        "result": {
+          "id": "captured-approval"
+        },
+        "sent": [
+          [
+            "new@example.invalid"
+          ]
+        ],
+        "canonicalInvitationLookup": null,
+        "order": {
+          "customer_email": "new@example.invalid",
+          "poster_confirmation_email": "old@example.invalid",
+          "poster_confirmation_status": "confirmed",
+          "final_image_sent_at": "2026-10-26T13:11:56.621Z"
+        }
+      },
+      "extras_undelivered_retouch": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "fichiers": [
+            {
+              "cle": "carteVoeux",
+              "url": "https://synthetic.invalid/B.pdf",
+              "libelle": "Download the greeting card"
+            }
+          ],
+          "emailId": "extras-B",
+          "duplicate": false
+        },
+        "sends": 1,
+        "uploads": 1,
+        "downloaded": [
+          "https://synthetic.invalid/final/B.png"
+        ],
+        "oldDeliveryMarkerPreserved": true,
+        "effects": [
+          {
+            "kind": "extras",
+            "status": "sent",
+            "email_id": "extras-B"
+          },
+          {
+            "kind": "final_image",
+            "status": "sent",
+            "email_id": "portrait-A-delivered"
+          }
+        ]
+      },
+      "shipping_stale_PATCH": {
+        "status": 200,
+        "body": {
+          "ok": true
+        },
+        "mails": [],
+        "order": {
+          "customer_email": "new@example.invalid",
+          "final_image_url": "https://synthetic.invalid/final/B.png",
+          "options": {
+            "printKey": "framed"
+          },
+          "cout": "12.99",
+          "cout_note": "estimation Optimal Print",
+          "expedie_le": null,
+          "expedition_email_envoye_le": null
+        }
+      },
+      "shipping_stale_POST": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "lang": "en",
+          "email": "old@example.invalid"
+        },
+        "mails": [
+          {
+            "to": [
+              "old@example.invalid"
+            ]
+          }
+        ],
+        "order": {
+          "customer_email": "new@example.invalid",
+          "final_image_url": "https://synthetic.invalid/final/B.png",
+          "options": {
+            "printKey": "framed"
+          },
+          "cout": "12.99",
+          "cout_note": "estimation Optimal Print",
+          "expedie_le": "2026-10-26T13:11:56.945Z",
+          "expedition_email_envoye_le": "2026-10-26T13:11:56.945Z"
+        }
+      },
+      "shipping_provider_refusal": {
+        "status": 200,
+        "body": {
+          "ok": true,
+          "lang": "en",
+          "email": "new@example.invalid"
+        },
+        "attempted": 1,
+        "order": {
+          "expedie_le": "2026-10-26T13:11:56.969Z",
+          "expedition_email_envoye_le": "2026-10-26T13:11:56.969Z"
+        }
+      }
+    },
+    "limitations": "Pas de build, commit, push, migration métier, production, facturation, ou email réel. Pas de relecture des corrections concurrentes en cours. Le probe provider_refusal est documenté mais exclu, car son mock ne respecte pas envoiEmail réel. Ne pas interpréter ces 56 tests verts comme un verdict global vert."
+  }
+}

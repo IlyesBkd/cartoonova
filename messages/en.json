@@ -723,14 +723,14 @@
     "navStyles": "Styles",
     "navEtapes": "How it works",
     "navFaq": "Questions",
-    "navTousStyles": "See all 36 styles",
+    "navTousStyles": "See all {count} styles",
     "heroOeil": "Custom portrait",
     "heroNote": "First preview within 2 business days after receipt of payment and photos. Unlimited revisions.",
     "etapesTitre": "Three steps,",
     "etapesAccent": "that's all",
     "etapesSous": "No account to create, no software. One photo is enough.",
     "stylesAccent": "cartoon",
-    "stylesTous": "See all 36 styles",
+    "stylesTous": "See all {count} styles",
     "temoinsTitre": "Cartooned…",
     "temoinsAccent": "and delighted!",
     "temoinsTexte": "Every review comes from a real order, and we publish it as written.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Unlimited revisions, or your money back",
     "contactTitre": "A question before ordering?",
     "contactHoraires": "Reply within 24 h, Monday to Friday",
-    "catalogueTitre": "Thirty-six universes,",
+    "catalogueMetaTitle": "Custom cartoon portraits: all styles",
+    "catalogueTitre": "{count} universes,",
     "catalogueAccent": "one you",
     "catalogueSous": "Each style has its own line, its own backdrops and its own audience. Pick yours.",
     "filtreTous": "All",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Cartoon portrait gift card | Cartoonova",
-      "description": "Give a cartoon portrait without needing the photo: a printable gift card for all 36 styles, emailed in seconds."
+      "description": "Give a cartoon portrait without needing the photo: a printable gift card for all {count} styles, emailed in seconds."
     },
     "noel": {
       "title": "Christmas gift: a cartoon portrait from your photo",

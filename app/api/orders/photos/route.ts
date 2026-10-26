@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { enregistrerPhotosCommande, getOrderById } from "@/lib/db";
+import { ClientActionError } from "@/lib/clientActionError";
+import { canDepositPhotos } from "@/lib/clientOrderPolicy";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { validatePhotoOwnership } from "@/lib/photoOwnership";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
@@ -16,12 +18,16 @@ import { signalerPanne } from "@/lib/alerteServeur";
  * stocke. Sans signature, essayer des identifiants suffirait a remplacer les
  * photos de n'importe quelle commande.
  *
- * La route est volontairement idempotente : le client peut revenir et renvoyer
- * une autre selection, la liste remplace la precedente.
+ * Ajout non destructif par défaut. Retrait/remplacement explicites exigent
+ * l'instantané affiché au client, vérifié sous verrou avec propriété et plafond.
  */
 export async function POST(req: NextRequest) {
   try {
-    const { token, photoUrls } = await req.json();
+    const { token, photoUrls, operation = "add", expectedPhotos } = await req.json();
+    if (!["add", "remove", "replace"].includes(operation) ||
+      (operation !== "add" && (!Array.isArray(expectedPhotos) || expectedPhotos.length > 8 || expectedPhotos.some((v: unknown) => typeof v !== "string")))) {
+      return NextResponse.json({ error: "Action ou version des photos invalide." }, { status: 400 });
+    }
 
     if (typeof token !== "string") {
       return NextResponse.json({ error: "Lien invalide." }, { status: 400 });
@@ -37,29 +43,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
     }
 
+    if (!canDepositPhotos(avant)) {
+      return NextResponse.json({ error: "Le dépôt de photos est fermé pour cette commande." }, { status: 409 });
+    }
+
     /* Authenticate and load the persisted attachments before any legacy exception. */
-    const photos = parsePhotoUrls(photoUrls, avant.photo_urls);
+    const photos = parsePhotoUrls(photoUrls, operation === "remove" ? [...(avant.photo_urls ?? []), ...expectedPhotos] : avant.photo_urls);
     if (photosInvalides(photos)) {
       return NextResponse.json({ error: photos.error }, { status: 400 });
     }
-    if (photos.length === 0) {
+    if (photos.length === 0 && operation !== "replace") {
       return NextResponse.json({ error: "Aucune photo exploitable." }, { status: 400 });
     }
 
-    const ownershipError = await validatePhotoOwnership(photos, avant, "depot");
+    const ownershipError = operation === "remove" ? null : await validatePhotoOwnership(photos, avant, "depot");
     if (ownershipError) {
       return NextResponse.json({ error: ownershipError.error }, { status: 403 });
     }
 
-    const apres = await enregistrerPhotosCommande(orderId, photos);
-    if (!apres) {
-      return NextResponse.json({ error: "Enregistrement impossible." }, { status: 500 });
-    }
+    const result = await enregistrerPhotosCommande(orderId, photos, operation, expectedPhotos);
+    const apres = result.order;
+    if (!result.changed) return NextResponse.json({ ok: true, photos: apres.photo_urls.length, photoUrls: apres.photo_urls });
 
     /* Le premier depot est ce qui debloque l'illustrateur : il merite une
        notification, au meme titre qu'une commande. Les depots suivants — le
        client qui se ravise — n'en valent pas une de plus. */
-    const premierDepot = !Array.isArray(avant.photo_urls) || avant.photo_urls.length === 0;
+    const premierDepot = result.firstDeposit;
     if (premierDepot) {
       await alerteDiscord({
         titre: "📸 PHOTOS REÇUES — la commande peut partir en dessin",
@@ -87,8 +96,9 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ ok: true, photos: photos.length });
+    return NextResponse.json({ ok: true, photos: apres.photo_urls.length, photoUrls: apres.photo_urls });
   } catch (erreur) {
+    if (erreur instanceof ClientActionError) return NextResponse.json({ error: erreur.message }, { status: erreur.status });
     await signalerPanne("depot de photos apres paiement", erreur);
     return NextResponse.json({ error: "Erreur technique." }, { status: 500 });
   }

@@ -36,11 +36,11 @@
   --encre-voile:  rgba(42, 37, 82, .12);
   --soleil:       #E9BA3B;   /* TurnedYellow : action (les deux jaunes convergeaient) */
   --soleil-fonce: #D4A32A;   /* ombre portée des boutons — jamais du texte */
-  /* Texte doré lisible : #D4A32A ne donnait que 2,2:1 sur crème (AA large en
-     exige 3). #AD7F12 monte à 3,3:1 sur crème et 3,6:1 sur blanc tout en
-     restant franchement doré. Utilisé partout où l'or porte du texte. */
-  --accent-texte: #AD7F12;
-  --accent-texte-petit: #96690A;  /* même or, sous 18px : 4,9:1 sur blanc */
+  /* Or de texte, distinct des actions et ornements : AA même à petit corps
+     sur papier, crème, fond et cendre (cas le plus sombre : 4,61:1).
+     Ne pas réutiliser --soleil-fonce pour du texte sur une surface claire. */
+  --accent-texte: #875E08;
+  --accent-texte-petit: var(--accent-texte);
   --soleil-pale:  #FBEFCB;
   --creme:        #FFF9ED;   /* fond chaud commun aux deux marques */
   --menthe:       #E0FAFA;   /* CartoonToi : tint secondaire */

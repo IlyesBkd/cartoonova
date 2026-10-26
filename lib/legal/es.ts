@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_ES: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_ES: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "El sitio Cartoonova utiliza cookies para mejorar la experiencia del usuario, analizar el tráfico y permitir el correcto funcionamiento de los servicios. Al continuar navegando, usted acepta el uso de cookies de conformidad con nuestra política de privacidad.",
+          COOKIE_CONSENT.es.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_ES: PagesLegales = {
               "**Proveedores de pago:** Stripe y PayPal para la tramitación segura de los pagos.",
               "**Servicios de impresión y entrega:** dirección de entrega para el envío de los productos impresos.",
               "**Proveedor de alojamiento:** Vercel Inc. para el alojamiento técnico del Sitio.",
-              "**Herramientas de análisis:** Google Analytics (datos anonimizados).",
+              "**Herramientas de análisis:** PostHog / ChatGPT Ads.",
             ],
           },
           "Todos nuestros proveedores están sujetos a estrictas obligaciones contractuales de confidencialidad y de protección de datos conformes al RGPD.",
@@ -328,15 +329,7 @@ export const LEGAL_ES: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "El Sitio utiliza los siguientes tipos de cookies:",
-          {
-            liste: [
-              "**Cookies esenciales:** necesarias para el funcionamiento del Sitio (sesión, cesta, autenticación).",
-              "**Cookies analíticas:** nos permiten comprender cómo se utiliza el Sitio (Google Analytics) — sujetas a su consentimiento.",
-              "**Cookies de marketing:** utilizadas para personalizar la publicidad — sujetas a su consentimiento.",
-            ],
-          },
-          "Puede gestionar sus preferencias de cookies en cualquier momento a través de la configuración de su navegador o de nuestro banner de consentimiento.",
+          COOKIE_CONSENT.es.notice,
         ],
       },
       {

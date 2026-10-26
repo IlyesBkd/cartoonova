@@ -1,4 +1,4 @@
-import { getOrderById, markFinalImageSent, setOrderLastOutboundMessageId, programmerEnvoiImageFinale } from "./db";
+import { getOrderById, setOrderLastOutboundMessageId, programmerEnvoiImageFinale } from "./db";
 import { finalImageEmail, avisLiens, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
 import { SITE_URL } from "./site";
@@ -10,6 +10,7 @@ import { parrainageTextes } from "./i18n/relances";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { optionsLivraisonCadeau, echapperMessageCadeau, validerLivraisonCadeau } from "./livraisonCadeau";
 import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "./finalImage";
+import { executeDelivery, deliveryContentHash, OrderDeliveryError } from "./orderDelivery";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -45,6 +46,7 @@ export async function envoyerImageFinale(
 ): Promise<{ id: string | null; deferredUntil?: string }> {
   const saved = await getOrderById(order.id);
   if (!saved?.final_image_url) throw new FinalImageError("Commande sans portrait enregistré.", 409);
+  if (!saved.paid_at) throw new FinalImageError("La livraison exige une commande payée.", 409);
   if (saved.final_image_url !== order.final_image_url || saved.customer_email !== order.customer_email) {
     throw new FinalImageError("La commande a changé. Rechargez-la avant l'envoi.", 409);
   }
@@ -63,7 +65,7 @@ export async function envoyerImageFinale(
     return { id: null, deferredUntil: date.toISOString() };
   }
   const destinataire = gift?.recipientEmail?.trim() || order.customer_email;
-  await downloadFinalImage(order.final_image_url);
+  const { bytes } = await downloadFinalImage(order.final_image_url);
   const tiers = destinataire.toLowerCase() !== order.customer_email.toLowerCase();
   const ref = order.id.slice(0, 8);
   /* Les cadeaux offerts (fond d'ecran, avatar, carte a imprimer) : la page
@@ -88,7 +90,8 @@ export async function envoyerImageFinale(
       JSON.stringify(optionsLivraisonCadeau(current.options)) !== JSON.stringify(options)) {
     throw new FinalImageError("La commande a changé. Rechargez-la avant l'envoi.", 409);
   }
-  const result = await envoyerEmail({
+  const delivery = await executeDelivery(order, "final_image", deliveryContentHash(bytes), destinataire, async context => {
+  await context.send(idempotencyKey => envoyerEmail({
     from: EXPEDITEUR,
     to: [destinataire],
     replyTo: SUPPORT_EMAIL,
@@ -152,27 +155,25 @@ export async function envoyerImageFinale(
         </div>
       </div>
     `,
+  }, { idempotencyKey }));
+  }).catch(error => {
+    if (error instanceof OrderDeliveryError) throw new FinalImageError(error.message, error.status);
+    throw error;
   });
-
-  if (result.error) {
-    throw new Error(result.error.message || "Envoi refusé par Resend.");
-  }
 
   /* Sans cet identifiant, la reponse du client — « pouvez-vous ajouter les
      tatouages ? » — arrive dans la boite support sans se rattacher a sa
      commande. */
-  if (result.data?.id) {
-    await setOrderLastOutboundMessageId(order.id, result.data.id);
+  if (delivery.emailId) {
+    await setOrderLastOutboundMessageId(order.id, delivery.emailId);
   }
 
   /* L'envoi compte autant que le clic : sans denominateur,
      un taux d'ouverture n'est pas un taux. */
-  await mesureServeur(MESURES.emailEnvoye, {
+  if (!delivery.duplicate) await mesureServeur(MESURES.emailEnvoye, {
     identifiant: destinataire,
     proprietes: { campagne: "image_finale" },
   }).catch(() => {});
 
-  await markFinalImageSent(order.id);
-
-  return { id: result.data?.id ?? null };
+  return { id: delivery.emailId };
 }

@@ -36,7 +36,7 @@ export interface Retouche {
 
 let schemaPret: Promise<void> | null = null;
 
-async function assurerSchema(): Promise<void> {
+export async function assurerSchemaRetouches(): Promise<void> {
   if (!runtimeSchemaBootstrapEnabled) return;
   if (schemaPret) return schemaPret;
   schemaPret = (async () => {
@@ -74,7 +74,7 @@ export async function enregistrerRetouche(
   photos: string[] = []
 ): Promise<void> {
   try {
-    await assurerSchema();
+    await assurerSchemaRetouches();
     await sql`
       INSERT INTO retouches (order_id, note, photos)
       VALUES (${orderId}::uuid, ${note}, ${JSON.stringify(photos)}::text::jsonb)
@@ -87,7 +87,7 @@ export async function enregistrerRetouche(
 /** Toutes les demandes d'une commande, la plus recente d'abord. */
 export async function retouchesDeCommande(orderId: string): Promise<Retouche[]> {
   try {
-    await assurerSchema();
+    await assurerSchemaRetouches();
     const rows = (await sql`
       SELECT id, order_id, note, photos, demandee_le
       FROM retouches WHERE order_id = ${orderId}::uuid
@@ -109,7 +109,7 @@ export async function retouchesDeCommande(orderId: string): Promise<Retouche[]> 
 /** Combien de demandes pour cette commande — sert a numeroter l'alerte. */
 export async function nombreRetouches(orderId: string): Promise<number> {
   try {
-    await assurerSchema();
+    await assurerSchemaRetouches();
     const rows = (await sql`
       SELECT count(*)::int AS n FROM retouches WHERE order_id = ${orderId}::uuid
     `) as unknown as { n: number }[];
@@ -122,7 +122,7 @@ export async function nombreRetouches(orderId: string): Promise<number> {
 /** Historique de plusieurs commandes d'un coup, pour le tableau de bord. */
 export async function retouchesParCommande(querySql: typeof sql = sql): Promise<Map<string, Retouche[]>> {
   try {
-    await assurerSchema();
+    await assurerSchemaRetouches();
     const rows = (await querySql`
       SELECT id, order_id, note, photos, demandee_le
       FROM retouches ORDER BY demandee_le DESC, id DESC LIMIT 500

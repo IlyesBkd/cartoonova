@@ -1,4 +1,5 @@
 ﻿"use client";
+import { CATALOGUE_EN_LIGNE as STYLES_PUBLIES } from "@/lib/catalogue";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -208,7 +209,7 @@ export default function Accueil({
                   <IconesCta.Fleche />
                 </Link>
                 <Link className="bouton bouton--contour" href={lien("/collections")}>
-                  {t("stylesTous")}
+                  {t("stylesTous", { count: STYLES_PUBLIES.length })}
                 </Link>
               </div>
               <span className="hero__note">{textesHero?.note ?? t("heroNote")}</span>
@@ -282,7 +283,7 @@ export default function Accueil({
                 </div>
               </div>
               <div className="hiw-step-content">
-                <span className="hiw-background-number">01</span>
+                <span className="hiw-background-number" aria-hidden="true">01</span>
                 <div className="hiw-step-content-wr">
                   <h3 className="hiw-step-heading">{t("hiwStep1Titre")}</h3>
                   <p className="hiw-step-description">{t("hiwStep1Texte")}</p>
@@ -308,7 +309,7 @@ export default function Accueil({
                 </div>
               </div>
               <div className="hiw-step-content">
-                <span className="hiw-background-number">02</span>
+                <span className="hiw-background-number" aria-hidden="true">02</span>
                 <div className="hiw-step-content-wr">
                   <h3 className="hiw-step-heading">{t("hiwStep2Titre")}</h3>
                   <p className="hiw-step-description">{t("hiwStep2Texte")}</p>
@@ -345,7 +346,7 @@ export default function Accueil({
                 </div>
               </div>
               <div className="hiw-step-content">
-                <span className="hiw-background-number">03</span>
+                <span className="hiw-background-number" aria-hidden="true">03</span>
                 <div className="hiw-step-content-wr">
                   <h3 className="hiw-step-heading">{t("hiwStep3Titre")}</h3>
                   <p className="hiw-step-description">{t("hiwStep3Texte")}</p>
@@ -404,7 +405,7 @@ export default function Accueil({
           </div>
           <div style={{ textAlign: "center", marginTop: 34 }}>
             <Link className="bouton bouton--primaire" href={lien("/collections")}>
-              {t("stylesTous")}
+              {t("stylesTous", { count: STYLES_PUBLIES.length })}
             </Link>
           </div>
         </div>
@@ -437,7 +438,7 @@ export default function Accueil({
           <div className="atouts-grille">
             {[1, 2, 3, 4].map((n) => (
               <article className="atout-carte" key={n}>
-                <div className="atout-carte__num">{`0${n}`}</div>
+                <div className="atout-carte__num" aria-hidden="true">{`0${n}`}</div>
                 <IconesAtouts index={n} />
                 <h3>{t(`atout${n}T` as "atout1T")}</h3>
                 <p>{t(`atout${n}D` as "atout1D")}</p>

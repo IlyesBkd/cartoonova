@@ -8,6 +8,7 @@ import { genererCarteVoeux } from "@/lib/extras/carteVoeux";
 import { genererCalendrier } from "@/lib/extras/calendrier";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
+import { executeDelivery, deliveryContentHash, OrderDeliveryError } from "@/lib/orderDelivery";
 
 /**
  * Carte de voeux et calendrier (options F-6/F-7) : genere les PDF a partir du
@@ -15,7 +16,7 @@ import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
  *
  * Declenche a la main depuis l'admin (bouton « Envoyer carte / calendrier »),
  * jamais automatiquement : le portrait doit d'abord etre valide et livre.
- * Relancer renvoie de nouveaux fichiers — utile si le portrait a ete retouche.
+ * Un rejeu conserve les fichiers. Un contenu réellement retouché crée une version.
  */
 
 export const runtime = "nodejs";
@@ -61,26 +62,31 @@ export async function POST(req: NextRequest) {
     /* L'image est telechargee une seule fois pour les deux documents. */
     const { bytes: image } = await downloadFinalImage(order.final_image_url);
 
-    const fichiers: { cle: "carteVoeux" | "calendrier"; libelle: string; url: string }[] = [];
+    const delivery = await executeDelivery(order, "extras", deliveryContentHash(image), order.customer_email, async context => {
+    const fichiers = (context.artifacts.fichiers ?? []) as { cle: "carteVoeux" | "calendrier"; libelle: string; url: string }[];
 
-    if (options.carteVoeux) {
+    if (options.carteVoeux && !fichiers.some(f => f.cle === "carteVoeux")) {
       const pdf = await genererCarteVoeux(image, lang);
+      await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: "carteVoeux" });
       const blob = await put(`extras/${ref}/carte-voeux-cartoonova.pdf`, Buffer.from(pdf), {
         access: "public",
         contentType: "application/pdf",
         addRandomSuffix: true,
       });
       fichiers.push({ cle: "carteVoeux", libelle: oc.extrasCarte, url: blob.url });
+      await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: null });
     }
 
-    if (options.calendrier) {
+    if (options.calendrier && !fichiers.some(f => f.cle === "calendrier")) {
       const pdf = await genererCalendrier(image, lang);
+      await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: "calendrier" });
       const blob = await put(`extras/${ref}/calendrier-cartoonova.pdf`, Buffer.from(pdf), {
         access: "public",
         contentType: "application/pdf",
         addRandomSuffix: true,
       });
       fichiers.push({ cle: "calendrier", libelle: oc.extrasCalendrier, url: blob.url });
+      await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: null });
     }
 
     const boutons = fichiers
@@ -94,7 +100,7 @@ export async function POST(req: NextRequest) {
       )
       .join("");
 
-    const envoi = await envoyerEmail({
+    await context.send(idempotencyKey => envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
@@ -112,20 +118,13 @@ export async function POST(req: NextRequest) {
           </div>
         </div>
       `,
+    }, { idempotencyKey }));
     });
 
-    if (envoi.error) {
-      console.error("[EXTRAS] envoi refusé.");
-      return NextResponse.json(
-        { error: "Fichiers générés mais e-mail non envoyé.", fichiers },
-        { status: 502 }
-      );
-    }
-
-    return NextResponse.json({ ok: true, fichiers, emailId: envoi.data?.id ?? null });
+    return NextResponse.json({ ok: true, fichiers: delivery.artifacts.fichiers, emailId: delivery.emailId, duplicate: delivery.duplicate });
   } catch (erreur) {
-    const message = erreur instanceof FinalImageError ? erreur.message : "Génération des extras impossible.";
+    const message = erreur instanceof FinalImageError || erreur instanceof OrderDeliveryError ? erreur.message : "Génération des extras impossible.";
     console.error("[EXTRAS] Échec de génération.");
-    return NextResponse.json({ error: message }, { status: erreur instanceof FinalImageError ? erreur.status : 500 });
+    return NextResponse.json({ error: message }, { status: erreur instanceof FinalImageError || erreur instanceof OrderDeliveryError ? erreur.status : 500 });
   }
 }

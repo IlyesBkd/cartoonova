@@ -74,7 +74,7 @@ export default function AProposPage() {
           <div className="atouts-grille">
             {VALEURS.map((n) => (
               <article className="atout-carte" key={n}>
-                <div className="atout-carte__num">{`0${n}`}</div>
+                <div className="atout-carte__num" aria-hidden="true">{`0${n}`}</div>
                 <IconesAtouts index={n} />
                 <h3>{ta(`v${n}Titre`)}</h3>
                 <p>{ta(`v${n}Texte`)}</p>

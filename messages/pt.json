@@ -723,14 +723,14 @@
     "navStyles": "Estilos",
     "navEtapes": "Como funciona",
     "navFaq": "Perguntas",
-    "navTousStyles": "Ver os 36 estilos",
+    "navTousStyles": "Ver os {count} estilos",
     "heroOeil": "Retrato personalizado",
     "heroNote": "Primeira pré-visualização em 2 dias úteis após receção do pagamento e das fotos. Retoques ilimitados.",
     "etapesTitre": "Três passos,",
     "etapesAccent": "e mais nada",
     "etapesSous": "Sem criar conta, sem software. Basta uma foto.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Ver os 36 estilos",
+    "stylesTous": "Ver os {count} estilos",
     "temoinsTitre": "Desenhados…",
     "temoinsAccent": "e encantados!",
     "temoinsTexte": "Cada avaliação vem de uma encomenda real, e publicamo-la tal como foi escrita.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Retoques ilimitados, ou reembolsado",
     "contactTitre": "Alguma dúvida antes de encomendar?",
     "contactHoraires": "Resposta em 24 h, de segunda a sexta",
-    "catalogueTitre": "Trinta e cinco universos,",
+    "catalogueMetaTitle": "Retratos cartoon personalizados: todos os estilos",
+    "catalogueTitre": "{count} universos,",
     "catalogueAccent": "um só tu",
     "catalogueSous": "Cada estilo tem o seu traço, os seus cenários e o seu público. Escolhe o teu.",
     "filtreTous": "Todos",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Vale-oferta de retrato cartoon | Cartoonova",
-      "description": "Oferece um retrato cartoon sem teres a foto: um vale-oferta para imprimir, válido nos 36 estilos, recebido por email em segundos."
+      "description": "Oferece um retrato cartoon sem teres a foto: um vale-oferta para imprimir, válido nos {count} estilos, recebido por email em segundos."
     },
     "noel": {
       "title": "Prenda de Natal: retrato cartoon da tua foto",

@@ -1,4 +1,5 @@
 ﻿"use client";
+import { CATALOGUE_EN_LIGNE as STYLES_PUBLIES } from "@/lib/catalogue";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -175,7 +176,7 @@ export default function Catalogue({
             <Etoiles /> {t("heroOeil")}
           </div>
           <h1>
-            {t("catalogueTitre")} <span className="accent">{t("catalogueAccent")}</span>
+            {t("catalogueTitre", { count: STYLES_PUBLIES.length })} <span className="accent">{t("catalogueAccent")}</span>
           </h1>
           <p>{t("catalogueSous")}</p>
 

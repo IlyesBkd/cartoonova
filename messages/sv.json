@@ -723,14 +723,14 @@
     "navStyles": "Stilar",
     "navEtapes": "Så funkar det",
     "navFaq": "Frågor",
-    "navTousStyles": "Se alla 36 stilar",
+    "navTousStyles": "Se alla {count} stilar",
     "heroOeil": "Personligt porträtt",
     "heroNote": "Första förhandsvisning inom 2 arbetsdagar efter mottagen betalning och foton. Obegränsade ändringar.",
     "etapesTitre": "Tre steg,",
     "etapesAccent": "inte mer",
     "etapesSous": "Inget konto, ingen programvara. Ett foto räcker.",
     "stylesAccent": "tecknad",
-    "stylesTous": "Se alla 36 stilar",
+    "stylesTous": "Se alla {count} stilar",
     "temoinsTitre": "Tecknade…",
     "temoinsAccent": "och överlyckliga!",
     "temoinsTexte": "Varje omdöme kommer från en riktig beställning, och vi publicerar det som det är.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Obegränsat med ändringar, eller pengarna tillbaka",
     "contactTitre": "En fråga innan du beställer?",
     "contactHoraires": "Svar inom 24 h, måndag till fredag",
-    "catalogueTitre": "Trettiosex världar,",
+    "catalogueMetaTitle": "Personliga cartoonporträtt: alla stilar",
+    "catalogueTitre": "{count} världar,",
     "catalogueAccent": "bara ett du",
     "catalogueSous": "Varje stil har sitt eget streck, sina bakgrunder och sin publik. Välj din.",
     "filtreTous": "Alla",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Presentkort för cartoonporträtt | Cartoonova",
-      "description": "Ge bort ett cartoonporträtt utan att ha fotot: ett utskrivbart presentkort för alla 36 stilar, mejlat på några sekunder."
+      "description": "Ge bort ett cartoonporträtt utan att ha fotot: ett utskrivbart presentkort för alla {count} stilar, mejlat på några sekunder."
     },
     "noel": {
       "title": "Personlig julklapp: cartoonporträtt efter foto | Cartoonova",

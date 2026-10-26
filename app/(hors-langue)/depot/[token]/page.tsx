@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { canDepositPhotos } from "@/lib/clientOrderPolicy";
+import { clientActionCopy } from "@/lib/i18n/clientActions";
 import { getOrderById } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { depotPhotosPage, langueCommande } from "@/lib/email-i18n";
@@ -52,6 +54,7 @@ export default async function DepotPage({
      ce lien arrive par courrier, hors du prefixe de langue du site. */
   const lang = langueCommande(order);
   const t = depotPhotosPage[lang];
+  if (!canDepositPhotos(order)) return <main className="depot-main"><p>{clientActionCopy[lang].closed}</p></main>;
 
   const dejaRecues = Array.isArray(order.photo_urls) && order.photo_urls.length > 0;
 
@@ -84,7 +87,7 @@ export default async function DepotPage({
             </div>
           )}
 
-          <DepotClient token={token} lang={lang} />
+          <DepotClient token={token} lang={lang} initialPhotos={order.photo_urls ?? []} />
         </div>
       </div>
     </div>

@@ -1,4 +1,6 @@
-import { runtimeSchemaBootstrapEnabled, sql } from "./db";
+import { runtimeSchemaBootstrapEnabled, sql, withFreshDatabaseClient, type DbOrder } from "./db";
+import { canReviewOrder } from "./clientOrderPolicy";
+import { ClientActionError } from "./clientActionError";
 
 /**
  * Avis clients.
@@ -99,7 +101,13 @@ export async function deposerAvis(depot: DepotAvis): Promise<{ id: number; statu
   await assurerSchema();
   const statut: StatutAvis = depot.verifie ? "publie" : "en_attente";
 
-  const rows = await sql`
+  return withFreshDatabaseClient(db => db.begin(async tx => {
+  if (depot.orderId) {
+    const [order] = await tx`SELECT * FROM orders WHERE id=${depot.orderId}::uuid FOR UPDATE`;
+    if (!order) throw new ClientActionError(404, "commande_introuvable");
+    if (!canReviewOrder(order as unknown as DbOrder)) throw new ClientActionError(409, "avis_indisponible");
+  }
+  const rows = await tx`
     INSERT INTO reviews (order_id, auteur, locale, note, texte, verifie, statut, modere_le)
     VALUES (
       ${depot.orderId},
@@ -117,6 +125,7 @@ export async function deposerAvis(depot: DepotAvis): Promise<{ id: number; statu
 
   const row = (rows as unknown as { id: number; statut: StatutAvis }[])[0];
   return row ? { id: row.id, statut: row.statut } : null;
+  }));
 }
 
 /** Un client ne doit pas pouvoir deposer deux fois depuis le meme lien. */

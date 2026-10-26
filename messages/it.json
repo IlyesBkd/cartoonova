@@ -723,14 +723,14 @@
     "navStyles": "Stili",
     "navEtapes": "Come funziona",
     "navFaq": "Domande",
-    "navTousStyles": "Vedi i 36 stili",
+    "navTousStyles": "Vedi i {count} stili",
     "heroOeil": "Ritratto personalizzato",
     "heroNote": "Prima anteprima entro 2 giorni lavorativi dalla ricezione del pagamento e delle foto. Ritocchi illimitati.",
     "etapesTitre": "Tre passaggi,",
     "etapesAccent": "tutto qui",
     "etapesSous": "Nessun account da creare, nessun software. Basta una foto.",
     "stylesAccent": "cartoon",
-    "stylesTous": "Vedi i 36 stili",
+    "stylesTous": "Vedi i {count} stili",
     "temoinsTitre": "Trasformati in cartoon…",
     "temoinsAccent": "ed entusiasti!",
     "temoinsTexte": "Ogni recensione viene da un ordine reale, e la pubblichiamo così com'è.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Ritocchi illimitati, o rimborsato",
     "contactTitre": "Una domanda prima di ordinare?",
     "contactHoraires": "Risposta entro 24 h, dal lunedì al venerdì",
-    "catalogueTitre": "Trentasei universi,",
+    "catalogueMetaTitle": "Ritratti cartoon personalizzati: tutti gli stili",
+    "catalogueTitre": "{count} universi,",
     "catalogueAccent": "un solo te",
     "catalogueSous": "Ogni stile ha il suo tratto, i suoi sfondi e il suo pubblico. Scegli il tuo.",
     "filtreTous": "Tutti",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Carta regalo ritratto cartoon | Cartoonova",
-      "description": "Regala un ritratto cartoon senza avere la foto: una carta regalo stampabile per tutti i 36 stili, ricevuta via e-mail in pochi secondi."
+      "description": "Regala un ritratto cartoon senza avere la foto: una carta regalo stampabile per tutti i {count} stili, ricevuta via e-mail in pochi secondi."
     },
     "noel": {
       "title": "Regalo di Natale: ritratto cartoon dalla tua foto",

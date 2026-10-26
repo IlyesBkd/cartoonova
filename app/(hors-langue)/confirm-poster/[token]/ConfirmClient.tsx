@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { uploadImage } from "@/lib/uploadClient";
 import PhotoPrivacyNotice from "@/components/PhotoPrivacyNotice";
+import { MAX_RETOUCHE_NOTE } from "@/lib/retouchePolicy";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { posterConfirmationPage, type Lang } from "@/lib/email-i18n";
 import { mesure } from "@/lib/analytics";
@@ -61,6 +62,7 @@ export default function ConfirmClient({
   };
 
   const respond = async (action: "confirm" | "changes", noteText?: string) => {
+    if (sending || (noteText !== undefined && noteText.length > MAX_RETOUCHE_NOTE)) return setError(t.invalidBody);
     setSending(action);
     setError(null);
     try {
@@ -144,12 +146,15 @@ export default function ConfirmClient({
           <div>
             <label className="text-sm font-bold text-black block mb-1">{t.changesPrompt}</label>
             <textarea
+              maxLength={MAX_RETOUCHE_NOTE}
+              aria-describedby="retouche-count"
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={t.changesPlaceholder}
               rows={4}
               className="w-full rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-amber-400"
             />
+            <small id="retouche-count">{note.length}/{MAX_RETOUCHE_NOTE}</small>
           </div>
 
           <div>

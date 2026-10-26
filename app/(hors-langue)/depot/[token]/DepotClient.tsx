@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { uploadImage } from "@/lib/uploadClient";
 import PhotoPrivacyNotice from "@/components/PhotoPrivacyNotice";
 import { depotPhotosPage, type Lang } from "@/lib/email-i18n";
+import { clientActionCopy } from "@/lib/i18n/clientActions";
 import { depotBouton } from "@/lib/i18n/fiche";
 import { MAX_PHOTOS } from "@/lib/orderPhotos";
 import { mesure } from "@/lib/analytics";
@@ -18,9 +19,12 @@ import { MESURES } from "@/lib/evenementsMesure";
  * suit : la liste d'URL est confiee a `/api/orders/photos`, qui la rattache a
  * la commande grace au jeton signe du lien.
  */
-export default function DepotClient({ token, lang }: { token: string; lang: Lang }) {
+export default function DepotClient({ token, lang, initialPhotos = [] }: { token: string; lang: Lang; initialPhotos?: string[] }) {
   const t = depotPhotosPage[lang];
   const tb = depotBouton[lang];
+  const copy = clientActionCopy[lang];
+  const [existingPhotos, setExistingPhotos] = useState(initialPhotos);
+  const [replacement, setReplacement] = useState(false);
   const champFichier = useRef<HTMLInputElement>(null);
 
   const [photos, setPhotos] = useState<string[]>([]);
@@ -41,16 +45,17 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
   /* Un tableau plutot que la FileList : celle-ci est vivante, et la remise a
      zero du champ (voir plus bas) la viderait pendant l'envoi. */
   const envoyer = async (fichiers: File[]) => {
-    if (!fichiers.length) return;
+    if (!fichiers.length || envoiEnCours || enregistrement) return;
+    if (photos.length + fichiers.length + (replacement ? 0 : existingPhotos.length) > MAX_PHOTOS) return setErreur(copy.quota);
     setEnvoiEnCours(true);
     setErreur("");
     try {
       const urls: string[] = [];
-      for (const fichier of fichiers.slice(0, MAX_PHOTOS)) {
+      for (const fichier of fichiers) {
         const blob = await uploadImage(fichier, { purpose: "depot", token });
         urls.push(blob.url);
       }
-      setPhotos((p) => [...p, ...urls].slice(0, MAX_PHOTOS));
+      setPhotos((p) => [...p, ...urls]);
     } catch {
       setErreur(t.error);
     } finally {
@@ -58,18 +63,24 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
     }
   };
 
-  const valider = async () => {
-    if (!photos.length || enregistrement) return;
+  const valider = async (operation: "add" | "remove" | "replace" = replacement ? "replace" : "add", selection = photos) => {
+    if (!selection.length || enregistrement || envoiEnCours) return;
+    if (operation === "replace" && !window.confirm(copy.confirm)) return;
     setEnregistrement(true);
     setErreur("");
     try {
       const r = await fetch("/api/orders/photos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, photoUrls: photos }),
+        body: JSON.stringify({ token, photoUrls: selection, operation, ...(operation !== "add" ? { expectedPhotos: existingPhotos } : {}) }),
       });
+      const data = await r.json().catch(() => null);
       if (!r.ok) {
-        setErreur(t.error);
+        setErreur(data?.error ?? t.error);
+        return;
+      }
+      if (operation === "remove") {
+        setExistingPhotos(data.photoUrls);
         return;
       }
       /* La mesure part du navigateur ET du serveur : celle-ci dit que le
@@ -119,7 +130,7 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
         <button
           type="button"
           onClick={() => champFichier.current?.click()}
-          disabled={envoiEnCours || photos.length >= MAX_PHOTOS}
+          disabled={envoiEnCours || enregistrement || photos.length + (replacement ? 0 : existingPhotos.length) >= MAX_PHOTOS}
           className="bouton bouton--primaire w-full disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {envoiEnCours ? (
@@ -148,6 +159,18 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
         }}
       />
 
+      <p className="text-sm">{copy.hint}</p>
+      <div className="grid grid-cols-4 gap-2">
+        {existingPhotos.map(url => <div key={url}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={url} alt="" className="w-full aspect-square object-cover rounded-lg" />
+          <button type="button" aria-label={copy.remove} disabled={enregistrement || envoiEnCours} onClick={() => valider("remove", [url])}>{copy.remove}</button>
+        </div>)}
+      </div>
+      <select aria-label={`${copy.add} / ${copy.replace}`} value={replacement ? "replace" : "add"} disabled={enregistrement || envoiEnCours} onChange={e => setReplacement(e.target.value === "replace")}>
+        <option value="add">{copy.add}</option>
+        <option value="replace">{copy.replace}</option>
+      </select>
       <PhotoPrivacyNotice locale={lang} />
       <p className="text-xs text-black/50">{t.hint}</p>
 
@@ -173,11 +196,11 @@ export default function DepotClient({ token, lang }: { token: string; lang: Lang
 
       <button
         type="button"
-        onClick={valider}
+        onClick={() => valider()}
         disabled={!photos.length || enregistrement || envoiEnCours}
         className="w-full bg-black text-white font-black text-sm py-3 rounded-xl hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {enregistrement ? t.sending : t.submit}
+        {enregistrement ? t.sending : replacement ? copy.replace : copy.add}
       </button>
     </div>
   );

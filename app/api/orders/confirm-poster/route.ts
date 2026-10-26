@@ -1,9 +1,12 @@
+import { ClientActionError } from "@/lib/clientActionError";
+import { MAX_RETOUCHE_NOTE, validRetoucheNote } from "@/lib/retouchePolicy";
+import { canRespondToPreview } from "@/lib/clientOrderPolicy";
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { validatePhotoOwnership } from "@/lib/photoOwnership";
 import { parsePhotoUrls, photosInvalides } from "@/lib/orderPhotos";
 import { libelleSupportCourt } from "@/lib/supportCommande";
-import { enregistrerRetouche, nombreRetouches } from "@/lib/retouches";
+import { nombreRetouches } from "@/lib/retouches";
 import { getOrderByConfirmationToken, recordPosterConfirmationResponse, setOrderLastOutboundMessageId, type DbOrder } from "@/lib/db";
 import { langueCommande } from "@/lib/email-i18n";
 import { accuseRetoucheEmail } from "@/lib/i18n/serveur";
@@ -41,7 +44,7 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
       ? `
           <div style="background: #fef3c7; border: 3px solid #000; border-radius: 12px; padding: 16px 20px; margin: 0 0 20px 0;">
             <p style="font-size: 14px; font-weight: 900; margin: 0 0 8px 0; color: #000;">${t.yourRequest}</p>
-            <p style="font-size: 15px; line-height: 1.5; margin: 0; color: #000; white-space: pre-wrap;">${echapper(note.trim().slice(0, 2000))}</p>
+            <p style="font-size: 15px; line-height: 1.5; margin: 0; color: #000; white-space: pre-wrap;">${echapper(note)}</p>
           </div>`
       : "";
 
@@ -60,6 +63,7 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
             <p style="font-size: 16px; line-height: 1.55; margin: 0 0 12px 0; color: #000;">${t.body}</p>
             <p style="font-size: 16px; line-height: 1.55; margin: 0 0 20px 0; color: #000; font-weight: bold;">${t.delay}</p>
             ${blocNote}
+            ${(order.poster_confirmation_photos ?? []).map((url, i) => `<p><a href="${echapper(url)}">Photo ${i + 1}</a></p>`).join("")}
             <p style="font-size: 14px; line-height: 1.55; margin: 0; color: #555;">${t.reply}</p>
           </div>
           <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
@@ -160,12 +164,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Date de réponse invalide." }, { status: 400 });
     }
 
+    if (!validRetoucheNote(note)) return NextResponse.json({ error: `La demande doit être un texte de ${MAX_RETOUCHE_NOTE} caractères maximum.` }, { status: 400 });
     const status = action === "confirm" ? "confirmed" : "changes_requested";
 
     const orderBefore = await getOrderByConfirmationToken(token);
     if (!orderBefore) {
       return NextResponse.json({ error: "Lien invalide ou expiré." }, { status: 404 });
     }
+    if (!canRespondToPreview(orderBefore)) return NextResponse.json({ error: "Cette commande ne peut plus recevoir de réponse à cet aperçu." }, { status: 409 });
     // Only this authenticated order's persisted attachments can be retained.
     const jointes = action === "changes" ? parsePhotoUrls(photos, orderBefore.poster_confirmation_photos) : [];
     if (photosInvalides(jointes)) {
@@ -215,7 +221,6 @@ export async function POST(req: NextRequest) {
        que l'ecrasement faisait disparaitre. */
     let rang = 0;
     if (action === "changes") {
-      await enregistrerRetouche(order.id, note ?? null, jointes);
       rang = await nombreRetouches(order.id);
       await envoyerAccuseRetouche(order, order.poster_confirmation_note);
     }
@@ -240,6 +245,7 @@ export async function POST(req: NextRequest) {
       respondedAt: order.poster_confirmation_responded_at,
     });
   } catch (error: unknown) {
+    if (error instanceof ClientActionError) return NextResponse.json({ error: error.message }, { status: error.status });
     const message = error instanceof Error ? error.message : "Unknown error";
     await signalerPanne("validation ou retouche de l'aperçu", error);
     return NextResponse.json({ error: message }, { status: 500 });

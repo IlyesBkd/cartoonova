@@ -28,12 +28,25 @@ test('real browser SDK transport never exports email identity, nested PII, photo
     await page.addScriptTag({ content: readFileSync(new URL('../node_modules/posthog-js/dist/array.full.no-external.js', import.meta.url), 'utf8') });
     const privacy = compile('../lib/confidentialiteMesure.ts');
     const analytics = compile('../lib/analytics.ts');
-    await page.evaluate(async ({privacy, analytics}) => {
+    const consent = compile('../lib/consentementMesure.ts');
+    const pixel = compile('../lib/pixelChatgpt.ts');
+    await page.evaluate(async ({privacy, analytics, consent, pixel}) => {
+      const consentExports = {};
+      new Function('exports', consent)(consentExports);
+      // This transport audit exercises the explicitly opted-in branch.
+      consentExports.enregistrerChoixMesure('granted');
+      const pixelExports = {};
+      new Function('exports','require','process',pixel)(pixelExports, name=>{
+        if(name==='@/lib/consentementMesure')return consentExports;
+        throw new Error('unexpected module '+name);
+      },{env:{}});
       const privacyExports = {};
       new Function('exports', privacy)(privacyExports);
       const exports = {};
       new Function('exports', 'require', 'process', analytics)(exports, name => {
         if (name === 'posthog-js') return { default: window.posthog };
+        if (name === '@/lib/consentementMesure') return consentExports;
+        if (name === '@/lib/pixelChatgpt') return pixelExports;
         if (name === '@/lib/confidentialiteMesure') return privacyExports;
         throw new Error('unexpected module '+name);
       }, { env: { NEXT_PUBLIC_POSTHOG_KEY: 'phc_synthetic' } });
@@ -51,7 +64,7 @@ test('real browser SDK transport never exports email identity, nested PII, photo
       });
 
       await new Promise(resolve => setTimeout(resolve, 200));
-    }, {privacy, analytics});
+    }, {privacy, analytics, consent, pixel});
     assert.equal(await page.evaluate(() => window.posthog.config.disable_session_recording), true, 'unverifiable compressed replay must stay disabled; business events remain active');
     assert.ok(payloads.length > 0, 'no SDK network payload captured');
     const decoded = payloads.map(body => {

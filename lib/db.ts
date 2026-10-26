@@ -1,4 +1,10 @@
 import postgres from "postgres";
+import { canDepositPhotos, canRespondToPreview } from "./clientOrderPolicy";
+import { assurerSchemaRetouches } from "./retouches";
+import { validRetoucheNote } from "./retouchePolicy";
+import { validatePhotoOwnership } from "./photoOwnership";
+import { ClientActionError } from "./clientActionError";
+import { MAX_PHOTOS } from "./orderPhotos";
 import { estPhysique } from "./supportCommande";
 import { timingSafeEqual } from "node:crypto";
 import type { Duplex } from "node:stream";
@@ -400,27 +406,34 @@ export async function ensurePaidAtSchema(): Promise<void> {
   return paidAtSchemaReady;
 }
 
-/**
- * Enregistre les photos deposees apres paiement.
- *
- * La liste remplace la precedente plutot que de s'y ajouter : la page de depot
- * envoie toujours l'etat complet de ce que le client a choisi, et un ajout
- * cumulatif rendrait impossible de retirer une photo envoyee par erreur.
- *
- * Renvoie la commande mise a jour, ou null si l'identifiant n'existe pas — ce
- * qui laisse a l'appelant le soin de distinguer un lien perime d'un echec.
- */
+/** Serialize reference-photo additions with phase changes and other tabs. */
 export async function enregistrerPhotosCommande(
   orderId: string,
-  photoUrls: string[]
-): Promise<DbOrder | null> {
-  const rows = await sql`
-    UPDATE orders
-    SET photo_urls = ${JSON.stringify(photoUrls)}::text::jsonb
-    WHERE id = ${orderId}::uuid
-    RETURNING *
-  `;
-  return (rows[0] as unknown as DbOrder) || null;
+  photoUrls: string[],
+  operation: "add" | "remove" | "replace" = "add",
+  expectedPhotos?: string[]
+): Promise<{ order: DbOrder; changed: boolean; firstDeposit: boolean }> {
+  return getClientSql().begin(async tx => {
+    const [row] = await tx`SELECT * FROM orders WHERE id = ${orderId}::uuid FOR UPDATE`;
+    if (!row) throw new ClientActionError(404, "Commande introuvable.");
+    const order = row as unknown as DbOrder;
+    if (!canDepositPhotos(order)) throw new ClientActionError(409, "Le dépôt de photos est fermé pour cette commande.");
+    // Removal cannot attach a reference; allow exact legacy retries after removal.
+    const ownership = operation === "remove" ? null : await validatePhotoOwnership(photoUrls, order, "depot", tx);
+    if (ownership) throw new ClientActionError(403, ownership.error);
+    const previous = order.photo_urls ?? [];
+    const next = operation === "remove" ? previous.filter(url => !photoUrls.includes(url))
+      : operation === "replace" ? [...new Set(photoUrls)] : [...new Set([...previous, ...photoUrls])];
+    const unchanged = JSON.stringify(previous) === JSON.stringify(next);
+    if (operation !== "add" && !unchanged && JSON.stringify(previous) !== JSON.stringify(expectedPhotos)) {
+      throw new ClientActionError(409, "Les photos ont changé. Rechargez la page avant de les retirer ou remplacer.");
+    }
+    if (next.length > MAX_PHOTOS) throw new ClientActionError(400, `Maximum ${MAX_PHOTOS} photos.`);
+    if (JSON.stringify(previous) === JSON.stringify(next)) return { order, changed: false, firstDeposit: false };
+    const [updated] = await tx`UPDATE orders SET photo_urls = ${JSON.stringify(next)}::text::jsonb
+      WHERE id = ${orderId}::uuid RETURNING *`;
+    return { order: updated as unknown as DbOrder, changed: true, firstDeposit: previous.length === 0 };
+  });
 }
 
 /** Commandes payees dont les photos manquent encore, pour la relance. */
@@ -790,42 +803,38 @@ export async function recordPosterConfirmationResponse(
   previousRespondedAt?: string | null
 ): Promise<{ order: DbOrder | null; changed: boolean; conflict: boolean }> {
   await ensurePosterConfirmationSchema();
-  const normalizedNote = note?.trim() || null;
-  const normalizedPhotos = photos?.length ? JSON.stringify(photos) : null;
-  const rows = await sql`
-    UPDATE orders
-    SET poster_confirmation_status = ${status},
-        poster_confirmation_responded_at = NOW(),
-        poster_confirmation_note = ${normalizedNote},
-        poster_confirmation_photos = ${normalizedPhotos}::text::jsonb
-    WHERE poster_confirmation_token = ${token}
+  if (note !== null && !validRetoucheNote(note)) throw new ClientActionError(400, "Demande de retouche invalide.");
+  if (status === "changes_requested") await assurerSchemaRetouches();
+  const normalizedNote = note ?? null;
+  const normalizedPhotos = photos?.length ? photos : null;
+  return getClientSql().begin(async tx => {
+    const [row] = await tx`SELECT * FROM orders WHERE poster_confirmation_token = ${token}
       AND poster_confirmation_image_url = final_image_url
-      AND poster_confirmation_email = customer_email
-      AND (
-        (${previousRespondedAt ?? null}::timestamptz IS NULL AND poster_confirmation_responded_at IS NULL)
-        OR poster_confirmation_responded_at = ${previousRespondedAt ?? null}::timestamptz
-      )
-      AND (
-        poster_confirmation_status IS DISTINCT FROM ${status}
-        OR poster_confirmation_note IS DISTINCT FROM ${normalizedNote}
-        OR poster_confirmation_photos IS DISTINCT FROM ${normalizedPhotos}::text::jsonb
-      )
-    RETURNING *
-  `;
-  const updated = (rows[0] as unknown as DbOrder) || null;
-  if (updated) return { order: updated, changed: true, conflict: false };
-
-  const current = await getOrderByConfirmationToken(token);
-  if (!current) return { order: null, changed: false, conflict: false };
-
-  const currentPhotos = current.poster_confirmation_photos ?? null;
-  const samePhotos = JSON.stringify(currentPhotos) === JSON.stringify(photos?.length ? photos : null);
-  const sameResponse =
-    current.poster_confirmation_status === status &&
-    (current.poster_confirmation_note || null) === normalizedNote &&
-    samePhotos;
-
-  return { order: current, changed: false, conflict: !sameResponse };
+      AND poster_confirmation_email = customer_email FOR UPDATE`;
+    if (!row) return { order: null, changed: false, conflict: false };
+    const current = row as unknown as DbOrder;
+    if (!canRespondToPreview(current)) throw new ClientActionError(409, "Cette commande ne peut plus recevoir de réponse à cet aperçu.");
+    const sameResponse = current.poster_confirmation_status === status &&
+      (current.poster_confirmation_note ?? null) === normalizedNote &&
+      JSON.stringify(current.poster_confirmation_photos ?? null) === JSON.stringify(normalizedPhotos);
+    if (sameResponse) return { order: current, changed: false, conflict: false };
+    const date = current.poster_confirmation_responded_at;
+    if ((date ? new Date(date).getTime() : null) !== (previousRespondedAt ? Date.parse(previousRespondedAt) : null)) {
+      return { order: current, changed: false, conflict: true };
+    }
+    const ownership = await validatePhotoOwnership(photos ?? [], current, "poster", tx);
+    if (ownership) throw new ClientActionError(403, ownership.error);
+    const [updated] = await tx`UPDATE orders
+      SET poster_confirmation_status = ${status}, poster_confirmation_responded_at = clock_timestamp(),
+        poster_confirmation_note = ${normalizedNote},
+        poster_confirmation_photos = ${normalizedPhotos ? JSON.stringify(normalizedPhotos) : null}::text::jsonb
+      WHERE id = ${current.id}::uuid RETURNING *`;
+    if (status === "changes_requested") {
+      await tx`INSERT INTO retouches (order_id, note, photos)
+        VALUES (${current.id}::uuid, ${normalizedNote}, ${JSON.stringify(photos ?? [])}::text::jsonb)`;
+    }
+    return { order: updated as unknown as DbOrder, changed: true, conflict: false };
+  });
 }
 
 // ─── Support inbox (IMAP sync) ────────────────────────────────────────

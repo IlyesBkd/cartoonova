@@ -1,5 +1,7 @@
 "use client";
 
+import { COOKIE_CONSENT } from "@/lib/i18n/cookieConsent";
+import CookiePreferences from "@/components/CookiePreferences";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -10,34 +12,11 @@ import {
 } from "@/lib/analytics";
 import { defaultLocale, locales, type Locale } from "@/i18n/config";
 
-/**
- * Bandeau de consentement a la mesure.
- *
- * Il n'apparait que si `NEXT_PUBLIC_CONSENT_BANNER` vaut "1" — le drapeau est
- * lu dans `lib/analytics.ts`, qui conditionne aussi la configuration de
- * PostHog. Les deux vont ensemble : afficher le bandeau sans configurer le
- * SDK laisserait le site mesurer malgre un refus, ce qui est pire que pas de
- * bandeau du tout.
- *
- * Trois etats, et c'est PostHog qui les tient :
- *  - en attente : rien n'est capture, le bandeau s'affiche ;
- *  - refus     : mode sans cookie — le trafic reste compte, sans identifiant
- *                persistant, sans enregistrement de session, sans profil ;
- *  - accord    : mesure complete.
- *
- * Le refus n'eteint donc pas tout. C'est deliberé : un « non » ne doit pas
- * couter la connaissance du volume de trafic, et une mesure sans identifiant
- * ne releve pas du consentement.
- *
- * Les textes sont embarques plutot que tires de `next-intl`. Deux raisons :
- * ce composant est monte par `PostHogProvider`, qui enveloppe
- * `NextIntlClientProvider` et non l'inverse ; et il doit fonctionner sur
- * /success, qui n'a aucun fournisseur de traduction.
- */
+/** Explicit opt-in, stored locally without loading either tracking SDK.
+ * Kept independent of next-intl: token/success routes may lack its provider. */
 
 interface Textes {
   titre: string;
-  texte: string;
   accepter: string;
   refuser: string;
   enSavoirPlus: string;
@@ -46,80 +25,60 @@ interface Textes {
 const TEXTES: Record<Locale, Textes> = {
   fr: {
     titre: "Un mot sur la mesure d'audience",
-    texte:
-      "Nous mesurons la navigation pour comprendre ce qui fonctionne sur le site. Si tu refuses, on continue de compter les visites sans aucun identifiant ni cookie.",
     accepter: "Accepter",
     refuser: "Refuser",
     enSavoirPlus: "En savoir plus",
   },
   en: {
     titre: "A word about analytics",
-    texte:
-      "We measure browsing to understand what works on the site. If you decline, we keep counting visits without any identifier or cookie.",
     accepter: "Accept",
     refuser: "Decline",
     enSavoirPlus: "Learn more",
   },
   es: {
     titre: "Unas palabras sobre la analitica",
-    texte:
-      "Medimos la navegacion para entender que funciona en el sitio. Si lo rechazas, seguimos contando las visitas sin ningun identificador ni cookie.",
     accepter: "Aceptar",
     refuser: "Rechazar",
     enSavoirPlus: "Mas informacion",
   },
   de: {
     titre: "Kurz zur Reichweitenmessung",
-    texte:
-      "Wir messen die Navigation, um zu verstehen, was auf der Website funktioniert. Bei Ablehnung zahlen wir Besuche weiterhin ohne Kennung und ohne Cookie.",
     accepter: "Akzeptieren",
     refuser: "Ablehnen",
     enSavoirPlus: "Mehr erfahren",
   },
   it: {
     titre: "Due parole sulle statistiche",
-    texte:
-      "Misuriamo la navigazione per capire cosa funziona sul sito. Se rifiuti, continuiamo a contare le visite senza alcun identificativo ne cookie.",
     accepter: "Accetta",
     refuser: "Rifiuta",
     enSavoirPlus: "Scopri di piu",
   },
   nl: {
     titre: "Een woord over statistieken",
-    texte:
-      "We meten het surfgedrag om te begrijpen wat werkt op de site. Als u weigert, blijven we bezoeken tellen zonder enige identificatie of cookie.",
     accepter: "Accepteren",
     refuser: "Weigeren",
     enSavoirPlus: "Meer weten",
   },
   pl: {
     titre: "Slowo o pomiarach ruchu",
-    texte:
-      "Mierzymy ruch, aby zrozumiec, co dziala na stronie. Jesli odmowisz, nadal liczymy wizyty bez zadnego identyfikatora ani pliku cookie.",
     accepter: "Akceptuje",
     refuser: "Odrzucam",
     enSavoirPlus: "Dowiedz sie wiecej",
   },
   sv: {
     titre: "Om var besoksmatning",
-    texte:
-      "Vi matar navigeringen for att forsta vad som fungerar pa webbplatsen. Om du tackar nej fortsatter vi rakna besok utan nagon identifierare eller kaka.",
     accepter: "Acceptera",
     refuser: "Neka",
     enSavoirPlus: "Las mer",
   },
   da: {
     titre: "Om vores besogsmaling",
-    texte:
-      "Vi maler navigationen for at forsta, hvad der virker pa sitet. Hvis du afviser, fortsaetter vi med at taelle besog uden nogen identifikator eller cookie.",
     accepter: "Accepter",
     refuser: "Afvis",
     enSavoirPlus: "Laes mere",
   },
   pt: {
     titre: "Uma palavra sobre a medicao",
-    texte:
-      "Medimos a navegacao para perceber o que funciona no site. Se recusar, continuamos a contar as visitas sem qualquer identificador ou cookie.",
     accepter: "Aceitar",
     refuser: "Recusar",
     enSavoirPlus: "Saber mais",
@@ -180,7 +139,7 @@ export default function BandeauConsentement() {
           {t.titre}
         </p>
         <p style={{ margin: "4px 0 0", fontSize: 13, color: "var(--encre-doux, #444)" }}>
-          {t.texte}{" "}
+          {COOKIE_CONSENT[langue].notice}{" "}
           <a
             href={`/${langue}/politique-de-confidentialite`}
             style={{ color: "inherit", textDecoration: "underline" }}
@@ -190,6 +149,7 @@ export default function BandeauConsentement() {
         </p>
       </div>
 
+      <CookiePreferences locale={langue} />
       <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
         <button
           type="button"

@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_DA: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_DA: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "Cartoonovas websted bruger cookies til at forbedre brugeroplevelsen, analysere trafikken og sikre, at tjenesterne fungerer korrekt. Ved at fortsætte din browsing accepterer du brugen af cookies i overensstemmelse med vores privatlivspolitik.",
+          COOKIE_CONSENT.da.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_DA: PagesLegales = {
               "**Betalingsudbydere:** Stripe og PayPal til sikker behandling af betalinger.",
               "**Tryk- og leveringstjenester:** leveringsadresse til forsendelse af trykte produkter.",
               "**Hostingudbyder:** Vercel Inc. til teknisk hosting af Webstedet.",
-              "**Analyseværktøjer:** Google Analytics (anonymiserede oplysninger).",
+              "**Analyseværktøjer:** PostHog / ChatGPT Ads.",
             ],
           },
           "Alle vores leverandører er underlagt strenge kontraktlige forpligtelser vedrørende fortrolighed og databeskyttelse i overensstemmelse med GDPR.",
@@ -328,15 +329,7 @@ export const LEGAL_DA: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "Webstedet bruger følgende typer cookies:",
-          {
-            liste: [
-              "**Nødvendige cookies:** nødvendige for, at Webstedet fungerer (session, indkøbskurv, godkendelse).",
-              "**Analysecookies:** gør det muligt for os at forstå, hvordan Webstedet bruges (Google Analytics) — kræver dit samtykke.",
-              "**Markedsføringscookies:** bruges til at tilpasse annoncer — kræver dit samtykke.",
-            ],
-          },
-          "Du kan til enhver tid administrere dine cookiepræferencer via din browsers indstillinger eller via vores samtykkebanner.",
+          COOKIE_CONSENT.da.notice,
         ],
       },
       {

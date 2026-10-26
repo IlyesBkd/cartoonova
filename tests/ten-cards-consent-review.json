@@ -1,0 +1,143 @@
+{
+  "passed": false,
+  "security_concerns": [
+    {
+      "id": "CONSENT03-REVIEW-P1",
+      "severity": "P1",
+      "blocking": true,
+      "title": "Le rechargement réseau ne décharge pas immédiatement un SDK pixel autonome après retrait",
+      "locations": [
+        "lib/pixelChatgpt.ts:24-33",
+        "lib/consentementMesure.ts:35-41",
+        "tests/ten-cards-consent-adversarial.test.mjs:13,32-38"
+      ],
+      "finding": "Remplacer window.oaiq, retirer la balise et appeler location.reload() ne neutralise pas un timer du SDK qui possède son propre transport. Le document précédent reste actif jusqu'au remplacement effectif par la réponse de navigation. Des requêtes nouvellement initiées après le refus peuvent donc encore partir pendant ce délai. Le test existant ne représente pas ce cas : son timer appelle chaque fois window.oaiq, précisément la référence que le correctif remplace par une fonction vide.",
+      "reproduction": [
+        "Compiler uniquement en mémoire les vrais modules consentementMesure et pixelChatgpt avec esbuild ; les exposer dans une page Chromium synthétique avec interception globale des requêtes et proxy réseau fermé.",
+        "Après accord explicite, servir à la vraie balise pixel un SDK synthétique dont setInterval appelle directement fetch toutes les 25 ms. Le corps indique la valeur courante du stockage de consentement ; il permet de distinguer les émissions commencées avant et après retrait.",
+        "Refuser via enregistrerChoixMesure('denied') et retarder de 500 ms la réponse HTML du rechargement déclenché par le vrai observateur.",
+        "Attendre le nouveau document puis encore 150 ms."
+      ],
+      "observed": {
+        "navigation_count": 2,
+        "requests_created_with_denied_consent_during_reload": 21,
+        "additional_requests_after_new_document_loaded": 0,
+        "effective_consent_after_reload": "denied"
+      },
+      "impact": "Le correctif arrête effectivement les timers après remplacement du document, mais pas pendant l'attente de cette navigation. Cette attente peut être longue en réseau lent ; elle ne constitue pas un arrêt effectif immédiat du fournisseur après retrait.",
+      "recommendation": "Ne pas traiter une navigation réseau demandée comme un arrêt déjà accompli. Garantir la destruction/isolation du contexte fournisseur indépendamment de la réponse réseau, ou utiliser une véritable API d'arrêt vérifiée. Ajouter un test avec transport autonome indépendant de window.oaiq et réponse de rechargement retardée. Vérifier ensuite le comportement réel du fournisseur avec transport intercepté avant de lui attribuer des garanties d'arrêt.",
+      "evidence_boundary": "Les modules applicatifs et Chromium sont réels. Le SDK pixel et sa latence réseau sont synthétiques. La reproduction prouve une insuffisance du mécanisme générique et du test actuel ; elle ne prétend pas que la version réelle du fournisseur utilise ce timer précis. Aucun fournisseur réel n'a reçu de requête."
+    }
+  ],
+  "logic_errors": [
+    {
+      "id": "CONSENT03-REVIEW-RELOAD-LATCH",
+      "severity": "P2",
+      "blocking": false,
+      "title": "Une navigation annulée laisse le verrou de rechargement activé et le fournisseur autonome vivant",
+      "locations": [
+        "lib/consentementMesure.ts:35-41",
+        "lib/pixelChatgpt.ts:24-33"
+      ],
+      "finding": "rechargement passe à true avant location.reload() et n'est jamais réinitialisé si le navigateur annule la navigation. Dans une page possédant un gestionnaire beforeunload, un utilisateur peut rester sur le document initial après le retrait ; les appels suivants à rechargerSansMesure ne tentent plus de navigation.",
+      "reproduction": "Avec les vrais modules et le même pixel synthétique à timer indépendant, ajouter un beforeunload annulable, déclencher le refus par un vrai clic puis rejeter le dialogue Chromium. Attendre 200 ms, rappeler rechargerSansMesure('denied'), attendre encore 150 ms.",
+      "observed": {
+        "first_attempt_dialog_count": 1,
+        "effective_consent_after_cancel": "denied",
+        "requests_with_denied_consent_after_first_wait": 9,
+        "requests_with_denied_consent_after_second_wait": 15,
+        "dialog_count_after_second_reload_attempt": 1
+      },
+      "recommendation": "Prévoir l'échec ou l'annulation de la navigation et ne pas laisser un verrou signifier que le contexte fournisseur a été détruit. Couvrir ce chemin avec un vrai dialogue Chromium et une fermeture indépendante du contexte publicitaire.",
+      "qualification": "Aucun gestionnaire beforeunload applicatif n'a été retrouvé dans les fichiers source recherchés ; ce gestionnaire a été ajouté par la sonde. Ce cas est donc une fragilité conditionnelle supplémentaire, pas une affirmation sur un parcours actuellement installé. Le blocage principal reste reproductible sans ce gestionnaire."
+    }
+  ],
+  "suggestions": [
+    {
+      "priority": "P1",
+      "locations": ["tests/ten-cards-consent-adversarial.test.mjs:13,32-38"],
+      "suggestion": "Faire émettre le SDK pixel synthétique via une référence de transport autonome, plutôt qu'en relisant window.oaiq à chaque tick ; affirmer zéro nouvelle requête dès le retrait, y compris avant le load suivant. Garder les assertions actuelles sur la file init et l'arrêt après déchargement."
+    },
+    {
+      "priority": "P2",
+      "locations": ["lib/analytics.ts:117-125"],
+      "suggestion": "Conserver les tests réels de batch et retry à chaque mise à jour de posthog-js : la suppression préalable à shutdown dépend explicitement des structures privées du SDK installé. Les tests relancés confirment ces structures sur l'état présent."
+    },
+    {
+      "priority": "P3",
+      "locations": ["lib/consentementMesure.ts:26-32"],
+      "suggestion": "Préserver ou documenter les fragments d'ancrage existants : URLSearchParams transforme par exemple un fragment d'ancrage simple en paramètre terminé par '='. Ce n'est pas une fuite de consentement mais une possible régression de navigation d'ancrage."
+    }
+  ],
+  "summary": {
+    "verdict": "Revue finale non validée : les trois reproductions initiales et les suites ciblées passent, mais un P1 supplémentaire subsiste dans la fenêtre précédant le déchargement effectif du pixel.",
+    "read_first": "tests/ten-cards-consent-integration-report.md",
+    "product_files_reviewed": [
+      "lib/consentementMesure.ts",
+      "lib/analytics.ts",
+      "lib/pixelChatgpt.ts",
+      "components/CookiePreferences.tsx"
+    ],
+    "additional_sources_reviewed": [
+      "tests/ten-cards-consent-adversarial.test.mjs",
+      "tests/ten-cards-consent.test.mjs",
+      "tests/ten-cards-consent-ui.test.mjs",
+      "tests/privacy-browser.test.mjs",
+      "tests/TESTING.md",
+      "scripts/test-network.mjs",
+      "components/BandeauConsentement.tsx"
+    ],
+    "verified_requirements": {
+      "CONSENT01": "Validé pour le cas demandé : granted lisible, toutes les écritures Storage en échec, refus effectif immédiat puis préférences et vrai reload sans restauration de l'accord. Le marqueur URL est non accordant. Les nouvelles visites indépendantes ou les autres onglets lorsque les écritures échouent restent hors garantie, comme indiqué dans le rapport d'intégration.",
+      "CONSENT02": "Validé dans deux vrais onglets du même contexte : pending provoque opt-out du vrai PostHog avant déchargement, nouvelle page non initialisée et silence après retrait. Les préférences interonglets arrêtent aussi le pixel synthétique après remplacement du document.",
+      "CONSENT03_script_and_queues": "Validé pour la réponse de script retardée, avec et sans Storage plein, et pour pending interonglets pendant chargement : init est supprimé et aucune initialisation tardive n'est observée.",
+      "CONSENT03_loaded_vendor": "Validation partielle seulement : arrêt après déchargement confirmé, mais nouvelle sonde autonome démontre des émissions après denied pendant un rechargement lent. Le test de timer existant est insuffisant pour conclure à un arrêt avant déchargement.",
+      "posthog_batch_retry": "Validé avec le SDK PostHog installé : batch déjà en attente et vraie file retry alimentée par une réponse synthétique 503 sont abandonnés avant shutdown ; aucun flush ou retry tardif observé par les tests.",
+      "analytics_privacy_regression": "Aucune régression supplémentaire observée dans les suites privacy ciblées : événements commerciaux utiles présents, données privées synthétiques absentes, replay désactivé. Ces suites ne prouvent pas toutes les branches de l'application ni la configuration production."
+    },
+    "executed_test_groups": [
+      {
+        "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --import ./scripts/test-network.mjs --test tests/ten-cards-consent-adversarial.test.mjs tests/ten-cards-consent.test.mjs tests/ten-cards-consent-ui.test.mjs",
+        "exit_code": 0,
+        "tests": 10,
+        "passed": 10,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      {
+        "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --import ./scripts/test-network.mjs --import tsx --test tests/privacy.test.mjs tests/privacy-browser.test.mjs tests/privacy-route-logs.test.mjs",
+        "exit_code": 0,
+        "tests": 15,
+        "passed": 15,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    ],
+    "independent_adversarial_probes": [
+      {
+        "name": "Pixel autonome, reload normal ralenti de 500 ms",
+        "result": "Échec de la garantie de silence dès retrait : 21 requêtes initiées avec état denied avant remplacement du document, zéro après le load suivant.",
+        "exit_code": 0
+      },
+      {
+        "name": "Pixel autonome, reload annulé par beforeunload",
+        "result": "Échec conditionnel : transport après denied et aucune deuxième tentative de navigation malgré nouvel appel explicite.",
+        "exit_code": 0
+      }
+    ],
+    "execution_scope": {
+      "secrets": "Processus Node lancés avec env -i et uniquement PATH/HOME/TMPDIR transmis ; aucune lecture de fichier .env.",
+      "network": "Interceptions globales des requêtes Chromium et transports synthétiques ; garde réseau Node et proxy Chromium fermé via scripts/test-network.mjs. Restriction coopérative, pas sandbox noyau.",
+      "real_sdks": "PostHog et Resend installés exercés par les suites existantes avec données synthétiques et transports interceptés. Pixel fournisseur remplacé au transport par fixture synthétique.",
+      "build": "Aucun build Next/applicatif. Compilation esbuild en mémoire uniquement pour les fixtures de test, sans sortie disque.",
+      "limitations": "Pas de tests de déploiement Next, pas de campagne complète du dépôt, pas de fournisseur réel, pas de production ni de preuve sur données historiques. Ni lint ni typecheck relancés dans cette revue."
+    },
+    "files_created_or_modified": ["tests/ten-cards-consent-review.json"],
+    "product_changes": false,
+    "commit_push_or_production_actions": false
+  }
+}

@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_IT: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_IT: PagesLegales = {
       {
         titre: "6. Cookie",
         blocs: [
-          "Il sito Cartoonova utilizza cookie per migliorare l'esperienza dell'utente, analizzare il traffico e consentire il corretto funzionamento dei servizi. Proseguendo la navigazione, Lei accetta l'utilizzo dei cookie conformemente alla nostra informativa sulla privacy.",
+          COOKIE_CONSENT.it.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_IT: PagesLegales = {
               "**Fornitori di servizi di pagamento:** Stripe e PayPal per l'elaborazione sicura dei pagamenti.",
               "**Servizi di stampa e consegna:** indirizzo di consegna per la spedizione dei prodotti stampati.",
               "**Hosting provider:** Vercel Inc. per l'hosting tecnico del Sito.",
-              "**Strumenti di analisi:** Google Analytics (dati anonimizzati).",
+              "**Strumenti di analisi:** PostHog / ChatGPT Ads.",
             ],
           },
           "Tutti i nostri fornitori sono soggetti a rigorosi obblighi contrattuali di riservatezza e di protezione dei dati conformi al GDPR.",
@@ -328,15 +329,7 @@ export const LEGAL_IT: PagesLegales = {
       {
         titre: "9. Cookie",
         blocs: [
-          "Il Sito utilizza i seguenti tipi di cookie:",
-          {
-            liste: [
-              "**Cookie essenziali:** necessari al funzionamento del Sito (sessione, carrello, autenticazione).",
-              "**Cookie analitici:** ci permettono di comprendere come viene utilizzato il Sito (Google Analytics) — soggetti al Suo consenso.",
-              "**Cookie di marketing:** utilizzati per personalizzare la pubblicità — soggetti al Suo consenso.",
-            ],
-          },
-          "Può gestire le Sue preferenze sui cookie in qualsiasi momento tramite le impostazioni del Suo browser o tramite il nostro banner di consenso.",
+          COOKIE_CONSENT.it.notice,
         ],
       },
       {

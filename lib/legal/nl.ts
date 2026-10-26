@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_NL: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_NL: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "De website Cartoonova gebruikt cookies om de gebruikerservaring te verbeteren, het verkeer te analyseren en de goede werking van de diensten mogelijk te maken. Door verder te surfen, aanvaardt u het gebruik van cookies overeenkomstig ons privacybeleid.",
+          COOKIE_CONSENT.nl.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_NL: PagesLegales = {
               "**Betalingsdienstaanbieders:** Stripe en PayPal voor de beveiligde verwerking van betalingen.",
               "**Druk- en leveringsdiensten:** leveringsadres voor de verzending van afgedrukte producten.",
               "**Hostingprovider:** Vercel Inc. voor de technische hosting van de Site.",
-              "**Analysetools:** Google Analytics (geanonimiseerde gegevens).",
+              "**Analysetools:** PostHog / ChatGPT Ads.",
             ],
           },
           "Al onze dienstverleners zijn onderworpen aan strikte contractuele verplichtingen inzake vertrouwelijkheid en gegevensbescherming in overeenstemming met de AVG.",
@@ -328,15 +329,7 @@ export const LEGAL_NL: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "De Site gebruikt de volgende soorten cookies:",
-          {
-            liste: [
-              "**Essentiële cookies:** noodzakelijk voor de werking van de Site (sessie, winkelwagen, authenticatie).",
-              "**Analytische cookies:** stellen ons in staat te begrijpen hoe de Site wordt gebruikt (Google Analytics) — onder voorbehoud van uw toestemming.",
-              "**Marketingcookies:** gebruikt om advertenties te personaliseren — onder voorbehoud van uw toestemming.",
-            ],
-          },
-          "U kunt uw cookievoorkeuren te allen tijde beheren via de instellingen van uw browser of via onze toestemmingsbanner.",
+          COOKIE_CONSENT.nl.notice,
         ],
       },
       {

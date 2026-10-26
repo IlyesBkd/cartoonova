@@ -35,7 +35,7 @@ before(async()=>{
  pg('pg_ctl',['-D',path.join(runtime,'pg'),'-l',path.join(runtime,'pg.log'),'-o',`-h 127.0.0.1 -p ${port} -k ''`,'-w','start']);started=true;
  process.env.DATABASE_URL=`postgresql://notification_test@127.0.0.1:${port}/postgres`;
  db=postgres(process.env.DATABASE_URL,{onnotice(){}});
- await db`CREATE TABLE orders(id uuid PRIMARY KEY,customer_email text,customer_name text,detected_country text,langue text,options jsonb,final_image_url text,final_image_sent_at timestamptz,final_image_scheduled_at timestamptz,poster_confirmation_token text,poster_confirmation_sent_at timestamptz,poster_confirmation_status text,poster_confirmation_responded_at timestamptz,poster_confirmation_note text,poster_confirmation_photos jsonb,last_outbound_message_id text,review_request_sent_at timestamptz)`;
+ await db`CREATE TABLE orders(id uuid PRIMARY KEY,status text,paid_at timestamptz,expedie_le timestamptz,customer_email text,customer_name text,detected_country text,langue text,options jsonb,final_image_url text,final_image_sent_at timestamptz,final_image_scheduled_at timestamptz,poster_confirmation_token text,poster_confirmation_sent_at timestamptz,poster_confirmation_status text,poster_confirmation_responded_at timestamptz,poster_confirmation_note text,poster_confirmation_photos jsonb,last_outbound_message_id text,review_request_sent_at timestamptz)`;
  const migration=new URL('../migrations/20261025_order_notification_versions.sql',import.meta.url);
  if(existsSync(migration))await db.unsafe(readFileSync(migration,'utf8'));
  const client=new Proxy(db,{get:(target,key)=>key==='end'?async()=>{}:Reflect.get(target,key)});
@@ -47,7 +47,8 @@ after(async()=>{try{if(db)await db.end({timeout:2});}finally{if(started)pg('pg_c
 beforeEach(async()=>{
  sends=[];downloads=0;duringDownload=async()=>{};
  await db`TRUNCATE orders`;
- await db`INSERT INTO orders(id,customer_email,customer_name,detected_country,langue,options,final_image_url) VALUES (${id},'buyer@example.invalid','Saved Buyer','FR','en',${db.json({printKey:'poster',gift:{recipientEmail:'gift@example.invalid',deliverAfter:'2099-12-31'}})},${image})`;
+ // Paid, not delivered/dispatched: preview responses remain open until a real milestone closes them.
+ await db`INSERT INTO orders(id,status,paid_at,customer_email,customer_name,detected_country,langue,options,final_image_url) VALUES (${id},'in_progress','2026-10-01T10:00:00Z','buyer@example.invalid','Saved Buyer','FR','en',${db.json({printKey:'poster',gift:{recipientEmail:'gift@example.invalid',deliverAfter:'2099-12-31'}})},${image})`;
 });
 function route(file,extra={}){
  return load(file,{'@/lib/db':database,'@/lib/adminAuth':{refuserSiPasAdmin:()=>null},'@/lib/envoiEmail':{envoyerEmail:async payload=>{sends.push(payload);return {data:{id:'captured-message'},error:null};}},...extra});
@@ -152,7 +153,7 @@ test('admin browser replaces confirmed A with canonical unapproved B and offers 
   const req=interception.request(),url=new URL(req.url());if(url.origin!=='https://admin.invalid')return interception.abort();
   if(url.pathname==='/')return interception.fulfill({contentType:'text/html',body:'<div id="root"></div>'});
   if(url.pathname==='/api/admin/auth')return interception.fulfill({status:204});
-  if(url.pathname==='/api/orders')return interception.fulfill({json:[{created_at:'2026-10-01T10:00:00Z',amount_total:5000,currency:'eur',status:'paid',photo_urls:[],...await database.getOrderById(id)}]});
+  if(url.pathname==='/api/orders')return interception.fulfill({json:[{created_at:'2026-10-01T10:00:00Z',amount_total:5000,currency:'eur',status:'PAID',photo_urls:[],...await database.getOrderById(id)}]});
   if(url.pathname==='/api/orders/send-final-image'){
    if(rejectUpload){rejectUpload=false;return interception.fulfill({status:409,json:{error:'synthetic save conflict'}});}
    const response=await route('app/api/orders/send-final-image/route.ts').POST(request(req.postDataJSON()));
@@ -193,18 +194,25 @@ test('deployment migration invalidates unversioned legacy links instead of inven
  assert.equal((await database.getOrderById(id)).poster_confirmation_token,token,'reapplying migration preserves versioned links');
 });
 test('local schema bootstrap upgrades legacy invitations without an explicit migration',async()=>{
- await db`UPDATE orders SET poster_confirmation_token='legacy-synthetic' WHERE id=${id}`;
- await db`ALTER TABLE orders DROP COLUMN poster_confirmation_image_url,DROP COLUMN poster_confirmation_email,DROP COLUMN poster_confirmation_message_id`;
- delete process.env.VERCEL;
+ // Destructive legacy DDL belongs to its own schema and connection pool. Keeping
+ // public.orders stable also preserves the real prepared SELECT * plans used by
+ // the notification/response tests before and after this bootstrap regression.
+ await db`CREATE SCHEMA notification_legacy`;
+ const legacyDb=postgres(process.env.DATABASE_URL,{connection:{search_path:'notification_legacy'},onnotice(){}});
  try {
-  const client=new Proxy(db,{get:(target,key)=>key==='end'?async()=>{}:Reflect.get(target,key)});
-  const local=load('lib/db.ts',{'postgres':()=>client});
+  await legacyDb`CREATE TABLE orders (LIKE public.orders INCLUDING ALL)`;
+  await legacyDb`INSERT INTO orders SELECT * FROM public.orders`;
+  await legacyDb`UPDATE orders SET poster_confirmation_token='legacy-synthetic' WHERE id=${id}`;
+  await legacyDb`ALTER TABLE orders DROP COLUMN poster_confirmation_image_url,DROP COLUMN poster_confirmation_email,DROP COLUMN poster_confirmation_message_id`;
+  delete process.env.VERCEL;
+  const local=load('lib/db.ts',{'postgres':()=>legacyDb});
   const saved=await local.getOrderByConfirmationToken('legacy-synthetic');
   assert.equal(saved,null,'a legacy message has no proven image version and must not display a guessed portrait');
   assert.equal((await local.getOrderById(id)).poster_confirmation_token,null);
  } finally {
   process.env.VERCEL='1';
-  await db.unsafe(readFileSync(new URL('../migrations/20261025_order_notification_versions.sql',import.meta.url),'utf8'));
+  await legacyDb.end({timeout:2});
+  await db`DROP SCHEMA notification_legacy CASCADE`;
  }
 });
 test('order notification routes await the asynchronous admin guard before reading or sending',async()=>{

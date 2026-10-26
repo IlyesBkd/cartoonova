@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 /* Version francaise : c'est elle qui fait foi. Toute modification ici doit
@@ -199,7 +200,7 @@ export const LEGAL_FR: PagesLegales = {
       {
         titre: "6. Cookies",
         blocs: [
-          "Le site Cartoonova utilise des cookies pour améliorer l'expérience utilisateur, analyser le trafic et permettre le bon fonctionnement des services. En poursuivant votre navigation, vous acceptez l'utilisation de cookies conformément à notre politique de confidentialité.",
+          COOKIE_CONSENT.fr.notice,
         ],
       },
       {
@@ -317,7 +318,7 @@ export const LEGAL_FR: PagesLegales = {
               "**Prestataires de paiement :** Stripe et PayPal pour le traitement sécurisé des paiements.",
               "**Services d'impression et de livraison :** adresse de livraison pour l'expédition des produits imprimés.",
               "**Hébergeur :** Vercel Inc. pour l'hébergement technique du Site.",
-              "**Outils d'analyse :** Google Analytics (données anonymisées).",
+              "**Outils d'analyse :** PostHog / ChatGPT Ads.",
             ],
           },
           "Tous nos prestataires sont soumis à des obligations contractuelles strictes de confidentialité et de protection des données conformes au RGPD.",
@@ -332,15 +333,7 @@ export const LEGAL_FR: PagesLegales = {
       {
         titre: "9. Cookies",
         blocs: [
-          "Le Site utilise les types de cookies suivants :",
-          {
-            liste: [
-              "**Cookies essentiels :** nécessaires au fonctionnement du Site (session, panier, authentification).",
-              "**Cookies analytiques :** nous permettent de comprendre comment le Site est utilisé (Google Analytics) — soumis à votre consentement.",
-              "**Cookies marketing :** utilisés pour personnaliser les publicités — soumis à votre consentement.",
-            ],
-          },
-          "Vous pouvez gérer vos préférences de cookies à tout moment via les paramètres de votre navigateur ou via notre bandeau de consentement.",
+          COOKIE_CONSENT.fr.notice,
         ],
       },
       {

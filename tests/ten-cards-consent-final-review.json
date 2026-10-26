@@ -1,0 +1,118 @@
+{
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [
+    {
+      "priority": "P2",
+      "locations": ["lib/analytics.ts:113-125", "tests/ten-cards-consent-adversarial.test.mjs:47-66"],
+      "suggestion": "Conserver les tests réels batch/retry à chaque mise à jour PostHog : la purge avant shutdown dépend des structures privées du SDK installé. Aucun défaut observé avec la version installée."
+    },
+    {
+      "priority": "P3",
+      "locations": ["components/PostHogProvider.tsx:17-18,63-65", "components/BandeauConsentement.tsx:93-95", "lib/analytics.ts:16-19"],
+      "suggestion": "Actualiser les commentaires historiques sur le drapeau, le chargement après hydratation et le pixel dépendant de son identifiant : le runtime exige un accord explicite et le pixel est toujours désactivé. Aucun effet runtime."
+    },
+    {
+      "priority": "P3",
+      "locations": ["lib/legal/fr.ts:321", "lib/legal/{en,de,es,it,nl,pl,sv,da,pt}.ts:317"],
+      "suggestion": "Clarifier à terme la liste générique PostHog / ChatGPT Ads en distinguant conversions serveur et pixel navigateur désactivé. Cette liste de destinataires potentiels ne promet pas un pixel actif ; les notices cookies des dix langues indiquent explicitement son absence même après accord."
+    }
+  ],
+  "summary": {
+    "verdict": "Validé dans le périmètre demandé : désactivation totale du pixel navigateur, garanties de consentement ciblées conservées, aucune faille reproduite. Les anciens constats bloquants ne sont plus applicables au pixel absent des nouveaux documents.",
+    "read_first": "tests/ten-cards-pixel-disable-report.md",
+    "reviewed_sources": [
+      "lib/pixelChatgpt.ts",
+      "lib/analytics.ts",
+      "lib/consentementMesure.ts",
+      "lib/i18n/cookieConsent.ts",
+      "components/BandeauConsentement.tsx",
+      "components/CookiePreferences.tsx",
+      "components/PostHogProvider.tsx",
+      "components/PageLegale.tsx",
+      "lib/legal/*.ts (raccordement des notices et liste des outils)",
+      "tests/ten-cards-pixel-disable.test.mjs",
+      "tests/ten-cards-consent-adversarial.test.mjs",
+      "tests/ten-cards-consent.test.mjs",
+      "tests/ten-cards-consent-ui.test.mjs",
+      "tests/ten-cards-copy.test.mjs (assertions consentement)",
+      "scripts/test-network.mjs",
+      "tests/ten-cards-consent-review.json"
+    ],
+    "verified_requirements": {
+      "pixel_disabled_even_with_consent": "Exports compatibles sans effet : aucun chargement fournisseur, insertion de script, initialisation, global, file ou transport. Sonde indépendante avec NEXT_PUBLIC_OPENAI_PIXEL_ID synthétique explicitement configuré : zéro requête inattendue sous pending/granted/denied, après accord persistant dans un nouveau document et après pending dans un autre vrai onglet.",
+      "no_initial_vendor_timer_in_new_document": "Le code actuel ne charge jamais le fournisseur et ne peut donc créer de timer publicitaire dans ces nouveaux documents. Zéro transport pendant la réponse HTML retardée de 700 ms et après remplacement. Aucune promesse de neutralisation rétroactive d’un ancien document de la version précédente ou d’un fournisseur déjà chargé.",
+      "storage_failure_denial": "Suites et sonde indépendante : setItem systématiquement en échec, ancien granted toujours lisible ; refus effectif denied immédiatement et après vrai reload grâce au marqueur non accordant. Reset de préférences pending après reload également validé par la suite. Pas de garantie de propagation aux autres onglets quand Storage est entièrement indisponible.",
+      "intertab_pending": "Deux vrais onglets du même contexte : pending retire effectivement le consentement. Le vrai PostHog actif passe en opt-out avant pagehide, puis le nouveau document reste non initialisé et silencieux. Pixel absent avant et après.",
+      "posthog_optin_batch_retry": "Import et initialisation seulement après accord ; course accord puis refus avant initialisation couverte. Événements commerciaux utiles et replay désactivé validés avec le vrai SDK. Batch déjà constitué et vraie file retry non vide alimentée par 503 synthétique abandonnés avant shutdown, sans flush/retry tardif observé.",
+      "cancelled_beforeunload": "Sonde indépendante : deux vrais dialogues Chromium annulés, puis navigation acceptée. Deux tentatives bien proposées, aucun verrou permanent, refus conservé.",
+      "notices_ten_locales": "fr/en/de/es/it/nl/pl/sv/da/pt : PostHog après clic explicite, navigation seule non consentante, pixel désactivé/non chargé même après accord. Rendu réel mentions/confidentialité vérifié dans les dix langues ; le bandeau utilise les mêmes notices.",
+      "privacy": "Quinze tests privacy réussis : transports synthétiques des SDK installés, identité et données privées filtrées, événements utiles conservés, replay désactivé. La couverture AST des consoles ne vaut pas exécution de toutes les branches."
+    },
+    "executed_test_groups": [
+      {
+        "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --import ./scripts/test-network.mjs --test tests/ten-cards-pixel-disable.test.mjs tests/ten-cards-consent-adversarial.test.mjs tests/ten-cards-consent.test.mjs tests/ten-cards-consent-ui.test.mjs tests/ten-cards-copy.test.mjs",
+        "exit_code": 0,
+        "tests": 18,
+        "passed": 18,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      {
+        "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --import ./scripts/test-network.mjs --import tsx --test tests/privacy.test.mjs tests/privacy-browser.test.mjs tests/privacy-route-logs.test.mjs",
+        "exit_code": 0,
+        "tests": 15,
+        "passed": 15,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    ],
+    "aggregate": {
+      "tests": 33,
+      "passed": 33,
+      "failed": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "method": "Comptages TAP lus et agrégés par script ; chaque groupe a été exécuté deux fois avec succès, sans doubler l’inventaire de 33 tests."
+    },
+    "independent_probe": {
+      "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node --import ./scripts/test-network.mjs /home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-independent.mjs",
+      "exit_code": 0,
+      "passed": true,
+      "product_path_unexpected_requests": 0,
+      "global_created": false,
+      "vendor_script_loaded_or_executed": false,
+      "beforeunload_cancelled_dialogs": 2,
+      "reload_html_delay_ms": 700,
+      "positive_control": {
+        "description": "Page séparée : timer synthétique possédant une référence fetch capturée, indépendant de window.oaiq.",
+        "intercepted_requests": 10,
+        "additional_requests_after_global_replacement": 6
+      },
+      "result_file": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-independent-result.json"
+    },
+    "previous_review_preserved": "tests/ten-cards-consent-review.json reste inchangé avec passed=false ; ce nouveau verdict porte uniquement sur l’état actuel après désactivation complète.",
+    "execution_scope": {
+      "environment": "env -i ; seuls PATH/HOME/TMPDIR transmis, aucune lecture .env ni utilisation de secrets fournisseur ; identifiants publics de test synthétiques.",
+      "network": "Interception globale Chromium ; service workers bloqués dans la sonde indépendante ; garde Node et proxy Chromium fermé via scripts/test-network.mjs. Restriction coopérative, pas sandbox noyau. Aucun fournisseur réel contacté.",
+      "build": "Aucun build applicatif/Next ; compilation des fixtures uniquement en mémoire avec write:false.",
+      "limitations": "Pas de production, déploiement, campagne globale du dépôt, effacement historique, arrêt rétroactif d’ancien document ou validation d’API d’arrêt fournisseur. Conversions serveur inchangées et hors périmètre ; perte d’attribution publicitaire navigateur acceptée. Ni lint ni typecheck relancés dans cette revue."
+    },
+    "files_created_or_modified": ["tests/ten-cards-consent-final-review.json"],
+    "scratch_artifacts": [
+      "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-independent.mjs",
+      "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-independent-result.json",
+      "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-evidence/aggregate.json",
+      "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-evidence/consent-copy.tap",
+      "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/consent-final-evidence/privacy.tap"
+    ],
+    "product_changes": false,
+    "commit_push_or_production_actions": false
+  }
+}

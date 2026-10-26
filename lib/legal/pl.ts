@@ -1,3 +1,4 @@
+import { COOKIE_CONSENT } from "../i18n/cookieConsent";
 import type { PagesLegales } from "./types";
 
 export const LEGAL_PL: PagesLegales = {
@@ -195,7 +196,7 @@ export const LEGAL_PL: PagesLegales = {
       {
         titre: "6. Pliki cookie",
         blocs: [
-          "Serwis Cartoonova wykorzystuje pliki cookie w celu poprawy komfortu użytkowania, analizy ruchu oraz zapewnienia prawidłowego działania usług. Kontynuując przeglądanie, akceptują Państwo wykorzystywanie plików cookie zgodnie z naszą polityką prywatności.",
+          COOKIE_CONSENT.pl.notice,
         ],
       },
       {
@@ -313,7 +314,7 @@ export const LEGAL_PL: PagesLegales = {
               "**Dostawcom usług płatniczych:** Stripe i PayPal w celu bezpiecznego przetwarzania płatności.",
               "**Usługodawcom drukarskim i kurierskim:** adres dostawy w celu wysyłki produktów drukowanych.",
               "**Dostawcy hostingu:** Vercel Inc. w celu technicznego hostingu Serwisu.",
-              "**Narzędziom analitycznym:** Google Analytics (dane zanonimizowane).",
+              "**Narzędziom analitycznym:** PostHog / ChatGPT Ads.",
             ],
           },
           "Wszyscy nasi usługodawcy podlegają ścisłym umownym obowiązkom zachowania poufności i ochrony danych zgodnym z RODO.",
@@ -328,15 +329,7 @@ export const LEGAL_PL: PagesLegales = {
       {
         titre: "9. Pliki cookie",
         blocs: [
-          "Serwis wykorzystuje następujące rodzaje plików cookie:",
-          {
-            liste: [
-              "**Niezbędne pliki cookie:** konieczne do działania Serwisu (sesja, koszyk, uwierzytelnianie).",
-              "**Analityczne pliki cookie:** pozwalają nam zrozumieć, w jaki sposób Serwis jest używany (Google Analytics) — wymagają Państwa zgody.",
-              "**Marketingowe pliki cookie:** wykorzystywane do personalizacji reklam — wymagają Państwa zgody.",
-            ],
-          },
-          "Mogą Państwo w każdej chwili zarządzać swoimi preferencjami dotyczącymi plików cookie za pomocą ustawień przeglądarki lub naszego banera zgody.",
+          COOKIE_CONSENT.pl.notice,
         ],
       },
       {

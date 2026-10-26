@@ -723,14 +723,14 @@
     "navStyles": "Stilarter",
     "navEtapes": "Sådan virker det",
     "navFaq": "Spørgsmål",
-    "navTousStyles": "Se alle 36 stilarter",
+    "navTousStyles": "Se alle {count} stilarter",
     "heroOeil": "Personligt portræt",
     "heroNote": "Første forhåndsvisning inden for 2 hverdage efter modtagelse af betaling og fotos. Ubegrænsede rettelser.",
     "etapesTitre": "Tre trin,",
     "etapesAccent": "ikke mere",
     "etapesSous": "Ingen konto, ingen software. Ét foto er nok.",
     "stylesAccent": "tegnet",
-    "stylesTous": "Se alle 36 stilarter",
+    "stylesTous": "Se alle {count} stilarter",
     "temoinsTitre": "Tegnet…",
     "temoinsAccent": "og vildt glade!",
     "temoinsTexte": "Hver anmeldelse kommer fra en rigtig bestilling, og vi offentliggør den, som den er.",
@@ -801,7 +801,8 @@
     "garantieTexte": "Ubegrænsede rettelser, eller pengene tilbage",
     "contactTitre": "Et spørgsmål, før du bestiller?",
     "contactHoraires": "Svar inden for 24 t, mandag til fredag",
-    "catalogueTitre": "Femogtredive universer,",
+    "catalogueMetaTitle": "Personlige cartoonportrætter: alle stilarter",
+    "catalogueTitre": "{count} universer,",
     "catalogueAccent": "ét dig",
     "catalogueSous": "Hver stil har sin egen streg, sine baggrunde og sit publikum. Vælg din.",
     "filtreTous": "Alle",
@@ -867,7 +868,7 @@
     },
     "bonCadeau": {
       "title": "Gavekort til et cartoonportræt | Cartoonova",
-      "description": "Giv et cartoonportræt uden at have fotoet: et gavekort til udskrivning til alle 36 stilarter, mailet på få sekunder."
+      "description": "Giv et cartoonportræt uden at have fotoet: et gavekort til udskrivning til alle {count} stilarter, mailet på få sekunder."
     },
     "noel": {
       "title": "Personlig julegave: cartoonportræt efter foto | Cartoonova",
