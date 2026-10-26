@@ -12,7 +12,7 @@ const css = ['node_modules/tailwindcss/preflight.css','app/toonjaune.css','app/t
 const stubs = {
   '@stripe/stripe-js': 'export const loadStripe=()=>null',
   '@stripe/react-stripe-js': 'export const Elements=({children})=>children;export const PaymentElement=()=>null;export const useElements=()=>null;export const useStripe=()=>null',
-  '@/lib/analytics': 'export const mesure=()=>{};export const contexte=()=>{}',
+  '@/lib/analytics': 'export const mesure=()=>{};export const contexte=()=>{};export const accepterMesure=()=>{};export const refuserMesure=()=>{}',
   '@/components/JsonLd': 'export default ()=>null',
   '@/lib/seo': 'export const metadataPageLegale=()=>({});export const urlAbsolue=()=>"https://gift.invalid/cgv"',
   '@/lib/donneesStructurees': 'export const pageWeb=()=>({});export const filAriane=()=>({})',

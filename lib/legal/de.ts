@@ -283,7 +283,7 @@ export const LEGAL_DE: PagesLegales = {
           {
             liste: [
               "**Vertragserfüllung:** die für die Anfertigung und Lieferung Ihrer Bestellung erforderlichen Daten.",
-              "**Einwilligung:** für den Versand von Marketingmitteilungen und die Verwendung nicht notwendiger Cookies.",
+              "**Einwilligung:** für den Versand von Marketingmitteilungen.",
               "**Berechtigtes Interesse:** für die Verbesserung unserer Dienste und die Betrugsprävention.",
               "**Rechtliche Verpflichtung:** für die Aufbewahrung von Buchhaltungs- und Steuerdaten.",
             ],
@@ -314,7 +314,7 @@ export const LEGAL_DE: PagesLegales = {
               "**Zahlungsdienstleister:** Stripe und PayPal für die sichere Abwicklung der Zahlungen.",
               "**Druck- und Lieferdienste:** Lieferadresse für den Versand gedruckter Produkte.",
               "**Hosting-Anbieter:** Vercel Inc. für das technische Hosting der Website.",
-              "**Analysetools:** PostHog / ChatGPT Ads.",
+              "**Analysetools:** PostHog.",
             ],
           },
           "Alle unsere Dienstleister unterliegen strengen vertraglichen Verpflichtungen zur Vertraulichkeit und zum Datenschutz gemäß der DSGVO.",

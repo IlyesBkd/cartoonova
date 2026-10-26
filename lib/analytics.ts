@@ -37,8 +37,6 @@ const CHEMIN_INGESTION = "/ingest";
    vaut `eu.i.posthog.com`, qui recoit les evenements mais ne sert aucune page. */
 const HOTE_INTERFACE = process.env.NEXT_PUBLIC_POSTHOG_UI_HOST || "https://eu.posthog.com";
 
-/* Explicit opt-in is always required; no cookieless traffic on refusal. */
-const CONSENTEMENT_REQUIS = true;
 
 /* ═══ hygiene des donnees personnelles ══════════════════════════════════
    Trois fuites possibles, toutes fermees ici plutot que sur chaque appel :
@@ -219,12 +217,9 @@ function client(): Promise<PostHog | null> {
         /* Un visiteur qui a demande a ne pas etre suivi ne l'est pas. */
         respect_dnt: true,
 
-        ...(CONSENTEMENT_REQUIS
-          ? ({
-              /* SDK imported only after explicit consent. */
-              opt_out_capturing_by_default: false,
-            } as const)
-          : {}),
+        // The application gate respects saved refusal and withdrawal before
+        // importing this SDK. New visitors use the default analytics policy.
+        opt_out_capturing_by_default: false,
       });
 
       // Existing local storage may still contain an email distinct_id from
@@ -306,7 +301,7 @@ export function oublier(): void {
 
 export type EtatConsentement = "granted" | "denied" | "pending";
 
-/** Choix deja exprime, ou `pending` si le bandeau doit encore etre montre. */
+/** Choix deja exprime ; `pending` reste sans mesure jusqu'a un accord explicite. */
 export async function etatConsentement(): Promise<EtatConsentement> {
   return lireChoixMesure();
 }
@@ -322,6 +317,3 @@ export function refuserMesure(): void {
   // Synchronous observer also handles preferences and other tabs.
   sdkActif?.opt_out_capturing();
 }
-
-/** Always expose the explicit consent controls. */
-export const bandeauConsentementActif = CONSENTEMENT_REQUIS;

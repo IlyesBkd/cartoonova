@@ -1,9 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { Suspense, useEffect, type ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { contexte, mesure, bandeauConsentementActif } from "@/lib/analytics";
+import { contexte, mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import { locales } from "@/i18n/config";
 import SuiviGlobal from "@/components/SuiviGlobal";
@@ -13,12 +12,6 @@ import { chargerPixelChatgpt, mesurerPixelChatgpt } from "@/lib/pixelChatgpt";
    etait d'alimenter `usePostHog()`, qui n'etait appele que par ce fichier.
    Il obligeait a importer le SDK en statique, donc a l'embarquer dans le
    bundle initial de chaque page. Voir lib/analytics.ts. */
-
-/* Le bandeau n'existe que si le drapeau est leve, et il n'a rien a faire dans
-   le bundle initial : il attend de toute facon le chargement du SDK. */
-const BandeauConsentement = dynamic(() => import("@/components/BandeauConsentement"), {
-  ssr: false,
-});
 
 function lireCookie(nom: string): string | undefined {
   return document.cookie.match(new RegExp(`(?:^| )${nom}=([^;]+)`))?.[1];
@@ -83,7 +76,6 @@ export default function PostHogProvider({ children }: { children: ReactNode }) {
       </Suspense>
       <SuiviGlobal />
       {children}
-      {bandeauConsentementActif && <BandeauConsentement />}
     </>
   );
 }

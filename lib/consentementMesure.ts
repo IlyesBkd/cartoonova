@@ -15,6 +15,8 @@ export function observerChoixMesure(observateur: (choix: ChoixMesure) => void): 
       const choix = event.newValue === "granted" || event.newValue === "denied" ? event.newValue : "pending";
       if (prioriteMemoire && choix === "granted") return;
       choixMemoire = choix;
+      // Removing a saved choice in another tab is withdrawal, not a new visit.
+      if (event.newValue === null && choix === "pending") marquerRetrait("pending");
       for (const notifier of observateurs) notifier(choix);
     });
   }
@@ -52,6 +54,9 @@ export function lireChoixMesure(): ChoixMesure {
   if (marqueur === "denied" || marqueur === "pending") return marqueur;
   try {
     const valeur = localStorage.getItem(CLE);
+    // Product policy: analytics on by default, but NEVER overwrite an existing
+    // refusal/pending withdrawal. Storage failures and invalid values fail closed.
+    if (valeur === null) return "granted";
     return valeur === "granted" || valeur === "denied" || valeur === "pending" ? valeur : "pending";
   } catch { return choixMemoire; }
 }

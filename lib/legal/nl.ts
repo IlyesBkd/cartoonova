@@ -283,7 +283,7 @@ export const LEGAL_NL: PagesLegales = {
           {
             liste: [
               "**Uitvoering van de overeenkomst:** de gegevens die nodig zijn voor het uitvoeren en leveren van uw bestelling.",
-              "**Toestemming:** voor het verzenden van marketingcommunicatie en het gebruik van niet-essentiële cookies.",
+              "**Toestemming:** voor het verzenden van marketingcommunicatie.",
               "**Gerechtvaardigd belang:** voor de verbetering van onze diensten en de voorkoming van fraude.",
               "**Wettelijke verplichting:** voor de bewaring van boekhoudkundige en fiscale gegevens.",
             ],
@@ -314,7 +314,7 @@ export const LEGAL_NL: PagesLegales = {
               "**Betalingsdienstaanbieders:** Stripe en PayPal voor de beveiligde verwerking van betalingen.",
               "**Druk- en leveringsdiensten:** leveringsadres voor de verzending van afgedrukte producten.",
               "**Hostingprovider:** Vercel Inc. voor de technische hosting van de Site.",
-              "**Analysetools:** PostHog / ChatGPT Ads.",
+              "**Analysetools:** PostHog.",
             ],
           },
           "Al onze dienstverleners zijn onderworpen aan strikte contractuele verplichtingen inzake vertrouwelijkheid en gegevensbescherming in overeenstemming met de AVG.",

@@ -17,8 +17,10 @@ async function fixture(run,{quota=false,delayed=false,retry=false}={}) {
 test('CONSENT01 quota refusal overrides readable stale granted and preferences reload',async()=>fixture(async({page})=>{
  await page.evaluate(()=>api.refuserMesure());
  assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'denied');
- await Promise.all([page.waitForEvent('load'),page.getByRole('button').click()]);await page.waitForFunction(()=>window.api);
- assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'pending');
+ await page.getByText('Modifier mes préférences cookies',{exact:true}).click();
+ await page.getByRole('button',{name:'Refuser',exact:true}).click();
+ await page.reload();await page.waitForFunction(()=>window.api);
+ assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'denied');
 },{quota:true}));
 for (const quota of [false,true]) test(`CONSENT03 disabled pixel never requests a delayed response on accept/withdraw (quota=${quota})`,async()=>fixture(async({page,release,traffic})=>{
  await page.evaluate(()=>{api.accepterMesure();api.mesurerPixelChatgpt('order_created',{amount:4200});});await page.waitForTimeout(100);assert.equal(await page.locator('script[src*="oaiq"]').count(),0);
@@ -34,15 +36,17 @@ test('CONSENT02 intertab preferences preserve disabled pixel before and after wi
  assert.equal(await page.evaluate(()=>Object.hasOwn(window,'oaiq')),false,'explicit consent must not create a pixel global');
  assert.equal(await page.locator('script[src*="oaiq"]').count(),0);
  const b=await context.newPage();await b.goto('https://consent.invalid/fr');await b.waitForFunction(()=>window.api);
- const unloaded=page.waitForEvent('load');await b.getByRole('button').click();await unloaded;await page.waitForFunction(()=>window.api);
- assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'pending');assert.equal(await page.evaluate(()=>window.oaiq),undefined);
+ await b.getByText('Modifier mes préférences cookies',{exact:true}).click();
+ const unloaded=page.waitForEvent('load');await b.getByRole('button',{name:'Refuser',exact:true}).click();await unloaded;await page.waitForFunction(()=>window.api);
+ assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'denied');assert.equal(await page.evaluate(()=>window.oaiq),undefined);
  await page.waitForTimeout(150);assert.equal(traffic.filter(x=>x.url.includes('pixel.synthetic.invalid')||x.url.includes('oaiq.min.js')).length,0,'disabled advertising must never transmit');
 }));
 test('CONSENT03 intertab pending cannot initialize the disabled pixel',async()=>fixture(async({page,context,traffic,release})=>{
  await page.evaluate(()=>api.accepterMesure());await page.waitForTimeout(100);assert.equal(await page.locator('script[src*="oaiq"]').count(),0);
  const b=await context.newPage();await b.goto('https://consent.invalid/fr');await b.waitForFunction(()=>window.api);
- const unloaded=page.waitForEvent('load');await b.getByRole('button').click();await unloaded;await page.waitForFunction(()=>window.api);release();await page.waitForTimeout(150);
- assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'pending');assert.equal(traffic.filter(x=>x.url.startsWith('https://pixel.synthetic.invalid')).length,0);
+ await b.getByText('Modifier mes préférences cookies',{exact:true}).click();
+ const unloaded=page.waitForEvent('load');await b.getByRole('button',{name:'Refuser',exact:true}).click();await unloaded;await page.waitForFunction(()=>window.api);release();await page.waitForTimeout(150);
+ assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'denied');assert.equal(traffic.filter(x=>x.url.startsWith('https://pixel.synthetic.invalid')).length,0);
 },{delayed:true}));
 test('CONSENT02 withdrawal drops already batched real SDK events before delayed transport',async()=>fixture(async({page,traffic})=>{
  await page.evaluate(async()=>{api.enregistrerChoixMesure('granted');api.mesure('page_viewed');await new Promise(r=>setTimeout(r,100));posthog.set_config({disable_compression:true,api_transport:'fetch',opt_out_useragent_filter:true});api.mesure('queued_before_withdrawal',{amount:42});await new Promise(r=>setTimeout(r,20));api.refuserMesure();});
@@ -54,8 +58,16 @@ test('CONSENT02 withdrawal discards a nonempty real SDK retry queue without shut
  const count=traffic.length;const unloaded=page.waitForEvent('load');await page.evaluate(()=>api.refuserMesure());await unloaded;await page.waitForFunction(()=>window.api);await page.waitForTimeout(3300);
  assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'denied');assert.equal(traffic.length,count,'shutdown and later retry timers must not transmit after withdrawal');
 },{retry:true}));
-test('CONSENT02 another tab pending stops an already initialized real PostHog SDK',async()=>fixture(async({page,context,traffic})=>{
- await page.evaluate(async()=>{api.enregistrerChoixMesure('granted');api.mesure('page_viewed');await new Promise(r=>setTimeout(r,100));posthog.set_config({request_batching:false,disable_compression:true,api_transport:'fetch',opt_out_useragent_filter:true});api.mesure('consent_before',{amount:42});await new Promise(r=>setTimeout(r,100));});
+test('CONSENT02 another tab removing the saved choice remains a withdrawal before SDK initialization',async()=>fixture(async({page,context})=>{
+ const b=await context.newPage();await b.goto('https://consent.invalid/fr');await b.waitForFunction(()=>window.api);
+ await b.evaluate(()=>localStorage.setItem('cartoonova_consent_v1','denied'));
+ await page.waitForFunction(()=>api.lireChoixMesure()==='denied');
+ await b.evaluate(()=>localStorage.removeItem('cartoonova_consent_v1'));
+ await page.waitForTimeout(100);
+ assert.equal(await page.evaluate(()=>api.lireChoixMesure()),'pending');
+}));
+test('CONSENT02 default analytics sends real SDK events and another tab pending stops it',async()=>fixture(async({page,context,traffic})=>{
+ await page.evaluate(async()=>{api.mesure('page_viewed');await new Promise(r=>setTimeout(r,100));posthog.set_config({request_batching:false,disable_compression:true,api_transport:'fetch',opt_out_useragent_filter:true});api.mesure('consent_before',{amount:42});await new Promise(r=>setTimeout(r,100));});
  assert.ok(traffic.some(x=>{const data=new URLSearchParams(x.body||new URL(x.url).search).get('data');return (data?Buffer.from(data,'base64').toString():x.body||'').includes('consent_before');}),'real SDK commercial transport works under consent: '+JSON.stringify(traffic));
  const b=await context.newPage();await b.goto('https://consent.invalid/fr');await b.waitForFunction(()=>window.api);
  await page.evaluate(()=>window.addEventListener('pagehide',()=>sessionStorage.setItem('observed_optout',String(posthog.has_opted_out_capturing()))));

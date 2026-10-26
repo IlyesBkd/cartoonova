@@ -283,7 +283,7 @@ export const LEGAL_PT: PagesLegales = {
           {
             liste: [
               "**Execução do contrato:** os dados necessários à realização e à entrega da sua encomenda.",
-              "**Consentimento:** para o envio de comunicações de marketing e a utilização de cookies não essenciais.",
+              "**Consentimento:** para o envio de comunicações de marketing.",
               "**Interesse legítimo:** para a melhoria dos nossos serviços e a prevenção da fraude.",
               "**Obrigação legal:** para a conservação dos dados contabilísticos e fiscais.",
             ],
@@ -314,7 +314,7 @@ export const LEGAL_PT: PagesLegales = {
               "**Prestadores de pagamento:** Stripe e PayPal, para o processamento seguro dos pagamentos.",
               "**Serviços de impressão e entrega:** morada de entrega para o envio dos produtos impressos.",
               "**Fornecedor de alojamento:** Vercel Inc., para o alojamento técnico do Sítio.",
-              "**Ferramentas de análise:** PostHog / ChatGPT Ads.",
+              "**Ferramentas de análise:** PostHog.",
             ],
           },
           "Todos os nossos prestadores estão sujeitos a obrigações contratuais estritas de confidencialidade e de proteção de dados em conformidade com o RGPD.",

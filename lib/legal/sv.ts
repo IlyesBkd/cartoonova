@@ -283,7 +283,7 @@ export const LEGAL_SV: PagesLegales = {
           {
             liste: [
               "**Fullgörande av avtal:** de uppgifter som krävs för att utföra och leverera din beställning.",
-              "**Samtycke:** för utskick av marknadsföring och användning av icke-nödvändiga cookies.",
+              "**Samtycke:** för utskick av marknadsföring.",
               "**Berättigat intresse:** för att förbättra våra tjänster och förebygga bedrägerier.",
               "**Rättslig förpliktelse:** för bevarande av bokförings- och skatteuppgifter.",
             ],
@@ -314,7 +314,7 @@ export const LEGAL_SV: PagesLegales = {
               "**Betalningsleverantörer:** Stripe och PayPal för säker behandling av betalningar.",
               "**Tryck- och leveranstjänster:** leveransadress för att skicka tryckta produkter.",
               "**Webbhotell:** Vercel Inc. för teknisk drift av Webbplatsen.",
-              "**Analysverktyg:** PostHog / ChatGPT Ads.",
+              "**Analysverktyg:** PostHog.",
             ],
           },
           "Alla våra leverantörer omfattas av strikta avtalsenliga skyldigheter avseende sekretess och dataskydd i enlighet med GDPR.",

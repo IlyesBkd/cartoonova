@@ -18,7 +18,7 @@ const stubs={
  'next/navigation':`export const usePathname=()=>'/fr';export const useRouter=()=>({replace:()=>{}})`,
  '@/components/ChatWidget':`export const EVENEMENT_AIDE='test-help'`,
  '@/components/CurrencyProvider':`export const useCurrency=()=>({currency:'EUR',pret:true,format:n=>n+' EUR',formatRaw:n=>n+' EUR',convert:n=>n,setCurrency:()=>{}})`,
- '@/lib/analytics':`export const mesure=()=>{}`,
+ '@/lib/analytics':`export const mesure=()=>{};export const accepterMesure=()=>{};export const refuserMesure=()=>{}`,
  '@/hooks/useProductTracking':`export const useProductTracking=()=>new Proxy({},{get:()=>()=>{}})`,
  '@/components/CheckoutModal':`export default ()=>null`,
  '@/lib/uploadClient':`export const uploadImage=()=>{throw Error('uploads forbidden')}`,
