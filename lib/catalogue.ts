@@ -98,6 +98,8 @@ export interface Produit {
   handle: string;
   /** Nom de l'univers seul ("Batman"), qui alimente les gabarits de titre. */
   univers: string;
+  /** Stable short display name for compact universe choices, without changing SEO titles. */
+  nomCourt?: string;
   /**
    * Nom localise, quand l'univers ne porte pas le meme nom d'une langue a
    * l'autre. La plupart n'en ont pas besoin — « Batman » ou « Naruto » se
@@ -288,6 +290,7 @@ export const CATALOGUE: Produit[] = [
     slug: "dbz",
     handle: "portrait-dragon-ball-personnalise",
     univers: "Dragon Ball",
+    nomCourt: "Dragon Ball Z (DBZ)",
     categorie: "manga",
     idProduit: "cartoonova-dbz-portrait",
     enLigne: true,
@@ -512,6 +515,7 @@ export const CATALOGUE: Produit[] = [
     slug: "simpson",
     handle: "portrait-simpson-personnalise",
     univers: "Simpson",
+    nomCourt: "Simpsons",
     universLocalise: { en: "The Simpsons", es: "Los Simpson", de: "Die Simpsons", it: "I Simpson", nl: "De Simpsons", pl: "Simpsonowie", sv: "Simpsons", da: "Simpsons", pt: "Os Simpsons" },
     /* Le gabarit portugais donnerait « Retrato Os Simpsons Personalizado ».
        Un lusophone contracte la preposition et l'article : « dos Simpsons ». */

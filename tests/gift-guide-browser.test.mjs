@@ -20,7 +20,7 @@ const css=(await postcss([tailwind({base:root})]).process(await readFile(path.jo
 const guideCss=await readFile(path.join(root,'app/[locale]/cadeau/GiftGuide.css'),'utf8').catch(()=> '');
 const axe=await readFile(path.join(root,'node_modules/axe-core/axe.min.js'),'utf8');
 const grid={base:10,fullbodyExtra:5,extraPerson:5,extraAnimal:5,digital:0,canvas:39,poster:59,posterSimple:19,banner:3,extraDecor:5,express:7,carteVoeux:4,calendrier:9,shipping:4.9};
-for(const locale of ['fr','en'])for(const mobile of [false,true])test(`${locale} ${mobile?'mobile':'desktop'}: illustrated radio choices, unavailable silence, price retry, keyboard and exact tracking`,async()=>{
+for(const locale of ['fr','en','de','es','it','nl','pl','sv','da','pt'])for(const mobile of [false,true])test(`${locale} ${mobile?'mobile':'desktop'}: illustrated radio choices, unavailable silence, price retry, keyboard and exact tracking`,async()=>{
  const browser=await chromium.launch({headless:true});try{
   await mkdir(out,{recursive:true});const page=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1440,height:1000},isMobile:mobile,hasTouch:mobile});page.setDefaultTimeout(3000);let pending;const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/*',async r=>{const u=new URL(r.request().url());if(u.pathname==='/api/prices'){pending=r;return;}if(u.pathname==='/')return r.fulfill({contentType:'text/html',body:`<!doctype html><html lang="${locale}"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Guide test</title><div id="root"></div></html>`});if(u.origin!=='https://guide.invalid')throw Error('External request forbidden');return r.fulfill({body:await readFile(path.join(root,'public',decodeURIComponent(u.pathname)))});});
@@ -31,8 +31,20 @@ for(const locale of ['fr','en'])for(const mobile of [false,true])test(`${locale}
   await disabled.waitFor();await disabled.scrollIntoViewIfNeeded();{const box=await disabled.boundingBox();await page.mouse.click(box.x+box.width/2,box.y+box.height/2);}assert.deepEqual(await clicks(),[],'loading must not count as a recommendation click');
   await pending.fulfill({status:503,body:''});await page.getByRole('alert').waitFor();
   await disabled.scrollIntoViewIfNeeded();{const box=await disabled.boundingBox();await page.mouse.click(box.x+box.width/2,box.y+box.height/2);}assert.deepEqual(await clicks(),[],'failed prices must not count as a recommendation click');
-  const retry=page.waitForRequest('**/api/prices?currency=USD');await page.getByRole('button',{name:locale==='fr'?'Réessayer':'Try again',exact:true}).click();await retry;await pending.fulfill({json:grid});
+  const retry=page.waitForRequest('**/api/prices?currency=USD');await page.getByRole('alert').getByRole('button').click();await retry;await pending.fulfill({json:grid});
   const link=guide.locator('a[href$="#configurateur"]');await link.waitFor();
+  const mappings=[['classic','Simpsons','simpson','/framed.jpg'],['manga','Dragon Ball Z (DBZ)','dbz','/DBZ/Photo_produits/il_1140xN.7733273072_b9q7.png'],['hero','Disney','disney','/Disney/Photo_produits/il_1140xN.6576111634_dwx3.png']];
+  for(const [value,name,slug,image] of mappings){
+   const radio=guide.locator(`input[name="gift-style"][value="${value}"]`);
+   assert.equal(await radio.locator('..').locator('strong').innerText(),name,'the named universe, not a broad category');
+   assert.equal(await radio.locator('..').locator('img').getAttribute('src'),image);
+   await radio.check();assert.equal(await guide.locator('#gift-guide-result-title').innerText(),name);
+   assert.equal(await guide.locator('.gift-guide__artwork img').getAttribute('src'),image);
+   assert.ok((await guide.locator('.gift-guide__artwork img').getAttribute('alt')).endsWith(name));
+   assert.equal(await link.getAttribute('href'),`/${locale}/${slug}#configurateur`);
+  }
+  await guide.locator('input[name="gift-style"][value="classic"]').check();
+  await page.evaluate(()=>{window.events=window.events.filter(([n])=>n!=='gift_guide_choice');});
   const solo=guide.locator('input[name="gift-people"][value="solo"]');await page.keyboard.press('Tab');await solo.focus();assert.equal(await solo.evaluate(e=>getComputedStyle(e.closest('label')).outlineWidth),'3px','visible keyboard focus ring');await page.keyboard.press('ArrowRight');assert.equal(await guide.locator('input[name="gift-people"][value="couple"]').isChecked(),true);
   await page.keyboard.press('Tab');assert.equal(await guide.locator('input[name="gift-deadline"][value="flexible"]').evaluate(e=>e===document.activeElement),true);await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Tab');assert.equal(await guide.locator('input[name="gift-style"][value="classic"]').evaluate(e=>e===document.activeElement),true);await page.keyboard.press('ArrowRight');

@@ -17,12 +17,32 @@ import fs from 'node:fs';
  await page.waitForTimeout(500);assert.equal(await page.evaluate(()=>window.__injected),undefined);assert.ok(violations.some(v=>v.directive==='script-src-elem'));assert.ok(violations.some(v=>v.directive==='script-src-attr'));
  assert.equal(await page.locator('#consentement-titre').count(),0);
  const guide=page.locator('.gift-guide');
+ const universeChecks=[];
+ async function verifyUniverses(target,locale,mobile){
+  await target.setViewportSize(mobile?{width:390,height:844}:{width:1440,height:1300});
+  const section=target.locator('.gift-guide');
+  for(const [value,label,slug,image] of [['classic','Simpsons','simpson','/framed.jpg'],['manga','Dragon Ball Z (DBZ)','dbz','/DBZ/Photo_produits/il_1140xN.7733273072_b9q7.png'],['hero','Disney','disney','/Disney/Photo_produits/il_1140xN.6576111634_dwx3.png']]){
+   const input=section.locator(`input[name="gift-style"][value="${value}"]`);
+   assert.equal(await input.locator('..').locator('strong').innerText(),label);
+   await input.check();assert.equal(await section.locator('h3').innerText(),label);
+   assert.equal(await section.locator('a[href$="#configurateur"]').getAttribute('href'),`/${locale}/${slug}#configurateur`);
+   const img=section.locator('.gift-guide__artwork img');await img.evaluate(i=>i.decode());
+   assert.ok((await img.getAttribute('alt')).endsWith(label));
+   const src=new URL(await img.getAttribute('src'),process.env.ORIGIN);assert.equal(src.searchParams.get('url')||src.pathname,image);
+   assert.equal(await input.locator('..').locator('img').evaluate(i=>i.decode().then(()=>i.naturalWidth>0)),true);
+   universeChecks.push({locale,mobile,value,label,slug,image,passed:true});
+  }
+  await section.locator('input[value="manga"]').check();
+  assert.equal(await target.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ }
+ await verifyUniverses(page,'fr',true);
  await guide.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));await page.evaluate(()=>document.fonts.ready);
  await guide.scrollIntoViewIfNeeded();await page.evaluate(()=>window.scrollTo({top:document.querySelector('.gift-guide').getBoundingClientRect().top+scrollY-76,behavior:'instant'}));
  await page.screenshot({path:process.env.OUT+'/gift-mobile-choices.png'});
  await page.locator('.gift-guide__result').screenshot({path:process.env.OUT+'/gift-mobile-result.png'});
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
  await page.setViewportSize({width:1440,height:1300});await page.evaluate(()=>window.scrollTo({top:document.querySelector('.gift-guide').getBoundingClientRect().top+scrollY-150,behavior:'instant'}));await guide.screenshot({path:process.env.OUT+'/gift-desktop.png'});
+ await verifyUniverses(page,'fr',false);
  await page.locator('input[name="gift-style"][value="hero"]').check();await guide.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));
  await guide.screenshot({path:process.env.OUT+'/gift-desktop-fairytale.png'});
  let pendingPrice;
@@ -44,6 +64,12 @@ import fs from 'node:fs';
  assert.match(await section.locator('[aria-live]').innerText(),/15/);await section.getByRole('link',{name:'Give a voucher: let the recipient choose'}).waitFor();
  await section.locator('img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));await en.evaluate(()=>document.fonts.ready);
  await section.screenshot({path:process.env.OUT+'/gift-en-recovered.png'});
+ await verifyUniverses(en,'en',false);
+ await verifyUniverses(en,'en',true);
+ await en.evaluate(()=>window.scrollTo({top:document.querySelector('.gift-guide').getBoundingClientRect().top+scrollY-76,behavior:'instant'}));
+ await en.screenshot({path:process.env.OUT+'/gift-en-mobile-choices.png'});
+ await section.locator('.gift-guide__result').screenshot({path:process.env.OUT+'/gift-en-mobile-result.png'});
+ fs.writeFileSync(process.env.OUT+'/gift-universes.json',JSON.stringify({status:'passed',checks:universeChecks},null,2));
  fs.writeFileSync(process.env.OUT+'/browser.json',JSON.stringify({status:'passed',englishGuideKeyboardAndPriceRetry:true,compiledGuideEventAssertions:false,guideSelection:true,blockingCsp:true,stripeOriginSimulatedAllowed:true,posthogOriginSimulatedAllowed:true,realPaymentTested:false,externalScriptBlocked:true,inlineHandlerBlocked:true,unsafeInlineScriptResidual:true,noCookieBanner:true,externalOriginsIntercepted:[...new Set(external)],violations},null,2));
  console.log('Browser passed: chooser, CSP foreign script + inline handler, no banner. External network intercepted.');
 }finally{await browser.close();}})().catch(e=>{console.error(e.message);process.exitCode=1});

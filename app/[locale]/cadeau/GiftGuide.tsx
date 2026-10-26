@@ -7,6 +7,8 @@ import Link from "next/link";
 import { GiftConfiguratorLink, GiftExampleTotal } from "./GiftPricing";
 import { mesure } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
+import { produitParSlug, universProduit } from "@/lib/catalogue";
+import type { Locale } from "@/i18n/config";
 import "./GiftGuide.css";
 
 const COPY = {
@@ -15,7 +17,7 @@ const COPY = {
     note: "Trois choix pour trouver votre point de départ.", who: "Pour qui ?", solo: "Une personne", couple: "Un couple", family: "Une famille",
     soloNote: "Son portrait", coupleNote: "Leur duo", familyNote: "Toute la tribu",
     when: "Pour quelle date ?", flexible: "Date flexible", soon: "Très bientôt", flexibleNote: "Je prépare mon cadeau", soonNote: "Envisager le bon cadeau",
-    style: "Quel univers ?", classic: "Dessin jaune", manga: "Manga", hero: "Conte de fées",
+    style: "Quel univers ?",
     classicNote: "Drôle & décalé", mangaNote: "L’esprit d’aventure", heroNote: "Un peu de magie",
     hint: "Le prix final dépend du nombre de personnes et des options. Vérifiez le délai avant de commander ; ce guide ne promet pas une livraison à une date précise.",
     cta: "Personnaliser ce portrait", result: "Votre point de départ", example: "Exemple numérique", details: "Buste · sans options", people: "personne(s)",
@@ -27,7 +29,7 @@ const COPY = {
     note: "Three choices to find your starting point.", who: "Who is it for?", solo: "One person", couple: "A couple", family: "A family",
     soloNote: "Their portrait", coupleNote: "Their duo", familyNote: "The whole family",
     when: "When is it needed?", flexible: "Flexible date", soon: "Very soon", flexibleNote: "Planning ahead", soonNote: "Consider a gift voucher",
-    style: "Which world?", classic: "Yellow cartoon", manga: "Manga", hero: "Fairytale",
+    style: "Which world?",
     classicNote: "Fun & offbeat", mangaNote: "A sense of adventure", heroNote: "A little magic",
     hint: "The final price depends on people and options. Check the delivery estimate before ordering; this guide does not promise delivery on a specific date.",
     cta: "Personalise this portrait", result: "Your starting point", example: "Digital example", details: "Bust · no options", people: "people",
@@ -54,6 +56,10 @@ export default function GiftGuide() {
   const [deadline, setDeadline] = useState("flexible");
   useEffect(() => { mesure(MESURES.guideCadeauVu, { variant: "guided-v1" }); }, []);
   const selected = STYLES.find(item => item.value === style)!;
+  const universeName = (slug: string) => {
+    const product = produitParSlug(slug)!;
+    return product.nomCourt ?? universProduit(product, locale as Locale);
+  };
   const count = people === "solo" ? 1 : people === "couple" ? 2 : 4;
 
   return (
@@ -97,7 +103,7 @@ export default function GiftGuide() {
                 <label className="gift-guide__style" key={item.value}>
                   <input type="radio" name="gift-style" value={item.value} checked={style === item.value} onChange={() => { setStyle(item.value); mesure(MESURES.guideCadeauChoix, { question: "style", choice: item.value }); }} />
                   <Image src={item.image} alt="" width={300} height={300} sizes="(max-width: 600px) 30vw, 180px" />
-                  <span className="gift-guide__style-copy"><strong>{t[item.value]}</strong><small>{t[`${item.value}Note`]}</small></span>
+                  <span className="gift-guide__style-copy"><strong>{universeName(item.slug)}</strong><small>{t[`${item.value}Note`]}</small></span>
                 </label>
               ))}
             </div>
@@ -107,13 +113,13 @@ export default function GiftGuide() {
         <article className="gift-guide__result" aria-labelledby="gift-guide-result-title">
           <div className="gift-guide__result-top"><span>{t.result}</span><span aria-hidden="true">✦</span></div>
           <figure className="gift-guide__artwork">
-            <Image key={selected.image} src={selected.image} alt={`${t.imageAlt} ${t[style]}`} width={600} height={600} sizes="(max-width: 600px) 88vw, (max-width: 960px) 70vw, 380px" />
+            <Image key={selected.image} src={selected.image} alt={`${t.imageAlt} ${universeName(selected.slug)}`} width={600} height={600} sizes="(max-width: 600px) 88vw, (max-width: 960px) 70vw, 380px" />
             <figcaption>{t.imageNote}</figcaption>
           </figure>
           <div className="gift-guide__result-body">
             <div aria-live="polite" aria-atomic="true">
               <span className="gift-guide__eyebrow">{t.selection} · {t[people]}</span>
-              <h3 id="gift-guide-result-title">{t[style]}</h3>
+              <h3 id="gift-guide-result-title">{universeName(selected.slug)}</h3>
               <div className="gift-guide__price"><span>{t.example}</span><strong><GiftExampleTotal people={count} /></strong></div>
               <p className="gift-guide__details">{t.details} · {count} {t.people}</p>
             </div>
