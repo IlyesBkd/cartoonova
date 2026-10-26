@@ -1,0 +1,1102 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-26T18:13:47.765812+00:00",
+  "state": "ready_for_rereview_after_requested_changes_not_published",
+  "repository": {
+    "path": "/home/hermes/projects/cartoonova",
+    "branch": "main",
+    "baseHead": "ecdcb895690b7f3840e62bed7d6a623a56bb62c2",
+    "originDelta": "0\t3"
+  },
+  "commit": {
+    "created": false,
+    "finalSha": null,
+    "reason": "No commit or push requested. Parent performs independent rereview before any local commit."
+  },
+  "tests": {
+    "command": "env -i PATH=... HOME=... TMPDIR=... npm test",
+    "exitCode": 0,
+    "ok": true,
+    "complete": true,
+    "files": 53,
+    "totals": {
+      "tests": 465,
+      "pass": 465,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "artifacts": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-m9aA6F",
+    "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/next-ten-review-full-suite.log",
+    "stableInventoryVerified": true,
+    "perFileTapCountersVerified": true,
+    "perFile": [
+      {
+        "file": "admin-auth.test.mjs",
+        "tests": 12,
+        "suites": 0,
+        "pass": 12,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "admin-callers.test.mjs",
+        "tests": 1,
+        "suites": 0,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "checkout-proof.test.mjs",
+        "tests": 7,
+        "suites": 0,
+        "pass": 7,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "delivery-copy.test.mjs",
+        "tests": 7,
+        "suites": 0,
+        "pass": 7,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "delivery-promise.test.mjs",
+        "tests": 25,
+        "suites": 0,
+        "pass": 25,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "dependency-security.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "email-outbox-provider.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "email-outbox.test.mjs",
+        "tests": 16,
+        "suites": 0,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "final-image-review.test.mjs",
+        "tests": 7,
+        "suites": 0,
+        "pass": 7,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "final-image-security.test.mjs",
+        "tests": 10,
+        "suites": 0,
+        "pass": 10,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "gift-balance-copy.test.mjs",
+        "tests": 11,
+        "suites": 0,
+        "pass": 11,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "gift-delivery.test.mjs",
+        "tests": 10,
+        "suites": 0,
+        "pass": 10,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "gift-pilots.test.mjs",
+        "tests": 5,
+        "suites": 0,
+        "pass": 5,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "next-batch-policy.test.mjs",
+        "tests": 3,
+        "suites": 0,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "occasion-context.test.mjs",
+        "tests": 10,
+        "suites": 0,
+        "pass": 10,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "order-create.test.mjs",
+        "tests": 17,
+        "suites": 0,
+        "pass": 17,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "order-delivery-integration.test.mjs",
+        "tests": 9,
+        "suites": 0,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "order-delivery-payment.test.mjs",
+        "tests": 21,
+        "suites": 0,
+        "pass": 21,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "order-delivery.test.mjs",
+        "tests": 15,
+        "suites": 0,
+        "pass": 15,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "order-notification-consistency.test.mjs",
+        "tests": 23,
+        "suites": 0,
+        "pass": 23,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "photo-privacy-copy.test.mjs",
+        "tests": 5,
+        "suites": 0,
+        "pass": 5,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "photo-validation-routes.test.mjs",
+        "tests": 15,
+        "suites": 0,
+        "pass": 15,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "photo-validation.test.mjs",
+        "tests": 6,
+        "suites": 0,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "prices.test.mjs",
+        "tests": 4,
+        "suites": 0,
+        "pass": 4,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "promo-reservations.test.mjs",
+        "tests": 10,
+        "suites": 0,
+        "pass": 10,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "resend-webhook-security.test.mjs",
+        "tests": 16,
+        "suites": 0,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "scheduling-sql.test.mjs",
+        "tests": 3,
+        "suites": 0,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "seo-prices.test.mjs",
+        "tests": 1,
+        "suites": 0,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-client-ui.test.mjs",
+        "tests": 3,
+        "suites": 0,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-client.test.mjs",
+        "tests": 16,
+        "suites": 0,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-consent-adversarial.test.mjs",
+        "tests": 9,
+        "suites": 0,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-consent-ui.test.mjs",
+        "tests": 1,
+        "suites": 0,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-consent.test.mjs",
+        "tests": 1,
+        "suites": 0,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-copy.test.mjs",
+        "tests": 6,
+        "suites": 0,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-editorial-ops.test.mjs",
+        "tests": 4,
+        "suites": 0,
+        "pass": 4,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-pixel-disable.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-transport.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "test-runner.test.mjs",
+        "tests": 6,
+        "suites": 0,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "upload-quota.test.mjs",
+        "tests": 14,
+        "suites": 0,
+        "pass": 14,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "upload.test.mjs",
+        "tests": 5,
+        "suites": 0,
+        "pass": 5,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "privacy-route-logs.test.mjs",
+        "tests": 8,
+        "suites": 0,
+        "pass": 8,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "privacy.test.mjs",
+        "tests": 6,
+        "suites": 0,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "admin-auth-browser.test.mjs",
+        "tests": 1,
+        "suites": 0,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "chat-accessibility-browser.test.mjs",
+        "tests": 12,
+        "suites": 0,
+        "pass": 12,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "gift-balance-copy-browser.test.mjs",
+        "tests": 31,
+        "suites": 0,
+        "pass": 31,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "gift-guide-browser.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "gift-prices-browser.test.mjs",
+        "tests": 12,
+        "suites": 0,
+        "pass": 12,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "navbar-browser.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "product-prices-browser.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "product-ui-browser.test.mjs",
+        "tests": 32,
+        "suites": 0,
+        "pass": 32,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "seo-prices-browser.test.mjs",
+        "tests": 12,
+        "suites": 0,
+        "pass": 12,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "ten-cards-contrast-browser.test.mjs",
+        "tests": 2,
+        "suites": 0,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      },
+      {
+        "file": "privacy-browser.test.mjs",
+        "tests": 1,
+        "suites": 0,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "ok": true
+      }
+    ]
+  },
+  "lint": {
+    "exitCode": 0,
+    "errors": 0,
+    "warnings": 28,
+    "log": "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review-pj5higo1/lint.log",
+    "warningsInUnmodifiedFiles": true
+  },
+  "isolatedBuild": {
+    "lintExit": 0,
+    "buildExit": 0,
+    "secretScan": {
+      "files": 9209,
+      "leakedPaths": [],
+      "exactSyntheticValues": true
+    },
+    "http": [
+      {
+        "path": "/fr/collections",
+        "status": 200
+      },
+      {
+        "path": "/fr/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/en/collections",
+        "status": 200
+      },
+      {
+        "path": "/en/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/de/collections",
+        "status": 200
+      },
+      {
+        "path": "/de/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/es/collections",
+        "status": 200
+      },
+      {
+        "path": "/es/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/it/collections",
+        "status": 200
+      },
+      {
+        "path": "/it/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/nl/collections",
+        "status": 200
+      },
+      {
+        "path": "/nl/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/pl/collections",
+        "status": 200
+      },
+      {
+        "path": "/pl/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/sv/collections",
+        "status": 200
+      },
+      {
+        "path": "/sv/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/da/collections",
+        "status": 200
+      },
+      {
+        "path": "/da/cadeau",
+        "status": 200
+      },
+      {
+        "path": "/pt/collections",
+        "status": 200
+      },
+      {
+        "path": "/pt/cadeau",
+        "status": 200
+      }
+    ],
+    "stableStaticLastmodOmitted": true,
+    "browserExit": 0,
+    "disposableDatabaseStopped": true,
+    "serverStopped": true
+  },
+  "buildLog": "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review-pj5higo1/build.log",
+  "browser": {
+    "status": "passed",
+    "englishGuideKeyboardAndPriceRetry": true,
+    "compiledGuideEventAssertions": false,
+    "guideSelection": true,
+    "blockingCsp": true,
+    "stripeOriginSimulatedAllowed": true,
+    "posthogOriginSimulatedAllowed": true,
+    "realPaymentTested": false,
+    "externalScriptBlocked": true,
+    "inlineHandlerBlocked": true,
+    "unsafeInlineScriptResidual": true,
+    "noCookieBanner": true,
+    "externalOriginsIntercepted": [
+      "https://js.stripe.com",
+      "https://eu.i.posthog.com"
+    ],
+    "violations": [
+      {
+        "directive": "script-src-elem",
+        "blocked": "https://evil.invalid/injection.js"
+      },
+      {
+        "directive": "script-src-attr",
+        "blocked": "inline"
+      }
+    ]
+  },
+  "browserEvidence": [
+    "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review-pj5higo1/gift-mobile.png",
+    "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review-pj5higo1/gift-desktop.png",
+    "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review-pj5higo1/gift-en-recovered.png"
+  ],
+  "artifactGuardsFinal": {
+    "tracked": {
+      "exitCode": 0,
+      "filesScanned": 1057,
+      "failures": []
+    },
+    "staged": {
+      "exitCode": 0,
+      "filesScanned": 36,
+      "failures": []
+    },
+    "stagedDiffCheckExitCode": 0,
+    "sourceManifestHashesMatch": true,
+    "unstagedTrackedChanges": false,
+    "note": "Rechecked after staging the final verification JSON; sourceManifest excludes itself."
+  },
+  "field": {
+    "report": "tests/ten-cards-field-report.json",
+    "collectedAt": "2026-10-26T17:03:26.220793+00:00",
+    "site": "sc-domain:cartoonova.com",
+    "inspectionCount": 7,
+    "indexedInSample": 6,
+    "inspections": [
+      {
+        "url": "https://www.cartoonova.com/fr",
+        "coverageState": "Envoyée et indexée"
+      },
+      {
+        "url": "https://www.cartoonova.com/en",
+        "coverageState": "Envoyée et indexée"
+      },
+      {
+        "url": "https://www.cartoonova.com/fr/collections",
+        "coverageState": "Envoyée et indexée"
+      },
+      {
+        "url": "https://www.cartoonova.com/fr/blog/idees-cadeaux-d-anniversaire-simples-originales-et-vraiment-marquantes",
+        "coverageState": "Envoyée et indexée"
+      },
+      {
+        "url": "https://www.cartoonova.com/fr/blog/cadeaux-photo-personnalises-comment-choisir-une-idee-vraiment-touchante",
+        "coverageState": "Envoyée et indexée"
+      },
+      {
+        "url": "https://www.cartoonova.com/fr/blog/idees-de-cadeaux-d-anniversaire-pour-femme-et-homme",
+        "coverageState": "Détectée, actuellement non indexée"
+      },
+      {
+        "url": "https://www.cartoonova.com/fr/blog/cadeau-photo-personnalise-une-idee-vraiment-originale",
+        "coverageState": "Envoyée et indexée"
+      }
+    ],
+    "mobileP75Obtained": false,
+    "blockers": [
+      "PageSpeed public mobile HTTP 429 daily quota",
+      "Alternative CrUX API HTTP 403 API consumer identity required"
+    ],
+    "limits": [
+      "Inspection sample is not the full Page Indexing/Coverage export.",
+      "Search Analytics may omit anonymized queries.",
+      "No cannibalization, SEO loss, CWV failure, or conversion gain inferred."
+    ]
+  },
+  "cards": [
+    {
+      "code": "FLOW-02",
+      "url": "https://trello.com/c/PWGdras8/53-cartoonova-p2-flow-02-aligner-les-gardes-serveur-de-livraison-et-planification-sur-les-r%C3%A8gles-m%C3%A9tier",
+      "state": "correctif_local_a_revoir",
+      "closed": false
+    },
+    {
+      "code": "FLOW-04",
+      "url": "https://trello.com/c/QODWdhse/55-cartoonova-p2-flow-04-conserver-la-langue-de-commande-pour-la-livraison-et-les-bonus",
+      "state": "correctif_local_migration_requise",
+      "closed": false
+    },
+    {
+      "code": "SEO-08",
+      "url": "https://trello.com/c/PAci32CX/50-cartoonova-p2-seo-08-performance-terrain-et-indexation-r%C3%A9elle-non-%C3%A9tablies",
+      "state": "diagnostic_partiel_blocage_externe",
+      "closed": false
+    },
+    {
+      "code": "CRO-11",
+      "url": "https://trello.com/c/bTNdXlte/40-cartoonova-p2-cro-11-tester-un-choix-cadeau-guid%C3%A9-plut%C3%B4t-que-seulement-35-univers",
+      "state": "guide_local_instrumente_mesure_future",
+      "closed": false
+    },
+    {
+      "code": "SEO-06",
+      "url": "https://trello.com/c/nHfaxrND/49-cartoonova-p2-seo-06-deux-groupes-darticles-fran%C3%A7ais-ciblent-des-intentions-tr%C3%A8s-proches",
+      "state": "mapping_local_a_approuver",
+      "closed": false
+    },
+    {
+      "code": "SEO-05",
+      "url": "https://trello.com/c/7Y7rWCTP/48-cartoonova-p2-seo-05-lastmod-des-pages-statiques-d%C3%A9pend-du-chargement-du-module",
+      "state": "correctif_local_verifie",
+      "closed": false
+    },
+    {
+      "code": "OPS-03",
+      "url": "https://trello.com/c/GfPsZN7o/61-cartoonova-p2-ops-03-pr%C3%A9venir-la-persistance-de-secrets-dans-les-caches-de-compilation-et-les-livrables-e2e",
+      "state": "gardes_locales_verifiees",
+      "closed": false
+    },
+    {
+      "code": "CODE-14",
+      "url": "https://trello.com/c/Tl1tnMsB/62-cartoonova-p3-code-14-csp-d%C3%A9clar%C3%A9e-uniquement-en-report-only",
+      "state": "csp_locale_validation_psp_restante",
+      "closed": false
+    },
+    {
+      "code": "FLOW-10",
+      "url": "https://trello.com/c/BHJqc1bX/64-cartoonova-p3-flow-10-accorder-lextension-des-pi%C3%A8ces-jointes-daper%C3%A7u-au-format-r%C3%A9el-de-limage",
+      "state": "correction_anterieure_revalidee",
+      "closed": false
+    },
+    {
+      "code": "SEO-07",
+      "url": "https://trello.com/c/oA3e0WK4/63-cartoonova-p3-seo-07-cha%C3%AEne-de-trois-redirections-sur-lentr%C3%A9e-http-sans-www",
+      "state": "repli_applicatif_local_fournisseur_restant",
+      "closed": false
+    }
+  ],
+  "report": "tests/next-ten-cards-delivery-report.md",
+  "trelloPayloads": {
+    "path": "tests/next-ten-cards-trello-payloads.json",
+    "count": 10,
+    "executed": false
+  },
+  "prePublicationGates": [
+    "Independent review and editorial mapping approval",
+    "Authorized gift_lang migration before deployment",
+    "Authorized staging PSP/3DS/wallet tests with blocking CSP",
+    "Separate Vercel redirect configuration authorization and live verification",
+    "CrUX field data access/export and complete GSC coverage export if required",
+    "Explicit publication authorization, then verify remote state before closing cards"
+  ],
+  "constraints": {
+    "push": false,
+    "publication": false,
+    "trelloWrite": false,
+    "realPayment": false,
+    "thirdPartyEmail": false,
+    "productionDatabase": false,
+    "productionMigration": false,
+    "paidApiEnabled": false,
+    "secretsPrinted": false,
+    "preexistingArtifactsPreserved": true,
+    "cookieDecisionPreserved": true,
+    "chatgptPixelEnabled": false,
+    "skillsOrMemoryChanged": false
+  },
+  "sourceManifest": {
+    "excludedSelf": "tests/next-ten-cards-verification.json",
+    "entries": [
+      {
+        "path": ".gitignore",
+        "sha256": "81224e80b743c69bbe599bbe8bb42f0204711cff093f86b5d42e4f4623940fa3"
+      },
+      {
+        "path": "app/(hors-langue)/bon/[token]/page.tsx",
+        "sha256": "a716211fcce2ef14acbd6a1a363a57c36789ed41a8f5ac0c174c364231cc9b21"
+      },
+      {
+        "path": "app/[locale]/blog/[slug]/page.tsx",
+        "sha256": "29f2c3ab05fb2aedb8a7d3ce32136926ec68046a4c4a63a0fec8f98b04de15e4"
+      },
+      {
+        "path": "app/[locale]/cadeau/GiftGuide.tsx",
+        "sha256": "3b3eff962a1fee67ee5a73c99d3520635cd23dd3c6df3aa5ddfa238e98b94cfe"
+      },
+      {
+        "path": "app/[locale]/cadeau/GiftPricing.tsx",
+        "sha256": "6bf2bad1c3abb68bdca7b701a84ee0fd4ac8f4e89f8e4f237287b41d732dbba4"
+      },
+      {
+        "path": "app/[locale]/cadeau/page.tsx",
+        "sha256": "1d484332241f66fa51a11f091b2a1b236c657d086a33b4c1205e5cab42106f33"
+      },
+      {
+        "path": "app/api/orders/send-final-image/route.ts",
+        "sha256": "c83fe1cc39bdf460ebbfe8bc1ecab1d796fd912462831a65772983bb50d2ae05"
+      },
+      {
+        "path": "app/sitemap.ts",
+        "sha256": "d4420babc90d029476a55fa2be0b7036a525b08e84e38e7d2be948998bd44eb0"
+      },
+      {
+        "path": "eslint.config.mjs",
+        "sha256": "526c26f93ec455b58eb93d0869be6b9c5e8fa9eb0dc0d06aea1e45024ddb246c"
+      },
+      {
+        "path": "lib/articleIntents.ts",
+        "sha256": "844016b61d59f930d80d07e6250fca289ad79158695dcbb04f80f5c46be6d0ac"
+      },
+      {
+        "path": "lib/blogDb.ts",
+        "sha256": "33f0341d29e9e431c43ece4cbb8ac2221fce725d99a4fef26b9fd356b9228ec7"
+      },
+      {
+        "path": "lib/bonCadeau.ts",
+        "sha256": "c40f80fe90c869a0bf8998064536a9bb1a639afb1019b63b78d7658ba97a505c"
+      },
+      {
+        "path": "lib/db.ts",
+        "sha256": "e905c8b942c3f707670cc45ec8f03260fadb02eb6045829a4efd4ada41f0173f"
+      },
+      {
+        "path": "lib/deliveryPolicy.ts",
+        "sha256": "295d1234666bc64b504a5ed802a3069e89da5f9ec930e1a8b6e169516cf13c09"
+      },
+      {
+        "path": "lib/evenementsMesure.ts",
+        "sha256": "6aa7d85582e6f9ba751a82b64e639c5ffae2f6d6c70dfa9bd6e947b29c21faed"
+      },
+      {
+        "path": "lib/orderDelivery.ts",
+        "sha256": "17860963e244a1848b4f90910e7565c06327b0660be02c157e1894e1f8a60944"
+      },
+      {
+        "path": "migrations/20261026_gift_language.sql",
+        "sha256": "6408cd1d4fc0e47f3eed6023624220fed35a7fe54a51bebcef33f46a571b0afc"
+      },
+      {
+        "path": "next.config.ts",
+        "sha256": "0cf778cb0aba89ffb650be195152e19ce2bc8429b8149e6a074fa4d42eb45e86"
+      },
+      {
+        "path": "package.json",
+        "sha256": "ef758924a106c4da17210232e4b4ec74fd6724eee9739c782a140df4bc682684"
+      },
+      {
+        "path": "proxy.ts",
+        "sha256": "b44c8a08ffa55bc13a8e42193c0c376c652e63936f459065b91196fb6cb93b8d"
+      },
+      {
+        "path": "scripts/check-artifact-secrets.mjs",
+        "sha256": "a22f5cce3832685f6802e52fa86a553f3771b3c02859c3b9d29ad000331a0e0c"
+      },
+      {
+        "path": "scripts/verify-ten-cards-browser.mjs",
+        "sha256": "585bdee0a043049115c3d5f19fe0ef14b531fd06300fd314cc81a6210199a318"
+      },
+      {
+        "path": "scripts/verify-ten-cards-local.py",
+        "sha256": "cd7fe773fb7e3706040208e38a94b2491ef0ea9d5a94848e3a252e11628827b1"
+      },
+      {
+        "path": "tests/email-outbox.test.mjs",
+        "sha256": "57012632657277cd3c561fd19209cb23bb19bb039c219fedbf13569c4520c97d"
+      },
+      {
+        "path": "tests/gift-guide-browser.test.mjs",
+        "sha256": "b67e91614d528b5209c67140828b308c3400052941ce6df1bce1e3ee88e9b81d"
+      },
+      {
+        "path": "tests/next-batch-policy.test.mjs",
+        "sha256": "e44bb27ae0a3c01c2b97a9cd56e44545e752ef1bbb8c9cc6a9ae69c256f64b0e"
+      },
+      {
+        "path": "tests/next-ten-cards-delivery-report.md",
+        "sha256": "9cd8c663837c3067a6b440e337ec6d7bcee0c7088c99ac589832620a608dfe4c"
+      },
+      {
+        "path": "tests/next-ten-cards-trello-payloads.json",
+        "sha256": "e23a3b204cfcdfa1bc29355711bd50e2313db9d015d6a95b90f997c874e042dc"
+      },
+      {
+        "path": "tests/order-delivery-harness.mjs",
+        "sha256": "02391b6a99986abca401f253c12c91e174dab3c70116fc79a06e501e2d5fa2c6"
+      },
+      {
+        "path": "tests/order-notification-consistency.test.mjs",
+        "sha256": "bc8c56c2e56f8edadb796cfd3f1437cd01e1812387b8e7b45ff13f91bac0ab63"
+      },
+      {
+        "path": "tests/scheduling-sql.test.mjs",
+        "sha256": "faf1e20f0c17fae704b054c1347f6221333b0234f9b1bc263d4d34dec6af4490"
+      },
+      {
+        "path": "tests/ten-cards-contrast-browser.test.mjs",
+        "sha256": "fff64fd4facfb42c9c48142050f7517729eddf0b9ea51506eebdf5ccb0df2e9c"
+      },
+      {
+        "path": "tests/ten-cards-editorial-ops.test.mjs",
+        "sha256": "3697eab705e6c769c7852d21c0af9310f52cfb945af4dcabc7b3d4d1fc56ba16"
+      },
+      {
+        "path": "tests/ten-cards-field-report.json",
+        "sha256": "e3963e012aba74f7b76529c21f7d8f0c3fc7a6d7d41d9651419a6415d458ac31"
+      },
+      {
+        "path": "tests/ten-cards-transport.test.mjs",
+        "sha256": "a61731f792b151c304a84ae7ea697690e0576fc595128defa6a012f9ebde13d3"
+      }
+    ]
+  },
+  "previousVerificationPreserved": "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review-pj5higo1/pre-review-verification.json",
+  "reviewFollowup": {
+    "source": "/home/hermes/.hermes/profiles/cartoonova/cache/next-ten-review.json",
+    "originalVerdict": "changes_requested",
+    "fullReportRead": true,
+    "newIndependentApproval": false,
+    "findings": [
+      {
+        "id": "R1",
+        "status": "corrected_local",
+        "fix": "Analytics only on active GiftConfiguratorLink, not disabled span ancestor.",
+        "tests": [
+          "gift-guide-browser.test.mjs: FR/EN physical disabled clicks, HTTP failure/retry, keyboard activation and exact analytics payloads"
+        ]
+      },
+      {
+        "id": "R2",
+        "status": "corrected_local",
+        "fix": "Shared Object.hasOwn guarded getFrenchArticleIntent used by article transform and aside.",
+        "tests": [
+          "ten-cards-editorial-ops.test.mjs: constructor/toString/__proto__/hasOwnProperty/unknown preserve original article and no intent"
+        ]
+      },
+      {
+        "id": "R3",
+        "status": "corrected_local",
+        "fix": "Typed DeliveryPolicyError under FOR UPDATE: delivered 409, disappeared 404.",
+        "tests": [
+          "scheduling-sql.test.mjs: actual route stale initial read plus real PostgreSQL helper, no effects; helper lock wait, unpaid change under lock, gift date rejection and SQL readback"
+        ]
+      }
+    ],
+    "additionalCoverage": [
+      "Build refuses any .env* root entry before setup; five filenames, no file content logged.",
+      "Compiled browser EN keyboard, USD HTTP503 retry, unavailable link absent, urgent voucher; compiled event transport NOT asserted.",
+      "Gift SQL roundtrip ten locales x avis/parrainage keys, idempotent retry, historical NULL => en, valid pi_ retrieval simulated."
+    ],
+    "remainingLimits": [
+      "CSP live SDK/card/3DS/wallet/gift checkout staging release gate unchanged.",
+      "Private schema snapshot required: harness not clone-only reproducible.",
+      "Original editorial markdown unchanged; mapping not proof of semantic separation.",
+      "Guide 1/2/4 people examples do not preconfigure cart.",
+      "No current CrUX fetched or invented; existing PSI429/CrUX403 blockers preserved.",
+      "Provider redirect configuration still uncorrected; gift_lang migration required before publication.",
+      "Artifact scanners are bounded, not proof of no secrets; original evidence retained."
+    ]
+  }
+}

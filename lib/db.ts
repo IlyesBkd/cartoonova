@@ -623,11 +623,14 @@ async function ensureEnvoiProgrammeSchema(): Promise<void> {
 /** Pose ou deplace le rendez-vous d'envoi. Ecrase une programmation existante. */
 export async function programmerEnvoiImageFinale(orderId: string, quand: Date): Promise<void> {
   await ensureEnvoiProgrammeSchema();
-  await sql`
-    UPDATE orders
-    SET final_image_scheduled_at = ${quand.toISOString()}
-    WHERE id = ${orderId}::uuid
-  `;
+  await getClientSql().begin(async tx => {
+    const [current] = await tx`SELECT * FROM orders WHERE id = ${orderId}::uuid FOR UPDATE`;
+    const { assertDeliveryEligible, DeliveryPolicyError } = await import("./deliveryPolicy");
+    if (!current) throw new DeliveryPolicyError("Commande introuvable.", 404);
+    assertDeliveryEligible(current as unknown as DbOrder, "schedule", quand);
+    if (current.final_image_sent_at) throw new DeliveryPolicyError("Portrait déjà livré.");
+    await tx`UPDATE orders SET final_image_scheduled_at = ${quand.toISOString()} WHERE id = ${orderId}::uuid`;
+  });
 }
 
 /** Retire le rendez-vous sans rien envoyer. */
@@ -662,6 +665,7 @@ export async function programmerEnvoiImageFinaleSiLibre(
     SET final_image_scheduled_at = COALESCE(final_image_scheduled_at, ${quand.toISOString()}::timestamptz)
     WHERE id = ${orderId}::uuid
       AND final_image_sent_at IS NULL
+      AND paid_at IS NOT NULL
       AND final_image_url = ${version.final_image_url}
       AND customer_email = ${version.customer_email}
       AND options IS NOT DISTINCT FROM ${JSON.stringify(version.options)}::text::jsonb

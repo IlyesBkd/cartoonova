@@ -242,6 +242,9 @@ test('delivery helper rejects stale image or buyer rather than sending an unseen
 });
 test('delivery helper reloads canonical gift policy instead of trusting a stale caller snapshot',async()=>{
  const input=await database.getOrderById(id);input.options={printKey:'digital'};
+ await assert.rejects(route('lib/emailImageFinale.ts').envoyerImageFinale(input),e=>e.status===409);
+ assert.equal((await database.getOrderById(id)).final_image_scheduled_at,null,'unapproved physical gift is not scheduled');
+ await db`UPDATE orders SET poster_confirmation_status='confirmed',poster_confirmation_image_url=final_image_url,poster_confirmation_email=customer_email WHERE id=${id}`;
  const result=await route('lib/emailImageFinale.ts').envoyerImageFinale(input);
  assert.equal(sends.length,0);assert.equal(downloads,0);assert.equal(result.deferredUntil,'2099-12-31T09:00:00.000Z');
 });

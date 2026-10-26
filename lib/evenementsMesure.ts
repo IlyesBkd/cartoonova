@@ -23,6 +23,9 @@
  */
 
 export const MESURES = {
+  guideCadeauVu: "gift_guide_viewed",
+  guideCadeauChoix: "gift_guide_choice",
+  guideCadeauRecommandation: "gift_guide_recommendation_clicked",
   /* ═══ navigation ══════════════════════════════════════════════════════
      Les vues de page sont envoyees par `PostHogProvider`. `$pageleave` est
      pose par la bibliotheque : c'est lui qui donne le temps passe. */

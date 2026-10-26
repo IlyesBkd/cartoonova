@@ -8,9 +8,9 @@ import BoutonImprimer from "./BoutonImprimer";
 
 /* Le bon cadeau, pret a imprimer (format A5) ou a enregistrer en PDF.
 
-   Le prenom, le message et la langue ne sont pas en base : ils voyagent dans
-   les metadonnees du paiement Stripe, relues ici. Inutile d'ajouter trois
-   colonnes pour une page qu'on ouvre une ou deux fois. */
+   La langue est persistée avec le bon (gift_lang ; NULL historique => en).
+   Pour un achat Stripe uniquement, ses métadonnées peuvent compléter le prénom,
+   le message et la langue. Les récompenses internes ne sollicitent pas Stripe. */
 
 export const dynamic = "force-dynamic";
 
@@ -39,12 +39,12 @@ export default async function BonPage({ params }: { params: Promise<{ token: str
   }
 
   // Prenom, message et langue : sur le paiement qui a achete le bon.
-  let lang: Lang = "fr";
+  let lang: Lang = bon.lang;
   let prenom: string | null = null;
   let message: string | null = null;
   const achat = await sql`SELECT achat_payment_intent FROM promo_codes WHERE code = ${bon.code}`;
   const piId = achat[0]?.achat_payment_intent as string | undefined;
-  if (piId) {
+  if (piId && /^pi_[A-Za-z0-9]+$/.test(piId)) {
     try {
       const pi = await stripe.paymentIntents.retrieve(piId);
       if ((LANGS as readonly string[]).includes(pi.metadata?.lang)) lang = pi.metadata.lang as Lang;

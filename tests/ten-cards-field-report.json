@@ -1,0 +1,799 @@
+{
+  "collectedAt": "2026-10-26T17:03:26.220793+00:00",
+  "site": "sc-domain:cartoonova.com",
+  "access": "GSC webmasters.readonly; no mutations",
+  "sitemaps": {
+    "status": 200,
+    "data": {
+      "sitemap": [
+        {
+          "path": "https://www.cartoonova.com/sitemap.xml",
+          "lastSubmitted": "2026-10-26T06:07:02.852Z",
+          "isPending": false,
+          "isSitemapsIndex": false,
+          "type": "sitemap",
+          "lastDownloaded": "2026-10-26T06:07:05.110Z",
+          "warnings": "0",
+          "errors": "0",
+          "contents": [
+            {
+              "type": "web",
+              "submitted": "999",
+              "indexed": "0"
+            },
+            {
+              "type": "image",
+              "submitted": "2200",
+              "indexed": "0"
+            }
+          ]
+        },
+        {
+          "path": "https://cartoonova.com/sitemaps.xml",
+          "lastSubmitted": "2025-09-22T18:18:08.695Z",
+          "isPending": false,
+          "isSitemapsIndex": false,
+          "type": "sitemap",
+          "lastDownloaded": "2025-09-22T18:18:10.169Z",
+          "warnings": "0",
+          "errors": "0",
+          "contents": [
+            {
+              "type": "web",
+              "submitted": "20",
+              "indexed": "0"
+            }
+          ]
+        },
+        {
+          "path": "https://cartoonova.com/sitemap.xml",
+          "lastSubmitted": "2025-09-22T00:18:04.176Z",
+          "isPending": false,
+          "isSitemapsIndex": true,
+          "lastDownloaded": "2025-10-27T01:06:18.477Z",
+          "warnings": "0",
+          "errors": "0"
+        },
+        {
+          "path": "https://cartoonova.com/pages/html-sitemap.xml",
+          "lastSubmitted": "2025-09-22T00:16:43.485Z",
+          "isPending": false,
+          "isSitemapsIndex": false,
+          "lastDownloaded": "2025-10-25T12:45:21.736Z",
+          "warnings": "0",
+          "errors": "1"
+        },
+        {
+          "path": "https://cartoonova.com/pages/html-sitemap",
+          "lastSubmitted": "2025-09-22T00:16:33.571Z",
+          "isPending": false,
+          "isSitemapsIndex": false,
+          "lastDownloaded": "2025-10-26T16:52:58.874Z",
+          "warnings": "0",
+          "errors": "1"
+        },
+        {
+          "path": "http://cartoonova.com/sitemap_index.xml",
+          "lastSubmitted": "2016-07-20T14:37:25.259Z",
+          "isPending": false,
+          "isSitemapsIndex": true,
+          "lastDownloaded": "2022-09-03T12:10:29.667Z",
+          "warnings": "2",
+          "errors": "1"
+        }
+      ]
+    }
+  },
+  "windows": {
+    "28": {
+      "startDate": "2026-09-26",
+      "endDate": "2026-10-23",
+      "totals": {
+        "status": 200,
+        "data": {
+          "rows": [
+            {
+              "clicks": 98,
+              "impressions": 1846,
+              "ctr": 0.05308775731310943,
+              "position": 8.440411700975082
+            }
+          ],
+          "responseAggregationType": "byProperty"
+        }
+      },
+      "topPages": [
+        {
+          "keys": [
+            "https://www.cartoonova.com/en"
+          ],
+          "clicks": 19,
+          "impressions": 52,
+          "ctr": 0.36538461538461536,
+          "position": 5.326923076923077
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr"
+          ],
+          "clicks": 13,
+          "impressions": 33,
+          "ctr": 0.3939393939393939,
+          "position": 5.151515151515151
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/portrait-playmobil-personnalise"
+          ],
+          "clicks": 11,
+          "impressions": 141,
+          "ctr": 0.07801418439716312,
+          "position": 6.75177304964539
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/en/custom-playmobil-portrait"
+          ],
+          "clicks": 9,
+          "impressions": 90,
+          "ctr": 0.1,
+          "position": 6.588888888888889
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/carte-pokemon-personnalisee"
+          ],
+          "clicks": 4,
+          "impressions": 36,
+          "ctr": 0.1111111111111111,
+          "position": 11.277777777777779
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/sv/simpson"
+          ],
+          "clicks": 4,
+          "impressions": 6,
+          "ctr": 0.6666666666666666,
+          "position": 4.166666666666666
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/de/personalisiertes-tim-und-struppi-portraet"
+          ],
+          "clicks": 3,
+          "impressions": 24,
+          "ctr": 0.125,
+          "position": 4.083333333333334
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/de/simpson"
+          ],
+          "clicks": 3,
+          "impressions": 70,
+          "ctr": 0.04285714285714286,
+          "position": 6.6571428571428575
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/en/custom-lego-portrait"
+          ],
+          "clicks": 2,
+          "impressions": 45,
+          "ctr": 0.044444444444444446,
+          "position": 20.266666666666666
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/es/carta-pokemon-personalizada"
+          ],
+          "clicks": 2,
+          "impressions": 21,
+          "ctr": 0.09523809523809523,
+          "position": 5.9523809523809526
+        }
+      ],
+      "topQueries": [
+        {
+          "keys": [
+            "cartoonova"
+          ],
+          "clicks": 37,
+          "impressions": 57,
+          "ctr": 0.6491228070175439,
+          "position": 1.0175438596491229
+        },
+        {
+          "keys": [
+            "playmobil personnalisé photo"
+          ],
+          "clicks": 4,
+          "impressions": 46,
+          "ctr": 0.08695652173913043,
+          "position": 8.717391304347826
+        },
+        {
+          "keys": [
+            "playmobil personalizzati"
+          ],
+          "clicks": 1,
+          "impressions": 17,
+          "ctr": 0.058823529411764705,
+          "position": 8.411764705882353
+        },
+        {
+          "keys": [
+            "ritratti tim burton"
+          ],
+          "clicks": 1,
+          "impressions": 3,
+          "ctr": 0.3333333333333333,
+          "position": 10.666666666666666
+        },
+        {
+          "keys": [
+            "simpsons portrait"
+          ],
+          "clicks": 1,
+          "impressions": 4,
+          "ctr": 0.25,
+          "position": 4.5
+        },
+        {
+          "keys": [
+            "affiche one piece"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 47
+        },
+        {
+          "keys": [
+            "affiche one piece wanted"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 45
+        },
+        {
+          "keys": [
+            "affiche wanted one piece"
+          ],
+          "clicks": 0,
+          "impressions": 2,
+          "ctr": 0,
+          "position": 28.5
+        },
+        {
+          "keys": [
+            "affiches wanted one piece"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 40
+        },
+        {
+          "keys": [
+            "aquaman druck"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 20
+        }
+      ],
+      "returnedRows": {
+        "totals": 1,
+        "pages": 254,
+        "queries": 109,
+        "pageQueries": 181
+      },
+      "articlePageQueries": [
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/blog/cadeau-de-saint-valentin-une-idee-originale-et-personnalisee",
+            "cadeau personnalisé saint valentin"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 73
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/blog/offrir-un-portrait-facon-dessin-anime-jaune-a-noel-ce-qu-il-faut-prevoir",
+            "cartoonova"
+          ],
+          "clicks": 0,
+          "impressions": 2,
+          "ctr": 0,
+          "position": 1.5
+        }
+      ]
+    },
+    "90": {
+      "startDate": "2026-07-26",
+      "endDate": "2026-10-23",
+      "totals": {
+        "status": 200,
+        "data": {
+          "rows": [
+            {
+              "clicks": 178,
+              "impressions": 2830,
+              "ctr": 0.06289752650176679,
+              "position": 9.387632508833923
+            }
+          ],
+          "responseAggregationType": "byProperty"
+        }
+      },
+      "topPages": [
+        {
+          "keys": [
+            "https://www.cartoonova.com/en"
+          ],
+          "clicks": 37,
+          "impressions": 127,
+          "ctr": 0.29133858267716534,
+          "position": 7.921259842519685
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr"
+          ],
+          "clicks": 21,
+          "impressions": 57,
+          "ctr": 0.3684210526315789,
+          "position": 7.701754385964913
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/portrait-playmobil-personnalise"
+          ],
+          "clicks": 11,
+          "impressions": 215,
+          "ctr": 0.05116279069767442,
+          "position": 6.632558139534884
+        },
+        {
+          "keys": [
+            "https://cartoonova.com/"
+          ],
+          "clicks": 9,
+          "impressions": 54,
+          "ctr": 0.16666666666666666,
+          "position": 14.75925925925926
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/en/custom-playmobil-portrait"
+          ],
+          "clicks": 9,
+          "impressions": 90,
+          "ctr": 0.1,
+          "position": 6.588888888888889
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/sv/simpson"
+          ],
+          "clicks": 8,
+          "impressions": 21,
+          "ctr": 0.38095238095238093,
+          "position": 4.380952380952381
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/it"
+          ],
+          "clicks": 7,
+          "impressions": 36,
+          "ctr": 0.19444444444444445,
+          "position": 15.583333333333334
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/carte-pokemon-personnalisee"
+          ],
+          "clicks": 6,
+          "impressions": 58,
+          "ctr": 0.10344827586206896,
+          "position": 11.879310344827585
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/de/personalisiertes-tim-und-struppi-portraet"
+          ],
+          "clicks": 3,
+          "impressions": 34,
+          "ctr": 0.08823529411764706,
+          "position": 4.4411764705882355
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/de/simpson"
+          ],
+          "clicks": 3,
+          "impressions": 74,
+          "ctr": 0.04054054054054054,
+          "position": 7.445945945945946
+        }
+      ],
+      "topQueries": [
+        {
+          "keys": [
+            "cartoonova"
+          ],
+          "clicks": 81,
+          "impressions": 124,
+          "ctr": 0.6532258064516129,
+          "position": 1.596774193548387
+        },
+        {
+          "keys": [
+            "playmobil personnalisé photo"
+          ],
+          "clicks": 4,
+          "impressions": 68,
+          "ctr": 0.058823529411764705,
+          "position": 8.25
+        },
+        {
+          "keys": [
+            "batman"
+          ],
+          "clicks": 1,
+          "impressions": 1,
+          "ctr": 1,
+          "position": 5
+        },
+        {
+          "keys": [
+            "lego personaliser"
+          ],
+          "clicks": 1,
+          "impressions": 1,
+          "ctr": 1,
+          "position": 2
+        },
+        {
+          "keys": [
+            "playmobil personalizzati"
+          ],
+          "clicks": 1,
+          "impressions": 17,
+          "ctr": 0.058823529411764705,
+          "position": 8.411764705882353
+        },
+        {
+          "keys": [
+            "ritratti tim burton"
+          ],
+          "clicks": 1,
+          "impressions": 3,
+          "ctr": 0.3333333333333333,
+          "position": 10.666666666666666
+        },
+        {
+          "keys": [
+            "simpsons portrait"
+          ],
+          "clicks": 1,
+          "impressions": 4,
+          "ctr": 0.25,
+          "position": 4.5
+        },
+        {
+          "keys": [
+            "affiche one piece"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 47
+        },
+        {
+          "keys": [
+            "affiche one piece wanted"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 45
+        },
+        {
+          "keys": [
+            "affiche wanted one piece"
+          ],
+          "clicks": 0,
+          "impressions": 2,
+          "ctr": 0,
+          "position": 28.5
+        }
+      ],
+      "returnedRows": {
+        "totals": 1,
+        "pages": 357,
+        "queries": 151,
+        "pageQueries": 274
+      },
+      "articlePageQueries": [
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/blog/cadeau-de-saint-valentin-une-idee-originale-et-personnalisee",
+            "cadeau personnalisé saint valentin"
+          ],
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 73
+        },
+        {
+          "keys": [
+            "https://www.cartoonova.com/fr/blog/offrir-un-portrait-facon-dessin-anime-jaune-a-noel-ce-qu-il-faut-prevoir",
+            "cartoonova"
+          ],
+          "clicks": 0,
+          "impressions": 2,
+          "ctr": 0,
+          "position": 1.5
+        }
+      ]
+    }
+  },
+  "inspectionSample": [
+    {
+      "url": "https://www.cartoonova.com/fr",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=ClTtrB7Aqtyfl1_9EA5k6w&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "PASS",
+              "coverageState": "Envoyée et indexée",
+              "robotsTxtState": "ALLOWED",
+              "indexingState": "INDEXING_ALLOWED",
+              "lastCrawlTime": "2026-10-19T13:58:22Z",
+              "pageFetchState": "SUCCESSFUL",
+              "googleCanonical": "https://www.cartoonova.com/fr",
+              "userCanonical": "https://www.cartoonova.com/fr",
+              "referringUrls": [
+                "https://www.cartoonova.com/da",
+                "https://www.cartoonova.com/fr/portrait-superman-personnalise",
+                "https://cartoonova.com/"
+              ],
+              "crawledAs": "MOBILE"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            }
+          }
+        }
+      }
+    },
+    {
+      "url": "https://www.cartoonova.com/en",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=WYtogRR9bxD_qOVDSX14bg&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "PASS",
+              "coverageState": "Envoyée et indexée",
+              "robotsTxtState": "ALLOWED",
+              "indexingState": "INDEXING_ALLOWED",
+              "lastCrawlTime": "2026-10-26T14:15:12Z",
+              "pageFetchState": "SUCCESSFUL",
+              "googleCanonical": "https://www.cartoonova.com/en",
+              "userCanonical": "https://www.cartoonova.com/en",
+              "sitemap": [
+                "https://www.cartoonova.com/sitemap.xml"
+              ],
+              "referringUrls": [
+                "https://www.cartoonova.com/en/disney",
+                "https://www.cartoonova.com/",
+                "https://cartoonova.com/"
+              ],
+              "crawledAs": "MOBILE"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            }
+          }
+        }
+      }
+    },
+    {
+      "url": "https://www.cartoonova.com/fr/collections",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=MBkP4tspITYJfdv19GYNwg&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "PASS",
+              "coverageState": "Envoyée et indexée",
+              "robotsTxtState": "ALLOWED",
+              "indexingState": "INDEXING_ALLOWED",
+              "lastCrawlTime": "2026-09-15T15:19:28Z",
+              "pageFetchState": "SUCCESSFUL",
+              "googleCanonical": "https://www.cartoonova.com/fr/collections",
+              "userCanonical": "https://www.cartoonova.com/fr/collections",
+              "referringUrls": [
+                "https://www.cartoonova.com/da/collections"
+              ],
+              "crawledAs": "MOBILE"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            }
+          }
+        }
+      }
+    },
+    {
+      "url": "https://www.cartoonova.com/fr/blog/idees-cadeaux-d-anniversaire-simples-originales-et-vraiment-marquantes",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=URbaC9OB2iF2nxx3xgtUzw&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "PASS",
+              "coverageState": "Envoyée et indexée",
+              "robotsTxtState": "ALLOWED",
+              "indexingState": "INDEXING_ALLOWED",
+              "lastCrawlTime": "2026-09-10T06:52:10Z",
+              "pageFetchState": "SUCCESSFUL",
+              "googleCanonical": "https://www.cartoonova.com/fr/blog/idees-cadeaux-d-anniversaire-simples-originales-et-vraiment-marquantes",
+              "userCanonical": "https://www.cartoonova.com/fr/blog/idees-cadeaux-d-anniversaire-simples-originales-et-vraiment-marquantes",
+              "crawledAs": "MOBILE"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            },
+            "richResultsResult": {
+              "verdict": "PASS",
+              "detectedItems": [
+                {
+                  "richResultType": "Fils d&#39;Ariane",
+                  "items": [
+                    {
+                      "name": "Élément sans nom"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "url": "https://www.cartoonova.com/fr/blog/cadeaux-photo-personnalises-comment-choisir-une-idee-vraiment-touchante",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=vstaCtBnVw1xJIi_5B5Qlg&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "PASS",
+              "coverageState": "Envoyée et indexée",
+              "robotsTxtState": "ALLOWED",
+              "indexingState": "INDEXING_ALLOWED",
+              "lastCrawlTime": "2026-10-05T14:12:06Z",
+              "pageFetchState": "SUCCESSFUL",
+              "googleCanonical": "https://www.cartoonova.com/fr/blog/cadeaux-photo-personnalises-comment-choisir-une-idee-vraiment-touchante",
+              "userCanonical": "https://www.cartoonova.com/fr/blog/cadeaux-photo-personnalises-comment-choisir-une-idee-vraiment-touchante",
+              "crawledAs": "MOBILE"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            },
+            "richResultsResult": {
+              "verdict": "PASS",
+              "detectedItems": [
+                {
+                  "richResultType": "Fils d&#39;Ariane",
+                  "items": [
+                    {
+                      "name": "Élément sans nom"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "url": "https://www.cartoonova.com/fr/blog/idees-de-cadeaux-d-anniversaire-pour-femme-et-homme",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=hboLGaZ2Vk7ItMwqL1_TIg&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "NEUTRAL",
+              "coverageState": "Détectée, actuellement non indexée",
+              "robotsTxtState": "ROBOTS_TXT_STATE_UNSPECIFIED",
+              "indexingState": "INDEXING_STATE_UNSPECIFIED",
+              "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+              "sitemap": [
+                "https://www.cartoonova.com/sitemap.xml"
+              ],
+              "referringUrls": [
+                "https://www.cartoonova.com/fr/blog/offrir-un-portrait-facon-dessin-anime-jaune-a-noel-ce-qu-il-faut-prevoir"
+              ],
+              "crawledAs": "CRAWLING_USER_AGENT_UNSPECIFIED"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            }
+          }
+        }
+      }
+    },
+    {
+      "url": "https://www.cartoonova.com/fr/blog/cadeau-photo-personnalise-une-idee-vraiment-originale",
+      "result": {
+        "status": 200,
+        "data": {
+          "inspectionResult": {
+            "inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:cartoonova.com&id=W_nL4tJ7TS39va1142mNCQ&utm_medium=link&utm_source=api",
+            "indexStatusResult": {
+              "verdict": "PASS",
+              "coverageState": "Envoyée et indexée",
+              "robotsTxtState": "ALLOWED",
+              "indexingState": "INDEXING_ALLOWED",
+              "lastCrawlTime": "2026-08-31T15:53:29Z",
+              "pageFetchState": "SUCCESSFUL",
+              "googleCanonical": "https://www.cartoonova.com/fr/blog/cadeau-photo-personnalise-une-idee-vraiment-originale",
+              "userCanonical": "https://www.cartoonova.com/fr/blog/cadeau-photo-personnalise-une-idee-vraiment-originale",
+              "crawledAs": "MOBILE"
+            },
+            "mobileUsabilityResult": {
+              "verdict": "VERDICT_UNSPECIFIED"
+            },
+            "richResultsResult": {
+              "verdict": "PASS",
+              "detectedItems": [
+                {
+                  "richResultType": "Fils d&#39;Ariane",
+                  "items": [
+                    {
+                      "name": "Élément sans nom"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "mobileField": {
+    "status": "blocked",
+    "source": "PageSpeed Insights public API",
+    "httpStatus": 429,
+    "reason": "Public API daily quota exceeded. No paid API activated. No CrUX field payload returned.",
+    "p75LCP": null,
+    "alternativeCruxApi": {"httpStatus": 403, "reason": "Unregistered caller: API consumer identity required. No paid service enabled."},
+    "p75INP": null,
+    "p75CLS": null
+  },
+  "limits": [
+    "Inspection sample is not the full Page Indexing/Coverage export.",
+    "Search Analytics may omit anonymized queries.",
+    "No cannibalization, SEO loss, CWV failure, or conversion gain inferred."
+  ]
+}

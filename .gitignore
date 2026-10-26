@@ -55,3 +55,9 @@ public/catalogue/*/galerie-detouree/
 /.secrets/
 # Marqueurs crees par les hooks Claude quand le chemin Windows est mal echappe.
 *claude-notify-signals*
+
+# Local runtime evidence can contain API payloads: never stage cache roots.
+/cache/
+/.next-*/
+/tests/*-evidence/
+/artifacts/

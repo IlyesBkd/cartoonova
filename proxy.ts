@@ -61,7 +61,19 @@ export function proxy(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   if (host === "cartoonova.com") {
     const cible = new URL(request.nextUrl.toString());
+    cible.protocol = "https:";
     cible.host = "www.cartoonova.com";
+    if (pathname === "/") {
+      const chosen = request.cookies.get(COOKIE_LANGUE_CHOISIE)?.value;
+      const valid = chosen && (locales as readonly string[]).includes(chosen) ? chosen : null;
+      cible.pathname = `/${valid ?? countryLocaleMap[country.toUpperCase()] ?? "en"}`;
+      // Locale negotiation is not permanent even when host/protocol normalise.
+      return NextResponse.redirect(cible, 307);
+    }
+    const first = pathname.split("/")[1];
+    if (!(locales as readonly string[]).includes(first) && !/^(?:api|_next|ingest|success|confirm-poster|depot|suivi|bonus|bon)$/.test(first) && !pathname.includes(".")) {
+      cible.pathname = `/${defaultLocale}${pathname}`;
+    }
     return NextResponse.redirect(cible, 308);
   }
 

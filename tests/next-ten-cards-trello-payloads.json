@@ -1,0 +1,146 @@
+{
+  "executed": false,
+  "instruction": "Parent review only; no close/move/write performed.",
+  "cards": [
+    {
+      "code": "FLOW-02",
+      "cardId": "6ade2311cfbae0c07d7d8f20",
+      "cardUrl": "https://trello.com/c/PWGdras8/53-cartoonova-p2-flow-02-aligner-les-gardes-serveur-de-livraison-et-planification-sur-les-r%C3%A8gles-m%C3%A9tier",
+      "recommendedState": "correctif_local_a_revoir",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade2311cfbae0c07d7d8f20/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nPolitique commune de livraison, recontrôle sous verrou avant effets et planification explicite sous verrou. Paiement/validation physique/date cadeau/extras contrôlés. Aucun override implicite, aucun envoi réel.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent.\n\nSuivi revue indépendante (local uniquement) : Revue R3 corrigée : erreur métier 409 « Portrait déjà livré. », 404 « Commande introuvable. » pour disparition après la première lecture ; tests route effective + PostgreSQL jetable. Régression permanente du helper SQL : attente effective FOR UPDATE, paiement modifié sous verrou refusé, date cadeau persistée et relue. Aucun fournisseur appelé."
+        }
+      }
+    },
+    {
+      "code": "FLOW-04",
+      "cardId": "6ade2312eb231e3c2c05fb4e",
+      "cardUrl": "https://trello.com/c/QODWdhse/55-cartoonova-p2-flow-04-conserver-la-langue-de-commande-pour-la-livraison-et-les-bonus",
+      "recommendedState": "correctif_local_migration_requise",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade2312eb231e3c2c05fb4e/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nLangue canonique, langue des récompenses persistée ; avis:/parrainage: sans récupération Stripe. Migration 20261026_gift_language.sql avant publication autorisée ; aucun backfill deviné.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent.\n\nSuivi revue indépendante (local uniquement) : Couverture complémentaire réelle SQL : création bon offert → gift_lang → lireBon → page rendue pour les dix langues et clés avis:/parrainage:, reprise idempotente, NULL historique => en, pi_ valide avec récupération fournisseur simulée. Migration gift_lang toujours obligatoire AVANT publication ; aucun backfill ni migration prod."
+        }
+      }
+    },
+    {
+      "code": "SEO-08",
+      "cardId": "6ade230e2bfb4c41d14704f7",
+      "cardUrl": "https://trello.com/c/PAci32CX/50-cartoonova-p2-seo-08-performance-terrain-et-indexation-r%C3%A9elle-non-%C3%A9tablies",
+      "recommendedState": "diagnostic_partiel_blocage_externe",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade230e2bfb4c41d14704f7/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nGSC réel lecture seule : 98 clics/1846 impressions sur 2026-09-26–2026-10-23 ; 178/2830 sur 2026-07-26–2026-10-23. Sitemap www 999 URL soumises, zéro erreur/avertissement. Échantillon 7 URL : 6 indexées, article anniversaire femme/homme détecté non indexé. p75 mobile NON OBTENU : PSI 429 quota, API CrUX alternative 403 identité requise. Pas de couverture exhaustive, API payante ou échec CWV inféré.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent."
+        }
+      }
+    },
+    {
+      "code": "CRO-11",
+      "cardId": "6ade23061df761b5ceabe94a",
+      "cardUrl": "https://trello.com/c/bTNdXlte/40-cartoonova-p2-cro-11-tester-un-choix-cadeau-guid%C3%A9-plut%C3%B4t-que-seulement-35-univers",
+      "recommendedState": "guide_local_instrumente_mesure_future",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade23061df761b5ceabe94a/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nGuide FR/EN pour qui/date/univers, trois styles, total numérique couple/famille, bon cadeau/catalogue. Exposition/choix/clic instrumentés. Aucun gain présumé : achats payés, marge/session, cohorte témoin, erreurs/remboursements à mesurer après publication autorisée.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent.\n\nSuivi revue indépendante (local uniquement) : Revue R1 corrigée : événement attaché uniquement au lien disponible, aucun clic compté sur état prix chargement/erreur. Régressions Chromium FR/EN : panne HTTP, reprise, clavier/Entrée/clic et payloads exacts. Les 1/2/4 personnes sont des exemples de prix, NON un panier préconfiguré. Attribution/cohortes restent à approuver, aucun gain CRO établi."
+        }
+      }
+    },
+    {
+      "code": "SEO-06",
+      "cardId": "6ade230d05d7c2ff3cdaa0d5",
+      "cardUrl": "https://trello.com/c/nHfaxrND/49-cartoonova-p2-seo-06-deux-groupes-darticles-fran%C3%A7ais-ciblent-des-intentions-tr%C3%A8s-proches",
+      "recommendedState": "mapping_local_a_approuver",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade230d05d7c2ff3cdaa0d5/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nQuatre articles FR différenciés par requête/intention/titre/description/introduction/liens. Mapping lib/articleIntents.ts à approuver en revue éditoriale ; aucune fusion/301 sans preuve. Contrôle GSC 28–90 jours après publication.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent.\n\nSuivi revue indépendante (local uniquement) : Revue R2 corrigée : helper partagé Object.hasOwn pour transformation et aside, slugs hérités ignorés sans perdre titre/SEO. Corps markdown d’origine inchangés : mapping/introduction/liens ne prouvent pas la disparition du chevauchement. Revue des vrais corps et approbation éditoriale restent nécessaires ; aucun gain SEO établi."
+        }
+      }
+    },
+    {
+      "code": "SEO-05",
+      "cardId": "6ade230c3ea1f7978baafc0f",
+      "cardUrl": "https://trello.com/c/7Y7rWCTP/48-cartoonova-p2-seo-05-lastmod-des-pages-statiques-d%C3%A9pend-du-chargement-du-module",
+      "recommendedState": "correctif_local_verifie",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade230c3ea1f7978baafc0f/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nlastmod statique omis sans date fiable ; updatedAt persistant des articles conservé. Test fonctionnel et lectures HTTP locales. Aucun lastmod inventé au cold start.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent."
+        }
+      }
+    },
+    {
+      "code": "OPS-03",
+      "cardId": "6ade231797c041579bf8ea87",
+      "cardUrl": "https://trello.com/c/GfPsZN7o/61-cartoonova-p2-ops-03-pr%C3%A9venir-la-persistance-de-secrets-dans-les-caches-de-compilation-et-les-livrables-e2e",
+      "recommendedState": "gardes_locales_verifiees",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade231797c041579bf8ea87/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nBuild minimal synthétique isolé, cache filesystem Turbopack build désactivé. Scan exact décompressé des valeurs synthétiques, garde Git suivie/stagée masquée et test négatif. Caches/preuves exclus, préexistants conservés ; aucune clé réelle tournée. Regex ne prouve pas absence de tout secret inconnu.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent.\n\nSuivi revue indépendante (local uniquement) : Harnais build durci : refuse tout .env* à la racine avant configuration/services/build, sans afficher son contenu ; régression négative. Chaque nouvelle exécution utilise un dossier de preuves unique, anciens artefacts conservés. Snapshot SQL privé extérieur toujours requis : pas reproductible depuis clone seul."
+        }
+      }
+    },
+    {
+      "code": "CODE-14",
+      "cardId": "6ade23189c9ec60cd2aa5b29",
+      "cardUrl": "https://trello.com/c/Tl1tnMsB/62-cartoonova-p3-code-14-csp-d%C3%A9clar%C3%A9e-uniquement-en-report-only",
+      "recommendedState": "csp_locale_validation_psp_restante",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade23189c9ec60cd2aa5b29/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nCSP enforcement, script-src-attr none. Navigateur bloque script étranger et onclick. Origines Stripe/PostHog autorisées avec réponses locales simulées. unsafe-inline des balises script demeure ; aucune transaction PSP/3DS/portefeuille externe validée. Staging autorisé requis.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent."
+        }
+      }
+    },
+    {
+      "code": "FLOW-10",
+      "cardId": "6ade231ab9c1ee0ac5a47b30",
+      "cardUrl": "https://trello.com/c/BHJqc1bX/64-cartoonova-p3-flow-10-accorder-lextension-des-pi%C3%A8ces-jointes-daper%C3%A7u-au-format-r%C3%A9el-de-limage",
+      "recommendedState": "correction_anterieure_revalidee",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade231ab9c1ee0ac5a47b30/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nDéjà corrigé dans la base du lot précédent. Régression transport ajoutée : PNG/JPEG/WebP, extension/MIME/octet cohérents et décodage Sharp. Captures uniquement, aucun email client ni gain de délivrabilité affirmé.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent."
+        }
+      }
+    },
+    {
+      "code": "SEO-07",
+      "cardId": "6ade2319fcbf9e3964b2be73",
+      "cardUrl": "https://trello.com/c/oA3e0WK4/63-cartoonova-p3-seo-07-cha%C3%AEne-de-trois-redirections-sur-lentr%C3%A9e-http-sans-www",
+      "recommendedState": "repli_applicatif_local_fournisseur_restant",
+      "closed": false,
+      "proposedCommentOnly": {
+        "method": "POST",
+        "path": "/1/cards/6ade2319fcbf9e3964b2be73/actions/comments",
+        "body": {
+          "text": "Lot local suivant — NON PUBLIÉ, À REVOIR.\n\nRepli apex regroupe protocole/hôte/chemin, conserve query et 307 racine de négociation ; locales accessibles sans cookie. Vercel peut rediriger en amont : aucun réglage fournisseur modifié ou gain de sauts production affirmé avant publication/contrôle autorisés.\n\nPreuves : tests/next-ten-cards-verification.json ; tests/next-ten-cards-delivery-report.md ; tests/ten-cards-field-report.json. Ne pas clôturer avant publication/contrôles distants. Aucune écriture Trello par le sous-agent."
+        }
+      }
+    }
+  ]
+}

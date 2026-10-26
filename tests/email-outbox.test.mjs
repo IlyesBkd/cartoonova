@@ -1,3 +1,5 @@
+import {loadDeep} from './order-delivery-harness.mjs';
+import {renderToStaticMarkup} from 'react-dom/server';
 import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
 import { readFileSync, mkdtempSync, existsSync } from 'node:fs';
@@ -62,6 +64,7 @@ before(async()=>{
  await db`CREATE TABLE orders(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),paid_at timestamptz,status text, customer_email text, options jsonb)`;
  await db`CREATE TABLE promo_codes(code text PRIMARY KEY,kind text,value numeric,currency text,min_subtotal numeric,max_uses integer,ends_at timestamptz,solde numeric,achat_payment_intent text UNIQUE,acheteur_email text)`;
  if(existsSync(path.join(root,'migrations/2026-10-email-outbox.sql')))await db.unsafe(readFileSync(path.join(root,'migrations/2026-10-email-outbox.sql'),'utf8'));
+ await db.unsafe(readFileSync(path.join(root,'migrations/20261026_gift_language.sql'),'utf8'));
  finaliser=load('lib/finaliserCommande.ts').finaliserCommande;gifts=load('lib/bonCadeau.ts');
  if(existsSync(path.join(root,'lib/emailOutbox.ts')))outbox=load('lib/emailOutbox.ts');
 });
@@ -289,4 +292,33 @@ test('paid order retries its confirmation after provider outage instead of losin
  const [job]=await db`SELECT * FROM email_outbox WHERE event_key=${'order:'+row.id}`;
  assert.ok(job.sent_at);assert.equal(job.attempts,2);
  assert.ok(measurements.some(([,data])=>data?.proprietes?.campagne==='confirmation'),'successful confirmation retains email analytics');
+});
+
+test('gift SQL roundtrip: ten locales, both reward keys, idempotent retry, historical NULL and valid pi page',async()=>{
+ fail=false;providerHook=null;
+ const {LANGS,bonCadeauTextes}=load('lib/email-i18n.ts');assert.equal(LANGS.length,10);
+ let retrieves=[];
+ async function pageFor(code){
+  const {default:Page}=loadDeep('app/(hors-langue)/bon/[token]/page.tsx',{
+   stripe:class {paymentIntents={retrieve:async id=>{retrieves.push(id);return {metadata:{lang:'de',prenom:'Fixture'}};}}},
+   '@/lib/emailToken':{parseBonToken:()=>code},'@/lib/bonCadeau':gifts,'@/lib/db':{sql:(...args)=>db(...args)},
+   '@/app/(hors-langue)/bon/[token]/BoutonImprimer':()=>null,
+  });
+  return renderToStaticMarkup(await Page({params:Promise.resolve({token:'fixture'})}));
+ }
+ for(const lang of LANGS)for(const prefix of ['avis','parrainage']){
+  const cle=`${prefix}:roundtrip-${lang}`;const input={email:'fixture@example.invalid',montant:20,devise:'EUR',raison:'fixture',lang,cle};
+  const bon=await gifts.creerBonOffert(input);assert.ok(bon);
+  const [row]=await db`SELECT gift_lang FROM promo_codes WHERE code=${bon.code}`;assert.equal(row.gift_lang,lang);
+  assert.equal((await gifts.lireBon(bon.code)).lang,lang);
+  assert.ok((await pageFor(bon.code)).includes(bonCadeauTextes[lang].carteTitre));
+  const sentBefore=sends.length;assert.equal(await gifts.creerBonOffert(input),null);assert.equal(sends.length,sentBefore);
+  const [count]=await db`SELECT count(*)::int AS n FROM promo_codes WHERE achat_payment_intent=${cle}`;assert.equal(count.n,1);
+ }
+ assert.deepEqual(retrieves,[],'internal reward keys never retrieve Stripe');
+ const legacy=await gifts.creerBonOffert({email:'fixture@example.invalid',montant:20,devise:'EUR',raison:'fixture',lang:'fr',cle:'avis:legacy-roundtrip'});
+ await db`UPDATE promo_codes SET gift_lang=NULL WHERE code=${legacy.code}`;
+ assert.equal((await gifts.lireBon(legacy.code)).lang,'en');assert.ok((await pageFor(legacy.code)).includes(bonCadeauTextes.en.carteTitre));
+ const paid=await gifts.finaliserBonCadeau({id:'pi_Roundtrip123',currency:'eur',amount:2000,metadata:{email:'fixture@example.invalid',lang:'sv'}});
+ assert.equal((await gifts.lireBon(paid.code)).lang,'sv');assert.ok((await pageFor(paid.code)).includes(bonCadeauTextes.de.carteTitre));assert.deepEqual(retrieves,['pi_Roundtrip123']);
 });

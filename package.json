@@ -7,6 +7,8 @@
     "build": "CARTOONOVA_BUILD=1 next build",
     "start": "next start",
     "lint": "eslint",
+    "check:artifacts": "node scripts/check-artifact-secrets.mjs",
+    "check:artifacts:staged": "node scripts/check-artifact-secrets.mjs --staged",
     "test": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"${TMPDIR:-/tmp}\" PLAYWRIGHT_BROWSERS_PATH=\"${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}\" node scripts/test.mjs"
   },
   "dependencies": {

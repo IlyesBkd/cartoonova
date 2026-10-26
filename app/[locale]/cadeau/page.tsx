@@ -9,6 +9,7 @@ import { OCCASIONS, OCCASION_KEYS, buildGiftSlug } from "@/lib/giftOccasions";
 import { prixEnCache } from "@/lib/lecturesCache";
 import type { Prices } from "@/lib/types";
 import { GiftPricingProvider, GiftStartingPrice } from "./GiftPricing";
+import GiftGuide from "./GiftGuide";
 import { vignetteProduit } from "@/lib/visuels";
 import { metadataPage, urlAbsolue } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
@@ -117,6 +118,7 @@ export default async function GiftIndexPage({
         </div>
       </section>
 
+      {(locale === "fr" || locale === "en") && <GiftGuide />}
       {OCCASION_KEYS.map((key, i) => {
         const occasion = OCCASIONS[locale][key];
         return (

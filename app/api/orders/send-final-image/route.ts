@@ -12,6 +12,7 @@ import { dateEnvoiProgramme, reporterApresDateCadeau } from "@/lib/envoiProgramm
 import { estPhysique } from "@/lib/supportCommande";
 import { optionsLivraisonCadeau, validerLivraisonCadeau, LivraisonCadeauInvalide } from "@/lib/livraisonCadeau";
 import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "@/lib/finalImage";
+import { assertDeliveryEligible, DeliveryPolicyError } from "@/lib/deliveryPolicy";
 
 /**
  * Depot de l'illustration finale, et son envoi.
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
 
     // ── Annulation ───────────────────────────────────────────────────
     if (action === "cancel") {
+      if (!await getOrderById(orderId)) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
       await annulerEnvoiImageFinale(orderId);
       return NextResponse.json({ ok: true, scheduledAt: null });
     }
@@ -79,6 +81,7 @@ export async function POST(req: NextRequest) {
         ? reporterApresDateCadeau(demandee, options)
         : dateEnvoiProgramme(new Date(), options, order.created_at);
 
+      assertDeliveryEligible(order, "schedule", quand);
       await programmerEnvoiImageFinale(orderId, quand);
       return NextResponse.json({ ok: true, scheduledAt: quand.toISOString() });
     }
@@ -103,6 +106,7 @@ export async function POST(req: NextRequest) {
     // Refuse unsafe destinations and bytes BEFORE persistence or scheduling.
     await downloadFinalImage(finalImageUrl);
     if (saveOnly) {
+      if (!order.paid_at) throw new DeliveryPolicyError("La commande doit être payée avant le dépôt final.");
       await updateOrderFinalImage(orderId, finalImageUrl);
       const saved = await getOrderById(orderId);
       if (!saved || saved.final_image_url !== finalImageUrl || saved.customer_email !== order.customer_email) {
@@ -145,6 +149,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: true, saved: true, scheduledAt: null, envoyeImmediatement: true, emailId: envoi.id });
       }
 
+      assertDeliveryEligible(saved, "schedule", dateEnvoiProgramme(new Date(), options, saved.created_at));
       const quand = await programmerEnvoiImageFinaleSiLibre(
         orderId,
         dateEnvoiProgramme(new Date(), options, order?.created_at),
@@ -172,8 +177,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, emailId: result.id });
   } catch (error: unknown) {
-    const message = error instanceof FinalImageError || error instanceof LivraisonCadeauInvalide ? error.message : "Envoi du portrait impossible.";
+    const message = error instanceof FinalImageError || error instanceof LivraisonCadeauInvalide || error instanceof DeliveryPolicyError ? error.message : "Envoi du portrait impossible.";
     console.error("[SEND-FINAL-IMAGE] Échec de livraison.");
-    return NextResponse.json({ error: message }, { status: error instanceof FinalImageError ? error.status : error instanceof LivraisonCadeauInvalide ? 400 : 500 });
+    return NextResponse.json({ error: message }, { status: error instanceof FinalImageError || error instanceof DeliveryPolicyError ? error.status : error instanceof LivraisonCadeauInvalide ? 400 : 500 });
   }
 }

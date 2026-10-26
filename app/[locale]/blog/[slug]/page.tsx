@@ -12,6 +12,7 @@ import ArticleBody from "@/components/blog/ArticleBody";
 import { IMAGE_PARTAGE, OG_LOCALE, couper, titreSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 import LectureArticle from "@/components/blog/LectureArticle";
+import { getFrenchArticleIntent } from "@/lib/articleIntents";
 
 export const revalidate = 300;
 
@@ -141,6 +142,11 @@ export default async function BlogArticlePage({
           </div>
         )}
 
+        {locale === "fr" && (() => {
+          const intent = getFrenchArticleIntent(slug);
+          if (!intent) return null;
+          return <aside className="article-intention"><p>{intent.intro}</p><Link href={`/fr/blog/${intent.related}`}>{intent.anchor} →</Link></aside>;
+        })()}
         <ArticleBody markdown={article.body} />
 
         {article.images.length > 1 && (

@@ -56,7 +56,7 @@ export interface BonCadeau {
 /** Lit un bon par son code (pour la version imprimable). */
 export async function lireBon(code: string): Promise<BonCadeau | null> {
   const rows = await sql`
-    SELECT code, value, currency, solde, ends_at, achat_payment_intent
+    SELECT code, value, currency, solde, ends_at, achat_payment_intent, gift_lang
     FROM promo_codes WHERE code = ${code} AND solde IS NOT NULL
   `;
   const r = rows[0] as Record<string, unknown> | undefined;
@@ -69,7 +69,7 @@ export async function lireBon(code: string): Promise<BonCadeau | null> {
     expireLe: r.ends_at ? new Date(r.ends_at as string).toISOString() : "",
     prenom: null,
     message: null,
-    lang: "fr",
+    lang: langue(r.gift_lang),
   };
 }
 
@@ -224,8 +224,8 @@ export async function creerBonOffert(input: {
 async function insererBonAvecEmail(cle: string, email: string, bon: BonCadeau, offert?: TextesBonOffert) {
   return sql`
     WITH created AS (
-      INSERT INTO promo_codes (code, kind, value, currency, min_subtotal, max_uses, ends_at, solde, achat_payment_intent, acheteur_email)
-      VALUES (${bon.code}, 'amount', ${bon.montant}, ${bon.devise}, 0, NULL, ${bon.expireLe}, ${bon.solde}, ${cle}, ${email})
+      INSERT INTO promo_codes (code, kind, value, currency, min_subtotal, max_uses, ends_at, solde, achat_payment_intent, acheteur_email, gift_lang)
+      VALUES (${bon.code}, 'amount', ${bon.montant}, ${bon.devise}, 0, NULL, ${bon.expireLe}, ${bon.solde}, ${cle}, ${email}, ${bon.lang})
       ON CONFLICT DO NOTHING RETURNING code
     ), queued AS (
       INSERT INTO email_outbox(event_key, payload)

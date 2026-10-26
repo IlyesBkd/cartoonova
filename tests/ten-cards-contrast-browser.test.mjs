@@ -27,7 +27,7 @@ const stubs={
  'stripe':`export default class Stripe {paymentIntents={retrieve:()=>{throw Error('Stripe forbidden')}}}`,
  '@/lib/db':`export const sql=async()=>[]`,
  '@/lib/emailToken':`export const parseBonToken=()=>'SYNTHETIC-GIFT'`,
- '@/lib/bonCadeau':`export const lireBon=async()=>({code:'SYNTHETIC-GIFT',montant:50,solde:50,devise:'EUR',expireLe:'2027-01-01'});export const formatMontant=n=>n+' EUR';export const formatDate=()=> '01/01/2027'`,
+ '@/lib/bonCadeau':`export const lireBon=async()=>({code:'SYNTHETIC-GIFT',lang:'fr',montant:50,solde:50,devise:'EUR',expireLe:'2027-01-01'});export const formatMontant=n=>n+' EUR';export const formatDate=()=> '01/01/2027'`,
 
 };
 const bundle=await build({absWorkingDir:root,bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',define:{'process.env.STRIPE_SECRET_KEY':JSON.stringify('sk_test_synthetic_never_sent')},

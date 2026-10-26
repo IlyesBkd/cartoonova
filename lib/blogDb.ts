@@ -1,4 +1,5 @@
 import { runtimeSchemaBootstrapEnabled, sql } from "./db";
+import { withEditorialIntent } from "./articleIntents";
 
 export interface BlogImage {
   url: string;
@@ -68,7 +69,7 @@ async function ensureBlogSchema(): Promise<void> {
 }
 
 function rowToArticle(row: Record<string, unknown>): BlogArticle {
-  return {
+  return withEditorialIntent({
     id: row.id as string,
     locale: row.locale as string,
     category: row.category as string,
@@ -80,7 +81,7 @@ function rowToArticle(row: Record<string, unknown>): BlogArticle {
     seo: row.seo as BlogSeo,
     publishedAt: new Date(row.published_at as string).toISOString(),
     updatedAt: new Date(row.updated_at as string).toISOString(),
-  };
+  });
 }
 
 export async function getPublishedArticles(locale: string, limit = 24, offset = 0): Promise<BlogArticle[]> {

@@ -7,6 +7,7 @@ import { useCurrency } from "@/components/CurrencyProvider";
 import { loadProductPrices, PRICE_MESSAGES } from "@/lib/productPrices";
 import type { Currency } from "@/lib/currency";
 import type { Prices } from "@/lib/types";
+import { computeOrderSubtotal } from "@/lib/pricing";
 
 const GiftPriceContext = createContext<Prices | null>(null);
 
@@ -51,9 +52,16 @@ export function GiftStartingPrice({ className }: { className?: string }) {
   return <span className={className} aria-busy={!prices}>{prices ? t("aPartirDe", { prix: formatRaw(prices.base) }) : "—"}</span>;
 }
 
-/** Keep the shared visitor currency (and its cookie) on the product route. */
-export function GiftConfiguratorLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
+/** Illustrative digital portrait, no paid options, using the approved currency grid. */
+export function GiftExampleTotal({ people }: { people: number }) {
   const prices = useContext(GiftPriceContext);
-  return prices ? <Link href={href} className={className}>{children}</Link>
+  const { formatRaw } = useCurrency();
+  return <span aria-busy={!prices}>{prices ? formatRaw(computeOrderSubtotal(prices, { format: "portrait", people, animals: 0, printKey: "digital" })) : "—"}</span>;
+}
+
+/** Keep the shared visitor currency (and its cookie) on the product route. */
+export function GiftConfiguratorLink({ href, className, children, onClick }: { href: string; className?: string; children: ReactNode; onClick?: () => void }) {
+  const prices = useContext(GiftPriceContext);
+  return prices ? <Link href={href} className={className} onClick={onClick}>{children}</Link>
     : <span role="link" aria-disabled="true" className={className}>{children}</span>;
 }

@@ -15,7 +15,7 @@ export function loadDeep(file,replacements={},cache=new Map()){
  if(Object.hasOwn(replacements,normalized))return replacements[normalized];
  if(normalized.startsWith('@/'))return loadDeep(normalized.slice(2)+'.ts',replacements,cache);
  return real(name);};
- mod._compile(ts.transpileModule(readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,filename);
+ mod._compile(ts.transpileModule(readFileSync(filename,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,filename);
  return mod.exports;
 }
 // Build a genuine sent final-image ledger entry via the production SQL guard.

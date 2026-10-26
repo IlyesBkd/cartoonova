@@ -21,12 +21,8 @@ const baseUrl = SITE_URL;
    seuls Google et le cron d'entretien demandent, quelques fois par jour. */
 export const dynamic = "force-dynamic";
 
-/* Horodatage fige au chargement du module, donc une fois par deploiement.
-   Auparavant chaque entree portait `new Date()`, reevalue a chaque requete :
-   les 405 URL se declaraient modifiees a la seconde ou Google lisait le
-   fichier. Un `lastmod` qui bouge sans que rien ne change n'est pas une
-   information, et Google finit par cesser d'y croire. */
-const DERNIERE_PUBLICATION = new Date();
+// No reliable persisted editorial date for static pages: omit lastmod.
+// Articles below retain their actual persisted updatedAt.
 
 type ChangeFrequency = "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
 
@@ -79,7 +75,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const locale of languesDeLaPage) {
       entries.push({
         url: `${baseUrl}/${locale}${page.path}`,
-        lastModified: DERNIERE_PUBLICATION,
         changeFrequency: page.changeFrequency,
         priority: page.priority,
         // Une page mono-langue n'a pas d'alternative a declarer.
@@ -113,7 +108,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const locale of locales) {
       entries.push({
         url: `${baseUrl}/${locale}/${parLangue[locale]}`,
-        lastModified: DERNIERE_PUBLICATION,
         changeFrequency: "weekly",
         priority: produit.slug === SLUG_PHARE ? 1 : 0.9,
         alternates,
@@ -134,7 +128,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       for (const locale of locales) {
         entries.push({
           url: parLangue[locale],
-          lastModified: DERNIERE_PUBLICATION,
           changeFrequency: "monthly",
           priority: 0.7,
           alternates: { languages: { ...parLangue, "x-default": parLangue.en } },

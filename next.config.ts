@@ -4,12 +4,12 @@ import { VERSION_VISUELS } from "./lib/versionVisuels";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
-/* Politique de securite du contenu, publiee en Report-Only : elle ne bloque
-   rien et envoie ce qu'elle aurait bloque a /api/csp. Les pages etant
+/* Politique de securite du contenu bloquante. Les pages etant
    statiques, pas de nonce possible : 'unsafe-inline' reste necessaire pour
    gtag, le pixel Meta et les scripts d'amorcage de Next. A rendre bloquante
-   (en-tete Content-Security-Policy) apres une a deux semaines sans violation
-   legitime. Origines : Stripe (paiement, Apple Pay, Google Pay), Google Ads,
+   strictement noncee seulement apres validation d'un rendu dynamique ou
+   hashes Next compatibles ISR. Risque residuel : scripts inline autorises.
+   Origines : Stripe (paiement, Apple Pay, Google Pay), Google Ads,
    Meta, PostHog, Vercel Blob (televersement des photos), API Adresse et
    Photon (suggestions d'adresse), Google Fonts (maquettes). */
 
@@ -39,6 +39,7 @@ const CSP = [
   "frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://pay.google.com https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com https://vercel.live",
   "worker-src 'self' blob:",
   "object-src 'none'",
+  "script-src-attr 'none'",
   "base-uri 'self'",
   "form-action 'self' https://hooks.stripe.com",
   "frame-ancestors 'none'",
@@ -55,15 +56,19 @@ const EN_TETES_SECURITE = [
     key: "Permissions-Policy",
     value: 'camera=(), microphone=(), geolocation=(), payment=(self "https://js.stripe.com")',
   },
-  { key: "Content-Security-Policy-Report-Only", value: CSP },
+  { key: "Content-Security-Policy", value: CSP },
 ];
 
 const nextConfig: NextConfig = {
+  // Local verification builds can be isolated without touching the serving tree.
+  distDir: process.env.CARTOONOVA_BUILD_DIR || ".next",
+
   reactCompiler: true,
 
   /* Deux mises en page racines (`app/[locale]` et `app/(hors-langue)`) : la
      404 des URL inconnues vit dans `app/global-not-found.tsx`. */
   experimental: {
+    turbopackFileSystemCacheForBuild: false,
     globalNotFound: true,
   },
 

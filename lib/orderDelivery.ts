@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type postgres from "postgres";
 import { withFreshDatabaseClient } from "@/lib/db";
-import { estPhysique } from "@/lib/supportCommande";
+import { assertDeliveryEligible } from "./deliveryPolicy";
 
 export class OrderDeliveryError extends Error {
   constructor(message: string, public status = 409) { super(message); }
@@ -40,20 +40,14 @@ export async function executeDelivery(
     if (!lock.acquired) throw new OrderDeliveryError("Un envoi est déjà en cours.");
     const [current] = await tx`SELECT * FROM orders WHERE id=${expected.id}::uuid FOR NO KEY UPDATE`;
     if (!current) throw new OrderDeliveryError("Commande introuvable.",404);
-    // Admin workflow status is free text; only the payment milestone is canonical.
-    if (!current.paid_at || !current.final_image_url || !current.customer_email) {
-      throw new OrderDeliveryError("La livraison exige une commande payée avec portrait et destinataire.");
-    }
+    try { assertDeliveryEligible(current as Snapshot, kind); }
+    catch (error) { throw new OrderDeliveryError(error instanceof Error ? error.message : "Livraison refusée."); }
     if (snapshot(current as Snapshot) !== snapshot(expected)) throw new OrderDeliveryError("La commande a changé. Rechargez-la avant l'envoi.");
     const opts = options(current.options);
     if (kind === "extras" && (!current.final_image_sent_at || (!opts?.carteVoeux && !opts?.calendrier))) {
       throw new OrderDeliveryError("Les extras payés exigent un portrait déjà livré.");
     }
-    if (kind === "final_image" && estPhysique(opts) &&
-        (current.poster_confirmation_status !== "confirmed" || current.poster_confirmation_image_url !== current.final_image_url ||
-         current.poster_confirmation_email !== current.customer_email)) {
-      throw new OrderDeliveryError("Le tirage doit être validé pour cette version du portrait.");
-    }
+
     const versionFor = (to: string) => createHash("sha256").update(stable([contentHash,opts,to.trim().toLowerCase(),current.langue,current.detected_country])).digest("hex");
     const version = versionFor(recipient);
     const delivery = await withFreshDatabaseClient(async db => {
