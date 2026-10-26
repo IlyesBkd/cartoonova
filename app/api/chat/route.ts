@@ -35,7 +35,10 @@ export async function POST(req: NextRequest) {
   const data = body && typeof body === "object" ? body as Record<string, unknown> : {};
   const email = typeof data.email === "string" ? data.email.trim() : "";
   const message = typeof data.message === "string" ? data.message.trim() : "";
-  const key = typeof data.idempotencyKey === "string" ? data.idempotencyKey : "";
+  // Les anciennes sessions n'envoient pas de clé : chaque requête est alors distincte.
+  const key = Object.hasOwn(data, "idempotencyKey")
+    ? typeof data.idempotencyKey === "string" ? data.idempotencyKey : ""
+    : crypto.randomUUID();
   if (!emailValide(email) || !message || message.length > 5000 || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(key)) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }

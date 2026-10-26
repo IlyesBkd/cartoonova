@@ -26,6 +26,21 @@ test('accepted chat is saved atomically with a pending durable notification with
 test('database failure is reported, not acknowledged',async()=>{fail=true;try {assert.equal((await post(req({email:'visitor@example.invalid',message:'Hello support'}))).status,500);}finally{fail=false;}});
 test('invalid email and oversize message are rejected before persistence',async()=>{calls=[];assert.equal((await post(req({email:'oops',message:'hi'}))).status,400);assert.equal((await post(req({email:'ok@example.invalid',message:'x'.repeat(5001)}))).status,400);assert.equal(calls.length,0);});
 
+test('explicit malformed keys are rejected rather than replaced',async()=>{
+ calls=[];
+ for(const key of [null,'',42,{},'11111111-1111-4111-8111-11111111111A','11111111-1111-1111-8111-111111111111']) {
+  assert.equal((await post(req({email:'ok@example.invalid',message:'hello',idempotencyKey:key}))).status,400);
+ }
+ assert.equal(calls.length,0);
+});
+
+test('legacy requests remain subject to the real rate limiter',async()=>{
+ calls=[];const limited=load('app/api/chat/route.ts',new Map(),true).POST;
+ const legacy=()=>new Request('https://local.invalid',{method:'POST',headers:{'x-forwarded-for':'192.0.2.55'},body:JSON.stringify({email:'ok@example.invalid',message:'hello'})});
+ for(let i=0;i<5;i++) assert.equal((await limited(legacy())).status,200);
+ assert.equal((await limited(legacy())).status,429);assert.equal(calls.length,5);
+});
+
 test('body bytes are bounded even with absent or false content length',async()=>{
  for(const headers of [{},{'content-length':'1'}]) {
   const r=new Request('https://local.invalid',{method:'POST',headers,body:JSON.stringify({email:'ok@example.invalid',message:'x',padding:'é'.repeat(20000)})});

@@ -38,6 +38,14 @@ test('queue insertion failure rolls back support insert',async()=>{
  assert.equal((await post(req('22222222-2222-4222-8222-222222222222'))).status,500);const rows=await db`SELECT count(*)::int AS n FROM support_messages`;assert.equal(rows[0].n,1);await db`ALTER TABLE chat_telegram_notifications DROP CONSTRAINT synthetic_failure`;
 });
 
+test('legacy requests without a key save distinct messages and queue notifications',async()=>{
+ const legacy=()=>new Request('https://local.invalid',{method:'POST',body:JSON.stringify({email:' legacy@example.invalid ',message:' Legacy message '})});
+ assert.deepEqual((await Promise.all([post(legacy()),post(legacy())])).map(r=>r.status),[200,200]);
+ const rows=await db`SELECT m.message_id,m.from_email,m.body_text,n.status FROM support_messages m JOIN chat_telegram_notifications n ON n.support_message_id=m.id WHERE m.from_email='legacy@example.invalid'`;
+ assert.equal(rows.length,2);assert.notEqual(rows[0].message_id,rows[1].message_id);
+ for(const row of rows){assert.match(row.message_id,/^chat-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);assert.equal(row.body_text,'Legacy message');assert.equal(row.status,'pending');}
+});
+
 test('retries and simultaneous requests are idempotent; changed payload is rejected',async()=>{
  const key='33333333-3333-4333-8333-333333333333';
  const responses=await Promise.all([post(req(key)),post(req(key))]);
