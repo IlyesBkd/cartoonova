@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """No-agent entry point; secrets are inherited, never printed or persisted."""
+import contextlib
+import logging
 import os
 import pwd
 import re
@@ -11,6 +13,37 @@ import sys
 ROOT = '/home/hermes/projects/cartoonova'
 PROFILE = '/home/hermes/.hermes/profiles/cartoonova'
 DESTINATION = PROFILE + '/chat-notify-destination'
+
+
+HERMES_SOURCE = '/home/hermes/.hermes/hermes-agent'
+
+
+def telegram_token():
+    token = os.environ.get('CHAT_NOTIFY_TELEGRAM_TOKEN')
+    if token:
+        return token
+    # The loader modifies os.environ and may load unrelated secrets. Restore the
+    # original environment even on failure; only return the selected token.
+    original = os.environ.copy()
+    logging_level = logging.root.manager.disable
+    try:
+        logging.disable(logging.CRITICAL)
+        sys.path.insert(0, HERMES_SOURCE)
+        with open(os.devnull, 'w') as sink, contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+            from hermes_cli.env_loader import load_hermes_dotenv
+            load_hermes_dotenv(hermes_home=PROFILE)
+        token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        if not token:
+            raise ValueError('missing Telegram token')
+        return token
+    except Exception:
+        raise ValueError('Telegram credential unavailable') from None
+    finally:
+        logging.disable(logging_level)
+        os.environ.clear()
+        os.environ.update(original)
+        if sys.path and sys.path[0] == HERMES_SOURCE:
+            del sys.path[0]
 
 
 def destination(path=DESTINATION):
@@ -53,9 +86,11 @@ def main():
         db = os.environ.get('CHAT_NOTIFY_DATABASE_URL') or os.environ.get('DATABASE_URL')
         if not db:
             raise ValueError('missing database')
+        token = telegram_token()
         chat_id = destination()
         env = os.environ.copy()
-        env.update(CHAT_NOTIFY_DATABASE_URL=db, CHAT_NOTIFY_TRANSPORT='hermes',
+        env.update(CHAT_NOTIFY_DATABASE_URL=db, CHAT_NOTIFY_TRANSPORT='telegram',
+                   CHAT_NOTIFY_TELEGRAM_TOKEN=token,
                    CHAT_NOTIFY_TELEGRAM_CHAT_ID=chat_id,
                    CHAT_NOTIFY_TELEGRAM_CONFIRMED_CHAT_ID=chat_id, HERMES_HOME=PROFILE)
         if run_worker(env=env):
