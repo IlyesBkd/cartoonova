@@ -244,11 +244,11 @@ test('real checkout quote rejects altered deliverables and accepts the identical
   const result = await response.json();
   const id = result.clientSecret.split('_secret_')[0];
   const created = intents.get(id);
-  assert.equal(created.amount, 499, 'real pricing formula, not browser total');
+  assert.equal(created.amount, 500, 'approved EUR fallback, not browser total');
   assert.ok(created.metadata.checkout_quote.length <= 500);
   const snapshot = JSON.parse(created.metadata.checkout_quote);
   assert.deepEqual(snapshot.config, digitalConfig);
-  assert.equal(snapshot.amount, 499);
+  assert.equal(snapshot.amount, 500);
   assert.equal(snapshot.currency, 'EUR');
   for (const changed of [{ people: 10, printKey: 'canvas' }, { format: 'fullbody' }, { animals: 10 }, { printKey: 'framed' }, { people: '1' }]) {
     const refused = await POST(request(id, changed));
@@ -258,7 +258,7 @@ test('real checkout quote rejects altered deliverables and accepts the identical
   const accepted = await POST(request(id));
   assert.equal(accepted.status, 200);
   const [order] = await db`SELECT * FROM orders WHERE payment_intent_id = ${id}`;
-  assert.equal(Number(order.total_price), 4.99);
+  assert.equal(Number(order.total_price), 5);
   assert.equal(order.currency, 'EUR');
   for (const key of ['format', 'people', 'animals', 'printKey']) assert.equal(order.options[key], snapshot.config[key]);
 });

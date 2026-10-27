@@ -1,0 +1,2332 @@
+{
+  "ticket": "OPS-04",
+  "scope": "npm test real orchestrator campaign integration, no Hermes gateway modification",
+  "generatedAt": "2026-10-27T20:11:15.635Z",
+  "passed": true,
+  "runner": {
+    "code": 0,
+    "signal": null,
+    "timedOut": false,
+    "overflow": false,
+    "error": null,
+    "bytes": 3799
+  },
+  "counts": {
+    "tests": 16,
+    "suites": 0,
+    "pass": 16,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "ok": true
+  },
+  "sources": {
+    "scripts/operations-campaign.mjs": "28ae15890aa58ea0555c5df254c24c607d4f711ca15f9dd38a9c083df8f64a5a",
+    "scripts/operations-report.mjs": "c7507b1b8d12c925d14fff48323a4eb7985d0169cb26a27954c5e1e08bdf1f3a",
+    "scripts/test-runner.mjs": "6a3705c4ebbf7232099e189c413a7199ee9c1b916c30965079f9107450b7e1dd",
+    "scripts/test.mjs": "c943273e0ab6d1509df2f604472fad7d720bd8ca551aaaa45dbeb391c4270105",
+    "tests/operations-campaign.test.mjs": "fdcc37c7f10f80b550a4975a2f7b4b669d8e2d79f5c24bf90332b47cb4bc0a97",
+    "tests/test-runner.test.mjs": "ca2e5ca8b6e7082b8e103ecc8db006be1195f9bc44568655e8db537a0a641c41"
+  },
+  "scenarios": [
+    {
+      "scenario": "exclusive-pre-start-reservation",
+      "calls": [
+        {
+          "accepted": true,
+          "value": "d6ac94b8-ec83-4b43-8b5a-6b107721ce8b"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        }
+      ],
+      "state": {
+        "version": 1,
+        "campaignId": "reservation",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "d6ac94b8-ec83-4b43-8b5a-6b107721ce8b",
+            "task": "suite",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "winner",
+            "attemptId": "d6ac94b8-ec83-4b43-8b5a-6b107721ce8b",
+            "task": "suite",
+            "pid": 1927709,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0
+            },
+            "stopped": true
+          }
+        ],
+        "events": [],
+        "final": {
+          "campaignId": "reservation",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "d6ac94b8-ec83-4b43-8b5a-6b107721ce8b",
+              "task": "suite",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "winner",
+              "attemptId": "d6ac94b8-ec83-4b43-8b5a-6b107721ce8b",
+              "task": "suite",
+              "pid": 1927709,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0
+              },
+              "stopped": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": false
+      }
+    },
+    {
+      "scenario": "retry-refused-unverified-stop",
+      "calls": [
+        {
+          "accepted": false,
+          "error": "services not verified stopped\n\nfalse !== true\n"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped\n\nfalse !== true\n"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped\n\nfalse !== true\n"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped\n\nfalse !== true\n"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped\n\nfalse !== true\n"
+        }
+      ],
+      "state": {
+        "version": 1,
+        "campaignId": "retry",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "2bd17a20-6e7f-48a7-b2ab-34c87325abf5",
+            "task": "suite",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "old",
+            "attemptId": "2bd17a20-6e7f-48a7-b2ab-34c87325abf5",
+            "task": "suite",
+            "pid": null,
+            "result": {
+              "code": 0
+            },
+            "stopped": false
+          }
+        ],
+        "events": [],
+        "final": null,
+        "claimed": false
+      }
+    },
+    {
+      "scenario": "retry-assessment-gate",
+      "pending": [
+        {
+          "accepted": false,
+          "error": "assessment pending\n+ actual - expected\n\n+ undefined\n- true\n"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending\n+ actual - expected\n\n+ undefined\n- true\n"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending\n+ actual - expected\n\n+ undefined\n- true\n"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending\n+ actual - expected\n\n+ undefined\n- true\n"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending\n+ actual - expected\n\n+ undefined\n- true\n"
+        }
+      ],
+      "ready": [
+        {
+          "accepted": true,
+          "value": "97fe0dbd-96b0-48d3-ab8d-22960aa00873"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        },
+        {
+          "accepted": false,
+          "error": "task reserved before process start"
+        }
+      ],
+      "state": {
+        "version": 1,
+        "campaignId": "suite",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "4f4447a7-b8c8-4005-9de9-c8c0b1c6fba6",
+            "task": "task",
+            "number": 1
+          },
+          {
+            "id": "97fe0dbd-96b0-48d3-ab8d-22960aa00873",
+            "task": "task",
+            "number": 2
+          }
+        ],
+        "processes": [
+          {
+            "id": "old",
+            "attemptId": "4f4447a7-b8c8-4005-9de9-c8c0b1c6fba6",
+            "task": "task",
+            "pid": 1927795,
+            "result": {
+              "code": 7,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0,
+              "ok": false
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "tap": {
+                "ok": false
+              }
+            },
+            "assessed": true
+          },
+          {
+            "id": "new",
+            "attemptId": "97fe0dbd-96b0-48d3-ab8d-22960aa00873",
+            "task": "task",
+            "pid": 1927916,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0,
+              "ok": true
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "tap": {
+                "ok": true
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [],
+        "final": {
+          "campaignId": "suite",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "4f4447a7-b8c8-4005-9de9-c8c0b1c6fba6",
+              "task": "task",
+              "number": 1
+            },
+            {
+              "id": "97fe0dbd-96b0-48d3-ab8d-22960aa00873",
+              "task": "task",
+              "number": 2
+            }
+          ],
+          "processes": [
+            {
+              "id": "old",
+              "attemptId": "4f4447a7-b8c8-4005-9de9-c8c0b1c6fba6",
+              "task": "task",
+              "pid": 1927795,
+              "result": {
+                "code": 7,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0,
+                "ok": false
+              },
+              "stopped": true,
+              "cleanup": [],
+              "suite": {
+                "tap": {
+                  "ok": false
+                }
+              },
+              "assessed": true
+            },
+            {
+              "id": "new",
+              "attemptId": "97fe0dbd-96b0-48d3-ab8d-22960aa00873",
+              "task": "task",
+              "pid": 1927916,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0,
+                "ok": true
+              },
+              "stopped": true,
+              "cleanup": [],
+              "suite": {
+                "tap": {
+                  "ok": true
+                }
+              },
+              "assessed": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": false
+      }
+    },
+    {
+      "scenario": "final-assessment-gate-tap",
+      "pending": [
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        }
+      ],
+      "before": {
+        "version": 1,
+        "campaignId": "tap",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+            "task": "task",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "child",
+            "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+            "task": "task",
+            "pid": 1927930,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0
+            },
+            "stopped": true
+          }
+        ],
+        "events": [],
+        "final": null,
+        "claimed": false
+      },
+      "assessed": [
+        {
+          "accepted": true,
+          "value": {
+            "campaignId": "tap",
+            "status": "failed",
+            "attempts": [
+              {
+                "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "number": 1
+              }
+            ],
+            "processes": [
+              {
+                "id": "child",
+                "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "pid": 1927930,
+                "result": {
+                  "code": 0,
+                  "signal": null,
+                  "timedOut": false,
+                  "overflow": false,
+                  "error": null,
+                  "bytes": 0,
+                  "ok": false
+                },
+                "stopped": true,
+                "cleanup": [],
+                "suite": {
+                  "tap": {
+                    "ok": false
+                  }
+                },
+                "assessed": true
+              }
+            ],
+            "servicesStopped": true
+          }
+        },
+        {
+          "accepted": true,
+          "value": {
+            "campaignId": "tap",
+            "status": "failed",
+            "attempts": [
+              {
+                "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "number": 1
+              }
+            ],
+            "processes": [
+              {
+                "id": "child",
+                "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "pid": 1927930,
+                "result": {
+                  "code": 0,
+                  "signal": null,
+                  "timedOut": false,
+                  "overflow": false,
+                  "error": null,
+                  "bytes": 0,
+                  "ok": false
+                },
+                "stopped": true,
+                "cleanup": [],
+                "suite": {
+                  "tap": {
+                    "ok": false
+                  }
+                },
+                "assessed": true
+              }
+            ],
+            "servicesStopped": true
+          }
+        },
+        {
+          "accepted": true,
+          "value": {
+            "campaignId": "tap",
+            "status": "failed",
+            "attempts": [
+              {
+                "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "number": 1
+              }
+            ],
+            "processes": [
+              {
+                "id": "child",
+                "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "pid": 1927930,
+                "result": {
+                  "code": 0,
+                  "signal": null,
+                  "timedOut": false,
+                  "overflow": false,
+                  "error": null,
+                  "bytes": 0,
+                  "ok": false
+                },
+                "stopped": true,
+                "cleanup": [],
+                "suite": {
+                  "tap": {
+                    "ok": false
+                  }
+                },
+                "assessed": true
+              }
+            ],
+            "servicesStopped": true
+          }
+        },
+        {
+          "accepted": true,
+          "value": {
+            "campaignId": "tap",
+            "status": "failed",
+            "attempts": [
+              {
+                "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "number": 1
+              }
+            ],
+            "processes": [
+              {
+                "id": "child",
+                "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "pid": 1927930,
+                "result": {
+                  "code": 0,
+                  "signal": null,
+                  "timedOut": false,
+                  "overflow": false,
+                  "error": null,
+                  "bytes": 0,
+                  "ok": false
+                },
+                "stopped": true,
+                "cleanup": [],
+                "suite": {
+                  "tap": {
+                    "ok": false
+                  }
+                },
+                "assessed": true
+              }
+            ],
+            "servicesStopped": true
+          }
+        },
+        {
+          "accepted": true,
+          "value": {
+            "campaignId": "tap",
+            "status": "failed",
+            "attempts": [
+              {
+                "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "number": 1
+              }
+            ],
+            "processes": [
+              {
+                "id": "child",
+                "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+                "task": "task",
+                "pid": 1927930,
+                "result": {
+                  "code": 0,
+                  "signal": null,
+                  "timedOut": false,
+                  "overflow": false,
+                  "error": null,
+                  "bytes": 0,
+                  "ok": false
+                },
+                "stopped": true,
+                "cleanup": [],
+                "suite": {
+                  "tap": {
+                    "ok": false
+                  }
+                },
+                "assessed": true
+              }
+            ],
+            "servicesStopped": true
+          }
+        }
+      ],
+      "state": {
+        "version": 1,
+        "campaignId": "tap",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+            "task": "task",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "child",
+            "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+            "task": "task",
+            "pid": 1927930,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0,
+              "ok": false
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "tap": {
+                "ok": false
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [],
+        "final": {
+          "campaignId": "tap",
+          "status": "failed",
+          "attempts": [
+            {
+              "id": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+              "task": "task",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "child",
+              "attemptId": "fe6cdafc-0554-43ce-8568-f3a656e9da39",
+              "task": "task",
+              "pid": 1927930,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0,
+                "ok": false
+              },
+              "stopped": true,
+              "cleanup": [],
+              "suite": {
+                "tap": {
+                  "ok": false
+                }
+              },
+              "assessed": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      }
+    },
+    {
+      "scenario": "final-assessment-gate-cleanup",
+      "pending": [
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        },
+        {
+          "accepted": false,
+          "error": "assessment pending"
+        }
+      ],
+      "before": {
+        "version": 1,
+        "campaignId": "cleanup",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "35474ee2-fef3-4811-a39c-46207890f18b",
+            "task": "task",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "child",
+            "attemptId": "35474ee2-fef3-4811-a39c-46207890f18b",
+            "task": "task",
+            "pid": 1928167,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0
+            },
+            "stopped": true
+          }
+        ],
+        "events": [],
+        "final": null,
+        "claimed": false
+      },
+      "assessed": [
+        {
+          "accepted": false,
+          "error": "services not verified stopped"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped"
+        },
+        {
+          "accepted": false,
+          "error": "services not verified stopped"
+        }
+      ],
+      "state": {
+        "version": 1,
+        "campaignId": "cleanup",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "35474ee2-fef3-4811-a39c-46207890f18b",
+            "task": "task",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "child",
+            "attemptId": "35474ee2-fef3-4811-a39c-46207890f18b",
+            "task": "task",
+            "pid": 1928167,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0,
+              "ok": false
+            },
+            "stopped": false,
+            "cleanup": [
+              {
+                "stopped": false
+              }
+            ],
+            "suite": {
+              "tap": {
+                "ok": false
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [],
+        "final": null,
+        "claimed": false
+      }
+    },
+    {
+      "scenario": "multiprocess-claims-isolation",
+      "osProcesses": 5,
+      "winners": 1,
+      "alpha": {
+        "version": 1,
+        "campaignId": "alpha",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "49ce5df3-0e42-4974-bd8d-60892461c937",
+            "task": "build",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "same-process",
+            "attemptId": "49ce5df3-0e42-4974-bd8d-60892461c937",
+            "task": "build",
+            "pid": 1928326,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0
+            },
+            "stopped": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "same-event",
+            "attemptId": "49ce5df3-0e42-4974-bd8d-60892461c937",
+            "processId": "same-process",
+            "kind": "success",
+            "reason": "completed-process"
+          }
+        ],
+        "final": {
+          "campaignId": "alpha",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "49ce5df3-0e42-4974-bd8d-60892461c937",
+              "task": "build",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "same-process",
+              "attemptId": "49ce5df3-0e42-4974-bd8d-60892461c937",
+              "task": "build",
+              "pid": 1928326,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0
+              },
+              "stopped": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      },
+      "beta": {
+        "version": 1,
+        "campaignId": "beta",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "773508d8-9425-477a-b5da-115d6c94a0bd",
+            "task": "build",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "same-process",
+            "attemptId": "773508d8-9425-477a-b5da-115d6c94a0bd",
+            "task": "build",
+            "pid": 1928333,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0
+            },
+            "stopped": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "same-event",
+            "attemptId": "773508d8-9425-477a-b5da-115d6c94a0bd",
+            "processId": "same-process",
+            "kind": "success",
+            "reason": "completed-process"
+          }
+        ],
+        "final": {
+          "campaignId": "beta",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "773508d8-9425-477a-b5da-115d6c94a0bd",
+              "task": "build",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "same-process",
+              "attemptId": "773508d8-9425-477a-b5da-115d6c94a0bd",
+              "task": "build",
+              "pid": 1928333,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0
+              },
+              "stopped": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      }
+    },
+    {
+      "scenario": "real-service-shutdown",
+      "state": {
+        "version": 1,
+        "campaignId": "services",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "d1ac33cd-e866-47d6-a642-2d041ff3abb6",
+            "task": "success",
+            "number": 1
+          },
+          {
+            "id": "47475d68-82fa-4364-a955-5fe2430eb3ee",
+            "task": "timeout",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "success",
+            "attemptId": "d1ac33cd-e866-47d6-a642-2d041ff3abb6",
+            "task": "success",
+            "pid": 1928404,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 16
+            },
+            "stopped": true
+          },
+          {
+            "id": "timeout",
+            "attemptId": "47475d68-82fa-4364-a955-5fe2430eb3ee",
+            "task": "timeout",
+            "pid": 1928441,
+            "result": {
+              "code": null,
+              "signal": "SIGTERM",
+              "timedOut": true,
+              "overflow": false,
+              "error": null,
+              "bytes": 16
+            },
+            "stopped": true
+          }
+        ],
+        "events": [],
+        "final": {
+          "campaignId": "services",
+          "status": "failed",
+          "attempts": [
+            {
+              "id": "d1ac33cd-e866-47d6-a642-2d041ff3abb6",
+              "task": "success",
+              "number": 1
+            },
+            {
+              "id": "47475d68-82fa-4364-a955-5fe2430eb3ee",
+              "task": "timeout",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "success",
+              "attemptId": "d1ac33cd-e866-47d6-a642-2d041ff3abb6",
+              "task": "success",
+              "pid": 1928404,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 16
+              },
+              "stopped": true
+            },
+            {
+              "id": "timeout",
+              "attemptId": "47475d68-82fa-4364-a955-5fe2430eb3ee",
+              "task": "timeout",
+              "pid": 1928441,
+              "result": {
+                "code": null,
+                "signal": "SIGTERM",
+                "timedOut": true,
+                "overflow": false,
+                "error": null,
+                "bytes": 16
+              },
+              "stopped": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": false
+      }
+    },
+    {
+      "scenario": "fail-closed-gates",
+      "state": {
+        "version": 1,
+        "campaignId": "gates",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "4c1bdd40-9783-4bd5-b090-43f42374c96c",
+            "task": "build",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "pending",
+            "attemptId": "4c1bdd40-9783-4bd5-b090-43f42374c96c",
+            "task": "build",
+            "pid": null,
+            "result": {
+              "code": 0
+            },
+            "stopped": false
+          }
+        ],
+        "events": [
+          {
+            "eventId": "unbound",
+            "attemptId": "4c1bdd40-9783-4bd5-b090-43f42374c96c",
+            "processId": "other",
+            "kind": "failure",
+            "reason": "unknown-process"
+          },
+          {
+            "eventId": "progress",
+            "attemptId": "4c1bdd40-9783-4bd5-b090-43f42374c96c",
+            "processId": "pending",
+            "kind": "failure",
+            "reason": "internal-only"
+          }
+        ],
+        "final": null,
+        "claimed": false
+      }
+    },
+    {
+      "scenario": "failure-recovery",
+      "claims": 1,
+      "state": {
+        "version": 1,
+        "campaignId": "recovery",
+        "assessmentRequired": false,
+        "attempts": [
+          {
+            "id": "656c18dd-3aed-44b0-8f66-6bb9778b931e",
+            "task": "build",
+            "number": 1
+          },
+          {
+            "id": "1163b7e5-11d0-4a1a-af9a-df45fd647dcc",
+            "task": "build",
+            "number": 2
+          }
+        ],
+        "processes": [
+          {
+            "id": "failed-start",
+            "attemptId": "656c18dd-3aed-44b0-8f66-6bb9778b931e",
+            "task": "build",
+            "pid": 1928492,
+            "result": {
+              "code": 7,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 0
+            },
+            "stopped": true
+          },
+          {
+            "id": "retry",
+            "attemptId": "1163b7e5-11d0-4a1a-af9a-df45fd647dcc",
+            "task": "build",
+            "pid": 1928499,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 10
+            },
+            "stopped": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "late-failure",
+            "attemptId": "656c18dd-3aed-44b0-8f66-6bb9778b931e",
+            "processId": "failed-start",
+            "kind": "failure",
+            "reason": "obsolete-attempt"
+          },
+          {
+            "eventId": "late-success",
+            "attemptId": "1163b7e5-11d0-4a1a-af9a-df45fd647dcc",
+            "processId": "retry",
+            "kind": "success",
+            "reason": "finalized"
+          }
+        ],
+        "final": {
+          "campaignId": "recovery",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "656c18dd-3aed-44b0-8f66-6bb9778b931e",
+              "task": "build",
+              "number": 1
+            },
+            {
+              "id": "1163b7e5-11d0-4a1a-af9a-df45fd647dcc",
+              "task": "build",
+              "number": 2
+            }
+          ],
+          "processes": [
+            {
+              "id": "failed-start",
+              "attemptId": "656c18dd-3aed-44b0-8f66-6bb9778b931e",
+              "task": "build",
+              "pid": 1928492,
+              "result": {
+                "code": 7,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 0
+              },
+              "stopped": true
+            },
+            {
+              "id": "retry",
+              "attemptId": "1163b7e5-11d0-4a1a-af9a-df45fd647dcc",
+              "task": "build",
+              "pid": 1928499,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 10
+              },
+              "stopped": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      }
+    },
+    {
+      "scenario": "real-cli-exit-0-0",
+      "execution": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "overflow": false,
+        "error": null,
+        "bytes": 484
+      },
+      "summary": {
+        "ok": true,
+        "complete": true,
+        "expectedFiles": 1,
+        "executedFiles": 1,
+        "totals": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "results": [
+          {
+            "file": "synthetic.test.mjs",
+            "group": {
+              "browser": false,
+              "tsx": false
+            },
+            "code": 0,
+            "signal": null,
+            "timedOut": false,
+            "overflow": false,
+            "error": null,
+            "bytes": 201,
+            "tap": {
+              "tests": 1,
+              "suites": 0,
+              "pass": 1,
+              "fail": 0,
+              "cancelled": 0,
+              "skipped": 0,
+              "todo": 0,
+              "ok": true
+            },
+            "ok": true,
+            "cleanupFailed": false
+          }
+        ],
+        "campaignId": "tests-14a380fa-c28b-498f-a3ab-68d672201952"
+      },
+      "manifest": {
+        "files": [
+          "synthetic.test.mjs"
+        ],
+        "groups": [
+          {
+            "browser": false,
+            "tsx": false,
+            "files": [
+              "synthetic.test.mjs"
+            ]
+          }
+        ],
+        "campaignId": "tests-14a380fa-c28b-498f-a3ab-68d672201952"
+      },
+      "state": {
+        "version": 1,
+        "campaignId": "tests-14a380fa-c28b-498f-a3ab-68d672201952",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+            "task": "suite-0",
+            "pid": 1928226,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 201,
+              "ok": true
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-GZ8UDi/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 1,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": true
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "suite-0-1-completion",
+            "attemptId": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+            "processId": "suite-0-1",
+            "kind": "success",
+            "reason": "completed-process"
+          }
+        ],
+        "final": {
+          "campaignId": "tests-14a380fa-c28b-498f-a3ab-68d672201952",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+              "task": "suite-0",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "suite-0-1",
+              "attemptId": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+              "task": "suite-0",
+              "pid": 1928226,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 201,
+                "ok": true
+              },
+              "stopped": true,
+              "cleanup": [],
+              "suite": {
+                "file": "synthetic.test.mjs",
+                "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-GZ8UDi/synthetic.test.mjs.tap",
+                "tap": {
+                  "tests": 1,
+                  "suites": 0,
+                  "pass": 1,
+                  "fail": 0,
+                  "cancelled": 0,
+                  "skipped": 0,
+                  "todo": 0,
+                  "ok": true
+                }
+              },
+              "assessed": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      },
+      "localFinal": {
+        "campaignId": "tests-14a380fa-c28b-498f-a3ab-68d672201952",
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "45e77b65-e87f-4d22-ad64-6072f83d9f86",
+            "task": "suite-0",
+            "pid": 1928226,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 201,
+              "ok": true
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-GZ8UDi/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 1,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": true
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "servicesStopped": true
+      }
+    },
+    {
+      "scenario": "real-cli-exit-1-1",
+      "execution": {
+        "code": 1,
+        "signal": null,
+        "timedOut": false,
+        "overflow": false,
+        "error": null,
+        "bytes": 699
+      },
+      "summary": {
+        "ok": false,
+        "complete": true,
+        "expectedFiles": 1,
+        "executedFiles": 1,
+        "totals": {
+          "tests": 1,
+          "pass": 0,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 1,
+          "todo": 0
+        },
+        "results": [
+          {
+            "file": "synthetic.test.mjs",
+            "group": {
+              "browser": false,
+              "tsx": false
+            },
+            "code": 0,
+            "signal": null,
+            "timedOut": false,
+            "overflow": false,
+            "error": null,
+            "bytes": 212,
+            "tap": {
+              "tests": 1,
+              "suites": 0,
+              "pass": 0,
+              "fail": 0,
+              "cancelled": 0,
+              "skipped": 1,
+              "todo": 0,
+              "ok": false
+            },
+            "ok": false,
+            "cleanupFailed": false
+          }
+        ],
+        "campaignId": "tests-e13105db-7ecb-49b2-adb8-ce57674ae26c"
+      },
+      "manifest": {
+        "files": [
+          "synthetic.test.mjs"
+        ],
+        "groups": [
+          {
+            "browser": false,
+            "tsx": false,
+            "files": [
+              "synthetic.test.mjs"
+            ]
+          }
+        ],
+        "campaignId": "tests-e13105db-7ecb-49b2-adb8-ce57674ae26c"
+      },
+      "state": {
+        "version": 1,
+        "campaignId": "tests-e13105db-7ecb-49b2-adb8-ce57674ae26c",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+            "task": "suite-0",
+            "pid": 1928427,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 212,
+              "ok": false
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-k6tzfL/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 0,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 1,
+                "todo": 0,
+                "ok": false
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "suite-0-1-completion",
+            "attemptId": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+            "processId": "suite-0-1",
+            "kind": "failure",
+            "reason": "completed-process"
+          }
+        ],
+        "final": {
+          "campaignId": "tests-e13105db-7ecb-49b2-adb8-ce57674ae26c",
+          "status": "failed",
+          "attempts": [
+            {
+              "id": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+              "task": "suite-0",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "suite-0-1",
+              "attemptId": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+              "task": "suite-0",
+              "pid": 1928427,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 212,
+                "ok": false
+              },
+              "stopped": true,
+              "cleanup": [],
+              "suite": {
+                "file": "synthetic.test.mjs",
+                "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-k6tzfL/synthetic.test.mjs.tap",
+                "tap": {
+                  "tests": 1,
+                  "suites": 0,
+                  "pass": 0,
+                  "fail": 0,
+                  "cancelled": 0,
+                  "skipped": 1,
+                  "todo": 0,
+                  "ok": false
+                }
+              },
+              "assessed": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      },
+      "localFinal": {
+        "campaignId": "tests-e13105db-7ecb-49b2-adb8-ce57674ae26c",
+        "status": "failed",
+        "attempts": [
+          {
+            "id": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "52a98c1f-42b8-410c-b01c-3d7cd698b824",
+            "task": "suite-0",
+            "pid": 1928427,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 212,
+              "ok": false
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-k6tzfL/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 0,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 1,
+                "todo": 0,
+                "ok": false
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "servicesStopped": true
+      }
+    },
+    {
+      "scenario": "real-cli-exit-1-0",
+      "execution": {
+        "code": 1,
+        "signal": null,
+        "timedOut": false,
+        "overflow": false,
+        "error": null,
+        "bytes": 1291
+      },
+      "summary": {
+        "ok": false,
+        "complete": true,
+        "expectedFiles": 1,
+        "executedFiles": 1,
+        "totals": {
+          "tests": 1,
+          "pass": 0,
+          "fail": 1,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "results": [
+          {
+            "file": "synthetic.test.mjs",
+            "group": {
+              "browser": false,
+              "tsx": false
+            },
+            "code": 1,
+            "signal": null,
+            "timedOut": false,
+            "overflow": false,
+            "error": null,
+            "bytes": 804,
+            "tap": {
+              "tests": 1,
+              "suites": 0,
+              "pass": 0,
+              "fail": 1,
+              "cancelled": 0,
+              "skipped": 0,
+              "todo": 0,
+              "ok": false
+            },
+            "ok": false,
+            "cleanupFailed": false
+          }
+        ],
+        "campaignId": "tests-c0eba750-5e5f-440e-a15f-d6064b906970"
+      },
+      "manifest": {
+        "files": [
+          "synthetic.test.mjs"
+        ],
+        "groups": [
+          {
+            "browser": false,
+            "tsx": false,
+            "files": [
+              "synthetic.test.mjs"
+            ]
+          }
+        ],
+        "campaignId": "tests-c0eba750-5e5f-440e-a15f-d6064b906970"
+      },
+      "state": {
+        "version": 1,
+        "campaignId": "tests-c0eba750-5e5f-440e-a15f-d6064b906970",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+            "task": "suite-0",
+            "pid": 1928475,
+            "result": {
+              "code": 1,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 804,
+              "ok": false
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-1QDcgi/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 0,
+                "fail": 1,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": false
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "suite-0-1-completion",
+            "attemptId": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+            "processId": "suite-0-1",
+            "kind": "failure",
+            "reason": "completed-process"
+          }
+        ],
+        "final": {
+          "campaignId": "tests-c0eba750-5e5f-440e-a15f-d6064b906970",
+          "status": "failed",
+          "attempts": [
+            {
+              "id": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+              "task": "suite-0",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "suite-0-1",
+              "attemptId": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+              "task": "suite-0",
+              "pid": 1928475,
+              "result": {
+                "code": 1,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 804,
+                "ok": false
+              },
+              "stopped": true,
+              "cleanup": [],
+              "suite": {
+                "file": "synthetic.test.mjs",
+                "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-1QDcgi/synthetic.test.mjs.tap",
+                "tap": {
+                  "tests": 1,
+                  "suites": 0,
+                  "pass": 0,
+                  "fail": 1,
+                  "cancelled": 0,
+                  "skipped": 0,
+                  "todo": 0,
+                  "ok": false
+                }
+              },
+              "assessed": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      },
+      "localFinal": {
+        "campaignId": "tests-c0eba750-5e5f-440e-a15f-d6064b906970",
+        "status": "failed",
+        "attempts": [
+          {
+            "id": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "8892ed05-5f10-4eec-9327-a0a9875467ad",
+            "task": "suite-0",
+            "pid": 1928475,
+            "result": {
+              "code": 1,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 804,
+              "ok": false
+            },
+            "stopped": true,
+            "cleanup": [],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-1QDcgi/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 0,
+                "fail": 1,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": false
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "servicesStopped": true
+      }
+    },
+    {
+      "scenario": "real-cli-postgresql-cleanup",
+      "execution": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "overflow": false,
+        "error": null,
+        "bytes": 484
+      },
+      "summary": {
+        "ok": true,
+        "complete": true,
+        "expectedFiles": 1,
+        "executedFiles": 1,
+        "totals": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "results": [
+          {
+            "file": "synthetic.test.mjs",
+            "group": {
+              "browser": false,
+              "tsx": false
+            },
+            "code": 0,
+            "signal": null,
+            "timedOut": false,
+            "overflow": false,
+            "error": null,
+            "bytes": 277,
+            "tap": {
+              "tests": 1,
+              "suites": 0,
+              "pass": 1,
+              "fail": 0,
+              "cancelled": 0,
+              "skipped": 0,
+              "todo": 0,
+              "ok": true
+            },
+            "ok": true,
+            "cleanupFailed": false
+          }
+        ],
+        "campaignId": "tests-4ec38aad-992d-4a04-9655-969ba6ae249c"
+      },
+      "manifest": {
+        "files": [
+          "synthetic.test.mjs"
+        ],
+        "groups": [
+          {
+            "browser": false,
+            "tsx": false,
+            "files": [
+              "synthetic.test.mjs"
+            ]
+          }
+        ],
+        "campaignId": "tests-4ec38aad-992d-4a04-9655-969ba6ae249c"
+      },
+      "state": {
+        "version": 1,
+        "campaignId": "tests-4ec38aad-992d-4a04-9655-969ba6ae249c",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+            "task": "suite-0",
+            "pid": 1928517,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 277,
+              "ok": true
+            },
+            "stopped": true,
+            "cleanup": [
+              {
+                "fixture": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/68/orphan-pg",
+                "data": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/68/orphan-pg/pg",
+                "stop": {
+                  "code": 0,
+                  "signal": null,
+                  "error": null
+                },
+                "verification": {
+                  "code": 3,
+                  "signal": null,
+                  "error": null
+                },
+                "stopped": true,
+                "removalError": null
+              }
+            ],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-mtVxDv/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 1,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": true
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "suite-0-1-completion",
+            "attemptId": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+            "processId": "suite-0-1",
+            "kind": "success",
+            "reason": "completed-process"
+          }
+        ],
+        "final": {
+          "campaignId": "tests-4ec38aad-992d-4a04-9655-969ba6ae249c",
+          "status": "passed",
+          "attempts": [
+            {
+              "id": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+              "task": "suite-0",
+              "number": 1
+            }
+          ],
+          "processes": [
+            {
+              "id": "suite-0-1",
+              "attemptId": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+              "task": "suite-0",
+              "pid": 1928517,
+              "result": {
+                "code": 0,
+                "signal": null,
+                "timedOut": false,
+                "overflow": false,
+                "error": null,
+                "bytes": 277,
+                "ok": true
+              },
+              "stopped": true,
+              "cleanup": [
+                {
+                  "fixture": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/68/orphan-pg",
+                  "data": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/68/orphan-pg/pg",
+                  "stop": {
+                    "code": 0,
+                    "signal": null,
+                    "error": null
+                  },
+                  "verification": {
+                    "code": 3,
+                    "signal": null,
+                    "error": null
+                  },
+                  "stopped": true,
+                  "removalError": null
+                }
+              ],
+              "suite": {
+                "file": "synthetic.test.mjs",
+                "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-mtVxDv/synthetic.test.mjs.tap",
+                "tap": {
+                  "tests": 1,
+                  "suites": 0,
+                  "pass": 1,
+                  "fail": 0,
+                  "cancelled": 0,
+                  "skipped": 0,
+                  "todo": 0,
+                  "ok": true
+                }
+              },
+              "assessed": true
+            }
+          ],
+          "servicesStopped": true
+        },
+        "claimed": true
+      },
+      "localFinal": {
+        "campaignId": "tests-4ec38aad-992d-4a04-9655-969ba6ae249c",
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "6f68a52c-8e8c-420d-bb4b-b9254ea85c6b",
+            "task": "suite-0",
+            "pid": 1928517,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 277,
+              "ok": true
+            },
+            "stopped": true,
+            "cleanup": [
+              {
+                "fixture": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/68/orphan-pg",
+                "data": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/68/orphan-pg/pg",
+                "stop": {
+                  "code": 0,
+                  "signal": null,
+                  "error": null
+                },
+                "verification": {
+                  "code": 3,
+                  "signal": null,
+                  "error": null
+                },
+                "stopped": true,
+                "removalError": null
+              }
+            ],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-mtVxDv/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 1,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": true
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "servicesStopped": true
+      }
+    },
+    {
+      "scenario": "real-cli-cleanup-blocked",
+      "execution": {
+        "code": 1,
+        "signal": null,
+        "timedOut": false,
+        "overflow": false,
+        "error": null,
+        "bytes": 847
+      },
+      "summary": {
+        "ok": false,
+        "complete": true,
+        "expectedFiles": 1,
+        "executedFiles": 1,
+        "totals": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0,
+          "todo": 0
+        },
+        "results": [
+          {
+            "file": "synthetic.test.mjs",
+            "group": {
+              "browser": false,
+              "tsx": false
+            },
+            "code": 0,
+            "signal": null,
+            "timedOut": false,
+            "overflow": false,
+            "error": null,
+            "bytes": 271,
+            "tap": {
+              "tests": 1,
+              "suites": 0,
+              "pass": 1,
+              "fail": 0,
+              "cancelled": 0,
+              "skipped": 0,
+              "todo": 0,
+              "ok": true
+            },
+            "ok": false,
+            "cleanupFailed": true
+          }
+        ],
+        "campaignId": "tests-58003926-eaba-4de5-a4ab-7b1028e60062"
+      },
+      "manifest": {
+        "files": [
+          "synthetic.test.mjs"
+        ],
+        "groups": [
+          {
+            "browser": false,
+            "tsx": false,
+            "files": [
+              "synthetic.test.mjs"
+            ]
+          }
+        ],
+        "campaignId": "tests-58003926-eaba-4de5-a4ab-7b1028e60062"
+      },
+      "state": {
+        "version": 1,
+        "campaignId": "tests-58003926-eaba-4de5-a4ab-7b1028e60062",
+        "assessmentRequired": true,
+        "attempts": [
+          {
+            "id": "ba1c2851-d302-4610-8674-0fee5f64a89b",
+            "task": "suite-0",
+            "number": 1
+          }
+        ],
+        "processes": [
+          {
+            "id": "suite-0-1",
+            "attemptId": "ba1c2851-d302-4610-8674-0fee5f64a89b",
+            "task": "suite-0",
+            "pid": 1928579,
+            "result": {
+              "code": 0,
+              "signal": null,
+              "timedOut": false,
+              "overflow": false,
+              "error": null,
+              "bytes": 271,
+              "ok": false
+            },
+            "stopped": false,
+            "cleanup": [
+              {
+                "fixture": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/5e/stale",
+                "data": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/5e/stale/pg",
+                "stop": {
+                  "code": 1,
+                  "signal": null,
+                  "error": null
+                },
+                "verification": {
+                  "code": 3,
+                  "signal": null,
+                  "error": null
+                },
+                "stopped": false,
+                "removalError": null
+              }
+            ],
+            "suite": {
+              "file": "synthetic.test.mjs",
+              "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/tap-Wy6ed0/synthetic.test.mjs.tap",
+              "tap": {
+                "tests": 1,
+                "suites": 0,
+                "pass": 1,
+                "fail": 0,
+                "cancelled": 0,
+                "skipped": 0,
+                "todo": 0,
+                "ok": true
+              }
+            },
+            "assessed": true
+          }
+        ],
+        "events": [
+          {
+            "eventId": "suite-0-1-completion",
+            "attemptId": "ba1c2851-d302-4610-8674-0fee5f64a89b",
+            "processId": "suite-0-1",
+            "kind": "failure",
+            "reason": "completed-process"
+          }
+        ],
+        "final": null,
+        "claimed": false
+      },
+      "localFinal": {
+        "campaignId": "tests-58003926-eaba-4de5-a4ab-7b1028e60062",
+        "status": "blocked",
+        "servicesStopped": false,
+        "error": "services not verified stopped"
+      }
+    }
+  ],
+  "tap": "TAP version 13\n# Subtest: OS contenders reserve a task exclusively before any process starts\nok 1 - OS contenders reserve a task exclusively before any process starts\n  ---\n  duration_ms: 601.434868\n  type: 'test'\n  ...\n# Subtest: OS retry contenders cannot overlap an exited process with stopped false\nok 2 - OS retry contenders cannot overlap an exited process with stopped false\n  ---\n  duration_ms: 284.700713\n  type: 'test'\n  ...\n# Subtest: suite retries require persisted assessment even after verified group exit\nok 3 - suite retries require persisted assessment even after verified group exit\n  ---\n  duration_ms: 1129.0358\n  type: 'test'\n  ...\n# Subtest: OS finalizers cannot claim suite success before TAP and cleanup assessment\nok 4 - OS finalizers cannot claim suite success before TAP and cleanup assessment\n  ---\n  duration_ms: 1965.467414\n  type: 'test'\n  ...\n# Subtest: finalize refuses an attempt without a process and treats code zero with signal as failure\nok 5 - finalize refuses an attempt without a process and treats code zero with signal as failure\n  ---\n  duration_ms: 15.127374\n  type: 'test'\n  ...\n# Subtest: duplicates and competing OS processes cannot claim a second final or mix campaigns\nok 6 - duplicates and competing OS processes cannot claim a second final or mix campaigns\n  ---\n  duration_ms: 1030.50938\n  type: 'test'\n  ...\n# Subtest: cleanup assessment blocks final while services remain and preserves cleanup failure\nok 7 - cleanup assessment blocks final while services remain and preserves cleanup failure\n  ---\n  duration_ms: 23.442731\n  type: 'test'\n  ...\n# Subtest: real listening descendant is killed and checked before final, including timeout\nok 8 - real listening descendant is killed and checked before final, including timeout\n  ---\n  duration_ms: 2307.059876\n  type: 'test'\n  ...\n# Subtest: pending process prevents final and retries; uncorrelated messages never become user alerts\nok 9 - pending process prevents final and retries; uncorrelated messages never become user alerts\n  ---\n  duration_ms: 17.112539\n  type: 'test'\n  ...\n# Subtest: failed startup then retry produces one coherent durable final report\nok 10 - failed startup then retry produces one coherent durable final report\n  ---\n  duration_ms: 645.527445\n  type: 'test'\n  ...\n# Subtest: child runner clears secrets and Node injection, bounds logs, timeouts and exit failures\nok 11 - child runner clears secrets and Node injection, bounds logs, timeouts and exit failures\n  ---\n  duration_ms: 617.490705\n  type: 'test'\n  ...\n# Subtest: network guard blocks external Node sockets and fetch before transport\nok 12 - network guard blocks external Node sockets and fetch before transport\n  ---\n  duration_ms: 1085.926251\n  type: 'test'\n  ...\n# Subtest: browser guard preserves route mocks and refuses unmatched provider traffic\nok 13 - browser guard preserves route mocks and refuses unmatched provider traffic\n  ---\n  duration_ms: 1514.75225\n  type: 'test'\n  ...\n# Subtest: real CLI aggregates a dynamic manifest and exits nonzero for skipped and failed tests\nok 14 - real CLI aggregates a dynamic manifest and exits nonzero for skipped and failed tests\n  ---\n  duration_ms: 9523.155167\n  type: 'test'\n  ...\n# Subtest: TAP accounting rejects failure, skip, todo, cancellation, missing or inconsistent totals\nok 15 - TAP accounting rejects failure, skip, todo, cancellation, missing or inconsistent totals\n  ---\n  duration_ms: 2.513019\n  type: 'test'\n  ...\n# Subtest: inventory partitions every file exactly once and gives tsx only to privacy\nok 16 - inventory partitions every file exactly once and gives tsx only to privacy\n  ---\n  duration_ms: 2.985034\n  type: 'test'\n  ...\n1..16\n# tests 16\n# suites 0\n# pass 16\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 13031.922042\n",
+  "lint": {
+    "code": 0,
+    "signal": null,
+    "timedOut": false,
+    "overflow": false,
+    "error": null,
+    "bytes": 0,
+    "output": ""
+  },
+  "reviewResolution": {
+    "OPS-REVIEW-01": {
+      "status": "fixed",
+      "contract": "beginAttempt exclusively reserves the task before startProcess; no second reservation until the previous attempt completes.",
+      "scenarios": [
+        "exclusive-pre-start-reservation"
+      ]
+    },
+    "OPS-REVIEW-02": {
+      "status": "fixed",
+      "contract": "Retries require a result, stopped true, and completed assessment when required.",
+      "scenarios": [
+        "retry-refused-unverified-stop",
+        "retry-assessment-gate"
+      ]
+    },
+    "OPS-REVIEW-A1": {
+      "status": "fixed",
+      "contract": "Persisted assessmentRequired:true blocks concurrent finalize until every process is assessed; the real CLI enables it.",
+      "scenarios": [
+        "final-assessment-gate-tap",
+        "final-assessment-gate-cleanup",
+        "real-cli-exit-0-0",
+        "real-cli-cleanup-blocked"
+      ]
+    }
+  },
+  "externalEffects": {
+    "telegramMessages": 0,
+    "gatewayChanges": false,
+    "cronChanges": false,
+    "push": false,
+    "trelloWrites": false
+  },
+  "limitations": [
+    "At-most-once local final claim is not remote exactly-once delivery. A consumer crash after claim requires manual reconciliation.",
+    "A crashed lock owner fails closed; inspect and manually recover the campaign-local lock.",
+    "Service verification covers Linux owned process groups, not processes deliberately escaping with setsid.",
+    "Atomic local state survives process restart; no claim of power-loss fsync durability.",
+    "A reservation whose owner crashes before startProcess remains fail-closed and requires manual inspection.",
+    "Raw-command campaigns default to assessmentRequired:false; suite consumers must explicitly enable the persisted contract.",
+    "OPS-REVIEW-A2 concerns the gift guide browser test and is outside this OPS-only change scope."
+  ]
+}

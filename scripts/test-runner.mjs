@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {openSync, writeSync, closeSync} from 'node:fs';
 
-export function runChild({args, cwd, log, env, timeoutMs=180000, maxBytes=8*1024*1024}) {
+export function runChild({args, cwd, log, env, timeoutMs=180000, maxBytes=8*1024*1024, onSpawn}) {
   return new Promise(resolve => {
     const fd = openSync(log, 'w', 0o600);
     // env -i is intentional: not even NODE_OPTIONS or npm's environment survives.
@@ -13,6 +13,7 @@ export function runChild({args, cwd, log, env, timeoutMs=180000, maxBytes=8*1024
     const stop = () => {kill('SIGTERM');killTimer ??= setTimeout(()=>kill('SIGKILL'),1000);};
     const timer = setTimeout(()=>{timedOut=true;stop();},timeoutMs);
     const onSignal = ()=>{error='interrupted';stop();};
+    const registration = Promise.resolve().then(() => onSpawn?.(child.pid)).catch(e => {error=`registration: ${e.message}`;stop();});
     process.once('SIGTERM',onSignal);process.once('SIGINT',onSignal);
     const capture = chunk => {
       const remaining = Math.max(0,maxBytes-bytes);
@@ -27,7 +28,7 @@ export function runChild({args, cwd, log, env, timeoutMs=180000, maxBytes=8*1024
       // Reap descendants (e.g. a hung browser) even after a successful parent exit.
       kill('SIGKILL');
       process.removeListener('SIGTERM',onSignal);process.removeListener('SIGINT',onSignal);
-      closeSync(fd);resolve({code,signal,timedOut,overflow,error,bytes:Math.min(bytes,maxBytes)});
+      closeSync(fd);registration.then(() => resolve({code,signal,timedOut,overflow,error,bytes:Math.min(bytes,maxBytes)}));
     });
   });
 }

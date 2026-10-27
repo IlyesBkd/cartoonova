@@ -83,6 +83,8 @@ test('real CSP handler sanitizes malicious directive, resource URL and private a
   assert.equal(response.status, 204); assert.equal(route.logs.length, 1); assert.equal(alerts.length, 1);
   assertPrivateFree({ logs: route.logs, alerts });
   assert.match(JSON.stringify(route.logs), /extras/);
+  assert.equal(alerts[0].titre, 'CSP : violations signalées');
+  assert.equal(alerts[0].piedDePage, 'Politique bloquante — disposition rapportée par le navigateur');
   saveCapture('csp-handler-safe-outputs', { logs: route.logs, alerts });
 });
 

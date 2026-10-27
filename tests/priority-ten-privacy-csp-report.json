@@ -1,0 +1,390 @@
+{
+  "cleanupFollowup": {"report": "tests/priority-ten-cleanup-report.json", "tests": 22, "passed": 22, "failed": 0, "lint": "npm run lint: exit 0", "note": "Original results below are historical; cleanup followup covers current source hashes and two added CSP regressions."},
+  "scope": "targeted only, not complete repository suite",
+  "results": [
+    {
+      "file": "tests/priority-ten-privacy-csp.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/priority-ten-privacy-csp.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/priority-ten-privacy-csp.test.mjs.tap"
+    },
+    {
+      "file": "tests/ten-cards-consent.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/ten-cards-consent.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/ten-cards-consent.test.mjs.tap"
+    },
+    {
+      "file": "tests/ten-cards-consent-ui.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/ten-cards-consent-ui.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/ten-cards-consent-ui.test.mjs.tap"
+    },
+    {
+      "file": "tests/ten-cards-consent-adversarial.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/ten-cards-consent-adversarial.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/ten-cards-consent-adversarial.test.mjs.tap"
+    },
+    {
+      "file": "tests/ten-cards-pixel-disable.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/ten-cards-pixel-disable.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/ten-cards-pixel-disable.test.mjs.tap"
+    },
+    {
+      "file": "tests/privacy.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/privacy.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/privacy.test.mjs.tap"
+    },
+    {
+      "file": "tests/privacy-browser.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/privacy-browser.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/privacy-browser.test.mjs.tap"
+    },
+    {
+      "file": "tests/privacy-route-logs.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/privacy-route-logs.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/privacy-route-logs.test.mjs.tap"
+    },
+    {
+      "file": "tests/email-outbox-provider.test.mjs",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/email-outbox-provider.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tap": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp/email-outbox-provider.test.mjs.tap"
+    }
+  ],
+  "allPassed": true,
+  "totals": {
+    "tests": 33,
+    "pass": 33,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "evidenceDir": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/priority-ten-privacy-csp",
+  "ten-locale-consent-notices": [
+    {
+      "locale": "fr",
+      "notice": "Les cookies nécessaires au fonctionnement du site restent actifs. PostHog (mesure d’audience) est activé par défaut en l’absence de choix enregistré. Aucun bandeau automatique ne s’affiche. Les refus déjà enregistrés restent respectés. Refuser bloque PostHog. Le pixel publicitaire ChatGPT est désactivé et n’est pas chargé, même après accord. Poursuivre la navigation ne vaut pas consentement. Le choix est conservé dans ce navigateur. Pour le modifier, utilise le bouton de préférences ci-dessous.",
+      "choices": {
+        "accepter": "Accepter",
+        "refuser": "Refuser"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "en",
+      "notice": "Cookies needed to operate the site remain active. PostHog analytics is enabled by default when no choice is saved. No automatic banner is shown. Previously saved refusals are respected. Decline blocks PostHog. The ChatGPT advertising pixel is disabled and is not loaded, even with consent. Continuing to browse does not give consent. Your choice is saved in this browser. Use the preferences button below to change it.",
+      "choices": {
+        "accepter": "Accept",
+        "refuser": "Decline"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "de",
+      "notice": "Für den Betrieb notwendige Cookies bleiben aktiv. PostHog ist standardmäßig aktiviert, wenn keine Auswahl gespeichert ist. Es erscheint kein automatisches Banner. Gespeicherte Ablehnungen bleiben wirksam. Ablehnen blockiert PostHog. Das ChatGPT-Werbepixel ist deaktiviert und wird auch mit Einwilligung nicht geladen. Weitersurfen ist keine Einwilligung. Die Auswahl wird in diesem Browser gespeichert. Mit der Schaltfläche unten kannst du sie ändern.",
+      "choices": {
+        "accepter": "Akzeptieren",
+        "refuser": "Ablehnen"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "es",
+      "notice": "Las cookies necesarias para el funcionamiento del sitio siguen activas. PostHog está activado por defecto si no hay una elección guardada. No se muestra ningún aviso automático. Se respetan los rechazos guardados. Rechazar bloquea PostHog. El píxel publicitario de ChatGPT está desactivado y no se carga, incluso con consentimiento. Seguir navegando no implica consentimiento. La elección se guarda en este navegador. Puedes cambiarla con el botón de preferencias de abajo.",
+      "choices": {
+        "accepter": "Aceptar",
+        "refuser": "Rechazar"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "it",
+      "notice": "I cookie necessari al funzionamento del sito restano attivi. PostHog è attivo per impostazione predefinita se non è stata salvata una scelta. Non appare alcun banner automatico. I rifiuti salvati vengono rispettati. Rifiuta blocca PostHog. Il pixel pubblicitario ChatGPT è disattivato e non viene caricato, nemmeno con il consenso. Continuare a navigare non equivale al consenso. La scelta viene salvata in questo browser. Puoi modificarla con il pulsante delle preferenze qui sotto.",
+      "choices": {
+        "accepter": "Accetta",
+        "refuser": "Rifiuta"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "nl",
+      "notice": "Cookies die nodig zijn voor de werking van de site blijven actief. PostHog is standaard actief als er geen keuze is opgeslagen. Er verschijnt geen automatische banner. Opgeslagen weigeringen blijven geldig. Weigeren blokkeert PostHog. De ChatGPT-advertentiepixel is uitgeschakeld en wordt ook met toestemming niet geladen. Verder surfen geldt niet als toestemming. De keuze wordt in deze browser bewaard. Wijzig deze met de voorkeurenknop hieronder.",
+      "choices": {
+        "accepter": "Accepteren",
+        "refuser": "Weigeren"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "pl",
+      "notice": "Pliki cookie niezbędne do działania witryny pozostają aktywne. PostHog jest domyślnie aktywny, jeśli nie zapisano wyboru. Baner nie pojawia się automatycznie. Zapisane odmowy są respektowane. Odrzucam blokuje PostHog. Piksel reklamowy ChatGPT jest wyłączony i nie jest ładowany, nawet po wyrażeniu zgody. Dalsze przeglądanie nie oznacza zgody. Wybór jest zapisywany w tej przeglądarce. Można go zmienić przyciskiem preferencji poniżej.",
+      "choices": {
+        "accepter": "Akceptuję",
+        "refuser": "Odrzucam"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "sv",
+      "notice": "Kakor som behövs för webbplatsens funktion förblir aktiva. PostHog är aktiverat som standard om inget val har sparats. Ingen automatisk banner visas. Sparade avböjanden respekteras. Neka blockerar PostHog. ChatGPT:s annonspixel är inaktiverad och laddas inte, även med samtycke. Fortsatt surfning är inte samtycke. Valet sparas i denna webbläsare. Ändra det med inställningsknappen nedan.",
+      "choices": {
+        "accepter": "Acceptera",
+        "refuser": "Neka"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "da",
+      "notice": "Cookies, der er nødvendige for webstedets drift, forbliver aktive. PostHog er aktiveret som standard, hvis intet valg er gemt. Der vises intet automatisk banner. Gemte afvisninger respekteres. Afvis blokerer PostHog. ChatGPTs annoncepixel er deaktiveret og indlæses ikke, heller ikke med samtykke. Fortsat browsing er ikke samtykke. Valget gemmes i denne browser. Du kan ændre det med indstillingsknappen nedenfor.",
+      "choices": {
+        "accepter": "Accepter",
+        "refuser": "Afvis"
+      },
+      "legalOccurrences": 2
+    },
+    {
+      "locale": "pt",
+      "notice": "Os cookies necessários ao funcionamento do sítio continuam ativos. O PostHog está ativo por predefinição quando não existe uma escolha guardada. Não é apresentado nenhum aviso automático. As recusas guardadas são respeitadas. Recusar bloqueia o PostHog. O píxel publicitário ChatGPT está desativado e não é carregado, mesmo com consentimento. Continuar a navegar não constitui consentimento. A escolha fica guardada neste navegador. Podes alterá-la com o botão de preferências abaixo.",
+      "choices": {
+        "accepter": "Aceitar",
+        "refuser": "Recusar"
+      },
+      "legalOccurrences": 2
+    }
+  ],
+  "csp-config-headers": {
+    "headers": {
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "X-Frame-Options": "DENY",
+      "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
+      "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\")",
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://js.stripe.com https://*.js.stripe.com https://www.googletagmanager.com https://www.googleadservices.com https://*.doubleclick.net https://www.google.com https://connect.facebook.net https://bzrcdn.openai.com https://vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https://*.blob.vercel-storage.com; connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com https://www.google.com https://www.google.fr https://www.google.de https://www.google.es https://www.google.it https://www.google.nl https://www.google.pl https://www.google.se https://www.google.dk https://www.google.pt https://www.google.co.uk https://www.google.ch https://www.google.be https://www.google.at https://www.google.ie https://www.google.lu https://www.google.no https://www.google.fi https://www.google.ca https://www.google.com.au https://www.google.co.nz https://www.google.com.br https://www.google.com.mx https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://bzr.openai.com https://bzrcdn.openai.com https://vercel.live wss://ws-us3.pusher.com; frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://pay.google.com https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com https://vercel.live; worker-src 'self' blob:; object-src 'none'; script-src-attr 'none'; base-uri 'self'; form-action 'self' https://hooks.stripe.com; frame-ancestors 'none'; report-uri /api/csp"
+    },
+    "nonceStrict": false,
+    "realStripePaymentTested": false,
+    "realWalletTested": false
+  },
+  "csp-browser-local": {
+    "allowedScript": 2,
+    "inlineResidual": true,
+    "evalBlocked": true,
+    "badHandler": false,
+    "badEval": false,
+    "violations": [
+      {
+        "directive": "script-src-elem",
+        "blocked": "https://evil.invalid/script.js"
+      },
+      {
+        "directive": "script-src-attr",
+        "blocked": "inline"
+      },
+      {
+        "directive": "connect-src",
+        "blocked": "https://evil.invalid/event"
+      },
+      {
+        "directive": "script-src",
+        "blocked": "eval"
+      },
+      {
+        "directive": "script-src",
+        "blocked": "eval"
+      },
+      {
+        "directive": "base-uri",
+        "blocked": "https://evil.invalid/"
+      },
+      {
+        "directive": "frame-src",
+        "blocked": "https://evil.invalid"
+      },
+      {
+        "directive": "object-src",
+        "blocked": "http://127.0.0.1:38195/plugin"
+      },
+      {
+        "directive": "form-action",
+        "blocked": "https://evil.invalid/submit?"
+      }
+    ],
+    "baseURI": "http://127.0.0.1:38195/",
+    "wire": [
+      "http://127.0.0.1:38195/self.js",
+      "https://js.stripe.com/probe.js",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/ingest/probe",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/api/csp",
+      "https://js.stripe.com/probe-frame",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/api/csp",
+      "http://127.0.0.1:38195/api/csp"
+    ],
+    "realStripePaymentTested": false,
+    "realWalletTested": false,
+    "syntheticOriginProbesOnly": true
+  },
+  "sourceSha256": {
+    "app/api/csp/route.ts": "68da111ccb1c6b167383665ccd56232e87efcc0afb12083ac1dbc6946b315985",
+    "tests/privacy-route-logs.test.mjs": "55f8dfff61fd2c7a6e9742fde6e81f1651df05429eca898b40aea5e38a2563d3",
+    "tests/priority-ten-privacy-csp.test.mjs": "dd678f09bdec2bd71d77c14b2bc5ea3f9cbf421bb0d628c267c350d1c4eb0e27",
+    "lib/analytics.ts": "06639d04b638f4467aadec0a98580140f5d7ef74c317f921039533f79038a342",
+    "lib/consentementMesure.ts": "188edaf5140f0ee9d48775e5fb203633284265407fd6b5dc4b4bbccd27da44b8",
+    "lib/pixelChatgpt.ts": "09fc10e9a5b70fec2391a0ff561c9867525183903f6ed1fb7ae3f26f248a0916",
+    "lib/i18n/cookieConsent.ts": "f93c4de48df5b1479361a7bccea7a5df3e3866da32b92cd84d7aa905bea0d31a",
+    "next.config.ts": "0cf778cb0aba89ffb650be195152e19ce2bc8429b8149e6a074fa4d42eb45e86",
+    "package-lock.json": "11f8c5e7693cf54fad6428a64fe4243dcc4db5cf178daa0e55a02c9cd3ce34f4"
+  },
+  "productPolicyChanged": false,
+  "legalValidation": false,
+  "published": false,
+  "build": "Delegated to parent integration; not run by this scoped subagent",
+  "remaining": [
+    "Inline scripts remain permitted; not a strict nonce CSP",
+    "Real Stripe SDK / 3DS / wallets not exercised or newly authorized",
+    "Production configuration and deployed headers not verified",
+    "Historical PostHog/replay data not audited or cleaned"
+  ],
+  "lint": {
+    "status": "passed",
+    "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" TMPDIR=\"$TMPDIR\" node node_modules/eslint/bin/eslint.js app/api/csp/route.ts tests/priority-ten-privacy-csp.test.mjs tests/privacy-route-logs.test.mjs"
+  }
+}

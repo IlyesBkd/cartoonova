@@ -3,10 +3,9 @@ import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 
 /* Reception des rapports de la politique de securite du contenu (CSP).
 
-   La CSP est publiee en Report-Only (next.config.ts) : elle ne bloque rien,
-   elle signale ce qu'elle aurait bloque. Le but est de verifier pendant une a
-   deux semaines qu'aucune ressource legitime (Stripe, Google Ads, PostHog…)
-   n'est oubliee avant de la rendre bloquante.
+   La CSP de next.config.ts est bloquante. Les rapports signalent les
+   violations observées ; ils restent des données client non fiables et ne
+   prouvent pas à eux seuls qu'un parcours métier complet fonctionne.
 
    Deux formats arrivent selon le navigateur : l'ancien `report-uri`
    (`{"csp-report": {...}}`) et la Reporting API (`[{type, body}]`). */
@@ -106,10 +105,10 @@ export async function POST(req: Request) {
     const resume = [...recents].slice(0, 8).join("\n");
     recents.clear();
     await alerteDiscord({
-      titre: "CSP : ressources qui seraient bloquees",
+      titre: "CSP : violations signalées",
       couleur: COULEUR_ATTENTION,
       champs: [{ name: "Directive ← origine, page, script", value: resume.slice(0, 1000) }],
-      piedDePage: "Report-Only — rien n'est bloque pour l'instant",
+      piedDePage: "Politique bloquante — disposition rapportée par le navigateur",
     });
   }
 

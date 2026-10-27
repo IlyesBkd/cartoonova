@@ -156,8 +156,8 @@ test('reservation SQL failure cannot expose a client secret or leave an untracke
  assert.equal((await db`SELECT * FROM promo_reservations WHERE code='SQLFAIL'`).length,0);
 });
 test('reservations retry idempotently by PaymentIntent and retain an exact partial gift remainder',async()=>{
- await gift('PARTIAL',10);const pi=await accepted('PARTIAL');
- const [same]=await db`SELECT reserve_checkout_promo(${pi.id},'PARTIAL',${Number(pi.metadata.discount)}::numeric,4.99,'EUR') AS ok`;assert.equal(same.ok,true);
+ await gift('PARTIAL',10.01);const pi=await accepted('PARTIAL');
+ const [same]=await db`SELECT reserve_checkout_promo(${pi.id},'PARTIAL',${Number(pi.metadata.discount)}::numeric,5,'EUR') AS ok`;assert.equal(same.ok,true);
  assert.equal((await db`SELECT * FROM promo_reservations WHERE payment_intent_id=${pi.id}`).length,1);
  const order=await pending(pi);await outbox.payerAvecConfirmation(order.id,payload);
  const [p]=await db`SELECT * FROM promo_codes WHERE code='PARTIAL'`;assert.equal(Number(p.solde),6.01);assert.equal(p.used_count,1);

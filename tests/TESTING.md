@@ -31,7 +31,7 @@ Les suites navigateur existantes ont ete inspectees : chat/SEO refusent les dest
 
 ## Logs et CI
 
-Le runner affiche le chemin `${TMPDIR}/tap-XXXXXX` : manifeste, un TAP borne par fichier et `summary.json` agrege. Le HOME temporaire est vide; les fixtures sont nettoyees. Conserver les logs synthetiques utiles puis supprimer le repertoire d'artefacts local si necessaire. En CI seuls les trois types de rapports sont conserves, sept jours, meme sur echec.
+Le runner affiche le chemin `${TMPDIR}/tap-XXXXXX` : manifeste, un TAP borne par fichier et `summary.json` agrege. Le manifeste et le bilan portent le meme `campaignId` UUID ; le registre `campaign/` correle chaque tentative, PID, resultat et nettoyage verifie. `campaign-final.json` conserve le bilan local consomme une seule fois. Les evenements techniques tardifs/dupliques restent internes : aucun transport de notification n'est branche. Cette remise locale au plus une fois ne garantit pas une livraison distante exactement une fois ; un verrou abandonne impose une inspection, pas une reprise aveugle. Le HOME temporaire est vide; les fixtures sont nettoyees. Conserver les logs synthetiques utiles puis supprimer le repertoire d'artefacts local si necessaire. En CI seuls les trois types de rapports sont conserves, sept jours, meme sur echec.
 
 `verification.yml` configure localement le job tests, puis types (`next typegen`, `tsc`) et lint. Pas de build exigeant des secrets dans ce workflow, pas de tunnel, secret GitHub ou depense fournisseur. Les installations npm/apt/Playwright demandent le reseau de distribution de dependances : l'absence de reseau **fournisseur pendant les tests** ne signifie pas installation hors ligne. Aucun workflow distant n'est declenche par l'edition locale.
 

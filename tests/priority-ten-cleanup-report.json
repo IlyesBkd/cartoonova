@@ -1,0 +1,97 @@
+{
+  "scope": "targeted cleanup regression and pricing/privacy tests; no global build or production",
+  "results": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "tests/build-reproducibility.test.mjs",
+        "tests/priority-ten-privacy-csp.test.mjs",
+        "tests/pricing-fallback.test.mjs",
+        "tests/privacy-route-logs.test.mjs"
+      ],
+      "exitCode": 0,
+      "counts": {
+        "tests": 22,
+        "pass": 22,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/pricing-privacy-cleanup/check-0.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "counts": {},
+      "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/pricing-privacy-cleanup/check-1.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "counts": {},
+      "log": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/pricing-privacy-cleanup/check-2.log"
+    }
+  ],
+  "allPassed": true,
+  "sourceSha256": {
+    "tests/build-reproducibility.test.mjs": "a2b07826ba64dd04b64840a4ade3e5fd33c2ad3666863719fc38441167726062",
+    "tests/helpers/owned-build-harness.mjs": "83ac1743f9b727af7ea6037c68a647aa34e9aa37ddcd280c1e759b4e75202400",
+    "tests/priority-ten-privacy-csp.test.mjs": "c91b328319f3edd8ac69d4594a27bf0d5bec3ae8c4d15d664eba82d8b87bdc99",
+    "scripts/verify-ten-cards-local.py": "266690b1b3d73f08b5d0ea4440ede27f6fa064fc05edcf36406e13a4594a4d18"
+  },
+  "blockers": {
+    "CSP-TEST-CLEANUP-01": {
+      "status": "fixed; real missing-executable launch and rejecting-close regressions passed",
+      "redObserved": "2 failures: listener still listening before fix",
+      "implementation": "outer try/finally immediately after listen, optional browser, nested server finally"
+    },
+    "BUILD-TEST-CLEANUP-02": {
+      "status": "fixed; real cooperative and forced timeouts passed",
+      "redObserved": "pg_ctl status 0 instead of expected 3 before fallback",
+      "cooperativeTimeout": {
+        "timeoutMs": 3000,
+        "exitCode": 143,
+        "pythonFinallyStoppedDatabase": true,
+        "pgCtlStatusAfter": 3
+      },
+      "forcedTimeout": {
+        "timeoutMs": 3000,
+        "graceMs": 200,
+        "pythonFrozenWith": "SIGSTOP",
+        "exitSignal": "SIGKILL",
+        "pythonFinallyRan": false,
+        "parentStoppedDatabase": true,
+        "pgCtlStatusAfter": 3,
+        "loopbackReconnect": "ECONNREFUSED",
+        "runtime": "/home/hermes/.hermes/profiles/cartoonova/cache/scratch/ten-build-DT6PZh"
+      },
+      "safety": "fresh runtime under TMPDIR, mode 0700, owner token, UID/path/symlink/data-directory checks; reject foreign directories; no production connection"
+    }
+  },
+  "fixture": {
+    "migrations": 15,
+    "reapplied": 15,
+    "databaseStopped": true,
+    "nextServerStarted": false
+  },
+  "constraints": {
+    "globalBuildRun": false,
+    "productionAccess": false,
+    "committed": false,
+    "pushed": false,
+    "trelloWritten": false,
+    "preexistingPycacheDeleted": false
+  }
+}
