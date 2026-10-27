@@ -228,7 +228,7 @@ export const LEGAL_DE: PagesLegales = {
         blocs: [
           "Die Gesellschaft {raison} (nachfolgend „Cartoonova“, „wir“, „unser“) verpflichtet sich, die Privatsphäre ihrer Nutzer und Kunden (nachfolgend „Sie“, „Ihr“) zu schützen.",
           "Diese Datenschutzerklärung beschreibt, wie wir Ihre personenbezogenen Daten erheben, verwenden, speichern und schützen, wenn Sie unsere Website **cartoonova.com** (nachfolgend „die Website“) und unsere Dienste zur Erstellung personalisierter Karikaturen nutzen.",
-          "Diese Erklärung entspricht der Datenschutz-Grundverordnung (DSGVO — Verordnung (EU) 2016/679) und dem geänderten französischen Datenschutzgesetz vom 6. Januar 1978 (loi « Informatique et Libertés »).",
+          "Rechtliche Referenztexte: die Datenschutz-Grundverordnung (DSGVO — Verordnung (EU) 2016/679) und das geänderte französische Datenschutzgesetz vom 6. Januar 1978 (loi « Informatique et Libertés »).",
         ],
       },
       {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { lireOrigine } from "@/lib/origineVisite";
+import { localGiftGuide } from "@/lib/giftGuideLocal";
 import {
   loadStripe,
   type StripeElementsOptions,
@@ -900,6 +901,8 @@ export default function CheckoutModal({
     // Pose des maintenant : une seconde passe de l'effet pendant que la
     // requete est en vol ne doit pas creer un intent de plus.
     signaturePreparee.current = signature;
+    // Snapshot authorization before the asynchronous request, never at response.
+    const guideSession = localGiftGuide.captureCheckout();
 
     return fetch("/api/checkout", {
       method: "POST",
@@ -935,6 +938,8 @@ export default function CheckoutModal({
           currency,
           promoCode: data.promoCode ?? null,
         });
+        // Local-only observational linkage, never a paid conversion signal.
+        localGiftGuide.attachCheckout(data.clientSecret, guideSession);
         setSignatureSecret(signaturePreparee.current);
         setClientSecret(data.clientSecret);
         // Le serveur fait foi sur le montant : si le code a expire entre la

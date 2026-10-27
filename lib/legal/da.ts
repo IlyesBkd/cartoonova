@@ -228,7 +228,7 @@ export const LEGAL_DA: PagesLegales = {
         blocs: [
           "Selskabet {raison} (herefter »Cartoonova«, »vi«, »vores«) forpligter sig til at beskytte privatlivet for sine brugere og kunder (herefter »du«, »din«).",
           "Denne Privatlivspolitik beskriver, hvordan vi indsamler, bruger, opbevarer og beskytter dine personoplysninger, når du bruger vores websted **cartoonova.com** (herefter »Webstedet«) og vores tjenester til fremstilling af personlige karikaturer.",
-          "Denne politik er i overensstemmelse med databeskyttelsesforordningen (GDPR — forordning (EU) 2016/679) og den franske databeskyttelseslov (loi « Informatique et Libertés ») af 6. januar 1978 med senere ændringer.",
+          "Juridiske referencetekster: databeskyttelsesforordningen (GDPR — forordning (EU) 2016/679) og den franske databeskyttelseslov (loi « Informatique et Libertés ») af 6. januar 1978 med senere ændringer.",
         ],
       },
       {

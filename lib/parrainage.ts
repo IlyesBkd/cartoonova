@@ -52,9 +52,9 @@ function langue(brut: unknown): Lang {
  * `lower(parrain_email)` fait echouer le second INSERT, qui relit alors le
  * code du premier.
  *
- * Chaque appel repousse l'expiration a 12 mois : un code qu'on vient de
- * montrer au client ne doit pas expirer la semaine suivante. Un code
- * desactive par l'admin le reste (`active` n'est pas touche).
+ * Validite fixe de 12 mois a la creation. Relire un code ne modifie ni son
+ * echeance ni ses autres attributs, meme expire ou desactive par l'admin.
+ * Aucun renouvellement implicite : il faudrait un flux explicite distinct.
  */
 export async function codeParrainage(email: string, lang: Lang): Promise<string> {
   await ensurePromoSchema();
@@ -66,11 +66,8 @@ export async function codeParrainage(email: string, lang: Lang): Promise<string>
 
   for (let essai = 0; essai < 5; essai++) {
     const existant = await sql`
-      UPDATE promo_codes
-      SET ends_at = GREATEST(COALESCE(ends_at, ${expire.toISOString()}::timestamptz), ${expire.toISOString()}::timestamptz),
-          parrain_lang = ${lang}
+      SELECT code FROM promo_codes
       WHERE lower(parrain_email) = ${parrain}
-      RETURNING code
     `;
     if (existant[0]) return String(existant[0].code);
 

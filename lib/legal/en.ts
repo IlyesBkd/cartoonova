@@ -228,7 +228,7 @@ export const LEGAL_EN: PagesLegales = {
         blocs: [
           "The company {raison} (hereinafter “Cartoonova”, “we”, “our”) is committed to protecting the privacy of its users and customers (hereinafter “you”, “your”).",
           "This Privacy Policy describes how we collect, use, store and protect your personal data when you use our website **cartoonova.com** (hereinafter “the Site”) and our personalised caricature creation services.",
-          "This policy complies with the General Data Protection Regulation (GDPR — Regulation (EU) 2016/679) and the amended French Data Protection Act of 6 January 1978 (loi « Informatique et Libertés »).",
+          "Legal reference texts: the General Data Protection Regulation (GDPR — Regulation (EU) 2016/679) and the amended French Data Protection Act of 6 January 1978 (loi « Informatique et Libertés »).",
         ],
       },
       {

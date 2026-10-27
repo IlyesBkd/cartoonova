@@ -228,7 +228,7 @@ export const LEGAL_NL: PagesLegales = {
         blocs: [
           "De vennootschap {raison} (hierna « Cartoonova », « wij », « ons ») verbindt zich ertoe de privacy van haar gebruikers en klanten (hierna « u », « uw ») te beschermen.",
           "Dit Privacybeleid beschrijft hoe wij uw persoonsgegevens verzamelen, gebruiken, opslaan en beschermen wanneer u onze website **cartoonova.com** (hierna « de Site ») en onze diensten voor het maken van gepersonaliseerde karikaturen gebruikt.",
-          "Dit beleid is in overeenstemming met de Algemene Verordening Gegevensbescherming (AVG — Verordening (EU) 2016/679) en de Franse wet inzake gegevensbescherming (loi « Informatique et Libertés ») van 6 januari 1978, zoals gewijzigd.",
+          "Juridische referentieteksten: de Algemene Verordening Gegevensbescherming (AVG — Verordening (EU) 2016/679) en de Franse wet inzake gegevensbescherming (loi « Informatique et Libertés ») van 6 januari 1978, zoals gewijzigd.",
         ],
       },
       {

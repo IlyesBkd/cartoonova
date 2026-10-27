@@ -228,7 +228,7 @@ export const LEGAL_SV: PagesLegales = {
         blocs: [
           "Bolaget {raison} (nedan ”Cartoonova”, ”vi”, ”vår”) åtar sig att skydda sina användares och kunders (nedan ”du”, ”din”) integritet.",
           "Denna Integritetspolicy beskriver hur vi samlar in, använder, lagrar och skyddar dina personuppgifter när du använder vår webbplats **cartoonova.com** (nedan ”Webbplatsen”) och våra tjänster för att skapa personliga karikatyrer.",
-          "Denna policy är förenlig med dataskyddsförordningen (GDPR — förordning (EU) 2016/679) och den franska dataskyddslagen (loi « Informatique et Libertés ») av den 6 januari 1978, i dess ändrade lydelse.",
+          "Juridiska referenstexter: dataskyddsförordningen (GDPR — förordning (EU) 2016/679) och den franska dataskyddslagen (loi « Informatique et Libertés ») av den 6 januari 1978, i dess ändrade lydelse.",
         ],
       },
       {

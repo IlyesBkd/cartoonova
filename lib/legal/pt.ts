@@ -228,7 +228,7 @@ export const LEGAL_PT: PagesLegales = {
         blocs: [
           "A sociedade {raison} (doravante «Cartoonova», «nós», «nosso») compromete-se a proteger a privacidade dos seus utilizadores e clientes (doravante «o utilizador», «seu»).",
           "A presente Política de Privacidade descreve a forma como recolhemos, utilizamos, conservamos e protegemos os seus dados pessoais quando utiliza o nosso sítio **cartoonova.com** (doravante «o Sítio») e os nossos serviços de criação de caricaturas personalizadas.",
-          "Esta política está em conformidade com o Regulamento Geral sobre a Proteção de Dados (RGPD — Regulamento (UE) 2016/679) e com a lei francesa de proteção de dados (loi « Informatique et Libertés ») de 6 de janeiro de 1978, na sua redação atual.",
+          "Textos jurídicos de referência: o Regulamento Geral sobre a Proteção de Dados (RGPD — Regulamento (UE) 2016/679) e a lei francesa de proteção de dados (loi « Informatique et Libertés ») de 6 de janeiro de 1978, na sua redação atual.",
         ],
       },
       {

@@ -45,6 +45,10 @@ test('sessions without orders retain zero conversion and no invented currency',(
 test('ambiguous joins and invalid financial inputs fail closed',()=>{
  for(const data of [{sessions:[...sessions,{...sessions[0],cohort:'other'}],orders:[]},{sessions,orders:[order,{...order,netRevenueMinor:99}]},{sessions,orders:[{...order,variableCostMinor:-1}]},{sessions,orders:[{...order,netRevenueMinor:NaN}]}])assert.throws(()=>measure()(data));
 });
+test('unknown net revenue preserves paid conversion without inventing zero revenue or margin',()=>{
+ const result=measure()({sessions,orders:[{...order,netRevenueMinor:null}]});
+ assert.equal(result.cohorts[0].paidOrders,1);assert.equal(result.groups[0].revenueMinor,null);assert.equal(result.groups[0].marginMinor,null);assert.equal(result.groups[0].revenuePerSessionMinor,null);
+});
 test('offline CLI emits both conversion and financial tables, including sessions-only exports',()=>{
  const dir=mkdtempSync(path.join(tmpdir(),'measure-cli-'));
  try{

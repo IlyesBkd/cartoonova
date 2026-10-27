@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { localGiftGuide, localGiftGuideEnabled, localGiftGuideCohort, localGiftGuideServerSnapshot, subscribeLocalGiftGuide } from "@/lib/giftGuideLocal";
 import { useLocale } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,7 +55,27 @@ export default function GiftGuide() {
   const [people, setPeople] = useState<People>("solo");
   const [style, setStyle] = useState<Style>("classic");
   const [deadline, setDeadline] = useState("flexible");
-  useEffect(() => { mesure(MESURES.guideCadeauVu, { variant: "guided-v1" }); }, []);
+  const guideRef = useRef<HTMLElement>(null);
+  // The opt-in local build cannot expose an unassigned visitor in SSR HTML.
+  // Normal builds retain the public SSR guide. A flagged build on a public host
+  // resolves to the normal guide after hydration, without collecting locally.
+  const localCohort = useSyncExternalStore(subscribeLocalGiftGuide, localGiftGuideCohort, localGiftGuideServerSnapshot);
+  useEffect(() => {
+    if (localCohort === "pending" || (localGiftGuideEnabled() && localCohort === null)) return;
+    if (localCohort !== "control") mesure(MESURES.guideCadeauVu, { variant: "guided-v1" });
+  }, [localCohort]);
+  useEffect(() => {
+    if (localCohort !== "guided-v1" || !guideRef.current) return;
+    localGiftGuide.record("viewed");
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= 0.25)) {
+        localGiftGuide.record("exposed");
+        observer.disconnect();
+      }
+    }, { threshold: 0.25 });
+    observer.observe(guideRef.current);
+    return () => observer.disconnect();
+  }, [localCohort]);
   const selected = STYLES.find(item => item.value === style)!;
   const universeName = (slug: string) => {
     const product = produitParSlug(slug)!;
@@ -62,8 +83,9 @@ export default function GiftGuide() {
   };
   const count = people === "solo" ? 1 : people === "couple" ? 2 : 4;
 
+  if (localCohort === "pending" || (localGiftGuideEnabled() && localCohort !== "guided-v1")) return null;
   return (
-    <section className="gift-guide enveloppe" aria-labelledby="gift-guide-title">
+    <section ref={guideRef} className="gift-guide enveloppe" aria-labelledby="gift-guide-title">
       <header className="gift-guide__heading">
         <div>
           <span className="gift-guide__eyebrow">{t.eyebrow}</span>
@@ -123,7 +145,7 @@ export default function GiftGuide() {
               <div className="gift-guide__price"><span>{t.example}</span><strong><GiftExampleTotal people={count} /></strong></div>
               <p className="gift-guide__details">{t.details} · {count} {t.people}</p>
             </div>
-            <GiftConfiguratorLink href={`/${locale}/${selected.slug}#configurateur`} className="bouton bouton--primaire gift-guide__cta" onClick={() => mesure(MESURES.guideCadeauRecommandation, { people, style, slug: selected.slug })}>{t.cta}<span aria-hidden="true"> →</span></GiftConfiguratorLink>
+            <GiftConfiguratorLink href={`/${locale}/${selected.slug}#configurateur`} className="bouton bouton--primaire gift-guide__cta" onClick={() => { localGiftGuide.record("clicked"); mesure(MESURES.guideCadeauRecommandation, { people, style, slug: selected.slug }); }}>{t.cta}<span aria-hidden="true"> →</span></GiftConfiguratorLink>
             <div className={`gift-guide__voucher${deadline === "soon" ? " gift-guide__voucher--urgent" : ""}`}>
               {deadline === "soon" && <p>{t.urgent}</p>}
               <Link href={`/${locale}/bon-cadeau`}>{t.voucher}<span aria-hidden="true"> ↗</span></Link>
