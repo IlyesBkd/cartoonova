@@ -166,6 +166,9 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
   const locale = useLocale();
   const messagesPrix = PRICE_MESSAGES[locale] ?? PRICE_MESSAGES.en;
   const [caisseOuverte, setCaisseOuverte] = useState(false);
+  // Un composant dynamique ferme charge encore ses dependances s'il est monte.
+  // Apres la premiere ouverture, conserver le montage preserve le brouillon.
+  const [caisseDemandee, setCaisseDemandee] = useState(false);
 
   const champFichier = useRef<HTMLInputElement>(null);
   const boutonAchat = useRef<HTMLButtonElement>(null);
@@ -413,6 +416,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
       background: aDesDecors ? donnees.decors[decor].cle : "default",
       printOption: supportChoisi?.libelle ?? "digital",
     });
+    setCaisseDemandee(true);
     setCaisseOuverte(true);
   };
 
@@ -1457,7 +1461,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
         </div>
       </div>
 
-      {prix && (
+      {prix && caisseDemandee && (
         <CheckoutModal
           open={caisseOuverte}
           orderConfig={{

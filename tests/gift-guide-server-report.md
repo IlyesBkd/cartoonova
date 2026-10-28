@@ -1,0 +1,42 @@
+# CRO-11 — préparation serveur durable, inactive
+
+## Verdict et décision de périmètre
+
+**Préparation exécutable et déployable fermée, pas un collecteur public activable par un simple flag.** Les pages légales/CRO-10 sont exclues. L'accord navigateur existant est un état local, pas une preuve serveur durable du consentement à ce nouveau journal. Sans décision juridique/notice validée et sans adaptateur de consentement/révocation autorisé, inventer une preuve ou brancher la collecte serait incorrect. Le livrable exerce donc un vrai stockage PostgreSQL **jetable**, réutilise les journaux/calculs existants et ajoute une route qui échoue fermée. Aucun adaptateur réel n'est branché, aucun environnement/migration de production n'est modifié.
+
+Les critères CRO-11 lus dans le cache du profil `cache/four-followup/before.json` exigent achat payé, marge/session et garde-fous remboursements/erreurs, sans gain présumé. Ils ne sont pas entièrement satisfaits par des tests synthétiques : aucune observation commerciale n'est revendiquée.
+
+## Livrable utilisable
+
+- `lib/giftGuideServer.ts`: magasin transactionnel injecté (`createGiftGuideStore(sql)`) ; aucun singleton DB, secret fournisseur ou import d'analytics. Il ne crée **jamais** de schéma à l'exécution.
+- `tests/fixtures/gift-guide-preparation.sql`: schéma de préparation uniquement, hors `migrations/`, à appliquer exclusivement dans une base neuve jetable.
+- `app/api/measurement/gift-guide/route.ts`: POST/DELETE déployables. `GIFT_GUIDE_SERVER_MEASUREMENT` absent ou différent de `1` → **404**, avant lecture du corps et sans cookie/DB. Valeur `1` → **503 measurement_not_configured**, toujours sans collecte : la preuve de consentement, l'adaptateur de stockage réel et la gouvernance ne sont volontairement pas inventés. Toutes les réponses sont `Cache-Control: no-store`. Aucun GET/export public.
+- Les tests PostgreSQL sont aussi l'outil exécutable de préparation : ils initialisent leur propre instance sur port aléatoire, appliquent la fixture, exercent les opérations et prouvent son arrêt par `pg_ctl status`. Pas de `DATABASE_URL` héritée.
+
+## Contrat de rattachement v1
+
+1. **Consentement** : les booléens des méthodes sont des entrées de confiance de l'adaptateur serveur futur, jamais des champs HTTP acceptés tels quels. `false` interdit allocation, événement et rattachement ; un retrait exige `revoke(token)` indépendamment de l'expiration. La présence d'une ligne représente un accord antérieur explicite dans ce protocole de préparation. L'adaptateur durable de preuve d'accord/retrait, son texte/version, sa révocation inter-onglets et ses échecs réseau restent un prérequis de raccordement, pas une capacité existante prétendue.
+2. **Session** : jeton de capacité opaque à 256 bits généré côté serveur, UUID v4 serveur distinct pour la métrique. Seule une empreinte SHA-256 séparée par domaine du jeton est enregistrée ; UUID/cohorte fournis par un navigateur ne sont jamais une autorisation. Le jeton brut ne doit être ni dans une URL, ni dans une mesure/log/export ; futur cookie dédié HttpOnly/Secure/SameSite à valider. Ce sont des sessions, pas des clients uniques et pas de corrélation multi-appareils. Un jeton volé est une capacité volée : aucune prétention de résistance à une compromission de navigateur.
+3. **Cohorte** : tirage serveur 50/50 avec `randomInt`, immuable pour la session ; aucune affectation d'après un clic ou achat. Les événements sont une liste bornée dédupliquée (`viewed`, `exposed`, `clicked`) ; `clicked` requiert `exposed`. Le témoin refuse tout événement d'exposition. Cela ne prouve pas à lui seul que du HTML n'a pas été exposé.
+4. **SSR** : le protocole loopback demeure inchangé, y compris le snapshot `pending` qui retire le guide du HTML initial avant affectation. Le build public non flaggé conserve son comportement existant, sans expérience serveur. **Aucun témoin serveur n'est actuellement affecté en production.** Avant un futur branchement, le composant doit recevoir une décision serveur fiable avant son HTML initial, ou être absent pour toute session non affectée ; pas de guide SSR suivi d'un masquage post-hydratation. Les tests Chromium SSR/hydratation différée et navigation/retrait difficiles existants sont conservés et rejoués.
+5. **Checkout** : le futur adaptateur capture le jeton consenti avant de préparer le paiement existant, appelle `attach` avec une fonction serveur qui retourne **uniquement son PaymentIntent créé ou dont la propriété a été vérifiée côté serveur**. Jamais une fonction qui recopie un `pi_…` navigateur, un secret client ou une étiquette analytics. Le magasin relit/verrouille la session **après** la résolution asynchrone. Retrait puis réaccord créent un nouveau jeton ; une réponse de l'ancienne génération ne peut pas ressusciter son lien. Un index unique rend un PI attribuable à une seule session ; un conflit est refusé, pas réaffecté. Cette API interne n'est pas exposée au réseau.
+6. **Paiement et remboursement** : `attach` signifie seulement « paiement préparé ». Le checkout existant recalcule déjà les prix (`quoteOrder`) et la route webhook existante vérifie la signature Stripe. `orders.paid_at` est le reçu métier historique ; `status` seul n'est pas une source financière. Les remboursements partiels sont traités dans `charge.refunded`, mais ce chemin existant n'est pas un registre financier cumulatif complet à exporter aveuglément. Aucun montant navigateur ni montant de panier n'est considéré payé. Le futur export doit obtenir l'état, l'encaissé et les remboursements cumulés autoritatifs à une date de coupure connue, sans utiliser/joiner l'email/IP des chemins analytics existants.
+7. **Calcul** : `journal(token)` exporte le `GuideJournal` v1 déjà accepté par `settleGiftGuide` puis `measureGiftGuide` et `scripts/measure-gift-guide.mjs`. Aucun second calculateur. Les règlements viennent d'un export opérateur de confiance ; l'étiquette `authoritative-payment-export` n'authentifie pas un fournisseur. Devise séparée, remboursements/taxes/coûts inconnus → `null`, aucune marge fictive. Le magasin ne stocke aucun règlement, aucun texte libre/client, URL, IP ou email. Le test d'intégration utilise des règlements synthétiques uniquement.
+8. **Retrait/export** : suppression transactionnelle de la session et cascade de tous ses liens ; aucune modification d'une commande/paiement métier. Les lectures/événements/rattachements se sérialisent avec cette suppression. Un export déjà copié n'est pas magiquement rappelé : l'outil opérateur futur doit revalider les sessions encore autorisées juste avant calcul et effacer les copies retirées. Aucun export réel n'est effectué ici.
+
+## Limites effectivement implémentées
+
+- 24 heures après création pour les nouveaux événements/rattachements, sans prolongation implicite.
+- 30 jours maximum de visibilité du journal dans `journal`, comptés depuis création, sans prolongation par activité.
+- `purge()` supprime physiquement les lignes arrivées à échéance et leurs liens en cascade ; **aucun ordonnanceur installé**. Avant toute activation il faudra un ordonnanceur autorisé, une fréquence documentée, un contrôle de son exécution et une politique de sauvegardes/export. La suppression physique à J30 n'est donc pas une promesse de production.
+- 100 paiements préparés maximum/session ; 3 événements dédupliqués ; aucun champ libre.
+- 100 000 sessions maximum en base ; verrou global transactionnel à l'allocation pour empêcher un dépassement concurrent. Une base pleine refuse l'allocation, sans effacer silencieusement les anciennes sessions. Ce plafond n'est **pas** un dispositif anti-bot : quotas d'entrée, limitation du corps et rate-limit sans jointure IP sont à définir avant un endpoint acceptant des données. La route actuelle ne lit aucun corps.
+- Pas de fournisseur, de nouvelle clé, de changement légal, de backfill, d'activation, de migration réelle, de paiement, d'envoi, de commit/push ou Trello.
+
+## Exécution ciblée
+
+```sh
+env -i PATH="$PATH" HOME="$HOME" TMPDIR="$TMPDIR" node --test tests/gift-guide-server.test.mjs tests/gift-guide-server-postgres.test.mjs
+```
+
+Les preuves JSON/TAP sont dans le cache actif `cache/four-followup/measurement/`. Typecheck ciblé par l'API TypeScript et lint ciblé par l'API ESLint si le garde d'exécution ne peut scanner les lanceurs CLI ; aucun build/test global. Les tests fournisseur restent simulés ; les tests PostgreSQL utilisent une instance réelle jetable. Aucun gain, achat réel ou validation juridique n'est déduit de ces résultats.

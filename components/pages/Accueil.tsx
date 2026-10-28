@@ -235,7 +235,7 @@ export default function Accueil({
                 width={1000}
                 height={1000}
                 priority
-                sizes="(max-width: 1000px) 88vw, 42vw"
+                sizes="(max-width: 720px) 230px, (max-width: 1000px) 420px, (min-width: 1248px) 517px, calc(45.46vw - 51px)"
               />
             </div>
           </div>
