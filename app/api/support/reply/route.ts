@@ -11,6 +11,8 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { emailValide } from "@/lib/email";
 import { envoyerEmail } from "@/lib/envoiEmail";
+import { langueCommande } from "@/lib/email-i18n";
+import { emailLayout, emailParagraph } from "@/lib/emailTemplate";
 
 
 /**
@@ -121,12 +123,14 @@ export async function POST(req: NextRequest) {
       to: [destinataire],
       replyTo: SUPPORT_EMAIL,
       subject: sujet,
-      /* Texte brut, et rien d'autre. Les e-mails transactionnels du site sont
-         mis en page parce qu'ils annoncent quelque chose ; un courrier du
-         support est une conversation, et l'habiller d'un cadre jaune et d'une
-         ombre portee le ferait lire comme une notification automatique — ce
-         qu'il n'est pas. */
+      // The approved message remains the plain-text part and stored reply.
+      // No guessed tracking link or automatic button is added to support mail.
       text: texte,
+      html: emailLayout({
+        lang: commande ? langueCommande(commande) : "en",
+        title: sujet,
+        bodyHtml: emailParagraph(texte),
+      }),
       ...(referencable && reference
         ? { headers: { "In-Reply-To": reference, References: reference } }
         : {}),

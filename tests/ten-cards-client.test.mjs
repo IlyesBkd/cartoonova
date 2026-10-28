@@ -111,7 +111,8 @@ test('FLOW09 valid boundary note and photo are identical in persisted response h
  assert.equal(r.status,200);
  assert.equal((await db`SELECT poster_confirmation_note FROM orders WHERE id=${id}`)[0].poster_confirmation_note,note);
  assert.deepEqual((await db`SELECT note,photos FROM retouches WHERE order_id=${id}`)[0],{note,photos:[attached]});
- assert.equal(emails.length,1);assert.ok(emails[0].html.includes('  &lt;&amp;&gt;\n'+'é'.repeat(1992)+'  '));
+ assert.equal(emails.length,1);assert.ok(emails[0].html.includes('  &lt;&amp;&gt;<br>'+'é'.repeat(1992)+'  '));
+ assert.match(emails[0].html,/white-space:pre-wrap/);
  assert.ok(emails[0].html.includes(attached));
 });
 

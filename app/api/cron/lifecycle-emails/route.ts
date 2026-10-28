@@ -41,6 +41,7 @@ import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
 import { drainerEmails } from "@/lib/emailOutbox";
 import { recompenseAvisFormatee } from "@/lib/recompenseAvis";
+import { emailLayout, emailParagraph, emailButton, emailNotice, escapeEmailHtml } from "@/lib/emailTemplate";
 
 // Delai apres l'envoi de l'illustration finale. La demande d'avis attend que
 // l'impression soit arrivee (2j de dessin + 3j ouvres de fabrication/envoi).
@@ -70,28 +71,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 const MAX_PER_RUN = 25;
 
 
-function shell(inner: string, footer: string) {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-      <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
-        ${inner}
-      </div>
-      <div style="text-align: center; font-size: 12px; color: #444;">
-        ${footer}
-      </div>
-    </div>
-  `;
-}
-
-function button(href: string, label: string) {
-  return `
-    <div style="text-align: center; margin: 28px 0 8px;">
-      <a href="${href}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
-        ${label}
-      </a>
-    </div>
-  `;
-}
 
 async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
   const orders = (await getOrdersDueForReviewRequest(REVIEW_REQUEST_DELAY_DAYS)).slice(0, MAX_PER_RUN);
@@ -108,17 +87,15 @@ async function sendReviewRequests(): Promise<{ sent: number; failed: number }> {
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
         subject: t.subject,
-        html: shell(
-          `
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.ask}</p>
-            <p style="font-size: 16px; margin: 0; color: #000; font-weight: bold;">${t.reward(recompenseAvisFormatee(order.currency, lang))}</p>
-            ${button(lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "demande_avis"), t.cta)}
-          `,
-          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>`
-        ),
+        html: emailLayout({
+          lang,
+          title: t.title,
+          bodyHtml: emailParagraph(t.greeting(order.customer_name)) +
+            emailParagraph(t.body) + emailParagraph(t.ask) +
+            emailNotice(t.reward(recompenseAvisFormatee(order.currency, lang))) +
+            emailButton(t.cta, lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "demande_avis")),
+          footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+        }),
       });
       /* L'envoi compte autant que le clic : sans denominateur,
          un taux d'ouverture n'est pas un taux. */
@@ -158,16 +135,15 @@ async function sendReviewReminders(): Promise<{ sent: number; failed: number }> 
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
         subject: t.reminderSubject,
-        html: shell(
-          `
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.reminderTitle}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.reminderBody}</p>
-            <p style="font-size: 16px; margin: 0; color: #000; font-weight: bold;">${t.reward(recompenseAvisFormatee(order.currency, lang))}</p>
-            ${button(lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "relance_avis"), t.cta)}
-          `,
-          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>`
-        ),
+        html: emailLayout({
+          lang,
+          title: t.reminderTitle,
+          bodyHtml: emailParagraph(t.greeting(order.customer_name)) +
+            emailParagraph(t.reminderBody) +
+            emailNotice(t.reward(recompenseAvisFormatee(order.currency, lang))) +
+            emailButton(t.cta, lienEmail(`${SITE_URL}/${lang}/avis/nouveau?c=${orderTrackingToken(order.id)}`, "relance_avis")),
+          footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+        }),
       });
       await mesureServeur(MESURES.emailEnvoye, {
         identifiant: order.customer_email,
@@ -212,16 +188,14 @@ async function sendReorderEmails(): Promise<{ sent: number; failed: number }> {
           "List-Unsubscribe": `<${unsubscribeUrl}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
-        html: shell(
-          `
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0; color: #333;">${t.body}</p>
-            ${button(lienEmail(`${SITE_URL}/${lang}/collections`, "rachat"), t.cta)}
-          `,
-          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
-           <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
-        ),
+        html: emailLayout({
+          lang,
+          title: t.title,
+          bodyHtml: emailParagraph(t.greeting(order.customer_name)) + emailParagraph(t.body) +
+            emailButton(t.cta, lienEmail(`${SITE_URL}/${lang}/collections`, "rachat")),
+          footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team) +
+            `<p><a href="${escapeEmailHtml(unsubscribeUrl)}">${escapeEmailHtml(t.unsubscribe)}</a></p>`,
+        }),
       });
       /* L'envoi compte autant que le clic : sans denominateur,
          un taux d'ouverture n'est pas un taux. */
@@ -323,18 +297,14 @@ async function sendAbandonedCartEmails(): Promise<{
           "List-Unsubscribe": `<${unsubscribeUrl}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
-        html: shell(
-          `
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
-            <p style="font-size: 16px; margin: 0; color: #333;">${t.kept}</p>
-            ${button(reprise, t.cta)}
-            <p style="font-size: 14px; margin: 20px 0 0; color: #555;">${t.help}</p>
-          `,
-          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
-           <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
-        ),
+        html: emailLayout({
+          lang,
+          title: t.title,
+          bodyHtml: emailParagraph(t.greeting(order.customer_name)) + emailParagraph(t.body) +
+            emailParagraph(t.kept) + emailButton(t.cta, reprise) + emailNotice(t.help),
+          footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team) +
+            `<p><a href="${escapeEmailHtml(unsubscribeUrl)}">${escapeEmailHtml(t.unsubscribe)}</a></p>`,
+        }),
       });
       /* L'envoi compte autant que le clic : sans denominateur,
          un taux d'ouverture n'est pas un taux. */
@@ -398,18 +368,14 @@ async function sendLeadReminders(): Promise<{ sent: number; failed: number }> {
           "List-Unsubscribe": `<${unsubscribeUrl}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
-        html: shell(
-          `
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
-            <p style="font-size: 16px; margin: 0; color: #333;">${t.reassure}</p>
-            ${button(reprise, t.cta)}
-            <p style="font-size: 14px; margin: 20px 0 0; color: #555;">${t.help}</p>
-          `,
-          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
-           <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
-        ),
+        html: emailLayout({
+          lang,
+          title: t.title,
+          bodyHtml: emailParagraph(t.greeting) + emailParagraph(t.body) +
+            emailParagraph(t.reassure) + emailButton(t.cta, reprise) + emailNotice(t.help),
+          footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team) +
+            `<p><a href="${escapeEmailHtml(unsubscribeUrl)}">${escapeEmailHtml(t.unsubscribe)}</a></p>`,
+        }),
       });
       /* L'envoi compte autant que le clic : sans denominateur,
          un taux d'ouverture n'est pas un taux. */
@@ -555,18 +521,16 @@ async function sendPrintUpsell(): Promise<{ sent: number; failed: number }> {
           "List-Unsubscribe": `<${unsubscribeUrl}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
-        html: shell(
-          `
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body(taille)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.price(formatPrix(prix, devise, lang))}</p>
-            <p style="font-size: 16px; margin: 0; color: #333;">${t.reply}</p>
-            ${button(lienProduit, t.cta)}
-          `,
-          `<p style="font-weight: bold; color: #000;">${t.thanks}</p><p>${t.team}</p>
-           <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${t.unsubscribe}</a></p>`
-        ),
+        html: emailLayout({
+          lang,
+          title: t.title,
+          bodyHtml: emailParagraph(t.greeting(order.customer_name)) + emailParagraph(t.body(taille)) +
+            // Editorial <strong> is trusted; escape only the interpolated price.
+            `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:20px 0"><tr><td bgcolor="#F3F0FA" style="padding:18px 20px;border-left:4px solid #E9BA3B;border-radius:8px"><p style="margin:0 0 18px;font-size:16px;line-height:26px;color:#5A5578">${t.price(escapeEmailHtml(formatPrix(prix, devise, lang)))}</p></td></tr></table>` + emailParagraph(t.reply) +
+            emailButton(t.cta, lienProduit),
+          footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team) +
+            `<p><a href="${escapeEmailHtml(unsubscribeUrl)}">${escapeEmailHtml(t.unsubscribe)}</a></p>`,
+        }),
       });
       /* L'envoi compte autant que le clic : sans denominateur,
          un taux d'ouverture n'est pas un taux. */
@@ -681,18 +645,13 @@ async function relancerPhotosManquantes(): Promise<{ sent: number; alertes: numb
         to: [order.customer_email],
         replyTo: SUPPORT_EMAIL,
         subject: t.emailRappel,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-            <div style="background: white; border: 3px solid #000; padding: 30px;">
-              <h1 style="font-size: 26px; font-weight: 900; text-align: center; color: #000; margin: 0 0 16px;">${t.emailRappel}</h1>
-              <p style="font-size: 16px; color: #000; text-align: center;">${t.description(order.id.slice(0, 8))}</p>
-              <div style="text-align: center; margin: 26px 0 6px;">
-                <a href="${lienEmail(`${SITE_URL}/depot/${orderTrackingToken(order.id)}`, "rappel_photos")}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">${t.submit}</a>
-              </div>
-              <p style="font-size: 13px; color: #555; text-align: center;">${t.hint}</p>
-            </div>
-          </div>
-        `,
+        html: emailLayout({
+          lang,
+          title: t.emailRappel,
+          bodyHtml: emailParagraph(t.description(order.id.slice(0, 8))) +
+            emailButton(t.submit, lienEmail(`${SITE_URL}/depot/${orderTrackingToken(order.id)}`, "rappel_photos")) +
+            emailNotice(t.hint),
+        }),
       });
       /* L'envoi compte autant que le clic : sans denominateur,
          un taux d'ouverture n'est pas un taux. */

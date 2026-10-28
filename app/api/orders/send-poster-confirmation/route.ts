@@ -1,3 +1,4 @@
+import { emailLayout, emailParagraph, emailButton, emailNotice, emailImage, escapeEmailHtml } from "@/lib/emailTemplate";
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { getOrderById, setPosterConfirmationToken, recordPosterConfirmationMessage, setOrderLastOutboundMessageId } from "@/lib/db";
@@ -47,45 +48,20 @@ export async function POST(req: NextRequest) {
           contentType: image.contentType,
         },
       ],
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
-            <h1 style="font-size: 32px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
-              ${t.title}
-            </h1>
-            <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #000;">
-              ${t.greeting(commande.customer_name)}
-            </p>
-            <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #555;">
-              ${t.intro(ref)}
-            </p>
-            <div style="text-align: center; margin: 20px 0;">
-              <img src="${finalImageUrl}" alt="Cartoonova poster" style="max-width: 100%; border: 3px solid #000; border-radius: 12px; box-shadow: 6px 6px 0px rgba(0,0,0,1);" />
-            </div>
-            <p style="font-size: 13px; text-align: center; color: #555; margin: 0 0 20px 0;">
-              ${t.attachmentNote}
-            </p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${confirmUrl}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
-                ${t.cta}
-              </a>
-            </div>
-            <!-- Avant la phrase qui parle d'impression : un client qui veut une
-                 retouche doit l'apprendre AVANT de lire « nous lançons
-                 l'impression », sinon il croit que le seul chemin est oui. -->
-            <p style="font-size: 14px; text-align: center; color: #333; margin: 0 0 14px 0; padding: 12px; background: #fef3c7; border: 2px solid #000; border-radius: 10px;">
-              ${t.modification}
-            </p>
-            <p style="font-size: 14px; text-align: center; color: #555; margin-top: 0;">
-              ${t.reassurance}
-            </p>
-          </div>
-          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
-            <p>${t.thanks}</p>
-            <p>${t.team}</p>
-          </div>
-        </div>
-      `,
+      html: emailLayout({
+        lang,
+        title: t.title,
+        bodyHtml: emailParagraph(t.greeting(commande.customer_name))
+          // Only the translation contains markup; never the interpolated reference.
+          + `<p style="margin:0 0 16px;line-height:1.6;">${t.intro(escapeEmailHtml(ref))}</p>`
+          + emailImage(finalImageUrl, "Cartoonova poster")
+          + emailParagraph(t.attachmentNote)
+          + emailButton(t.cta, confirmUrl)
+          // Keep the revision invitation before the printing reassurance.
+          + emailNotice(t.modification)
+          + emailParagraph(t.reassurance),
+        footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+      }),
     });
 
     if (result.error) throw new Error("Envoi du portrait refusé.");

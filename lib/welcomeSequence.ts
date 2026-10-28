@@ -7,6 +7,7 @@ import { MESURES } from "./evenementsMesure";
 import { lienEmail } from "./utmEmail";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
+import { emailLayout, emailParagraph, emailButton, escapeEmailHtml } from "@/lib/emailTemplate";
 
 /* La liste etait recopiee ici, figee a cinq langues, alors que `email-i18n`
    en sert dix et que le site en propose autant : un inscrit neerlandais,
@@ -39,7 +40,8 @@ export async function sendWelcomeStep(
     `&t=${signEmail(subscriber.email)}&lang=${lang}`;
 
   const paragraphs = content.paragraphs
-    .map((p) => `<p style="font-size:16px;margin:0 0 16px;color:#333;">${p}</p>`)
+    // Trusted static translations contain HTML entities (Rick &amp; Morty).
+    .map((p) => `<p style="font-size:16px;line-height:1.65;margin:0 0 16px;">${p}</p>`)
     .join("");
 
   await envoyerEmail({
@@ -51,23 +53,13 @@ export async function sendWelcomeStep(
       "List-Unsubscribe": `<${unsubscribeUrl}>`,
       "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
     },
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-        <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
-          <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 24px; color: #000;">${content.title}</h1>
-          ${paragraphs}
-          <div style="text-align: center; margin: 28px 0 8px;">
-            <a href="${lienEmail(`${SITE_URL}/${lang}${content.ctaPath}`, "bienvenue")}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
-              ${content.cta}
-            </a>
-          </div>
-        </div>
-        <div style="text-align: center; font-size: 12px; color: #444;">
-          <p style="font-weight: bold; color: #000;">${content.team}</p>
-          <p style="margin-top: 12px;"><a href="${unsubscribeUrl}" style="color: #444;">${content.unsubscribe}</a></p>
-        </div>
-      </div>
-    `,
+    html: emailLayout({
+      lang,
+      title: content.title,
+      bodyHtml: paragraphs + emailButton(content.cta, lienEmail(`${SITE_URL}/${lang}${content.ctaPath}`, "bienvenue")),
+      footerHtml: emailParagraph(content.team) +
+        `<p><a href="${escapeEmailHtml(unsubscribeUrl)}">${escapeEmailHtml(content.unsubscribe)}</a></p>`,
+    }),
   });
   /* L'envoi compte autant que le clic : sans denominateur,
      un taux d'ouverture n'est pas un taux. */

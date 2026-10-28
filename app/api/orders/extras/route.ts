@@ -1,3 +1,4 @@
+import { emailLayout, emailParagraph, emailButton, emailNotice } from "@/lib/emailTemplate";
 import { NextRequest, NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { getOrderById, type OrderOptions } from "@/lib/db";
@@ -90,14 +91,7 @@ export async function POST(req: NextRequest) {
     }
 
     const boutons = fichiers
-      .map(
-        (f) => `
-          <p style="margin: 14px 0;">
-            <a href="${f.url}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 28px; border-radius: 12px; text-decoration: none; font-size: 14px;">
-              ${f.libelle}
-            </a>
-          </p>`
-      )
+      .map((f) => emailButton(f.libelle, f.url))
       .join("");
 
     await context.send(idempotencyKey => envoyerEmail({
@@ -105,19 +99,14 @@ export async function POST(req: NextRequest) {
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
       subject: oc.extrasSujet,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1); text-align: center;">
-            <h1 style="font-size: 28px; font-weight: 900; margin: 0 0 16px 0; color: #000; text-transform: uppercase;">
-              ${oc.extrasTitre}
-            </h1>
-            <p style="font-size: 16px; margin: 0 0 20px 0; color: #000;">${oc.extrasIntro}</p>
-            ${boutons}
-            <p style="font-size: 13px; margin: 24px 0 0 0; color: #555;">${oc.extrasConseil}</p>
-            <p style="font-size: 12px; margin: 16px 0 0 0; color: #888;">#${ref}</p>
-          </div>
-        </div>
-      `,
+      html: emailLayout({
+        lang,
+        title: oc.extrasTitre,
+        bodyHtml: emailParagraph(oc.extrasIntro)
+          + boutons
+          + emailNotice(oc.extrasConseil)
+          + emailParagraph(`#${ref}`),
+      }),
     }, { idempotencyKey }));
     });
 

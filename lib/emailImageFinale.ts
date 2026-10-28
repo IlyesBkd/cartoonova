@@ -8,9 +8,10 @@ import { MESURES } from "./evenementsMesure";
 import { infosParrainage } from "./parrainage";
 import { parrainageTextes } from "./i18n/relances";
 import { envoyerEmail } from "@/lib/envoiEmail";
-import { optionsLivraisonCadeau, echapperMessageCadeau, validerLivraisonCadeau } from "./livraisonCadeau";
+import { optionsLivraisonCadeau, validerLivraisonCadeau } from "./livraisonCadeau";
 import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "./finalImage";
 import { executeDelivery, deliveryContentHash, OrderDeliveryError } from "./orderDelivery";
+import { emailLayout, emailParagraph, emailButton, emailNotice, emailImage, escapeEmailHtml } from "./emailTemplate";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -96,65 +97,27 @@ export async function envoyerImageFinale(
     to: [destinataire],
     replyTo: SUPPORT_EMAIL,
     subject: t.subject,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-        <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
-          <h1 style="font-size: 32px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
-            ${t.title}
-          </h1>
-          <p style="font-size: 16px; text-align: center; margin: 0 0 30px 0; color: #000;">
-            ${t.greeting(tiers ? null : order.customer_name)}
-          </p>
-          <p style="font-size: 16px; text-align: center; margin: 0 0 20px 0; color: #555;">
-            ${t.ready(ref)}
-          </p>
-          ${gift?.message ? `<p style="white-space: pre-wrap; text-align: center;">${echapperMessageCadeau(gift.message)}</p>` : ""}
-          <div style="text-align: center; margin: 20px 0;">
-            <img src="${order.final_image_url}" alt="Cartoonova" style="max-width: 100%; border: 3px solid #000; border-radius: 12px; box-shadow: 6px 6px 0px rgba(0,0,0,1);" />
-          </div>
-          <p style="font-size: 20px; font-weight: 900; text-align: center; margin: 24px 0 0 0; color: #000;">
-            ${t.question}
-          </p>
-          <div style="text-align: center; margin: 24px 0 30px 0;">
-            <a href="${order.final_image_url}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
-              ${t.download}
-            </a>
-            ${!tiers ? `<div style="margin-top: 14px;">
-              <a href="${lienBonus}" target="_blank" style="display: inline-block; background: #fff; color: #000; font-weight: 900; padding: 12px 26px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px;">
-                🎁 ${bonusLiens[lang].email}
-              </a>
-            </div>
-            <p style="font-size: 14px; margin: 14px 0 0; color: #333;">
-              ${avisLiens[lang].texte}
-              <a href="${SITE_URL}/${lang}/avis/nouveau?c=${token}" target="_blank" style="color: #000; font-weight: bold;">${avisLiens[lang].bouton} →</a>
-            </p>` : ""}
-          </div>
-          <!-- L'invitation a la retouche etait en gris, 14px, sous le bouton :
-               la place qu'on donne aux mentions legales. Elle porte pourtant la
-               promesse vendue sur toutes les fiches. Elle a desormais son
-               encadre, dans le jaune de la marque. -->
-          <div style="background: #fef3c7; border: 3px solid #000; border-radius: 12px; padding: 18px 20px; margin-top: 10px;">
-            <p style="font-size: 15px; line-height: 1.55; text-align: center; color: #000; margin: 0;">
-              ${t.feedback}
-            </p>
-          </div>
-          ${
-            parrainage
-              ? `<div style="border: 3px dashed #000; border-radius: 12px; padding: 18px 20px; margin-top: 18px; text-align: center;">
-            <p style="font-size: 18px; font-weight: 900; color: #000; margin: 0 0 8px;">${tp.titre}</p>
-            <p style="font-size: 15px; line-height: 1.5; color: #333; margin: 0 0 12px;">${tp.offre(parrainage.recompense)}</p>
-            <p style="margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: #555;">${tp.code}</p>
-            <p style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: .06em; color: #000;">${parrainage.code}</p>
-          </div>`
-              : ""
-          }
-        </div>
-        <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
-          <p>${t.thanks}</p>
-          <p>${t.team}</p>
-        </div>
-      </div>
-    `,
+    html: emailLayout({
+      lang,
+      title: t.title,
+      bodyHtml: `
+        ${emailParagraph(t.greeting(tiers ? null : order.customer_name))}
+        <p style="font-size:16px;line-height:1.7;color:#3f3f46;margin:0 0 18px;">${t.ready(escapeEmailHtml(ref))}</p>
+        ${gift?.message ? emailParagraph(gift.message) : ""}
+        ${emailImage(order.final_image_url, "Cartoonova")}
+        ${emailParagraph(t.question)}
+        ${emailButton(t.download, order.final_image_url)}
+        ${!tiers ? emailButton(`🎁 ${bonusLiens[lang].email}`, lienBonus)
+          + emailParagraph(avisLiens[lang].texte)
+          + emailButton(`${avisLiens[lang].bouton} →`, `${SITE_URL}/${lang}/avis/nouveau?c=${token}`) : ""}
+        ${emailNotice(t.feedback)}
+        ${parrainage ? emailNotice(tp.titre)
+          + emailParagraph(tp.offre(parrainage.recompense))
+          + emailParagraph(tp.code)
+          + emailNotice(parrainage.code) : ""}
+      `,
+      footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+    }),
   }, { idempotencyKey }));
   }).catch(error => {
     if (error instanceof OrderDeliveryError) throw new FinalImageError(error.message, error.status);

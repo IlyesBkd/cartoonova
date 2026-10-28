@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { createRequire, Module } from 'node:module';
 import path from 'node:path';
 import ts from 'typescript';
@@ -14,7 +14,14 @@ function load(file,cache=new Map()) {
   '@/lib/expediteur':{EXPEDITEUR:'support@example.invalid',SUPPORT_EMAIL:'support@example.invalid'},
   '@/lib/envoiEmail':{envoyerEmail:async mail=>{sent.push(mail);return {data:{id:'synthetic'}};}},
  };
- m.require=name=>name in deps?deps[name]:name.startsWith('@/')?load(name.slice(2)+'.ts',cache):original(name);
+ m.require=name=>{
+  if(name in deps)return deps[name];
+  if(name.startsWith('@/')||name.startsWith('.')){
+   const base=name.startsWith('@/')?path.resolve(root,name.slice(2)):path.resolve(path.dirname(file),name);
+   if(existsSync(base+'.ts'))return load(base+'.ts',cache);
+  }
+  return original(name);
+ };
  m._compile(ts.transpileModule(readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,file);return m.exports;
 }
 const post=load('app/api/support/reply/route.ts').POST;

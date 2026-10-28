@@ -1,3 +1,4 @@
+import { emailLayout, emailParagraph, emailButton, emailNotice, escapeEmailHtml } from "@/lib/emailTemplate";
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { shippingEmail, langueCommande } from "@/lib/email-i18n";
@@ -85,16 +86,6 @@ function lienDepuisNumero(valeur: string | null): string | null {
   return `https://t.17track.net/fr#nums=${numero.toUpperCase()}`;
 }
 
-
-/** Neutralise ce que l'admin a tape avant de le coller dans du HTML. */
-function echapper(texte: string): string {
-  return texte
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 /** Lit le corps commun aux deux verbes, une seule fois. */
 async function lireCorps(req: NextRequest) {
   const corps = (await req.json().catch(() => { throw new ShippingError("Corps JSON invalide.", 400); })) as CorpsExpedition;
@@ -164,43 +155,25 @@ export async function POST(req: NextRequest) {
     const lang = langueCommande(order);
     const t = shippingEmail[lang];
     const ref = order.id.slice(0, 8);
-    const lienHtml = echapper(order.suivi_url!);
 
     return envoyerEmail({
       from: EXPEDITEUR,
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
       subject: t.subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px;">
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000; text-transform: uppercase;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.intro(ref)}</p>
-            <p style="font-size: 16px; margin: 0 0 8px; color: #333;">${t.trackingIntro}</p>
-            ${
-              order.suivi_transporteur
-                ? `<p style="font-size: 14px; margin: 0 0 16px; color: #555;">${t.carrierLabel} <strong>${echapper(order.suivi_transporteur)}</strong></p>`
-                : ""
-            }
-            <div style="text-align: center; margin: 24px 0;">
-              <a href="${lienHtml}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">${t.cta}</a>
-            </div>
-            <!-- Le lien en clair sous le bouton : certains clients de messagerie
-                 n'affichent pas les boutons, et un lien de suivi qu'on ne peut
-                 pas copier ne sert a rien. -->
-            <p style="font-size: 12px; text-align: center; margin: 0 0 20px; color: #777; word-break: break-all;">
-              <a href="${lienHtml}" target="_blank" style="color: #777;">${lienHtml}</a>
-            </p>
-            <p style="font-size: 14px; margin: 0 0 12px; color: #555;">${t.delay}</p>
-            <p style="font-size: 14px; margin: 0; color: #555;">${t.help}</p>
-          </div>
-          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold; margin-top: 16px;">
-            <p>${t.thanks}</p>
-            <p>${t.team}</p>
-          </div>
-        </div>
-      `,
+      html: emailLayout({
+        lang,
+        title: t.title,
+        bodyHtml: emailParagraph(t.greeting(order.customer_name))
+          // The translation owns the static strong tag; the order reference is escaped.
+          + `<p style="margin:0 0 16px;line-height:1.6;">${t.intro(escapeEmailHtml(ref))}</p>`
+          + emailParagraph(t.trackingIntro)
+          + (order.suivi_transporteur ? emailParagraph(`${t.carrierLabel} ${order.suivi_transporteur}`) : "")
+          + emailButton(t.cta, order.suivi_url!)
+          + emailNotice(t.delay)
+          + emailParagraph(t.help),
+        footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+      }),
     });
 
     });

@@ -1,3 +1,4 @@
+import { emailLayout, emailParagraph, emailButton, emailNotice } from "@/lib/emailTemplate";
 import { ClientActionError } from "@/lib/clientActionError";
 import { MAX_RETOUCHE_NOTE, validRetoucheNote } from "@/lib/retouchePolicy";
 import { canRespondToPreview } from "@/lib/clientOrderPolicy";
@@ -14,14 +15,6 @@ import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
 
-function echapper(texte: string): string {
-  return texte
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 /**
  * Accuse de reception d'une demande de retouche.
  *
@@ -35,17 +28,14 @@ function echapper(texte: string): string {
 async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promise<void> {
   try {
     if (!order.customer_email) return;
-    const t = accuseRetoucheEmail[langueCommande(order)];
+    const lang = langueCommande(order);
+    const t = accuseRetoucheEmail[lang];
     const ref = order.id.slice(0, 8);
-    const nom = order.customer_name ? echapper(order.customer_name) : null;
+
     /* La demande recopiee : le client voit ce qui a ete compris, et peut
        repondre a cet e-mail pour la completer sans tout reecrire. */
     const blocNote = note?.trim()
-      ? `
-          <div style="background: #fef3c7; border: 3px solid #000; border-radius: 12px; padding: 16px 20px; margin: 0 0 20px 0;">
-            <p style="font-size: 14px; font-weight: 900; margin: 0 0 8px 0; color: #000;">${t.yourRequest}</p>
-            <p style="font-size: 15px; line-height: 1.5; margin: 0; color: #000; white-space: pre-wrap;">${echapper(note)}</p>
-          </div>`
+      ? emailParagraph(t.yourRequest) + emailParagraph(note)
       : "";
 
     const result = await envoyerEmail({
@@ -53,25 +43,17 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
       subject: t.subject(ref),
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
-            <h1 style="font-size: 28px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
-              ${t.title}
-            </h1>
-            <p style="font-size: 16px; margin: 0 0 16px 0; color: #000;">${t.greeting(nom)}</p>
-            <p style="font-size: 16px; line-height: 1.55; margin: 0 0 12px 0; color: #000;">${t.body}</p>
-            <p style="font-size: 16px; line-height: 1.55; margin: 0 0 20px 0; color: #000; font-weight: bold;">${t.delay}</p>
-            ${blocNote}
-            ${(order.poster_confirmation_photos ?? []).map((url, i) => `<p><a href="${echapper(url)}">Photo ${i + 1}</a></p>`).join("")}
-            <p style="font-size: 14px; line-height: 1.55; margin: 0; color: #555;">${t.reply}</p>
-          </div>
-          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
-            <p>${t.thanks}</p>
-            <p>${t.team}</p>
-          </div>
-        </div>
-      `,
+      html: emailLayout({
+        lang,
+        title: t.title,
+        bodyHtml: emailParagraph(t.greeting(order.customer_name || null))
+          + emailParagraph(t.body)
+          + emailNotice(t.delay)
+          + blocNote
+          + (order.poster_confirmation_photos ?? []).map((url, i) => emailButton(`Photo ${i + 1}`, url)).join("")
+          + emailParagraph(t.reply),
+        footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+      }),
     });
 
     if (result.error) {

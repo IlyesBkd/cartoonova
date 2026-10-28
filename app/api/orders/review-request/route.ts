@@ -1,3 +1,4 @@
+import { emailLayout, emailParagraph, emailButton, emailNotice } from "@/lib/emailTemplate";
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import { getOrderById, markReviewRequestSent } from "@/lib/db";
@@ -66,24 +67,16 @@ export async function POST(req: NextRequest) {
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
       subject: t.subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px;">
-            <h1 style="font-size: 26px; font-weight: 900; text-align: center; margin: 0 0 20px; color: #000;">${t.title}</h1>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #000;">${t.greeting(order.customer_name)}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.body}</p>
-            <p style="font-size: 16px; margin: 0 0 16px; color: #333;">${t.ask}</p>
-            <p style="font-size: 16px; margin: 0 0 24px; color: #000; font-weight: bold;">${t.reward(recompenseAvisFormatee(order.currency, lang))}</p>
-            <div style="text-align: center;">
-              <a href="${lien}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">${t.cta}</a>
-            </div>
-          </div>
-          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold; margin-top: 16px;">
-            <p>${t.thanks}</p>
-            <p>${t.team}</p>
-          </div>
-        </div>
-      `,
+      html: emailLayout({
+        lang,
+        title: t.title,
+        bodyHtml: emailParagraph(t.greeting(order.customer_name))
+          + emailParagraph(t.body)
+          + emailParagraph(t.ask)
+          + emailNotice(t.reward(recompenseAvisFormatee(order.currency, lang)))
+          + emailButton(t.cta, lien),
+        footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+      }),
     });
 
     /* Marque la commande pour que le cron ne repasse pas derriere : sans ca,

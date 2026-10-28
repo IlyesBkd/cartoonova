@@ -16,6 +16,7 @@ import { recompenserParrain } from "./parrainage";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
 import { envoyerConversionChatgpt } from "@/lib/conversionsChatgpt";
 import { OCCASION_FR, estOccasion } from "@/lib/occasions";
+import { emailLayout, emailParagraph, emailButton, emailNotice, escapeEmailHtml } from "./emailTemplate";
 
 /**
  * Tout ce qui doit arriver une fois, et une seule, quand une commande est
@@ -48,62 +49,34 @@ function confirmationPayload(order: DbOrder): EmailPayload {
       to: [order.customer_email],
       replyTo: SUPPORT_EMAIL,
       subject: t.subject,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0; box-shadow: 8px 8px 0px rgba(0,0,0,1);">
-            <h1 style="font-size: 32px; font-weight: 900; text-align: center; margin: 0 0 20px 0; color: #000; text-transform: uppercase;">
-              ${t.title}
-            </h1>
-            <p style="font-size: 18px; font-weight: bold; text-align: center; margin: 0 0 30px 0; color: #000;">
-              ${t.orderConfirmed(ref)}
-            </p>
-            <div style="background: #fef3c7; border: 2px solid #000; padding: 20px; margin: 20px 0;">
-              <h2 style="font-size: 20px; font-weight: 900; margin: 0 0 15px 0; color: #000;">${t.summary}</h2>
-              <ul style="font-size: 16px; font-weight: bold; margin: 0; padding: 0 0 0 20px; color: #000;">
-                <li>${t.format}: ${opts.format === "portrait" ? "Portrait" : "Full Body"}</li>
-                <li>${t.people}: ${opts.people}</li>
-                ${opts.animals > 0 ? `<li>${t.animals}: ${opts.animals}</li>` : ""}
-                <li>${t.option}: ${opts.printOption}</li>
-                ${opts.banner ? `<li>${oc.banner}</li>` : ""}
-                ${opts.extraDecor ? `<li>${oc.extraDecor}</li>` : ""}
-                ${opts.express ? `<li>⚡ ${oc.express}</li>` : ""}
-                ${opts.carteVoeux ? `<li>${oc.carteVoeux}</li>` : ""}
-                ${opts.calendrier ? `<li>${oc.calendrier}</li>` : ""}
-                ${opts.shippingAmount ? `<li>${oc.shipping}: ${formatPrix(Number(opts.shippingAmount), order.currency, lang)}</li>` : ""}
-                <li>${t.total}: ${formatPrix(Number(order.total_price), order.currency, lang)}</li>
-              </ul>
-            </div>
-            <div style="text-align: center; margin: 30px 0;">
-              <p style="font-size: 18px; font-weight: bold; color: #000;">${t.artistsWorking}</p>
-              <p style="font-size: 16px; color: #000;">${opts.express ? oc.deliveryExpress : t.deliveryTime}</p>
-            </div>
-            ${
-              attendDesPhotos(order.photo_urls)
-                ? /* Sans photo, l'illustrateur ne peut rien commencer : le
-                     depot passe donc devant le suivi, et sur fond rouge.
-                     C'est la seule action que cet e-mail doit provoquer. */
-                  `<div style="background: #FEE2E2; border: 3px solid #000; padding: 18px; margin: 24px 0; text-align: center;">
-                <p style="font-size: 16px; font-weight: 900; color: #000; margin: 0 0 12px;">${td.emailRappel}</p>
-                <a href="${lienEmail(`${SITE_URL}/depot/${orderTrackingToken(order.id)}`, "depot_photos")}" style="display: inline-block; background: #000; color: #fff; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-size: 14px;">
-                  ${td.submit}
-                </a>
-              </div>`
-                : ""
-            }
-            <!-- Lien de suivi : sans lui, le client n'a aucun moyen de verifier
-                 l'avancement et chaque question part au support. -->
-            <div style="text-align: center; margin: 28px 0 8px;">
-              <a href="${lienEmail(`${SITE_URL}/suivi/${orderTrackingToken(order.id)}`, "suivi")}" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; text-transform: uppercase; padding: 14px 32px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
-                ${t.trackOrder}
-              </a>
-            </div>
-          </div>
-          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;">
-            <p>${t.thanks}</p>
-            <p>${t.team}</p>
-          </div>
-        </div>
-      `,
+      html: emailLayout({
+        lang,
+        title: t.title,
+        bodyHtml: `
+          ${emailParagraph(t.orderConfirmed(ref))}
+          <h2 style="font-size:20px;line-height:1.4;color:#18181b;">${escapeEmailHtml(t.summary)}</h2>
+          <ul style="font-size:16px;line-height:1.7;color:#3f3f46;padding-left:22px;">
+            <li>${escapeEmailHtml(t.format)}: ${opts.format === "portrait" ? "Portrait" : "Full Body"}</li>
+            <li>${escapeEmailHtml(t.people)}: ${escapeEmailHtml(String(opts.people))}</li>
+            ${opts.animals > 0 ? `<li>${escapeEmailHtml(t.animals)}: ${escapeEmailHtml(String(opts.animals))}</li>` : ""}
+            <li>${escapeEmailHtml(t.option)}: ${escapeEmailHtml(opts.printOption)}</li>
+            ${opts.banner ? `<li>${escapeEmailHtml(oc.banner)}</li>` : ""}
+            ${opts.extraDecor ? `<li>${escapeEmailHtml(oc.extraDecor)}</li>` : ""}
+            ${opts.express ? `<li>⚡ ${escapeEmailHtml(oc.express)}</li>` : ""}
+            ${opts.carteVoeux ? `<li>${escapeEmailHtml(oc.carteVoeux)}</li>` : ""}
+            ${opts.calendrier ? `<li>${escapeEmailHtml(oc.calendrier)}</li>` : ""}
+            ${opts.shippingAmount ? `<li>${escapeEmailHtml(oc.shipping)}: ${escapeEmailHtml(formatPrix(Number(opts.shippingAmount), order.currency, lang))}</li>` : ""}
+            <li>${escapeEmailHtml(t.total)}: ${escapeEmailHtml(formatPrix(Number(order.total_price), order.currency, lang))}</li>
+          </ul>
+          ${emailParagraph(t.artistsWorking)}
+          ${emailParagraph(opts.express ? oc.deliveryExpress : t.deliveryTime)}
+          ${attendDesPhotos(order.photo_urls)
+            ? emailNotice(td.emailRappel) + emailButton(td.submit, lienEmail(`${SITE_URL}/depot/${orderTrackingToken(order.id)}`, "depot_photos"))
+            : ""}
+          ${emailButton(t.trackOrder, lienEmail(`${SITE_URL}/suivi/${orderTrackingToken(order.id)}`, "suivi"))}
+        `,
+        footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
+      }),
     };
 }
 

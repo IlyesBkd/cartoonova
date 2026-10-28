@@ -14,6 +14,7 @@ import { mesureServeur } from "./analyticsServeur";
 import { MESURES } from "./evenementsMesure";
 import { toEUR } from "./currency";
 import { drainerEmails, type EmailPayload } from "./emailOutbox";
+import { emailLayout, emailParagraph, emailButton, emailNotice, escapeEmailHtml } from "./emailTemplate";
 
 /**
  * Le bon cadeau.
@@ -263,23 +264,18 @@ function bonPayload(email: string, bon: BonCadeau, offert?: TextesBonOffert): Em
       to: [email],
       replyTo: SUPPORT_EMAIL,
       subject: offert?.sujet ?? t.emailSujet,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #fef3c7; padding: 20px; border: 4px solid #000;">
-          <div style="background: white; border: 3px solid #000; padding: 30px; margin: 20px 0;">
-            <h1 style="font-size: 28px; font-weight: 900; text-align: center; margin: 0 0 16px; color: #000;">${offert?.titre ?? t.emailTitre}</h1>
-            <p style="font-size: 16px; text-align: center; color: #333;">${offert?.intro ?? t.emailIntro(valeur)}</p>
-            <div style="margin: 24px auto; padding: 18px; border: 3px dashed #000; border-radius: 12px; text-align: center; background: #fef3c7;">
-              <p style="margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #555;">${t.code}</p>
-              <p style="margin: 0; font-size: 26px; font-weight: 900; letter-spacing: .06em; color: #000;">${bon.code}</p>
-            </div>
-            <p style="font-size: 15px; text-align: center; color: #333;">${t.modeEmploi}</p>
-            <div style="text-align: center; margin: 24px 0;">
-              <a href="${lienImpression(bon.code)}" target="_blank" style="display: inline-block; background: #facc15; color: #000; font-weight: 900; padding: 14px 30px; border: 3px solid #000; border-radius: 12px; text-decoration: none; font-size: 14px;">${t.imprimer}</a>
-            </div>
-            <p style="font-size: 13px; text-align: center; color: #777;">${t.validite(formatDate(bon.expireLe, bon.lang))}</p>
-          </div>
-          <div style="text-align: center; font-size: 14px; color: #000; font-weight: bold;"><p>${t.equipe}</p></div>
-        </div>
-      `,
+      html: emailLayout({
+        lang: bon.lang,
+        title: offert?.titre ?? t.emailTitre,
+        bodyHtml: `
+          ${offert ? emailParagraph(offert.intro) : `<p style="font-size:16px;line-height:1.7;color:#3f3f46;margin:0 0 18px;">${t.emailIntro(escapeEmailHtml(valeur))}</p>`}
+          ${emailParagraph(t.code)}
+          ${emailNotice(bon.code)}
+          ${emailParagraph(t.modeEmploi)}
+          ${emailButton(t.imprimer, lienImpression(bon.code))}
+          ${emailParagraph(t.validite(formatDate(bon.expireLe, bon.lang)))}
+        `,
+        footerHtml: emailParagraph(t.equipe),
+      }),
     };
 }

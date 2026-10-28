@@ -5,6 +5,8 @@ import path from 'node:path';
 import vm from 'node:vm';
 import ts from 'typescript';
 import * as privacy from '../lib/confidentialiteMesure.ts';
+import * as emailTemplate from '../lib/emailTemplate.ts';
+import { langueCommande } from '../lib/email-i18n.ts';
 
 const privateValues = ['customer.privacy@synthetic.invalid', 'CAPABILITY_private_123', 'Private Customer Name', 'private free-form note'];
 const raw = privateValues.join(' ') + ' https://blob.invalid/private.jpg?token=CAPABILITY_private_123';
@@ -17,7 +19,7 @@ function routeModule(file, modules = {}, extraExports = '') {
   const sandboxModule = { exports: {} };
   const NextResponse = class extends Response { static json(body, options) { return Response.json(body, options); } };
   const context = {
-    module: sandboxModule, exports: sandboxModule.exports, require: id => id === 'next/server' ? { NextResponse } : id === '@/lib/confidentialiteMesure' ? privacy : modules[id] ?? {},
+    module: sandboxModule, exports: sandboxModule.exports, require: id => id === 'next/server' ? { NextResponse } : id === '@/lib/confidentialiteMesure' ? privacy : id === '@/lib/emailTemplate' ? emailTemplate : id === '@/lib/email-i18n' ? { langueCommande } : modules[id] ?? {},
     Response, Request, URL, Date, Error, TypeError, RangeError,
     process: { env: { DISCORD_WEBHOOK_URL: 'https://discord.invalid/webhook', CRON_SECRET: 'synthetic-cron' } },
     console: Object.fromEntries(['error', 'warn', 'log'].map(level => [level, (...args) => logs.push({ level, args })])),
