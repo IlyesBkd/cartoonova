@@ -29,6 +29,8 @@ before(async()=>{
  await db.unsafe(readFileSync(new URL('../migrations/20261025_upload_quotas.sql',import.meta.url),'utf8'));
  await db`CREATE TABLE orders(id uuid PRIMARY KEY, photo_urls jsonb DEFAULT '[]',customer_email text DEFAULT 'synthetic@example.invalid',customer_name text,created_at timestamptz DEFAULT now(),paid_at timestamptz DEFAULT now(),status text DEFAULT 'PAID',final_image_url text,final_image_sent_at timestamptz,expedie_le timestamptz,poster_confirmation_token text,poster_confirmation_sent_at timestamptz,poster_confirmation_status text,poster_confirmation_responded_at timestamptz,poster_confirmation_note text,poster_confirmation_photos jsonb, options jsonb DEFAULT '{}',last_outbound_message_id text,detected_country text)`;
  await db.unsafe(readFileSync(new URL('../migrations/20261025_order_notification_versions.sql',import.meta.url),'utf8'));
+ const migrationConnection=await db.reserve();
+ try{await migrationConnection.unsafe(readFileSync(new URL('../migrations/20261028_order_photo_timestamps.sql',import.meta.url),'utf8'));}finally{migrationConnection.release();}
  await db`CREATE TABLE retouches(id serial PRIMARY KEY,order_id uuid REFERENCES orders(id),note text,photos jsonb,demandee_le timestamptz DEFAULT now())`;
  await db`CREATE TABLE reviews(id serial PRIMARY KEY, order_id text UNIQUE,auteur text,locale text,note int,texte text,verifie boolean,statut text,modere_le timestamptz,cree_le timestamptz DEFAULT now())`;
  const client=new Proxy(db,{get:(target,key)=>key==='end'?async()=>{}:Reflect.get(target,key)});
@@ -132,7 +134,10 @@ test('FLOW07 concurrent default additions merge and exact retries emit no duplic
  const urls=await Promise.all([reserved(),reserved()]);
  const responses=await Promise.all(urls.map(url=>photosRoute.POST(request({token:signed,photoUrls:[url,url]}))));assert.deepEqual(responses.map(r=>r.status),[200,200]);
  const final=(await db`SELECT photo_urls FROM orders WHERE id=${id}`)[0].photo_urls;assert.deepEqual([...final].sort(),[...urls].sort());
+ const [timestamps]=await db`SELECT photos_received_at::text,photos_updated_at::text,paid_at::text FROM orders WHERE id=${id}`;
+ assert.ok(timestamps.photos_received_at);assert.ok(timestamps.photos_updated_at);
  const before=effects;assert.equal((await photosRoute.POST(request({token:signed,photoUrls:urls}))).status,200);assert.equal(effects,before);
+ assert.deepEqual((await db`SELECT photos_received_at::text,photos_updated_at::text,paid_at::text FROM orders WHERE id=${id}`)[0],timestamps);
 });
 test('FLOW07 concurrent additions cannot exceed eight; foreign ownership cannot be attached',async()=>{
  await attach(Array.from({length:7},(_,i)=>photo(i)));

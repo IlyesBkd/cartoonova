@@ -236,6 +236,10 @@ export interface DbOrder {
   currency: string;
   options: OrderOptions;
   photo_urls: string[];
+  /** Premier dépôt non vide observé côté PostgreSQL. Null = historique inconnu. */
+  photos_received_at?: string | null;
+  /** Dernière modification réelle des références photos, retrait compris. */
+  photos_updated_at?: string | null;
   status: string;
   created_at: string;
   /** Date de paiement, posee par `marquerPayee`. Null = jamais payee. C'est

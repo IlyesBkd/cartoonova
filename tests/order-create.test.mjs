@@ -78,6 +78,8 @@ before(async () => {
     detected_country text, promo_code text, discount_amount numeric, origine jsonb, langue text,
     paid_at timestamptz
   )`;
+  const migrationConnection=await db.reserve();
+  try{await migrationConnection.unsafe(readFileSync(path.join(root,'migrations/20261028_order_photo_timestamps.sql'),'utf8'));}finally{migrationConnection.release();}
   const replacements = {
     stripe: class { paymentIntents = {
       retrieve: async id => intents.get(id) ?? intent(),
@@ -350,6 +352,8 @@ test('CODE11 owned photos survive expiry, duplicate input, payment retries and c
  assert.equal(new Set(ids).size,1);
  const rows=await db`SELECT * FROM orders WHERE payment_intent_id=${paymentIntentId}`;
  assert.equal(rows.length,1);assert.deepEqual(rows[0].photo_urls,[a.url]);
+ assert.ok(rows[0].photos_received_at instanceof Date);assert.equal(+rows[0].photos_received_at,+rows[0].photos_updated_at);
+ assert.equal(rows[0].paid_at,null,'photo clock does not mark payment');
  assert.equal(effects.analytics-before.analytics,1);
  assert.equal((await POST(photoRequest(body,a.cookie))).status,200);
  assert.deepEqual((await db`SELECT * FROM orders WHERE payment_intent_id=${paymentIntentId}`)[0],rows[0]);
