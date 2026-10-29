@@ -1085,13 +1085,14 @@ export default function AdminPage() {
 
             <div className="flex gap-6">
               {/* Orders table */}
-              <div className="flex-1 bg-white border border-gray-200 rounded-xl overflow-hidden">
+              <div className="min-w-0 flex-1 bg-white border border-gray-200 rounded-xl overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">ID</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">Date</th>
-                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Client</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Nom et prénom</th>
+                      <th className="text-left px-4 py-3 font-semibold text-gray-600">Email</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">Style</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-600">Produit</th>
                       <th className="text-right px-4 py-3 font-semibold text-gray-600">Total</th>
@@ -1101,7 +1102,7 @@ export default function AdminPage() {
                   <tbody>
                     {orders.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="px-4 py-12 text-center text-gray-400">{loadingOrders ? "Chargement des commandes…" : ordersError ? "Réessayez avec le bouton Actualiser." : "Aucune commande pour le moment."}</td>
+                        <td colSpan={8} className="px-4 py-12 text-center text-gray-400">{loadingOrders ? "Chargement des commandes…" : ordersError ? "Réessayez avec le bouton Actualiser." : "Aucune commande pour le moment."}</td>
                       </tr>
                     ) : (
                       orders.map((o) => (
@@ -1112,6 +1113,7 @@ export default function AdminPage() {
                         >
                           <td className="px-4 py-3 font-mono text-xs">{o.id.slice(0, 8)}</td>
                           <td className="px-4 py-3 text-gray-500">{new Date(o.created_at).toLocaleDateString("fr-FR")}</td>
+                          <td className="min-w-36 px-4 py-3 font-medium break-words">{o.customer_name?.trim() || "—"}</td>
                           {/* Ce qui attend une réaction, visible sans ouvrir la
                               commande : un client qui demande une modification
                               ou qui écrit sans réponse se voyait autrement
