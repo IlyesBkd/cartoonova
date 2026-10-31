@@ -2,7 +2,7 @@ import { lireChoixMesure, enregistrerChoixMesure, observerChoixMesure, recharger
 import { chargerPixelChatgpt } from "@/lib/pixelChatgpt";
 import type { PostHog, Properties, CaptureResult } from "posthog-js";
 import type { NomEvenement } from "@/lib/evenementsMesure";
-import { proprietesMesure } from "@/lib/confidentialiteMesure";
+import { proprietesMesure, urlMesure } from "@/lib/confidentialiteMesure";
 
 /**
  * Chargement differe de PostHog.
@@ -47,6 +47,18 @@ const MOTIF_ADRESSE_TEST = /@(resend\.dev|example\.(com|org|net))$/i;
 
 /** Identity fields must never be redacted into a shared person. */
 const CLES_IDENTITE = ["distinct_id", "$anon_distinct_id", "$device_id", "$user_id", "alias"];
+
+/** SDK URLs that page and source reports rely on: kept as origin + path, never `[url]`. */
+const URLS_SDK = ["$current_url", "$referrer", "$initial_current_url", "$initial_referrer"];
+
+/** Cleans one payload (properties, $set, $set_once) and restores its SDK URLs, path only. */
+function nettoyerCharge(charge: Properties): Properties {
+  const propre = proprietesMesure(charge);
+  for (const cle of URLS_SDK) {
+    if (typeof charge[cle] === "string") propre[cle] = urlMesure(charge[cle]);
+  }
+  return propre;
+}
 
 /** Cookie pose par `/api/admin/auth` sur le navigateur de l'admin. */
 export const COOKIE_INTERNE = "cn_interne";
@@ -95,7 +107,12 @@ export function filtrerAvantEnvoi(evenement: CaptureResult | null): CaptureResul
   // The SDK token is the PUBLIC project key, required for ingestion, not an
   // access token from a customer URL. Restore this one SDK-owned field only.
   const tokenProjet = evenement.properties.token;
-  evenement = proprietesMesure(evenement);
+  /* Only the payloads are cleaned. The envelope (uuid, event, timestamp) must
+     reach PostHog untouched: run through proprietesMesure, the timestamp Date
+     became {} and every browser event was rejected from 25/10/2026 to this fix. */
+  evenement.properties = nettoyerCharge(evenement.properties);
+  if (evenement.$set) evenement.$set = nettoyerCharge(evenement.$set);
+  if (evenement.$set_once) evenement.$set_once = nettoyerCharge(evenement.$set_once);
   if (tokenProjet === process.env.NEXT_PUBLIC_POSTHOG_KEY) evenement.properties.token = tokenProjet;
 
   return evenement;

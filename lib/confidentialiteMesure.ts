@@ -7,6 +7,16 @@ export function cheminMesure(chemin: string): string {
   return chemin.split(/[?#]/)[0].replace(ACCES, "/$1/[prive]").replace(EMAIL, "[email]");
 }
 
+/** SDK page or referrer URL: origin and path only; query, private segments and emails removed. */
+export function urlMesure(valeur: string): string {
+  try {
+    const url = new URL(valeur);
+    return url.origin + cheminMesure(decodeURIComponent(url.pathname));
+  } catch {
+    return texteMesure(valeur);
+  }
+}
+
 export function texteMesure(texte: string): string {
   let propre = texte;
   // Decode escaped URLs/emails too; a query must never survive encoding.
