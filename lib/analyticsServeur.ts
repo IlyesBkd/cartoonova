@@ -136,3 +136,16 @@ export async function personneServeur(
  * inventer une fausse personne.
  */
 export const IDENTIFIANT_SYSTEME = "systeme";
+
+/**
+ * Pseudonyme sous lequel le serveur mesure cette adresse (achat compris), a
+ * transmettre au navigateur pour qu'il rattache la session en cours a
+ * l'acheteur : le navigateur ne hache jamais d'email lui-meme. Null pour une
+ * adresse de test, ou sans secret configure (l'identifiant aleatoire de
+ * repli ne rattacherait rien).
+ */
+export function pseudonymeMesure(email: string): string | null {
+  if (estAdresseDeTest(email)) return null;
+  const id = identiteMesure(email);
+  return id.startsWith("person_") ? id : null;
+}

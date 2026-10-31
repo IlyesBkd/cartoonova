@@ -62,7 +62,7 @@ before(async()=>{
   '@/lib/db':{sql:db,runtimeSchemaBootstrapEnabled:false,getOrderByPaymentId:async id=>{effects.reads++;return (await db`SELECT * FROM orders WHERE payment_intent_id=${id}`)[0]??null;}},
   '@/lib/photoOwnership':{validateCheckoutPhotoOwnership:async()=>null},
   '@/lib/promoCodes':{consumePromoCode:async()=>{}},
-  '@/lib/analyticsServeur':{mesureServeur:async()=>{effects.created++;}},
+  '@/lib/analyticsServeur':{mesureServeur:async()=>{effects.created++;},pseudonymeMesure:()=>null},
   '@/lib/alerteServeur':{signalerPanne:async()=>{effects.alerts++;}},
   '@/lib/promoReservations':{releaseExpiredPromoReservations:async()=>{},reservePromoForCheckout:async()=>true},
   '@/lib/finaliserCommande':{finaliserCommande:async()=>{effects.finalized++;}},

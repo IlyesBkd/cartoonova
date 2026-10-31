@@ -8,6 +8,7 @@ import AttentePaiement from "@/app/(hors-langue)/success/AttentePaiement";
 import { orderTrackingToken } from "@/lib/emailToken";
 import { attendDesPhotos } from "@/lib/orderPhotos";
 import { finaliserCommande } from "@/lib/finaliserCommande";
+import { pseudonymeMesure } from "@/lib/analyticsServeur";
 import { bonCadeauTextes, getLangFromCountry, langueDemandee, successPage, langueCommande } from "@/lib/email-i18n";
 import { finaliserBonCadeau, formatMontant, lienImpression, type BonCadeau } from "@/lib/bonCadeau";
 
@@ -121,6 +122,9 @@ export default async function SuccessPage(props: {
       return (
         <SuccessClient
           order={issue.order}
+          /* Meme pseudonyme que l'achat mesure par le serveur : relie la
+             navigation qui a precede a la commande dans PostHog. */
+          analyticsId={pseudonymeMesure(issue.order.customer_email) ?? undefined}
           lang={langueVisite ?? langueCommande(issue.order)}
           trackingUrl={`/suivi/${orderTrackingToken(issue.order.id)}`}
           /* Commande payee sans photo : le depot devient la premiere action.

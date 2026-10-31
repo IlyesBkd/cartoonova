@@ -32,6 +32,7 @@ export default function SuccessClient({
   lang,
   trackingUrl,
   depotUrl,
+  analyticsId,
 }: {
   order: SuccessOrder;
   /** Langue de la page, choisie cote serveur (voir page.tsx). */
@@ -40,6 +41,8 @@ export default function SuccessClient({
   trackingUrl?: string;
   /** Lien signe vers le depot des photos, seulement si la commande n'en a pas. */
   depotUrl?: string;
+  /** Pseudonyme de mesure de l'acheteur (`person_…`), calcule cote serveur. */
+  analyticsId?: string;
 }) {
   const conversionSent = useRef(false);
 
@@ -76,7 +79,10 @@ export default function SuccessClient({
        express, qui court-circuite le formulaire ou l'identification a lieu
        d'ordinaire — sans cela, tout le parcours de navigation qui a precede
        l'achat resterait detache de la commande. */
-    identifier(order.customer_email);
+    /* Avec le pseudonyme du serveur, jamais l'email : `identifier` ignore
+       les adresses, et la session restait alors anonyme, detachee de
+       l'achat mesure sous `person_…` (la moitie des acheteurs en octobre). */
+    if (analyticsId) identifier(analyticsId);
 
     // Conversion Google Ads : seulement si la balise est active (lib/googleAds.ts).
     if (GOOGLE_ADS_ACTIF) {
@@ -117,7 +123,7 @@ export default function SuccessClient({
 
     sessionStorage.setItem(storageKey, "1");
     conversionSent.current = true;
-  }, [order.customer_email, order.total_price, order.currency, order.payment_intent_id, order.id]);
+  }, [analyticsId, order.total_price, order.currency, order.payment_intent_id, order.id]);
 
   // Décoder options JSONB (PostgreSQL renvoie JSONB comme un objet)
   const opts = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
