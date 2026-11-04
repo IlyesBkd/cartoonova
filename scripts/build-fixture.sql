@@ -35,5 +35,7 @@ CREATE TABLE support_messages (
  message text NOT NULL,
  received_at timestamptz NOT NULL DEFAULT now()
 );
+-- Existing production baseline table, required by support attachment migration.
+CREATE TABLE support_replies (id serial PRIMARY KEY);
 -- Articles/reviews/product content are provisioned from their in-repo runtime
 -- schema definitions by the local application (VERCEL unset), with empty content.
