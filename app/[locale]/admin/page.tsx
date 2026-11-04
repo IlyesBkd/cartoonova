@@ -102,6 +102,9 @@ const COMPTEURS_STATUT: { label: string; statuts: StatutCommande[] }[] = [
   { label: "Terminées / expédiées", statuts: ["completed", "shipped"] },
 ];
 
+type ApercuReponse = { id: string; toEmail: string; subject: string; body: string; approvalFingerprint: string; transport: { from: string; replyTo: string; html: string; headers: Record<string, string> | null }; attachments: Array<{ name: string; contentType: string; size: number }> };
+type EnvoiEnAttente = ApercuReponse & { targetType: "message" | "order"; targetId: string; status: "sent" | "sending" | "uncertain" };
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -153,6 +156,12 @@ export default function AdminPage() {
      y verifier quelque chose — ce qu'on fait justement en repondant. */
   const [brouillons, setBrouillons] = useState<Record<string, string>>({});
   const [objets, setObjets] = useState<Record<string, string>>({});
+  const [replyFiles, setReplyFiles] = useState<Record<string, File[]>>({});
+  const [replyFileVersion, setReplyFileVersion] = useState<Record<string, number>>({});
+  const [replyPreviews, setReplyPreviews] = useState<Record<string, ApercuReponse | undefined>>({});
+  const [replyUncertain, setReplyUncertain] = useState<Record<string, boolean>>({});
+  const [pendingReplies, setPendingReplies] = useState<EnvoiEnAttente[] | null>(null);
+  const [pendingError, setPendingError] = useState(false);
   const [assistees, setAssistees] = useState<Record<string, boolean>>({});
   const [redactionEnCours, setRedactionEnCours] = useState<string | null>(null);
   const [envoiEnCours, setEnvoiEnCours] = useState<string | null>(null);
@@ -202,11 +211,39 @@ export default function AdminPage() {
     setLoadingSupport(false);
   }, []);
 
+  const openPendingMessage = async (targetId: string) => {
+    const id = Number(targetId);
+    setSyncError(null);
+    if (!Number.isSafeInteger(id) || id <= 0) { setSyncError("Identifiant de conversation invalide."); return; }
+    try {
+      if (!supportMessages.some(message => message.id === id)) {
+        const response = await adminFetch(`/api/support/messages?id=${encodeURIComponent(targetId)}`, { cache: "no-store" });
+        if (!response.ok) throw new Error("Conversation introuvable ou inaccessible. Réessayez.");
+        const message: SupportMessage = await response.json();
+        if (message.id !== id) throw new Error("Conversation reçue invalide.");
+        setSupportMessages(previous => previous.some(item => item.id === id) ? previous : [message, ...previous]);
+      }
+      setShowAllSupport(true);
+      setExpandedMessageId(id);
+    } catch (error) { setSyncError(error instanceof Error ? error.message : "Impossible de charger la conversation."); }
+  };
+
   const fetchSupportOutbox = useCallback(async () => {
     try {
       const r = await adminFetch("/api/support/outbox", { headers: {  } });
       if (r.ok) setSortants(await r.json());
     } catch {}
+  }, []);
+
+  const fetchPendingReplies = useCallback(async () => {
+    try {
+      const response = await adminFetch("/api/support/prepared-pending");
+      if (!response.ok) throw new Error("Vérification impossible");
+      const data: EnvoiEnAttente[] = await response.json();
+      if (!Array.isArray(data)) throw new Error("Réponse invalide");
+      setPendingReplies(data);
+      setPendingError(false);
+    } catch { setPendingReplies(null); setPendingError(true); }
   }, []);
 
   const handleSyncSupport = async () => {
@@ -255,41 +292,78 @@ export default function AdminPage() {
     setRedactionEnCours(null);
   };
 
-  const handleEnvoyerReponse = async (cible: CibleCourrier) => {
+  const handlePreparerReponse = async (cible: CibleCourrier) => {
     const cle = cleCible(cible);
     const corps = (brouillons[cle] || "").trim();
     if (!corps) return;
     setEnvoiEnCours(cle);
     setErreurReponse((prev) => ({ ...prev, [cle]: "" }));
     try {
-      const r = await adminFetch("/api/support/reply", {
-        method: "POST",
-        headers: headers(),
-        body: JSON.stringify({
-          ...rattachement(cible),
-          corps,
-          objet: objets[cle] ?? objetParDefaut(cible),
-          assisteeIa: Boolean(assistees[cle]),
-        }),
-      });
+      const form = new FormData();
+      if (cible.type === "message") form.set("messageId", String(cible.message.id));
+      else form.set("orderId", cible.commande.id);
+      form.set("body", corps);
+      form.set("subject", objets[cle] ?? objetParDefaut(cible));
+      form.set("assisteeIa", String(Boolean(assistees[cle])));
+      for (const file of replyFiles[cle] ?? []) form.append("attachments", file);
+      const r = await adminFetch("/api/support/prepare", { method: "POST", body: form });
       const data = await r.json().catch(() => null);
-      if (r.ok) {
-        /* Le champ ne se vide qu'une fois l'envoi confirme. Sur une erreur le
-           texte reste entier : personne ne doit reecrire une reponse parce que
-           Resend a renvoye un 429. */
-        setBrouillons((prev) => ({ ...prev, [cle]: "" }));
-        setAssistees((prev) => ({ ...prev, [cle]: false }));
-        await Promise.all([fetchSupportMessages(), fetchSupportOutbox()]);
-      } else {
-        setErreurReponse((prev) => ({ ...prev, [cle]: data?.error || "L'envoi a échoué." }));
-      }
+      if (!r.ok) throw new Error(data?.error || "Préparation impossible.");
+      setReplyPreviews(prev => ({ ...prev, [cle]: data.draft as ApercuReponse }));
     } catch (e) {
-      setErreurReponse((prev) => ({
-        ...prev,
-        [cle]: e instanceof Error ? e.message : "Erreur réseau.",
-      }));
-    }
-    setEnvoiEnCours(null);
+      setErreurReponse(prev => ({ ...prev, [cle]: e instanceof Error ? e.message : "Préparation impossible." }));
+    } finally { setEnvoiEnCours(null); }
+  };
+
+  const handleEnvoyerReponse = async (cible: CibleCourrier) => {
+    const cle = cleCible(cible);
+    const preview = replyPreviews[cle];
+    if (!preview || replyUncertain[cle]) return;
+    setEnvoiEnCours(cle);
+    setErreurReponse(prev => ({ ...prev, [cle]: "" }));
+    try {
+      const approval = await adminFetch("/api/support/prepared-approve", { method: "POST", headers: headers(),
+        body: JSON.stringify({ id: preview.id, approvalFingerprint: preview.approvalFingerprint, confirmed: true }) });
+      if (!approval.ok) throw new Error("Confirmation impossible. Aucun envoi n’a été demandé.");
+      const r = await adminFetch("/api/support/prepared-send", { method: "POST", headers: headers(),
+        body: JSON.stringify({ id: preview.id, approvalFingerprint: preview.approvalFingerprint }) });
+      const data = await r.json().catch(() => null);
+      if (!r.ok) {
+        if (data?.state !== "prepared") {
+          setReplyUncertain(prev => ({ ...prev, [cle]: true }));
+          await fetchPendingReplies();
+        }
+        setErreurReponse(prev => ({ ...prev, [cle]: data?.error || "Résultat incertain : vérifie avant toute nouvelle tentative." }));
+        return;
+      }
+      setBrouillons(prev => ({ ...prev, [cle]: "" }));
+      setReplyFiles(prev => ({ ...prev, [cle]: [] }));
+      setReplyFileVersion(prev => ({ ...prev, [cle]: (prev[cle] ?? 0) + 1 }));
+      setReplyPreviews(prev => ({ ...prev, [cle]: undefined }));
+      setAssistees(prev => ({ ...prev, [cle]: false }));
+      await Promise.all([fetchSupportMessages(), fetchSupportOutbox()]);
+    } catch (e) {
+      setReplyUncertain(prev => ({ ...prev, [cle]: true }));
+      setErreurReponse(prev => ({ ...prev, [cle]: e instanceof Error ? `Résultat incertain : ${e.message}. Ne renvoie pas.` : "Résultat incertain : vérifie avant tout nouvel envoi." }));
+      await fetchPendingReplies();
+    } finally { setEnvoiEnCours(null); }
+  };
+
+  const handleReparerHistorique = async (cle: string, preview: ApercuReponse, providerId?: string) => {
+    setEnvoiEnCours(cle);
+    try {
+      const r = await adminFetch("/api/support/prepared-repair", { method: "POST", headers: headers(),
+        body: JSON.stringify({ id: preview.id, approvalFingerprint: preview.approvalFingerprint, providerId }) });
+      if (!r.ok) throw new Error("Réparation impossible. Ne renvoie pas ce message.");
+      setReplyUncertain(prev => ({ ...prev, [cle]: false }));
+      setReplyPreviews(prev => ({ ...prev, [cle]: undefined }));
+      setBrouillons(prev => ({ ...prev, [cle]: "" }));
+      setReplyFiles(prev => ({ ...prev, [cle]: [] }));
+      setReplyFileVersion(prev => ({ ...prev, [cle]: (prev[cle] ?? 0) + 1 }));
+      setErreurReponse(prev => ({ ...prev, [cle]: "" }));
+      await Promise.all([fetchPendingReplies(), fetchSupportMessages(), fetchSupportOutbox()]);
+    } catch (e) { setErreurReponse(prev => ({ ...prev, [cle]: e instanceof Error ? e.message : "Réparation impossible." })); }
+    finally { setEnvoiEnCours(null); }
   };
 
   /* Les deux morceaux de l'echange sortant — ce qui est parti, et de quoi
@@ -313,7 +387,11 @@ export default function AdminPage() {
           {new Date(r.sent_at).toLocaleString("fr-FR")}
         </span>
       </div>
+      {r.subject && <p className="mb-1 text-xs font-semibold text-gray-800 whitespace-pre-wrap break-words"><strong>Objet :</strong> {r.subject}</p>}
       <p className="text-sm text-gray-700 whitespace-pre-wrap">{r.body_text}</p>
+      {(r.attachments ?? []).length > 0 && <div className="mt-2 flex flex-wrap gap-2">
+        {r.attachments?.map(file => <a key={file.id} href={`/api/support/attachments/${file.id}`} className="text-xs font-semibold text-emerald-800 underline">📎 {file.name}</a>)}
+      </div>}
     </div>
   );
 
@@ -345,6 +423,9 @@ export default function AdminPage() {
        du message recu — le proposer a la saisie inviterait a le reecrire, et un
        objet reecrit rompt le regroupement chez le client. */
     const objet = cible.type === "commande" ? (objets[cle] ?? objetParDefaut(cible)) : null;
+    const pending = pendingReplies?.find(item => (item.targetType === "message" ? `msg-${item.targetId}` : `cmd-${item.targetId}`) === cle);
+    const preview = pending ?? replyPreviews[cle];
+    const uncertain = Boolean(pending || replyUncertain[cle]);
 
     return (
       <div className="bg-white border border-gray-200 rounded-xl p-3">
@@ -354,7 +435,7 @@ export default function AdminPage() {
           </p>
           <button
             onClick={() => handleRedigerReponse(cible)}
-            disabled={redactionEnCours === cle}
+            disabled={redactionEnCours === cle || Boolean(preview) || envoiEnCours === cle}
             className="flex-shrink-0 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50"
           >
             {redactionEnCours === cle ? "✨ Rédaction..." : "✨ Brouillon IA"}
@@ -364,6 +445,7 @@ export default function AdminPage() {
         {objet !== null && (
           <input
             value={objet}
+            disabled={Boolean(preview) || envoiEnCours === cle}
             onChange={(e) => setObjets((prev) => ({ ...prev, [cle]: e.target.value }))}
             placeholder="Objet de l'e-mail"
             className="w-full mb-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-yellow-400"
@@ -372,12 +454,46 @@ export default function AdminPage() {
 
         <textarea
           value={brouillon}
+          disabled={Boolean(preview) || envoiEnCours === cle}
           onChange={(e) => setBrouillons((prev) => ({ ...prev, [cle]: e.target.value }))}
           rows={7}
           placeholder="Écrivez le message, ou partez d'un brouillon IA."
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-yellow-400 resize-y"
         />
 
+        <label className="block mt-2 text-xs font-semibold text-gray-600">
+          Pièces jointes (3 maximum, 2 Mo par fichier, 4 Mo au total)
+          <input key={`${cle}-${replyFileVersion[cle] ?? 0}`} type="file" multiple disabled={Boolean(preview) || envoiEnCours === cle}
+            onChange={e => setReplyFiles(prev => ({ ...prev, [cle]: Array.from(e.target.files ?? []) }))}
+            className="block w-full mt-1 text-xs font-normal text-gray-600" />
+        </label>
+
+        {preview && <div className="mt-3 border border-amber-300 bg-amber-50 rounded-xl p-3 text-sm text-gray-800">
+          <p className="font-bold text-amber-900">À vérifier avant envoi</p>
+          {preview.transport && <><p className="mt-2 break-all"><strong>De :</strong> {preview.transport.from}</p>
+          <p className="mt-1 break-all"><strong>Répondre à :</strong> {preview.transport.replyTo}</p>
+          {preview.transport.headers && <p className="mt-1 break-all"><strong>Référence de conversation :</strong> {preview.transport.headers["In-Reply-To"]}</p>}</>}
+          <p className="mt-2 break-all"><strong>À :</strong> {preview.toEmail}</p>
+          <p className="mt-1 break-words"><strong>Objet :</strong> {preview.subject}</p>
+          <p className="mt-1 break-all text-xs"><strong>Empreinte du brouillon :</strong> {preview.approvalFingerprint}</p>
+          <p className="mt-2 whitespace-pre-wrap break-words">{preview.body}</p>
+          {preview.transport && <><p className="mt-2 font-semibold">Aperçu de l’email :</p>
+          <iframe title="Aperçu email" sandbox="" srcDoc={preview.transport.html} className="mt-1 w-full h-80 bg-white border rounded" /></>}
+          <p className="mt-2 font-semibold">Pièces jointes :</p>
+          {preview.attachments.length ? <ul className="mt-1 space-y-1">{preview.attachments.map((file, index) => <li key={index}>
+            <a className="text-blue-700 underline break-all" href={`/api/support/prepared-attachments/${preview.id}/${index}`}>📎 {file.name}</a> <span className="text-xs text-gray-500">({file.size} octets)</span>
+          </li>)}</ul> : <p className="text-xs text-gray-600">Aucune</p>}
+          {uncertain && <p className="mt-2 font-bold text-red-700">Ne renvoie pas ce message : vérifie son statut et répare l’historique si nécessaire.</p>}
+          {pending?.status === "sent" && <button onClick={() => handleReparerHistorique(cle, pending)} disabled={envoiEnCours === cle}
+            className="mt-2 px-3 py-2 bg-emerald-700 text-white rounded-lg text-xs font-bold disabled:opacity-40">Réparer l’historique sans renvoyer</button>}
+          {pending && pending.status !== "sent" && <div className="mt-1 text-xs text-red-700">Le fournisseur n’a pas confirmé l’envoi : vérification manuelle obligatoire.
+            <button onClick={() => { const id = window.prompt("Identifiant de l’email trouvé chez Resend (aucun nouvel envoi) :"); if (id) void handleReparerHistorique(cle, pending, id.trim()); }} disabled={envoiEnCours === cle}
+              className="mt-2 block px-3 py-2 bg-emerald-700 text-white rounded-lg font-bold disabled:opacity-40">Vérifier la preuve et réparer</button></div>}
+        </div>}
+
+        {pendingError && <p className="mt-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2">
+          Impossible de vérifier les envois en attente : préparation bloquée. <button onClick={fetchPendingReplies} className="underline font-bold">Réessayer</button>
+        </p>}
         {erreurReponse[cle] && (
           <p className="mt-2 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg p-2">
             {erreurReponse[cle]}
@@ -393,18 +509,21 @@ export default function AdminPage() {
 
         <div className="flex items-center justify-between gap-2 flex-wrap mt-2">
           <p className="text-[11px] text-gray-400 truncate">{contexte}</p>
-          <button
-            onClick={() => handleEnvoyerReponse(cible)}
-            disabled={
-              !brouillon.trim() ||
-              aCompleter ||
-              (objet !== null && !objet.trim()) ||
-              envoiEnCours === cle
-            }
+          {preview ? <div className="flex gap-2">
+            <button onClick={() => setReplyPreviews(prev => ({ ...prev, [cle]: undefined }))}
+              disabled={uncertain || envoiEnCours === cle}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold disabled:opacity-40">Modifier</button>
+            <button onClick={() => handleEnvoyerReponse(cible)} disabled={uncertain || envoiEnCours === cle}
+              className="px-4 py-2 bg-yellow-400 text-black rounded-lg text-sm font-bold disabled:opacity-40">
+              {envoiEnCours === cle ? "⏳ Envoi..." : "Confirmer et envoyer"}
+            </button>
+          </div> : <button
+            onClick={() => handlePreparerReponse(cible)}
+            disabled={pendingReplies === null || !brouillon.trim() || aCompleter || (objet !== null && !objet.trim()) || envoiEnCours === cle}
             className="flex-shrink-0 px-4 py-2 bg-yellow-400 text-black rounded-lg text-sm font-bold hover:bg-yellow-300 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {envoiEnCours === cle ? "⏳ Envoi..." : "Envoyer"}
-          </button>
+            {envoiEnCours === cle ? "⏳ Préparation..." : "Préparer l’aperçu"}
+          </button>}
         </div>
       </div>
     );
@@ -631,8 +750,9 @@ export default function AdminPage() {
       fetchPrices();
       fetchSupportMessages();
       fetchSupportOutbox();
+      fetchPendingReplies();
     }
-  }, [authed, fetchOrders, fetchPrices, fetchSupportMessages, fetchSupportOutbox]);
+  }, [authed, fetchOrders, fetchPrices, fetchSupportMessages, fetchSupportOutbox, fetchPendingReplies]);
 
   /* Le statut se calcule (lib/statutCommande.ts). Un message client non lu et
      sans reponse le fait passer avant tout le reste : c'est la seule trace
@@ -2056,6 +2176,27 @@ export default function AdminPage() {
                 </div>
               )}
 
+              {(pendingReplies?.length ?? 0) > 0 && <div className="mb-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-800">
+                <strong>Envois à vérifier : {pendingReplies?.length}.</strong> Ne les renvoie pas. Ouvre la conversation ou la commande concernée pour consulter le détail et réparer l’historique si l’envoi est confirmé.
+                <ul className="mt-2 space-y-1">{pendingReplies?.map(item => <li key={item.id}>
+                  {item.targetType === "message" ? <button className="underline" onClick={() => void openPendingMessage(item.targetId)}>Conversation #{item.targetId}</button> : `Commande ${item.targetId}`}
+                  {item.status === "sent" ? " — historique à réparer" : " — résultat à vérifier auprès du fournisseur"}
+                  {item.targetType === "order" && <div className="mt-2 rounded-lg border border-red-200 bg-white p-3 text-gray-800">
+                    <p className="break-all"><strong>À :</strong> {item.toEmail}</p>
+                    <p className="break-words"><strong>Objet :</strong> {item.subject}</p>
+                    <p className="break-all text-xs"><strong>Empreinte du brouillon :</strong> {item.approvalFingerprint}</p>
+                    <p className="mt-2 whitespace-pre-wrap break-words">{item.body}</p>
+                    <p className="mt-2 text-xs">Pièces jointes : {item.attachments.length ? item.attachments.map(file => file.name).join(", ") : "Aucune"}</p>
+                    {item.status === "sent" ? <button onClick={() => void handleReparerHistorique(`cmd-${item.targetId}`, item)} disabled={envoiEnCours !== null}
+                      className="mt-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-40">Réparer l’historique sans renvoyer</button> : <>
+                      <p className="mt-2 text-xs text-red-700">Le fournisseur n’a pas confirmé l’envoi : vérification manuelle obligatoire.</p>
+                      <button onClick={() => { const id = window.prompt("Identifiant de l’email trouvé chez Resend (aucun nouvel envoi) :"); if (id?.trim()) void handleReparerHistorique(`cmd-${item.targetId}`, item, id.trim()); }} disabled={envoiEnCours !== null}
+                        className="mt-2 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-bold text-white disabled:opacity-40">Vérifier la preuve et réparer</button>
+                    </>}
+                    {erreurReponse[`cmd-${item.targetId}`] && <p className="mt-2 text-xs text-red-700">{erreurReponse[`cmd-${item.targetId}`]}</p>}
+                  </div>}
+                </li>)}</ul>
+              </div>}
               <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 {loadingSupport ? (
                   <p className="px-4 py-12 text-center text-gray-400">Chargement...</p>

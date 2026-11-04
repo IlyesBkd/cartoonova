@@ -914,6 +914,7 @@ export interface SupportReply {
   assistee_ia: boolean;
   /** Identifiant Resend de l'envoi. Null si le fournisseur n'en a pas rendu. */
   provider_id: string | null;
+  attachments?: Array<{ id: string; name: string }>;
   sent_at: string;
 }
 
@@ -1062,9 +1063,9 @@ export async function getSupportMessages(querySql: ClientSql = sql): Promise<Sup
 }
 
 /** Un message et son fil, pour les routes qui repondent. */
-export async function getSupportMessageById(id: number): Promise<SupportMessage | null> {
+export async function getSupportMessageById(id: number, querySql: ClientSql = sql): Promise<SupportMessage | null> {
   await ensureSupportInboxSchema();
-  const rows = await sql`
+  const rows = await querySql`
     SELECT
       m.*,
       COALESCE(

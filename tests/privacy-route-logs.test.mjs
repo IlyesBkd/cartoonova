@@ -62,19 +62,20 @@ test('real checkout handler catches database echoes without changing accepted re
   saveCapture('checkout-handler-safe-console', route.logs);
 });
 
-test('real support reply handler logs rejected/throwing provider safely and leaves required recipient unchanged', async () => {
+test('prepared support handler keeps provider failures and customer content out of logs', async () => {
   for (const throws of [false, true]) {
     const transactions = [];
-    const route = routeModule('app/api/support/reply/route.ts', {
-      '@/lib/adminAuth': { refuserSiPasAdmin: () => null }, '@/lib/email': { emailValide: () => true },
+    const route = routeModule('app/api/support/prepared-send/route.ts', {
+      '@/lib/adminAuth': { refuserSiPasAdmin: () => null },
       '@/lib/expediteur': { EXPEDITEUR: 'synthetic@sender.invalid', SUPPORT_EMAIL: 'support@sender.invalid' },
       '@/lib/db': { getOrderById: async () => ({ id: 'synthetic-order', customer_email: privateValues[0] }) },
+      '@/lib/supportPreparedDelivery': { sendPreparedSupportReply: async (_id, _fp, send, validate) => { const draft = {id:_id,targetType:'order',targetId:'synthetic-order',toEmail:privateValues[0],subject:'Subject',body:raw,attachments:[],transport:{from:'synthetic@sender.invalid',replyTo:'support@sender.invalid',html:'synthetic',headers:null}}; validate(draft); return send(draft,'synthetic-key'); } },
+      '@/lib/supportPreparedReplies': { readPreparedSupportReply: async () => ({status:'uncertain'}) },
       '@/lib/envoiEmail': { envoyerEmail: async payload => { transactions.push(payload); if (throws) throw error; return { error }; } },
     });
-    const response = await route.api.POST(new Request('https://cartoonova.invalid/api/support/reply', { method: 'POST', body: JSON.stringify({ orderId: 'synthetic-order', corps: raw }) }));
-    assert.equal(response.status, throws ? 500 : 502); assert.equal(transactions[0].to[0], privateValues[0]); assert.equal(transactions[0].text, raw);
-    assert.equal(route.logs.length, 1); assertPrivateFree(route.logs); assert.match(JSON.stringify(route.logs), /422/);
-    saveCapture('support-reply-' + (throws ? 'thrown' : 'rejected') + '-console', route.logs);
+    const response = await route.api.POST(new Request('https://cartoonova.invalid/api/support/prepared-send', { method: 'POST', body: JSON.stringify({ id:'11111111-1111-4111-8111-111111111111', approvalFingerprint:'a'.repeat(64) }) }));
+    assert.equal(response.status,409); assert.equal(transactions[0].to[0], privateValues[0]); assert.equal(transactions[0].text, raw);
+    assertPrivateFree(route.logs); assertPrivateFree(await response.json());
   }
 });
 

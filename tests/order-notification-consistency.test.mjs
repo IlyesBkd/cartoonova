@@ -166,13 +166,13 @@ test('admin browser replaces confirmed A with canonical unapproved B and offers 
   await page.getByRole('row').filter({hasText:'buyer@example.invalid'}).click();
   await page.getByText(/Client a confirmé le/).waitFor();
   const rejected=new Promise(resolve=>page.once('dialog',async dialog=>{const text=dialog.message();await dialog.dismiss();resolve(text);}));
-  await page.locator('input[type=file]').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:png});
+  await page.locator('input[type=file][accept="image/jpeg,image/png,image/webp"]').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:png});
   assert.match(await rejected,/synthetic save conflict/);
   await page.getByRole('button',{name:'Remplacer',exact:true}).waitFor();
   assert.equal(await page.locator('img[alt="Image finale"]').getAttribute('src'),image);
   assert.equal(await page.getByText(/Client a confirmé le/).count(),1);
-  await page.locator('input[type=file]').setInputFiles([]);
-  await page.locator('input[type=file]').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:png});
+  await page.locator('input[type=file][accept="image/jpeg,image/png,image/webp"]').setInputFiles([]);
+  await page.locator('input[type=file][accept="image/jpeg,image/png,image/webp"]').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:png});
   await page.waitForFunction(url=>document.querySelector('img[alt="Image finale"]')?.getAttribute('src')===url,otherImage);
   assert.equal(await page.getByText(/Client a confirmé le/).count(),0);
   assert.equal(await page.getByText(/Envoi programmé le/).count(),0);
