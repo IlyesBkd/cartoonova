@@ -135,18 +135,10 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      /* Express : promis sous 24 h, week-end compris. La tache planifiee ne
-         passe qu'une fois par jour a 09:00 UTC — une image deposee a 10 h
-         partirait le lendemain. On l'envoie donc tout de suite, sauf si le
-         client a demande une remise a une date de cadeau ulterieure. */
+      /* Express : le depot enregistre seulement le portrait. Aucun email ni
+         rendez-vous automatique : l'admin choisit Envoyer ou Programmer. */
       if (options?.express) {
-        const envoi = await envoyerImageFinale({
-          ...order,
-          options,
-          final_image_url: finalImageUrl,
-        });
-        if (envoi.deferredUntil) return NextResponse.json({ ok: true, saved: true, scheduledAt: envoi.deferredUntil });
-        return NextResponse.json({ ok: true, saved: true, scheduledAt: null, envoyeImmediatement: true, emailId: envoi.id });
+        return NextResponse.json({ ok: true, saved: true, scheduledAt: null });
       }
 
       assertDeliveryEligible(saved, "schedule", dateEnvoiProgramme(new Date(), options, saved.created_at));
