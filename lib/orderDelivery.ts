@@ -33,13 +33,19 @@ interface DeliveryContext {
  */
 export async function executeDelivery(
   expected: Snapshot, kind: "extras" | "final_image", contentHash: string, recipient: string,
-  work: (context: DeliveryContext) => Promise<void>
+  work: (context: DeliveryContext) => Promise<void>,
+  mode: "initial" | "retouch" = "initial"
 ): Promise<{ artifacts: Artifacts; emailId: string | null; duplicate: boolean }> {
   return withFreshDatabaseClient(async lockDb => lockDb.begin(async tx => {
     const [lock] = await tx`SELECT pg_try_advisory_xact_lock(hashtextextended(${`delivery:${expected.id}:${kind}`},0)) AS acquired`;
     if (!lock.acquired) throw new OrderDeliveryError("Un envoi est déjà en cours.");
     const [current] = await tx`SELECT * FROM orders WHERE id=${expected.id}::uuid FOR NO KEY UPDATE`;
     if (!current) throw new OrderDeliveryError("Commande introuvable.",404);
+    // Share the existing lock, kind and fingerprint: switching buttons or
+    // retrying cannot produce a second email for the same portrait version.
+    if (mode === "retouch" && (kind !== "final_image" || !current.final_image_sent_at)) {
+      throw new OrderDeliveryError("Une retouche exige un portrait déjà livré.");
+    }
     try { assertDeliveryEligible(current as Snapshot, kind); }
     catch (error) { throw new OrderDeliveryError(error instanceof Error ? error.message : "Livraison refusée."); }
     if (snapshot(current as Snapshot) !== snapshot(expected)) throw new OrderDeliveryError("La commande a changé. Rechargez-la avant l'envoi.");

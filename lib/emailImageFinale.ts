@@ -1,5 +1,5 @@
 import { getOrderById, setOrderLastOutboundMessageId, programmerEnvoiImageFinale } from "./db";
-import { finalImageEmail, avisLiens, bonusLiens, langueCommande } from "./email-i18n";
+import { finalImageEmail, retouchedImageEmail, avisLiens, bonusLiens, langueCommande } from "./email-i18n";
 import { orderTrackingToken } from "./emailToken";
 import { SITE_URL } from "./site";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "./expediteur";
@@ -43,17 +43,22 @@ export interface DestinataireImageFinale {
  * effacerait le rendez-vous et personne ne recevrait jamais rien.
  */
 export async function envoyerImageFinale(
-  order: DestinataireImageFinale
+  order: DestinataireImageFinale,
+  mode: "initial" | "retouch" = "initial"
 ): Promise<{ id: string | null; deferredUntil?: string }> {
   const saved = await getOrderById(order.id);
   if (!saved?.final_image_url) throw new FinalImageError("Commande sans portrait enregistré.", 409);
   if (!saved.paid_at) throw new FinalImageError("La livraison exige une commande payée.", 409);
+  if (mode === "retouch" && !saved.final_image_sent_at) {
+    throw new FinalImageError("Une retouche exige un portrait déjà livré.", 409);
+  }
   if (saved.final_image_url !== order.final_image_url || saved.customer_email !== order.customer_email) {
     throw new FinalImageError("La commande a changé. Rechargez-la avant l'envoi.", 409);
   }
   order = { ...saved, final_image_url: saved.final_image_url };
   const lang = langueCommande(order);
-  const t = finalImageEmail[lang];
+  const retouche = mode === "retouch";
+  const t = { ...finalImageEmail[lang], ...(retouche ? retouchedImageEmail[lang] : {}) };
   const options = optionsLivraisonCadeau(order.options);
   validerLivraisonCadeau(options);
   validateFinalImageUrl(order.final_image_url);
@@ -61,6 +66,7 @@ export async function envoyerImageFinale(
   // The promise is a UTC calendar day, not the buyer's or server's timezone.
   // A deferred gift is aligned with the daily cron at 09:00 UTC.
   if (gift?.deliverAfter && gift.deliverAfter > new Date().toISOString().slice(0, 10)) {
+    if (retouche) throw new FinalImageError("La date de remise du cadeau doit être respectée. Aucun envoi de retouche programmé.", 409);
     const date = new Date(`${gift.deliverAfter}T09:00:00.000Z`);
     await programmerEnvoiImageFinale(order.id, date);
     return { id: null, deferredUntil: date.toISOString() };
@@ -79,7 +85,7 @@ export async function envoyerImageFinale(
      creation ne retient pas la livraison — le bloc disparait, c'est tout. */
   let parrainage: { code: string; recompense: string } | null = null;
   try {
-    if (!tiers) parrainage = await infosParrainage(order.customer_email, lang);
+    if (!tiers && !retouche) parrainage = await infosParrainage(order.customer_email, lang);
   } catch {
     console.error("[IMAGE-FINALE] code de parrainage indisponible.");
   }
@@ -103,11 +109,11 @@ export async function envoyerImageFinale(
       bodyHtml: `
         ${emailParagraph(t.greeting(tiers ? null : order.customer_name))}
         <p style="font-size:16px;line-height:1.7;color:#3f3f46;margin:0 0 18px;">${t.ready(escapeEmailHtml(ref))}</p>
-        ${gift?.message ? emailParagraph(gift.message) : ""}
+        ${gift?.message && !retouche ? emailParagraph(gift.message) : ""}
         ${emailImage(order.final_image_url, "Cartoonova")}
         ${emailParagraph(t.question)}
         ${emailButton(t.download, order.final_image_url)}
-        ${!tiers ? emailButton(`🎁 ${bonusLiens[lang].email}`, lienBonus)
+        ${!tiers && !retouche ? emailButton(`🎁 ${bonusLiens[lang].email}`, lienBonus)
           + emailParagraph(avisLiens[lang].texte)
           + emailButton(`${avisLiens[lang].bouton} →`, `${SITE_URL}/${lang}/avis/nouveau?c=${token}`) : ""}
         ${emailNotice(t.feedback)}
@@ -119,7 +125,7 @@ export async function envoyerImageFinale(
       footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
     }),
   }, { idempotencyKey }));
-  }).catch(error => {
+  }, mode).catch(error => {
     if (error instanceof OrderDeliveryError) throw new FinalImageError(error.message, error.status);
     throw error;
   });
@@ -135,7 +141,7 @@ export async function envoyerImageFinale(
      un taux d'ouverture n'est pas un taux. */
   if (!delivery.duplicate) await mesureServeur(MESURES.emailEnvoye, {
     identifiant: destinataire,
-    proprietes: { campagne: "image_finale" },
+    proprietes: { campagne: retouche ? "image_retouchee" : "image_finale" },
   }).catch(() => {});
 
   return { id: delivery.emailId };

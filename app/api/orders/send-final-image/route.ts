@@ -38,10 +38,18 @@ export async function POST(req: NextRequest) {
       saveOnly,
       action,
       scheduledAt,
+      deliveryMode = "initial",
     } = await req.json();
 
     if (!orderId) {
       return NextResponse.json({ error: "Champs manquants." }, { status: 400 });
+    }
+
+    if (deliveryMode !== "initial" && deliveryMode !== "retouch") {
+      return NextResponse.json({ error: "Mode de livraison invalide." }, { status: 400 });
+    }
+    if (deliveryMode === "retouch" && action) {
+      return NextResponse.json({ error: "Une retouche ne se programme pas : déposez puis envoyez explicitement le portrait." }, { status: 400 });
     }
 
     // ── Annulation ───────────────────────────────────────────────────
@@ -93,6 +101,9 @@ export async function POST(req: NextRequest) {
     // Recipient, gift promise and language come exclusively from the saved order.
     let order = await getOrderById(orderId);
     if (!order) return NextResponse.json({ error: "Commande introuvable." }, { status: 404 });
+    if (deliveryMode === "retouch" && !order.final_image_sent_at) {
+      throw new FinalImageError("Une retouche exige un portrait déjà livré.", 409);
+    }
     if (customerEmail !== undefined && customerEmail !== order.customer_email) {
       return NextResponse.json({ error: "Destinataire différent de la commande enregistrée." }, { status: 409 });
     }
@@ -115,6 +126,12 @@ export async function POST(req: NextRequest) {
       order = saved;
       options = optionsLivraisonCadeau(saved.options);
       validerLivraisonCadeau(options);
+
+      // A replacement after delivery is always silent, including old callers.
+      // The existing DB helper preserves first delivery and resets approval.
+      if (order.final_image_sent_at) {
+        return NextResponse.json({ ok: true, saved: true, scheduledAt: null, raisonNonProgramme: "retouche" });
+      }
 
       /* Un tirage physique que le client n'a pas encore valide ne se programme
          pas tout seul. L'e-mail dit « telechargez votre portrait » ; sur une
@@ -163,7 +180,7 @@ export async function POST(req: NextRequest) {
       ...order,
       options,
       final_image_url: finalImageUrl,
-    });
+    }, deliveryMode);
 
     if (result.deferredUntil) return NextResponse.json({ ok: true, scheduledAt: result.deferredUntil });
 

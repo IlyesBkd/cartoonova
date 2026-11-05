@@ -834,6 +834,7 @@ export default function AdminPage() {
           customerEmail: selectedOrder.customer_email,
           finalImageUrl: blob.url,
           saveOnly: true,
+          deliveryMode: selectedOrder.final_image_sent_at ? "retouch" : "initial",
         }),
       });
       const data = await r.json().catch(() => ({}));
@@ -958,10 +959,15 @@ export default function AdminPage() {
      s'il voulait une retouche avant que la toile ne parte a l'impression. On ne
      bloque pas — il y a des cas legitimes, un renvoi par exemple — mais on ne
      laisse plus passer le geste par inadvertance. */
-  const handleSendFinalImage = async () => {
+  const handleSendFinalImage = async (deliveryMode: "initial" | "retouch" = "initial") => {
+    if (!selectedOrder?.final_image_url || sendingImage || uploadingImage) return;
     const opts = typeof selectedOrder?.options === "string"
       ? JSON.parse(selectedOrder.options)
       : selectedOrder?.options;
+    if (deliveryMode === "retouch" && !confirm(
+      `Envoyer le portrait retouché à ${opts?.gift?.recipientEmail?.trim() || selectedOrder.customer_email} ?\n\n` +
+      "Le portrait actuellement déposé sera envoyé avec un e-mail de suivi de retouche, sans répéter la première livraison."
+    )) return;
     if (
       selectedOrder &&
       estPhysique(opts) &&
@@ -982,6 +988,7 @@ export default function AdminPage() {
         method: "POST",
         headers: headers(),
         body: JSON.stringify({
+          deliveryMode,
           orderId: selectedOrder.id,
           customerEmail: selectedOrder.customer_email,
           customerName: selectedOrder.customer_name,
@@ -991,16 +998,15 @@ export default function AdminPage() {
         }),
       });
       if (r.ok) {
-        setImageSent(true);
-        /* Le rendez-vous tombe avec l'envoi : le serveur l'a efface, sans quoi
-           le cron renverrait le meme portrait a son passage suivant. */
-        const updated = {
-          ...selectedOrder,
-          final_image_sent_at: new Date().toISOString(),
-          final_image_scheduled_at: null,
-        };
-        setSelectedOrder(updated);
-        setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+        const data = await r.json();
+        // Never invent a delivery date (especially on deferred gifts/replays).
+        const refreshed = await adminFetch("/api/orders", { cache: "no-store" });
+        if (!refreshed.ok) throw new Error("Action acceptée, mais rechargement impossible. Rechargez la fiche avant toute nouvelle action.");
+        const canonical: DbOrder[] = await refreshed.json();
+        setOrders(canonical);
+        setSelectedOrder(prev => prev?.id === selectedOrder.id ? canonical.find(o => o.id === selectedOrder.id) ?? prev : prev);
+        if (data.scheduledAt) alert(`Envoi différé au ${new Date(data.scheduledAt).toLocaleString("fr-FR")}.`);
+        else setImageSent(true);
         setTimeout(() => setImageSent(false), 4000);
       } else {
         const data = await r.json().catch(() => null);
@@ -1646,14 +1652,14 @@ export default function AdminPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => fileInputRef.current?.click()}
-                              disabled={uploadingImage}
+                              disabled={uploadingImage || sendingImage}
                               className="flex-1 px-3 py-2 text-xs font-bold rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 transition-all cursor-pointer disabled:opacity-50"
                             >
-                              {uploadingImage ? "Upload..." : "Remplacer"}
+                              {uploadingImage ? "Upload..." : selectedOrder.final_image_sent_at ? "Déposer la retouche" : "Remplacer"}
                             </button>
                             <button
-                              onClick={handleSendFinalImage}
-                              disabled={sendingImage}
+                              onClick={() => handleSendFinalImage()}
+                              disabled={sendingImage || uploadingImage}
                               className="flex-[2] px-3 py-2 text-xs font-bold rounded-lg border border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600 transition-all cursor-pointer disabled:opacity-50"
                             >
                               {sendingImage
@@ -1665,6 +1671,23 @@ export default function AdminPage() {
                                 : "Envoyer au client"}
                             </button>
                           </div>
+
+                          {selectedOrder.final_image_sent_at ? (
+                            <div className="rounded-lg border border-emerald-300 bg-white p-2 space-y-2">
+                              <p className="text-[11px] text-emerald-800 leading-snug">
+                                Le dépôt d&apos;une retouche reste silencieux : aucun e-mail ni envoi programmé.
+                                Envoyez ensuite le portrait déposé avec le message de suivi de retouche.
+                                Pour un tirage physique, faites d&apos;abord valider cette nouvelle version.
+                              </p>
+                              <button
+                                onClick={() => handleSendFinalImage("retouch")}
+                                disabled={sendingImage || uploadingImage}
+                                className="w-full px-3 py-2 text-xs font-bold rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 cursor-pointer disabled:opacity-50"
+                              >
+                                {sendingImage ? "Envoi en cours..." : "Envoyer le portrait retouché"}
+                              </button>
+                            </div>
+                          ) : null}
 
                           {/* Envoi differe.
                               Un portrait livre dans l'heure se lit comme un

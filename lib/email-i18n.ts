@@ -403,6 +403,20 @@ export const finalImageEmail: Record<Lang, {
  }
 };
 
+/** Revision copy; greeting, feedback and signature reuse the existing locale. */
+export const retouchedImageEmail: Record<Lang, Pick<typeof finalImageEmail[Lang], "subject" | "title" | "ready" | "download">> = {
+ fr: { subject: "Ton portrait Cartoonova retouché", title: "Voici ton portrait retouché", ready: ref => `Suite à ta demande de retouche, voici la version mise à jour de ton portrait (commande <strong>#${ref}</strong>).`, download: "Télécharger mon portrait retouché" },
+ en: { subject: "Your revised Cartoonova portrait", title: "Here is your revised portrait", ready: ref => `Following your revision request, here is the updated version of your portrait (order <strong>#${ref}</strong>).`, download: "Download my revised portrait" },
+ es: { subject: "Tu retrato Cartoonova retocado", title: "Aquí tienes tu retrato retocado", ready: ref => `Tras tu solicitud de retoque, aquí tienes la versión actualizada de tu retrato (pedido <strong>#${ref}</strong>).`, download: "Descargar mi retrato retocado" },
+ de: { subject: "Dein überarbeitetes Cartoonova-Porträt", title: "Hier ist dein überarbeitetes Porträt", ready: ref => `Nach deinem Änderungswunsch erhältst du hier die aktualisierte Version deines Porträts (Bestellung <strong>#${ref}</strong>).`, download: "Mein überarbeitetes Porträt herunterladen" },
+ it: { subject: "Il tuo ritratto Cartoonova ritoccato", title: "Ecco il tuo ritratto ritoccato", ready: ref => `Dopo la tua richiesta di modifica, ecco la versione aggiornata del tuo ritratto (ordine <strong>#${ref}</strong>).`, download: "Scarica il mio ritratto ritoccato" },
+ nl: { subject: "Je bijgewerkte Cartoonova-portret", title: "Hier is je bijgewerkte portret", ready: ref => `Na je verzoek om aanpassingen vind je hier de bijgewerkte versie van je portret (bestelling <strong>#${ref}</strong>).`, download: "Mijn bijgewerkte portret downloaden" },
+ pl: { subject: "Twój poprawiony portret Cartoonova", title: "Oto Twój poprawiony portret", ready: ref => `Po Twojej prośbie o poprawki przesyłamy zaktualizowaną wersję portretu (zamówienie <strong>#${ref}</strong>).`, download: "Pobierz mój poprawiony portret" },
+ sv: { subject: "Ditt uppdaterade Cartoonova-porträtt", title: "Här är ditt uppdaterade porträtt", ready: ref => `Efter ditt önskemål om ändringar kommer här den uppdaterade versionen av ditt porträtt (beställning <strong>#${ref}</strong>).`, download: "Ladda ner mitt uppdaterade porträtt" },
+ da: { subject: "Dit opdaterede Cartoonova-portræt", title: "Her er dit opdaterede portræt", ready: ref => `Efter dit ønske om rettelser får du her den opdaterede version af dit portræt (ordre <strong>#${ref}</strong>).`, download: "Hent mit opdaterede portræt" },
+ pt: { subject: "O teu retrato Cartoonova retocado", title: "Aqui está o teu retrato retocado", ready: ref => `Após o teu pedido de retoque, aqui está a versão atualizada do teu retrato (encomenda <strong>#${ref}</strong>).`, download: "Transferir o meu retrato retocado" },
+};
+
 // ─── Poster confirmation email (before printing/shipping) ────────────
 export const posterConfirmationEmail: Record<Lang, {
  subject: string;
