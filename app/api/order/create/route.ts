@@ -19,8 +19,9 @@ import { signalerPanne } from "@/lib/alerteServeur";
 import { codePostalValide } from "@/lib/codePostal";
 import { estOccasion } from "@/lib/occasions";
 import { validerLivraisonCadeau } from "@/lib/livraisonCadeau";
+import { isSyntheticHeaders, SYNTHETIC_PENDING, syntheticStripe } from "@/lib/syntheticOrder";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeLive = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
 });
 
@@ -49,7 +50,10 @@ async function ensureOrderPromoSchema(): Promise<void> {
 }
 
 export async function POST(req: NextRequest) {
+  // Controle quotidien de bout en bout : paiement en mode test, statut a part.
+  const synthetic = isSyntheticHeaders(req.headers);
   try {
+    const stripe = synthetic ? syntheticStripe() : stripeLive;
     const {
       paymentIntentId,
       email,
@@ -130,6 +134,9 @@ export async function POST(req: NextRequest) {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     if (!verifyCheckoutProof(paymentIntent, proof, "portrait_order")) {
       return NextResponse.json({ error: "Accès au paiement non autorisé." }, { status: 403 });
+    }
+    if (synthetic && (paymentIntent.livemode || paymentIntent.metadata?.synthetic !== "1")) {
+      return NextResponse.json({ error: "Paiement synthetique invalide." }, { status: 403 });
     }
 
     await ensureOrderPromoSchema();
@@ -237,7 +244,7 @@ export async function POST(req: NextRequest) {
         ${currency},
         ${options}::text::jsonb,
         ${photoUrlsJson}::text::jsonb,
-        'PENDING',
+        ${synthetic ? SYNTHETIC_PENDING : "PENDING"},
         ${detectedCountry || null},
         ${promoCode || null},
         ${discount || null},
@@ -268,6 +275,9 @@ export async function POST(req: NextRequest) {
 
     const orderId = rows[0].id;
     console.log(`✅ Commande ${orderId} créée en PENDING | PI: ${paymentIntentId}`);
+
+    /* Commande synthetique : rien a consommer ni a mesurer. */
+    if (synthetic) return NextResponse.json({ orderId });
 
     if (promoCode) {
       await consumePromoCode(promoCode).catch((error) =>
@@ -305,6 +315,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ orderId });
   } catch (error) {
+    if (synthetic) {
+      return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    }
     await signalerPanne("creation de la commande", error);
     return NextResponse.json({ error: "Erreur création commande." }, { status: 500 });
   }

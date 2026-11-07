@@ -11,6 +11,7 @@ import { finaliserCommande } from "@/lib/finaliserCommande";
 import { pseudonymeMesure } from "@/lib/analyticsServeur";
 import { bonCadeauTextes, getLangFromCountry, langueDemandee, successPage, langueCommande } from "@/lib/email-i18n";
 import { finaliserBonCadeau, formatMontant, lienImpression, type BonCadeau } from "@/lib/bonCadeau";
+import { isSyntheticHeaders, isSyntheticStatus, marquerSynthetiquePayee, syntheticStripe } from "@/lib/syntheticOrder";
 
 /* L'e-mail de confirmation, la notification Discord et la mesure de l'achat
    ont demenage dans `lib/finaliserCommande.ts` : le webhook Stripe fait
@@ -37,9 +38,10 @@ type Issue =
 
 /** Ce que Stripe et la base disent de ce paiement. Aucun rendu ici : le
     rendu se fait hors du try/catch (regle react-hooks/error-boundaries). */
-async function issueDuPaiement(paymentIntentId: string, proof: string): Promise<Issue> {
+async function issueDuPaiement(paymentIntentId: string, proof: string, synthetic: boolean): Promise<Issue> {
   try {
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    const client = synthetic ? syntheticStripe() : stripe;
+    const paymentIntent = await client.paymentIntents.retrieve(paymentIntentId);
     if (!verifyCheckoutProof(paymentIntent, proof)) return { etat: "erreur" };
 
     /* Pas de finalisation en attente : elle partira du webhook Stripe a la
@@ -79,6 +81,14 @@ async function issueDuPaiement(paymentIntentId: string, proof: string): Promise<
        commande payee ; sa protection contre le double comptage lui est propre
        (sessionStorage indexe par PaymentIntent, plus la deduplication de
        Google sur `transaction_id`). */
+    /* Controle quotidien : paiement de test sur commande synthetique
+       uniquement, puis statut a part — ni PAID, ni e-mail, ni notification. */
+    if (synthetic || isSyntheticStatus(order.status)) {
+      if (!synthetic || !isSyntheticStatus(order.status) || paymentIntent.livemode) return { etat: "erreur" };
+      await marquerSynthetiquePayee(order.id);
+      return { etat: "succes", order };
+    }
+
     await finaliserCommande(order, "page_succes");
     return { etat: "succes", order };
   } catch (error) {
@@ -111,11 +121,12 @@ export default async function SuccessPage(props: {
 
   // Do not serialize an order, sign a link or finalize a gift before possession
   // is checked. Duplicate cookies are ambiguous and must not authorize a read.
-  const proof = checkoutProofFromRequest({ headers: await headers() }, paymentIntentId);
+  const entetes = await headers();
+  const proof = checkoutProofFromRequest({ headers: entetes }, paymentIntentId);
   if (!proof || !/^[a-f0-9]{64}$/.test(proof)) {
     return <EtatPaiement titre={t.errorTitle} texte={t.errorBody} action={boutique} />;
   }
-  const issue = await issueDuPaiement(paymentIntentId, proof);
+  const issue = await issueDuPaiement(paymentIntentId, proof, isSyntheticHeaders(entetes));
 
   switch (issue.etat) {
     case "succes":

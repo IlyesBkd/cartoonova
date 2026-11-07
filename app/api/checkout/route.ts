@@ -9,13 +9,17 @@ import { validateCheckoutPhotoOwnership } from "@/lib/photoOwnership";
 import { OPTIONS_PAYANTES, parseOrderPricingInput } from "@/lib/pricing";
 import { LANGS } from "@/lib/email-i18n";
 import { signalerPanne } from "@/lib/alerteServeur";
+import { isSyntheticHeaders, syntheticStripe } from "@/lib/syntheticOrder";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeLive = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-02-25.clover",
 });
 
 export async function POST(req: NextRequest) {
+  // Controle quotidien de bout en bout : meme caisse, Stripe en mode test.
+  const synthetic = isSyntheticHeaders(req.headers);
   try {
+    const stripe = synthetic ? syntheticStripe() : stripeLive;
     const body = await req.json();
     const { orderConfig, currency, promoCode, description, style, photoUrls, lang } = body;
     const langue = (LANGS as readonly string[]).includes(lang) ? (lang as string) : "";
@@ -79,6 +83,7 @@ export async function POST(req: NextRequest) {
         shipping: quote.shipping.toFixed(2),
         options,
         lang: langue,
+        ...(synthetic ? { synthetic: "1" } : {}),
       },
     });
 
@@ -106,6 +111,9 @@ export async function POST(req: NextRequest) {
       promoRejected: quote.promoRejected,
     }), paymentIntent.id, proof.token);
   } catch (error) {
+    if (synthetic) {
+      return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    }
     await signalerPanne("creation du paiement (caisse)", error);
     return NextResponse.json({ error: "Erreur Stripe." }, { status: 500 });
   }

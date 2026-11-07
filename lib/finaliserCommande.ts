@@ -225,6 +225,12 @@ export async function finaliserCommande(
   order: DbOrder,
   source: "webhook" | "page_succes"
 ): Promise<boolean> {
+  /* Une commande synthetique (controle quotidien) ne doit jamais passer en
+     PAID ni declencher e-mail, notification ou mesure, quel que soit
+     l'appelant : elle se finalise par `marquerSynthetiquePayee`
+     (lib/syntheticOrder.ts, statuts recopies ici pour garder ce module sans
+     dependance supplementaire). */
+  if (order.status === "SYNTHETIC_PENDING" || order.status === "SYNTHETIC_PAID") return false;
   const gagnant = await payerAvecConfirmation(order.id, confirmationPayload(order));
   if (!gagnant) {
     await drainerEmails(`order:${order.id}`, 1);
