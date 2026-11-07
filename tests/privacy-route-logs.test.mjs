@@ -19,7 +19,7 @@ function routeModule(file, modules = {}, extraExports = '') {
   const sandboxModule = { exports: {} };
   const NextResponse = class extends Response { static json(body, options) { return Response.json(body, options); } };
   const context = {
-    module: sandboxModule, exports: sandboxModule.exports, require: id => id === 'next/server' ? { NextResponse } : id === '@/lib/confidentialiteMesure' ? privacy : id === '@/lib/emailTemplate' ? emailTemplate : id === '@/lib/email-i18n' ? { langueCommande } : modules[id] ?? {},
+    module: sandboxModule, exports: sandboxModule.exports, require: id => id === 'next/server' ? { NextResponse } : id === '@/lib/confidentialiteMesure' ? privacy : id === '@/lib/emailTemplate' ? emailTemplate : id === '@/lib/email-i18n' ? { langueCommande } : modules[id] ?? (id === '@/lib/db' ? { sql: async () => [{ id: 1 }] } : {}),
     Response, Request, URL, Date, Error, TypeError, RangeError,
     process: { env: { DISCORD_WEBHOOK_URL: 'https://discord.invalid/webhook', CRON_SECRET: 'synthetic-cron' } },
     console: Object.fromEntries(['error', 'warn', 'log'].map(level => [level, (...args) => logs.push({ level, args })])),
@@ -87,8 +87,52 @@ test('real CSP handler sanitizes malicious directive, resource URL and private a
   assertPrivateFree({ logs: route.logs, alerts });
   assert.match(JSON.stringify(route.logs), /extras/);
   assert.equal(alerts[0].titre, 'CSP : violations signalées');
-  assert.equal(alerts[0].piedDePage, 'Politique bloquante — disposition rapportée par le navigateur');
+  assert.equal(alerts[0].piedDePage, 'Protection active · au plus une alerte par heure, tous serveurs confondus');
   saveCapture('csp-handler-safe-outputs', { logs: route.logs, alerts });
+});
+
+test('CSP identifies integration families without leaking paths, credentials or arbitrary subdomains', async () => {
+  const route = routeModule('app/api/csp/route.ts', {}, 'exports.resource = ressourceCsp; exports.page = cheminPropre;');
+  assert.equal(route.api.resource('https://CAPABILITY_private_123.api.stripe.com/private?email=' + privateValues[0]), 'https://stripe.com (service)');
+  assert.equal(route.api.resource('https://user:CAPABILITY_private_123@www.google.fr/private'), 'https://www.google.fr');
+  assert.equal(route.api.resource('https://CAPABILITY_private_123.evil.invalid/private'), 'https: [domaine externe non reconnu]');
+  assert.equal(route.api.resource('https://stripe.com.evil.invalid/'), 'https: [domaine externe non reconnu]');
+  assert.equal(route.api.page('https://cartoonova.com/fr/checkout?token=CAPABILITY_private_123'), '/checkout/[…]');
+  assert.equal(route.api.page('https://cartoonova.com/fr/suivi/CAPABILITY_private_123'), '/suivi/[prive]');
+});
+
+test('CSP deduplicates concurrent server instances and keeps sanitized logs', async () => {
+  let claimed = false, calls = 0;
+  const alerts = [];
+  const modules = {
+    '@/lib/db': { sql: async () => { calls++; if (claimed) return []; claimed = true; return [{id:1}]; } },
+    '@/lib/discord': { alerteDiscord: async body => alerts.push(body), COULEUR_ATTENTION: 1 },
+  };
+  const routes = Array.from({length:5}, () => routeModule('app/api/csp/route.ts', modules));
+  const request = () => new Request('https://cartoonova.invalid/api/csp', {method:'POST', body:JSON.stringify([{
+    type:'csp-violation', body:{effectiveDirective:'connect-src', blockedURL:'https://api.stripe.com/private?token=CAPABILITY_private_123', documentURL:'https://cartoonova.com/fr/checkout'}
+  }])});
+  const responses = await Promise.all(routes.map(r => r.api.POST(request())));
+  assert.ok(responses.every(r => r.status === 204)); assert.equal(calls,5); assert.equal(alerts.length,1);
+  assert.match(JSON.stringify(alerts), /Connexion à un service bloquée/);
+  assert.match(JSON.stringify(alerts), /stripe.com/);
+  assertPrivateFree({alerts, logs:routes.map(r=>r.logs)});
+  saveCapture('csp-readable-alert', alerts[0]);
+  await routes[0].api.POST(request()); assert.equal(calls,5);
+});
+
+test('CSP ignores extension noise and malformed reports; database failure never sends a fallback alert', async () => {
+  const alerts = [];
+  const route = routeModule('app/api/csp/route.ts', {
+    '@/lib/db': { sql: async () => { throw error; } },
+    '@/lib/discord': { alerteDiscord: async body => alerts.push(body), COULEUR_ATTENTION:1 },
+  });
+  for (const body of ['not json', JSON.stringify({body:42}), JSON.stringify({'csp-report':{'effective-directive':'connect-src','blocked-uri':'chrome-extension://id/a'}}), ' '.repeat(65537)]) {
+    assert.equal((await route.api.POST(new Request('https://cartoonova.invalid/api/csp', {method:'POST',body}))).status,204);
+  }
+  assert.equal(route.logs.length,0);
+  await route.api.POST(new Request('https://cartoonova.invalid/api/csp', {method:'POST',body:JSON.stringify({'csp-report':{'effective-directive':'connect-src','blocked-uri':'https://api.stripe.com'}})}));
+  assert.equal(alerts.length,0); assert.equal(route.logs.length,2); assertPrivateFree(route.logs);
 });
 
 test('real support sync cron logs safe counters and safe failed-provider diagnostics', async () => {
