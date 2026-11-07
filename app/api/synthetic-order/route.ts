@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { del } from "@vercel/blob";
 import { sql } from "@/lib/db";
 import { isSyntheticHeaders, SYNTHETIC_PAID, SYNTHETIC_PENDING } from "@/lib/syntheticOrder";
 
@@ -40,8 +41,23 @@ export async function DELETE(req: NextRequest) {
   const rows = await sql`
     DELETE FROM orders
     WHERE id = ${orderId}::uuid AND status IN (${SYNTHETIC_PENDING}, ${SYNTHETIC_PAID})
-    RETURNING status
+    RETURNING status, photo_urls
   `;
   if (!rows[0]) return introuvable();
-  return NextResponse.json({ deleted: true, status: rows[0].status });
+
+  /* La photo de test deposee par le controle part avec sa commande. Seules
+     les URL de cette commande synthetique sont effacees, et seulement celles
+     du dossier des depots de caisse (`orders/`). */
+  const photos = (Array.isArray(rows[0].photo_urls) ? rows[0].photo_urls : [])
+    .filter((u: unknown): u is string => typeof u === "string" && /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/orders\//.test(u));
+  let photosDeleted = 0;
+  if (photos.length) {
+    try {
+      await del(photos);
+      photosDeleted = photos.length;
+    } catch {
+      return NextResponse.json({ deleted: true, status: rows[0].status, photosDeleted: 0, photoError: true });
+    }
+  }
+  return NextResponse.json({ deleted: true, status: rows[0].status, photosDeleted });
 }
