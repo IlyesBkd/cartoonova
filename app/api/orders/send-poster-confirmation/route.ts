@@ -7,6 +7,7 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
+import { storageEmailUrl } from "@/lib/storage";
 
 export async function POST(req: NextRequest) {
   const refus = await refuserSiPasAdmin(req);
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
         bodyHtml: emailParagraph(t.greeting(commande.customer_name))
           // Only the translation contains markup; never the interpolated reference.
           + `<p style="margin:0 0 16px;line-height:1.6;">${t.intro(escapeEmailHtml(ref))}</p>`
-          + emailImage(finalImageUrl, "Cartoonova poster")
+          + emailImage(storageEmailUrl(finalImageUrl), "Cartoonova poster")
           + emailParagraph(t.attachmentNote)
           + emailButton(t.cta, confirmUrl)
           // Keep the revision invitation before the printing reassurance.

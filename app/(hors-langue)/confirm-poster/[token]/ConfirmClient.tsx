@@ -1,4 +1,5 @@
 "use client";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 
 import { useRef, useState } from "react";
 import { uploadImage } from "@/lib/uploadClient";
@@ -180,7 +181,7 @@ export default function ConfirmClient({
                 {photos.map((url, i) => (
                   <div key={url} className="relative aspect-square rounded-lg overflow-hidden border-2 border-black/20">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <img src={storageDisplayUrl(url, { posterToken: token })} alt="" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}

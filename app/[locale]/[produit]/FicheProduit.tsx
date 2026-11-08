@@ -1,4 +1,5 @@
 "use client";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 
 import { useState, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import Image from "next/image";
@@ -1159,7 +1160,7 @@ export default function FicheProduit({ donnees, prixInitial = null, produitStruc
                     <div className="depot-apercu" key={url}>
                       {/* Blob Vercel : hors du domaine configure pour l'optimiseur. */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt={tAlt("photoEnvoyee")} />
+                      <img src={storageDisplayUrl(url)} alt={tAlt("photoEnvoyee")} />
                       <button
                         type="button"
                         aria-label="Retirer"

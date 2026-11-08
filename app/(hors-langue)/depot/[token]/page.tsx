@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 import { canDepositPhotos } from "@/lib/clientOrderPolicy";
 import { clientActionCopy } from "@/lib/i18n/clientActions";
 import { getOrderById } from "@/lib/db";
@@ -79,7 +80,7 @@ export default async function DepotPage({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   key={i}
-                  src={url}
+                  src={storageDisplayUrl(url, { token })}
                   alt=""
                   className="w-full aspect-square object-cover rounded-lg border border-gray-200"
                 />

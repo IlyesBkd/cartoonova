@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { isPrivateStorageReference, storageDisplayUrl } from "@/lib/storageDisplay";
 import { canRespondToPreview } from "@/lib/clientOrderPolicy";
 import { clientActionCopy } from "@/lib/i18n/clientActions";
 import { getOrderByConfirmationToken } from "@/lib/db";
@@ -50,9 +51,10 @@ export default async function ConfirmPosterPage({
               l'e-mail. Les anciens portraits hors de `/final/` gardent la
               balise brute, que l'optimiseur refuserait. */}
           {order.final_image_url &&
-            (/^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/final\//.test(order.final_image_url) ? (
+            (isPrivateStorageReference(order.final_image_url) || /^https:\/\/[^/]+\.public\.blob\.vercel-storage\.com\/final\//.test(order.final_image_url) ? (
               <Image
-                src={order.final_image_url}
+                src={storageDisplayUrl(order.final_image_url, { posterToken: token })}
+                unoptimized={isPrivateStorageReference(order.final_image_url)}
                 alt="Cartoonova poster"
                 width={1024}
                 height={1365}
@@ -62,7 +64,7 @@ export default async function ConfirmPosterPage({
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={order.final_image_url} alt="Cartoonova poster" className="w-full rounded-xl" />
+              <img src={storageDisplayUrl(order.final_image_url, { posterToken: token })} alt="Cartoonova poster" className="w-full rounded-xl" />
             ))}
 
           <ConfirmClient

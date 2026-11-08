@@ -1,4 +1,5 @@
 "use client";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { lireOrigine } from "@/lib/origineVisite";
@@ -534,7 +535,7 @@ function PaymentForm({
             {orderConfig.photoUrls[0] ? (
               /* Blob Vercel : hors du domaine configure pour l'optimiseur. */
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={orderConfig.photoUrls[0]} alt="" />
+              <img src={storageDisplayUrl(orderConfig.photoUrls[0])} alt="" />
             ) : (
               <Icone nom="image" taille={22} />
             )}
@@ -1199,7 +1200,7 @@ export default function CheckoutModal({
                   {orderConfig.photoUrls[0] ? (
                     /* Blob Vercel : hors du domaine configure pour l'optimiseur. */
                     /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={orderConfig.photoUrls[0]} alt="" />
+                    <img src={storageDisplayUrl(orderConfig.photoUrls[0])} alt="" />
                   ) : (
                     <Icone nom="image" taille={22} />
                   )}

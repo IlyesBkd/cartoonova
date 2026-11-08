@@ -3,6 +3,8 @@ import { checkoutPhotoSession, checkoutPhotoSubject } from "@/lib/checkoutPhotoS
 import { withFreshDatabaseClient } from "@/lib/db";
 import { parseOrderTrackingToken } from "@/lib/emailToken";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
+import { canDepositPhotos, canRespondToPreview } from "@/lib/clientOrderPolicy";
+import type { DbOrder } from "@/lib/db";
 import { SLUGS_PRODUIT_TOUTES_LANGUES } from "@/lib/catalogue";
 
 import type { TransactionSql } from "postgres";
@@ -112,4 +114,30 @@ export async function reserveUpload(req: Request, pathname: string, context: str
       tokenPayload: JSON.stringify({ reservation }),
     };
   }));
+}
+
+/** Completion does not reserve or refund quota. It rechecks the exact ledger
+ * context, original ingress scope and (for checkout) independent session. */
+export async function authorizeReservedUpload(req: Request, pathname: string, context: unknown) {
+  sameOrigin(req);
+  if (typeof context !== "string" || !/^[a-f0-9]{64}$/.test(context)) throw new UploadError("Contexte requis.");
+  const rows = await withFreshDatabaseClient(db => db`SELECT c.* FROM upload_reservations r
+    JOIN upload_contexts c ON c.id = r.context_id
+    WHERE r.pathname = ${pathname} AND c.token_hash = ${hash(context)}
+      AND c.ip_hash = ${ipHash(req)} AND c.expires_at > now()`);
+  const c = rows[0];
+  if (!c) throw new UploadError("Contexte expiré ou invalide.");
+  if (c.purpose === "checkout") {
+    const session = checkoutPhotoSession(req);
+    if (!session || c.subject !== checkoutPhotoSubject(session)) throw new UploadError("Session de photos invalide.");
+  } else if (c.purpose === "admin") {
+    const refused = await refuserSiPasAdmin(req);
+    if (refused) throw new UploadError("Non autorisé.", refused.status);
+  } else {
+    const id = String(c.subject).split(":")[1];
+    const [order] = await withFreshDatabaseClient(db => db`SELECT * FROM orders WHERE id = ${id}::uuid`);
+    const eligible = c.purpose === "depot" ? canDepositPhotos(order as unknown as DbOrder) : canRespondToPreview(order as unknown as DbOrder);
+    if (!eligible) throw new UploadError("Commande indisponible.");
+  }
+  return c;
 }

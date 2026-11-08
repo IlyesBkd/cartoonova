@@ -8,6 +8,9 @@ export async function POST(req: NextRequest) {
     if (body?.type !== "blob.generate-client-token" && body?.type !== "blob.upload-completed") {
       return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
     }
+    if (body.type === "blob.generate-client-token" && process.env.CARTOONOVA_STORAGE_PROVIDER === "vps") {
+      return NextResponse.json({ error: "Utilisez le dépôt privé." }, { status: 409 });
+    }
     if (body.type === "blob.generate-client-token" && !body.payload?.clientPayload) {
       return NextResponse.json({ error: "Contexte requis." }, { status: 403 });
     }

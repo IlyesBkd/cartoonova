@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Contexte invalide." }, { status: 400 });
     }
     const { photoSession, ...context } = await createUploadContext(req, input);
-    const response = NextResponse.json(context, { headers: { "Cache-Control": "no-store" } });
+    const response = NextResponse.json({ ...context, ...(process.env.CARTOONOVA_STORAGE_PROVIDER === "vps" ? { provider: "vps" } : {}) }, { headers: { "Cache-Control": "no-store" } });
     if (photoSession) response.cookies.set(CHECKOUT_PHOTO_COOKIE, photoSession, {
       httpOnly: true, secure: true, sameSite: "strict", path: "/",
     });

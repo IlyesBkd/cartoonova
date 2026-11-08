@@ -30,7 +30,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ token: 
       headers: {
         "content-type": image.contentType,
         "x-content-type-options": "nosniff",
-        "cache-control": "private, max-age=3600",
+        "cache-control": "private, no-store",
       },
     });
   } catch {

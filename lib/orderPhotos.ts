@@ -24,6 +24,8 @@
  * photo n'ouvre rien d'autre.
  */
 
+import { isVpsReference } from "./storageReference";
+
 export const MAX_PHOTOS = 8;
 
 /** Longueur au-dela de laquelle on considere l'entree comme malveillante. */
@@ -57,6 +59,9 @@ export function parsePhotoUrls(raw: unknown, previouslyAttached: unknown = []): 
     if (!url || url.length > MAX_URL_LENGTH) return { error: "Une URL de photo est invalide." };
     try {
       const parsed = new URL(url);
+      if (isVpsReference(url) && /^\/(orders|retouches)\//.test(parsed.pathname)) {
+        // Registry completion and ownership are enforced at attachment time.
+      } else {
       // Match the SDK's getStoreIdFromToken/constructBlobUrl contract. No DNS,
       // wildcard Blob host or provider request is used to discover the store.
       const store = /^vercel_blob_rw_([a-zA-Z0-9-]+)_[a-zA-Z0-9_-]+$/.exec(process.env.BLOB_READ_WRITE_TOKEN ?? "")?.[1];
@@ -74,6 +79,7 @@ export function parsePhotoUrls(raw: unknown, previouslyAttached: unknown = []): 
         && /^\/(orders|retouches)\/\d+-[\p{L}\p{N}\p{M} _().+,\x27-]+\.(?:jpe?g|png|webp|heic|heif)$/iu.test(decodedPath);
       if (!/^\/(orders|retouches)\//.test(parsed.pathname) || /%(?:2f|5c|25)/i.test(parsed.pathname) || !(standardPath || retainedLegacyPath)) {
         return { error: "Chemin de photo interdit." };
+      }
       }
     } catch {
       return { error: "Une URL de photo est invalide." };

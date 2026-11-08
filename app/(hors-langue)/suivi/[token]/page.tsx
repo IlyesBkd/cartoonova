@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 import { getTranslations } from "next-intl/server";
 import { formatPrice, type Currency } from "@/lib/currency";
 import { getOrderById } from "@/lib/db";
@@ -169,7 +170,7 @@ export default async function SuiviPage({
             <p>{t.finalBody}</p>
             {/* Stockage blob distant : hors du domaine confie a l'optimiseur. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={order.final_image_url} alt={t.finalTitle} className="suivi__portrait" />
+            <img src={storageDisplayUrl(order.final_image_url, { token })} alt={t.finalTitle} className="suivi__portrait" />
           </section>
         )}
 

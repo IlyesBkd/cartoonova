@@ -1,0 +1,27 @@
+# STAGING TEMPLATE ONLY. Not installed or syntax-verified against live nginx.
+# Include inside an existing dedicated HTTPS server; configure TLS separately.
+# No alias/root to STORAGE_ROOT, no other location exposing its files.
+# Keep grants out of ALL inherited access/error/WAF/APM logs at every layer.
+access_log off;
+error_log /dev/null emerg;
+client_header_timeout 15s;
+client_body_timeout 15s;
+send_timeout 15s;
+client_max_body_size 10m;
+
+location ^~ /v1/files/ {
+    proxy_pass http://127.0.0.1:8765;
+    proxy_http_version 1.1;
+    proxy_set_header Host private-storage;
+    proxy_set_header Connection close;
+    proxy_set_header Authorization $http_authorization;
+    proxy_request_buffering off;
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_connect_timeout 2s;
+    proxy_send_timeout 15s;
+    proxy_read_timeout 15s;
+    proxy_max_temp_file_size 0;
+}
+
+location / { return 404; }

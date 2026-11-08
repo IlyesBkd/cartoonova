@@ -1,4 +1,5 @@
 "use client";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 
 import { useEffect, useRef, useState } from "react";
 import { uploadImage } from "@/lib/uploadClient";
@@ -163,7 +164,7 @@ export default function DepotClient({ token, lang, initialPhotos = [] }: { token
       <div className="grid grid-cols-4 gap-2">
         {existingPhotos.map(url => <div key={url}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt="" className="w-full aspect-square object-cover rounded-lg" />
+          <img src={storageDisplayUrl(url, { token })} alt="" className="w-full aspect-square object-cover rounded-lg" />
           <button type="button" aria-label={copy.remove} disabled={enregistrement || envoiEnCours} onClick={() => valider("remove", [url])}>{copy.remove}</button>
         </div>)}
       </div>
@@ -180,7 +181,7 @@ export default function DepotClient({ token, lang, initialPhotos = [] }: { token
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={i}
-              src={url}
+              src={storageDisplayUrl(url, { token })}
               alt=""
               className="w-full aspect-square object-cover rounded-lg border border-gray-200"
             />

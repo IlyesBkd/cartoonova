@@ -4,6 +4,7 @@
  * older final/<filename> objects in that same store remain supported.
  */
 import sharp from "sharp";
+import { isVpsReference } from "./storageReference";
 
 export const MAX_FINAL_IMAGE_BYTES = 10 * 1024 * 1024;
 // Allows 32/48/64 MP poster portraits, while bounding native decode allocation.
@@ -37,7 +38,11 @@ export async function downloadFinalImage(value: unknown, { timeoutMs = TIMEOUT_M
   controller.signal.addEventListener("abort", stopDecoder, { once: true });
   try {
     return await Promise.race([deadline, (async () => {
-      const response = await fetch(url, { redirect: "manual", signal: controller.signal, cache: "no-store", headers: { Accept: "image/png, image/jpeg, image/webp" } });
+      const response = isVpsReference(url) ? await (async () => {
+        const { readStoredObject } = await import("./storage");
+        const object = await readStoredObject(url);
+        return new Response(new Uint8Array(object.bytes), { headers: { "Content-Type": object.contentType, "Content-Length": String(object.bytes.length) } });
+      })() : await fetch(url, { redirect: "manual", signal: controller.signal, cache: "no-store", headers: { Accept: "image/png, image/jpeg, image/webp" } });
       if (!response.ok || !response.body) { await response.body?.cancel(); throw new FinalImageError(); }
       reader = response.body.getReader();
       const mime = response.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
@@ -85,6 +90,7 @@ export class FinalImageError extends Error {
   constructor(message = "Portrait indisponible ou invalide.", public status = 400) { super(message); }
 }
 export function validateFinalImageUrl(value: unknown): string {
+  if (isVpsReference(value) && new URL(value).pathname.startsWith("/final/") && /\.(png|jpe?g|webp)$/.test(value)) return value;
   const configured = process.env.FINAL_IMAGE_STORAGE_ORIGIN;
   if (!configured || !/^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com$/.test(configured)) {
     throw new FinalImageError("Configuration du stockage des portraits manquante ou invalide.", 503);

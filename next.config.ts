@@ -4,6 +4,17 @@ import { VERSION_VISUELS } from "./lib/versionVisuels";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
+// Only the configured private upload origin is allowed; reads stay same-origin.
+// Never interpolate arbitrary environment text into a CSP directive.
+const STORAGE_UPLOAD_ORIGIN = (() => {
+  if (process.env.CARTOONOVA_STORAGE_PROVIDER !== "vps" || !process.env.STORAGE_VPS_ORIGIN) return "";
+  const url = new URL(process.env.STORAGE_VPS_ORIGIN);
+  if (url.protocol !== "https:" || url.username || url.password || url.pathname !== "/" || url.search || url.hash) {
+    throw new Error("STORAGE_VPS_ORIGIN must be an exact HTTPS origin");
+  }
+  return ` ${url.origin}`;
+})();
+
 /* Politique de securite du contenu bloquante. Les pages etant
    statiques, pas de nonce possible : 'unsafe-inline' reste necessaire pour
    gtag, le pixel Meta et les scripts d'amorcage de Next. A rendre bloquante
@@ -35,7 +46,7 @@ const CSP = [
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https://*.blob.vercel-storage.com",
-  `connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com ${GOOGLE_PAYS} https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://bzr.openai.com https://bzrcdn.openai.com https://vercel.live wss://ws-us3.pusher.com`,
+  `connect-src 'self' https://api.stripe.com https://*.stripe.com https://*.stripe.network https://maps.googleapis.com https://vercel.com https://blob.vercel-storage.com https://*.blob.vercel-storage.com https://api-adresse.data.gouv.fr https://data.geopf.fr https://photon.komoot.io https://eu.i.posthog.com https://eu-assets.i.posthog.com ${GOOGLE_PAYS} https://*.doubleclick.net https://www.googleadservices.com https://pagead2.googlesyndication.com https://*.google-analytics.com https://www.facebook.com https://connect.facebook.net https://bzr.openai.com https://bzrcdn.openai.com https://vercel.live wss://ws-us3.pusher.com${STORAGE_UPLOAD_ORIGIN}`,
   "frame-src 'self' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://pay.google.com https://www.googletagmanager.com https://td.doubleclick.net https://www.facebook.com https://vercel.live",
   "worker-src 'self' blob:",
   "object-src 'none'",

@@ -13,6 +13,8 @@ import { estPhysique } from "@/lib/supportCommande";
 import { optionsLivraisonCadeau, validerLivraisonCadeau, LivraisonCadeauInvalide } from "@/lib/livraisonCadeau";
 import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "@/lib/finalImage";
 import { assertDeliveryEligible, DeliveryPolicyError } from "@/lib/deliveryPolicy";
+import { isVpsReference } from "@/lib/storageReference";
+import { authorizeFinalStorageAttachment } from "@/lib/storageAuthorization";
 
 /**
  * Depot de l'illustration finale, et son envoi.
@@ -115,6 +117,9 @@ export async function POST(req: NextRequest) {
 
     // ── Depot de l'image ─────────────────────────────────────────────
     // Refuse unsafe destinations and bytes BEFORE persistence or scheduling.
+    if (isVpsReference(finalImageUrl) && !await authorizeFinalStorageAttachment(finalImageUrl, order.id)) {
+      throw new FinalImageError("Ce portrait n'appartient pas à cette commande.", 403);
+    }
     await downloadFinalImage(finalImageUrl);
     if (saveOnly) {
       if (!order.paid_at) throw new DeliveryPolicyError("La commande doit être payée avant le dépôt final.");

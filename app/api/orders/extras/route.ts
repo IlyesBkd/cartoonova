@@ -10,6 +10,7 @@ import { genererCalendrier } from "@/lib/extras/calendrier";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { downloadFinalImage, FinalImageError } from "@/lib/finalImage";
 import { executeDelivery, deliveryContentHash, OrderDeliveryError } from "@/lib/orderDelivery";
+import { storageEmailUrl, uploadVpsServerObject } from "@/lib/storage";
 
 /**
  * Carte de voeux et calendrier (options F-6/F-7) : genere les PDF a partir du
@@ -33,6 +34,16 @@ function lireOptions(brut: unknown): Partial<OrderOptions> {
     }
   }
   return (brut as Partial<OrderOptions>) ?? {};
+}
+
+async function storeExtra(pdf: Uint8Array, orderId: string, filename: string): Promise<string> {
+  if (process.env.CARTOONOVA_STORAGE_PROVIDER === "vps") {
+    return uploadVpsServerObject(pdf, `extras/${orderId}`, "application/pdf");
+  }
+  const blob = await put(`extras/${orderId.slice(0, 8)}/${filename}`, Buffer.from(pdf), {
+    access: "public", contentType: "application/pdf", addRandomSuffix: true,
+  });
+  return blob.url;
 }
 
 export async function POST(req: NextRequest) {
@@ -69,29 +80,21 @@ export async function POST(req: NextRequest) {
     if (options.carteVoeux && !fichiers.some(f => f.cle === "carteVoeux")) {
       const pdf = await genererCarteVoeux(image, lang);
       await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: "carteVoeux" });
-      const blob = await put(`extras/${ref}/carte-voeux-cartoonova.pdf`, Buffer.from(pdf), {
-        access: "public",
-        contentType: "application/pdf",
-        addRandomSuffix: true,
-      });
-      fichiers.push({ cle: "carteVoeux", libelle: oc.extrasCarte, url: blob.url });
+      const url = await storeExtra(pdf, order.id, "carte-voeux-cartoonova.pdf");
+      fichiers.push({ cle: "carteVoeux", libelle: oc.extrasCarte, url });
       await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: null });
     }
 
     if (options.calendrier && !fichiers.some(f => f.cle === "calendrier")) {
       const pdf = await genererCalendrier(image, lang);
       await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: "calendrier" });
-      const blob = await put(`extras/${ref}/calendrier-cartoonova.pdf`, Buffer.from(pdf), {
-        access: "public",
-        contentType: "application/pdf",
-        addRandomSuffix: true,
-      });
-      fichiers.push({ cle: "calendrier", libelle: oc.extrasCalendrier, url: blob.url });
+      const url = await storeExtra(pdf, order.id, "calendrier-cartoonova.pdf");
+      fichiers.push({ cle: "calendrier", libelle: oc.extrasCalendrier, url });
       await context.checkpoint({ ...context.artifacts, fichiers, uploadPending: null });
     }
 
     const boutons = fichiers
-      .map((f) => emailButton(f.libelle, f.url))
+      .map((f) => emailButton(f.libelle, storageEmailUrl(f.url)))
       .join("");
 
     await context.send(idempotencyKey => envoyerEmail({

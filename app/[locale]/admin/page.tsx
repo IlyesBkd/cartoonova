@@ -1,4 +1,5 @@
 "use client";
+import { storageDisplayUrl } from "@/lib/storageDisplay";
 
 import { adminFetch } from "@/lib/adminFetch";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -874,7 +875,7 @@ export default function AdminPage() {
       if (!r.ok) {
         alert(`Erreur : ${data.error ?? r.status}`);
       } else {
-        const liens = (data.fichiers ?? []).map((f: { url: string }) => f.url).join("\n");
+        const liens = (data.fichiers ?? []).map((f: { url: string }) => storageDisplayUrl(f.url)).join("\n");
         alert(`Envoyé au client.\n${liens}`);
       }
     } catch (err) {
@@ -1632,8 +1633,8 @@ export default function AdminPage() {
                         <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({urls.length})</p>
                         <div className="grid grid-cols-3 gap-2">
                           {urls.map((url: string, i: number) => (
-                            <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:ring-2 hover:ring-yellow-400 transition-all">
-                              <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                            <a key={i} href={storageDisplayUrl(url)} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:ring-2 hover:ring-yellow-400 transition-all">
+                              <img src={storageDisplayUrl(url)} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
                             </a>
                           ))}
                         </div>
@@ -1646,8 +1647,8 @@ export default function AdminPage() {
 
                       {selectedOrder.final_image_url ? (
                         <div className="space-y-2">
-                          <a href={selectedOrder.final_image_url} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-emerald-300 hover:ring-2 hover:ring-emerald-400 transition-all">
-                            <img src={selectedOrder.final_image_url} alt="Image finale" className="w-full h-auto object-cover" />
+                          <a href={storageDisplayUrl(selectedOrder.final_image_url)} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-emerald-300 hover:ring-2 hover:ring-emerald-400 transition-all">
+                            <img src={storageDisplayUrl(selectedOrder.final_image_url)} alt="Image finale" className="w-full h-auto object-cover" />
                           </a>
                           <div className="flex gap-2">
                             <button
@@ -1877,12 +1878,12 @@ export default function AdminPage() {
                                               {r.photos.map((url: string, k: number) => (
                                                 <a
                                                   key={k}
-                                                  href={url}
+                                                  href={storageDisplayUrl(url)}
                                                   target="_blank"
                                                   rel="noopener noreferrer"
                                                   className="block aspect-square rounded-lg overflow-hidden border border-amber-300 hover:ring-2 hover:ring-amber-400 transition-all"
                                                 >
-                                                  <img src={url} alt={`Retouche ${k + 1}`} className="w-full h-full object-cover" />
+                                                  <img src={storageDisplayUrl(url)} alt={`Retouche ${k + 1}`} className="w-full h-full object-cover" />
                                                 </a>
                                               ))}
                                             </div>

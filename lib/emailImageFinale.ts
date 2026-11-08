@@ -12,6 +12,7 @@ import { optionsLivraisonCadeau, validerLivraisonCadeau } from "./livraisonCadea
 import { downloadFinalImage, validateFinalImageUrl, FinalImageError } from "./finalImage";
 import { executeDelivery, deliveryContentHash, OrderDeliveryError } from "./orderDelivery";
 import { emailLayout, emailParagraph, emailButton, emailNotice, emailImage, escapeEmailHtml } from "./emailTemplate";
+import { storageEmailUrl } from "./storage";
 
 /**
  * L'e-mail qui livre le portrait.
@@ -73,6 +74,7 @@ export async function envoyerImageFinale(
   }
   const destinataire = gift?.recipientEmail?.trim() || order.customer_email;
   const { bytes } = await downloadFinalImage(order.final_image_url);
+  const imageEmailUrl = storageEmailUrl(order.final_image_url);
   const tiers = destinataire.toLowerCase() !== order.customer_email.toLowerCase();
   const ref = order.id.slice(0, 8);
   /* Les cadeaux offerts (fond d'ecran, avatar, carte a imprimer) : la page
@@ -110,9 +112,9 @@ export async function envoyerImageFinale(
         ${emailParagraph(t.greeting(tiers ? null : order.customer_name))}
         <p style="font-size:16px;line-height:1.7;color:#3f3f46;margin:0 0 18px;">${t.ready(escapeEmailHtml(ref))}</p>
         ${gift?.message && !retouche ? emailParagraph(gift.message) : ""}
-        ${emailImage(order.final_image_url, "Cartoonova")}
+        ${emailImage(imageEmailUrl, "Cartoonova")}
         ${emailParagraph(t.question)}
-        ${emailButton(t.download, order.final_image_url)}
+        ${emailButton(t.download, imageEmailUrl)}
         ${!tiers && !retouche ? emailButton(`🎁 ${bonusLiens[lang].email}`, lienBonus)
           + emailParagraph(avisLiens[lang].texte)
           + emailButton(`${avisLiens[lang].bouton} →`, `${SITE_URL}/${lang}/avis/nouveau?c=${token}`) : ""}

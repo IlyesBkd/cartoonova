@@ -1,7 +1,16 @@
 import type { Sql, TransactionSql } from "postgres";
 import { withFreshDatabaseClient } from "@/lib/db";
 import type { PhotosInvalides } from "@/lib/orderPhotos";
+import { isVpsReference } from "./storageReference";
 import { checkoutPhotoSession, checkoutPhotoSubject } from "@/lib/checkoutPhotoSession";
+
+async function completeVpsPhotos(photos: string[], db: Sql | TransactionSql): Promise<boolean> {
+  const references = [...new Set(photos.filter(isVpsReference))];
+  if (!references.length) return true;
+  const rows = await db`SELECT reference FROM storage_objects WHERE reference IN ${db(references)} AND status = 'completed'`;
+  const completed = new Set(rows.map(row => String(row.reference)));
+  return references.every(ref => completed.has(ref));
+}
 
 /** Checkout has no order capability yet: only the independent opaque browser
  * session can attach its reservations. No legacy or already-attached bypass.
@@ -13,6 +22,7 @@ export async function validateCheckoutPhotoOwnership(req: Request, photos: strin
   if (!session) return { error: "Session de photos requise. Déposez à nouveau vos photos." };
   const paths = photos.map(photo => new URL(photo).pathname.slice(1));
   return withFreshDatabaseClient(async db => {
+    if (!await completeVpsPhotos(photos, db)) return { error: "Dépôt non terminé." };
     const rows = await db`
       SELECT r.pathname FROM upload_reservations r
       JOIN upload_contexts c ON c.id = r.context_id
@@ -46,8 +56,10 @@ export async function validatePhotoOwnership(
   // exact URL already attached to this order may be retained, never a guessed
   // legacy filename supplied by a different customer.
   const pending = photos.filter(photo => !attached.has(photo));
-  if (!pending.length) return null;
+  if (!pending.length && !photos.some(isVpsReference)) return null;
   const check = async (db: Sql | TransactionSql) => {
+    if (!await completeVpsPhotos(photos, db)) return { error: "Dépôt non terminé." };
+    if (!pending.length) return null;
     const paths = pending.map(photo => new URL(photo).pathname.slice(1));
     const rows = await db`
       SELECT r.pathname FROM upload_reservations r

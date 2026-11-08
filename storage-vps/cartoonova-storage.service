@@ -1,0 +1,37 @@
+[Unit]
+Description=Cartoonova private file storage
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=hermes
+Group=hermes
+WorkingDirectory=/home/hermes/projects/cartoonova
+Environment=STORAGE_ROOT=/home/hermes/.hermes/profiles/cartoonova/data/private-storage
+Environment=STORAGE_PORT=8765
+ExecStart=/usr/bin/python3 -B /home/hermes/projects/cartoonova/storage-vps/run-from-vercel.py
+Restart=on-failure
+RestartSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/hermes/.hermes/profiles/cartoonova/data/private-storage
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+LimitNOFILE=1024
+MemoryMax=256M
+TasksMax=64
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

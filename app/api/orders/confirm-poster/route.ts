@@ -14,6 +14,7 @@ import { accuseRetoucheEmail } from "@/lib/i18n/serveur";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { signalerPanne } from "@/lib/alerteServeur";
+import { storageEmailUrl } from "@/lib/storage";
 
 /**
  * Accuse de reception d'une demande de retouche.
@@ -50,7 +51,7 @@ async function envoyerAccuseRetouche(order: DbOrder, note: string | null): Promi
           + emailParagraph(t.body)
           + emailNotice(t.delay)
           + blocNote
-          + (order.poster_confirmation_photos ?? []).map((url, i) => emailButton(`Photo ${i + 1}`, url)).join("")
+          + (order.poster_confirmation_photos ?? []).map((url, i) => emailButton(`Photo ${i + 1}`, storageEmailUrl(url))).join("")
           + emailParagraph(t.reply),
         footerHtml: emailParagraph(t.thanks) + emailParagraph(t.team),
       }),
