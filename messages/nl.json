@@ -575,6 +575,7 @@
     },
     "blackFriday": {
       "promo": "Het is Black Friday —",
+      "promoCode": "-{remise}% met de code {code} tot {fin}",
       "promoFort": "hét moment om te geven",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "geef iets origineels",

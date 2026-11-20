@@ -575,6 +575,7 @@
     },
     "blackFriday": {
       "promo": "Trwa Black Friday —",
+      "promoCode": "-{remise}% z kodem {code} do {fin}",
       "promoFort": "najlepszy moment na prezent",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "podaruj coś oryginalnego",

@@ -231,8 +231,12 @@ export default function Navbar({
                 {/* Passee la date limite d'impression, la campagne continue
                     pour le numerique, qui arrive encore a temps. */}
                 {(() => {
-                  const message =
-                    evenement.phase === "numerique" ? (
+                  const message = evenement.offre ? (
+                      <>
+                        {tEvt(`${evenement.cle}.promo` as "noel.promo")}{" "}
+                        <b>{tEvt("blackFriday.promoCode", evenement.offre)}</b>
+                      </>
+                    ) : evenement.phase === "numerique" ? (
                       <>
                         {tEvt(`${evenement.cle}.promo` as "noel.promo")}{" "}
                         <b>{tEvt("phaseNumerique", { date: evenement.dateLimite })}</b>

@@ -575,6 +575,7 @@
     },
     "blackFriday": {
       "promo": "Det er Black Friday —",
+      "promoCode": "-{remise} % med koden {code} til og med {fin}",
       "promoFort": "det bedste tidspunkt at give",
       "heroTitre1": "Black Friday:",
       "heroTitre2": "giv noget originalt",

@@ -98,6 +98,8 @@ interface DefEvenement {
    *         fenetre se ferme le jour meme.
    */
   livraison: boolean;
+  /** Evenement sans livraison seulement : jours apres la date ou la fenetre reste ouverte (Cyber Monday). */
+  joursApres?: number;
 }
 
 /**
@@ -178,6 +180,7 @@ const EVENEMENTS: DefEvenement[] = [
     regle: { type: "nieme", mois: 11, jourSemaine: JEUDI, n: 4, decalageJours: 1 },
     joursAvant: 5,
     livraison: false,
+    joursApres: 3,
   },
   {
     cle: "noel",
@@ -315,7 +318,7 @@ export function evenementActif(
       const date = resoudre(def.parLocale?.[locale] ?? def.regle, annee);
       const commanderAvant = def.livraison ? getOrderByDate(date) : null;
       const commanderAvantNumerique = def.livraison ? getDigitalOrderByDate(date) : null;
-      const fermeture = commanderAvantNumerique ?? date;
+      const fermeture = commanderAvantNumerique ?? ajouterJours(date, def.joursApres ?? 0);
       const ouverture = ajouterJours(date, -def.joursAvant);
 
       if (maintenant < ouverture || maintenant > fermeture) continue;
@@ -351,12 +354,28 @@ export function evenementActif(
  */
 export type CleAffichee = CleEvenement | "anniversaire";
 
+/**
+ * Code promo du Black Friday, affiche dans la barre seulement pendant sa
+ * validite (code cree dans l'admin le 20/11/2026, decision d'Ilyes). La fin
+ * d'affichage precede la fin du code de six heures : les pages restent en
+ * cache jusqu'a six heures (layout), un code expire ne doit pas s'afficher.
+ */
+export const OFFRE_BLACK_FRIDAY = {
+  code: "BF2026",
+  remise: 20,
+  debut: new Date("2026-11-26T23:00:00Z"),
+  finAffichage: new Date("2026-11-30T17:00:00Z"),
+  fin: new Date("2026-11-30T22:59:59Z"),
+};
+
 export interface EvenementAffiche {
   cle: CleAffichee;
   /** « 22 mai », deja dans la langue du marche. Vide hors campagne livrable.
       En phase « numerique », c'est la date limite du numerique. */
   dateLimite: string;
   phase: "impression" | "numerique" | null;
+  /** Code promo du moment, seulement pendant sa validite (Black Friday). */
+  offre?: { code: string; remise: number; fin: string };
 }
 
 /**
@@ -374,12 +393,22 @@ export function evenementAffiche(
   const actif = evenementActif(locale, maintenant);
   if (!actif) return { cle: "anniversaire", dateLimite: "", phase: null };
   const limite = actif.phase === "numerique" ? actif.commanderAvantNumerique : actif.commanderAvant;
+  const o = OFFRE_BLACK_FRIDAY;
+  const offre =
+    actif.cle === "blackFriday" && maintenant >= o.debut && maintenant < o.finAffichage
+      ? {
+          code: o.code,
+          remise: o.remise,
+          fin: new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: "Europe/Paris" }).format(o.fin),
+        }
+      : undefined;
   return {
     cle: actif.cle,
     dateLimite: limite
       ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "long" }).format(limite)
       : "",
     phase: actif.phase,
+    ...(offre ? { offre } : {}),
   };
 }
 
