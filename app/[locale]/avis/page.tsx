@@ -7,7 +7,7 @@ import { avisPubliesEnCache, statistiquesAvisEnCache } from "@/lib/lecturesCache
 
 /* Un avis publie apparait au plus tard cinq minutes apres, et tout de suite
    quand il passe par la moderation (`revalidateTag("avis")`). */
-export const revalidate = 300;
+export const revalidate = 21600;
 import AvisClient from "./AvisClient";
 import JsonLd from "@/components/JsonLd";
 import { filAriane } from "@/lib/donneesStructurees";

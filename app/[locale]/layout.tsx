@@ -31,11 +31,13 @@ import "../globals.css";
    du visiteur est posee en cookie par `proxy.ts` et lue cote client par
    `CurrencyProvider`. */
 
-/* Au plus une heure entre deux regenerations, pour toutes les pages : le temps
+/* Au plus six heures entre deux regenerations, pour toutes les pages : le temps
    fort affiche (`evenementAffiche`) depend de la date, et une page fixe comme
    /contact n'aurait sinon jamais ete reconstruite avant le deploiement suivant.
-   Une page peut descendre plus bas (le blog a 5 min). */
-export const revalidate = 3600;
+   Une heure suffisait a depasser les limites Vercel (1,6 million d'ecritures ISR
+   en novembre 2026 : 10 langues, chaque page refaite a chaque heure). Les prix
+   et les avis se rafraichissent a la demande par leur etiquette. */
+export const revalidate = 21600;
 const baseUrl = SITE_URL;
 
 /* Vignettes des menus deroulants de l'en-tete. `vignetteProduit` lit `public/`

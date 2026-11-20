@@ -14,7 +14,7 @@ import { SITE_URL } from "@/lib/site";
 import LectureArticle from "@/components/blog/LectureArticle";
 import { getFrenchArticleIntent } from "@/lib/articleIntents";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 /* Les 30 articles les plus recents de chaque langue sont construits au
    deploiement ; les plus anciens a leur premiere visite, puis servis par le

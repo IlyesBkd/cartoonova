@@ -24,7 +24,7 @@ import { produitsJamaisLus } from "./indexation";
 export const prixEnCache = unstable_cache(
   (devise: Parameters<typeof getPricesForCurrency>[0]) => getPricesForCurrency(devise),
   ["prix-devise"],
-  { revalidate: 300, tags: ["prix"] }
+  { revalidate: 86400, tags: ["prix"] }
 );
 
 /** Texte redige d'une fiche. Il change une fois par nuit au plus. */
@@ -35,32 +35,32 @@ export const contenuFicheEnCache = unstable_cache(
 );
 
 export const statistiquesAvisEnCache = unstable_cache(() => statistiquesAvis(), ["avis-stats"], {
-  revalidate: 300,
+  revalidate: 86400,
   tags: ["avis"],
 });
 
 export const avisPubliesEnCache = unstable_cache((limite?: number) => avisPublies(limite), ["avis-publies"], {
-  revalidate: 300,
+  revalidate: 86400,
   tags: ["avis"],
 });
 
 export const articlesPubliesEnCache = unstable_cache(
   (locale: string, limite?: number, decalage?: number) => getPublishedArticles(locale, limite, decalage),
   ["blog-liste"],
-  { revalidate: 300, tags: ["blog"] }
+  { revalidate: 3600, tags: ["blog"] }
 );
 
 export const articleEnCache = unstable_cache(
   (locale: string, slug: string) => getArticleBySlug(locale, slug),
   ["blog-article"],
-  { revalidate: 300, tags: ["blog"] }
+  { revalidate: 3600, tags: ["blog"] }
 );
 
 export const articlesLiesEnCache = unstable_cache(
   (locale: string, categorie: string, sauf: string, limite?: number) =>
     getRelatedArticles(locale, categorie, sauf, limite),
   ["blog-lies"],
-  { revalidate: 300, tags: ["blog"] }
+  { revalidate: 3600, tags: ["blog"] }
 );
 
 /** Sert seulement a ordonner des liens : une heure de retard est sans effet. */

@@ -8,7 +8,7 @@ import { metadataPage } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 import { filAriane, pageWeb } from "@/lib/donneesStructurees";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const baseUrl = SITE_URL;
 
