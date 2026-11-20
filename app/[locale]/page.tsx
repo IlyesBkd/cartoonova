@@ -1,4 +1,3 @@
-// Page d'accueil Cartoonova : les textes sont dans messages/<langue>.json.
 import PageAccueil from "@/components/pages/PageAccueil";
 import { setRequestLocale } from "next-intl/server";
 import { hasLocale } from "next-intl";
