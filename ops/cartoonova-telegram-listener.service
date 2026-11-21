@@ -1,0 +1,16 @@
+[Unit]
+Description=Cartoonova support Telegram event listener
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/hermes/projects/cartoonova
+ExecStart=/home/hermes/.hermes/installs/019d0d114d22b7e6/environments/e8f66b1042a24ad5a6ebbb351208c462/venv/bin/python3 /home/hermes/projects/cartoonova/scripts/support-telegram-listener.py
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=20
+KillMode=control-group
+Environment=HERMES_HOME=/home/hermes/.hermes/profiles/cartoonova
+
+[Install]
+WantedBy=default.target

@@ -21,7 +21,7 @@ const post=load('app/api/chat/route.ts').POST;
 const req=(body)=>new Request('https://local.invalid/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({idempotencyKey:'11111111-1111-4111-8111-111111111111',...body})});
 test('accepted chat is saved atomically with a pending durable notification without Discord configured',async()=>{
  calls=[];delete process.env.DISCORD_WEBHOOK_URL; const res=await post(req({email:'visitor@example.invalid',message:'Hello support'}));
- assert.equal(res.status,200); assert.equal(calls.length,1); assert.match(calls[0].query,/support_messages/i);assert.match(calls[0].query,/chat_telegram_notifications/i);assert.ok(calls[0].values.some(x=>typeof x==='string'&&x.startsWith('chat-')));
+ assert.equal(res.status,200); assert.equal(calls.length,2); assert.match(calls[1].query,/pg_notify/);assert.deepEqual(calls[1].values,['chat']); assert.match(calls[0].query,/support_messages/i);assert.match(calls[0].query,/chat_telegram_notifications/i);assert.ok(calls[0].values.some(x=>typeof x==='string'&&x.startsWith('chat-')));
 });
 test('database failure is reported, not acknowledged',async()=>{fail=true;try {assert.equal((await post(req({email:'visitor@example.invalid',message:'Hello support'}))).status,500);}finally{fail=false;}});
 test('invalid email and oversize message are rejected before persistence',async()=>{calls=[];assert.equal((await post(req({email:'oops',message:'hi'}))).status,400);assert.equal((await post(req({email:'ok@example.invalid',message:'x'.repeat(5001)}))).status,400);assert.equal(calls.length,0);});
@@ -38,7 +38,7 @@ test('legacy requests remain subject to the real rate limiter',async()=>{
  calls=[];const limited=load('app/api/chat/route.ts',new Map(),true).POST;
  const legacy=()=>new Request('https://local.invalid',{method:'POST',headers:{'x-forwarded-for':'192.0.2.55'},body:JSON.stringify({email:'ok@example.invalid',message:'hello'})});
  for(let i=0;i<5;i++) assert.equal((await limited(legacy())).status,200);
- assert.equal((await limited(legacy())).status,429);assert.equal(calls.length,5);
+ assert.equal((await limited(legacy())).status,429);assert.equal(calls.filter(c=>/support_messages/.test(c.query)).length,5);assert.equal(calls.filter(c=>/pg_notify/.test(c.query)).length,5);
 });
 
 test('body bytes are bounded even with absent or false content length',async()=>{

@@ -27,6 +27,7 @@ function load(file, modules = {}, source = readFileSync(file, 'utf8')) {
       if (id === 'next/server') return { NextResponse };
       if (id === 'node:crypto') return { randomUUID };
       if (id.includes('discord')) return { alerteDiscord: async (...args) => effects.push(args) };
+      if (id === '@/lib/supportNotificationSignal' || id === './supportNotificationSignal') return load('lib/supportNotificationSignal.ts').api;
       if (id in modules) return modules[id];
       throw Error('Unexpected dependency: ' + id);
     },
@@ -45,7 +46,7 @@ before(async () => {
   await db.unsafe(readFileSync('migrations/20261026_chat_telegram_notifications.sql', 'utf8'));
   const source = ts.createSourceFile('db.ts', readFileSync('lib/db.ts', 'utf8'), ts.ScriptTarget.Latest, true);
   const fn = source.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === 'insertSupportMessage');
-  insert = load('lib/db.ts', { './test-db': { sql: db } }, 'import {sql} from "./test-db"; async function ensureSupportInboxSchema() {}\n' + fn.getText(source)).api.insertSupportMessage;
+  insert = load('lib/db.ts', { './test-db': { sql: db } }, 'import {sql} from "./test-db"; import {signalSupportIncoming} from "./supportNotificationSignal"; async function ensureSupportInboxSchema() {}\n' + fn.getText(source)).api.insertSupportMessage;
 });
 after(async () => { if (db) await db.end({ timeout: 2 }); if (started) pg('pg_ctl', ['-D', path.join(runtime, 'pg'), '-m', 'fast', '-w', 'stop']); });
 const rate = { cleDepuisRequete: () => 'synthetic', limiteur: () => () => false };
@@ -79,15 +80,18 @@ test('chat retains atomic Telegram persistence with configured Discord and makes
   assert.equal(rows.length, 1); assert.equal(rows[0].body_text, body.message); assert.equal(rows[0].status, 'pending');
 });
 
-test('IMAP persists customer, unclassified and noncustomer messages without Discord or chat queue; duplicates stay deduplicated', async () => {
+test('IMAP persists full originals including >5000 characters/emoji without Discord or chat queue; duplicates stay deduplicated', async () => {
   const states = [], categories = ['customer', null, 'spam'];
+  // The old 5000-code-unit cut split this emoji and discarded the entire tail.
+  const longOriginal = 'x'.repeat(4999) + '😀' + ' texte intégral '.repeat(500) + ' FIN 😀';
+  const original = uid => uid === 3 ? longOriginal : `Original ${uid}`;
   class ImapFlow {
     async connect() {} async mailboxOpen() { return { uidNext: 4 }; }
     async *fetch() { for (let uid = 1; uid <= 3; uid++) yield { uid, source: uid }; }
     async logout() {} close() {}
   }
   const route = load('lib/imapSync.ts', {
-    imapflow: { ImapFlow }, mailparser: { simpleParser: async uid => ({ from: { value: [{ address: 'LOCAL@EXAMPLE.INVALID' }] }, messageId: `<imap-${uid}>`, subject: `Email ${uid}`, text: `Original ${uid}`, date: new Date() }) },
+    imapflow: { ImapFlow }, mailparser: { simpleParser: async uid => ({ from: { value: [{ address: 'LOCAL@EXAMPLE.INVALID' }] }, messageId: `<imap-${uid}>`, subject: `Email ${uid}`, text: original(uid), date: new Date() }) },
     './db': { getImapSyncState: async () => ({ lastUid: 0 }), setImapSyncState: async uid => states.push(uid), insertSupportMessage: insert, findOrderByCustomerEmail: async () => null },
     './aiClassify': { classifySupportMessage: async msg => categories[Number(msg.subject.slice(-1)) - 1] },
   });
@@ -95,5 +99,5 @@ test('IMAP persists customer, unclassified and noncustomer messages without Disc
   assert.deepEqual(states, [3, 3]); assert.equal(route.effects.length, 0);
   const rows = await db`SELECT m.*,n.id AS notification_id FROM support_messages m LEFT JOIN chat_telegram_notifications n ON n.support_message_id=m.id WHERE m.message_id LIKE '<imap-%' ORDER BY m.message_id`;
   assert.equal(rows.length, 3);
-  rows.forEach((row, i) => { assert.equal(row.category, categories[i]); assert.equal(row.body_text, `Original ${i + 1}`); assert.equal(row.from_email, 'local@example.invalid'); assert.equal(row.notification_id, null); });
+  rows.forEach((row, i) => { assert.equal(row.category, categories[i]); assert.equal(row.body_text, original(i + 1)); assert.equal(row.from_email, 'local@example.invalid'); assert.equal(row.notification_id, null); });
 });

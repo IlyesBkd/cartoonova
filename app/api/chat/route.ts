@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
+import { signalSupportIncoming } from "@/lib/supportNotificationSignal";
 import { emailValide } from "@/lib/email";
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { cleDepuisRequete, limiteur } from "@/lib/rateLimit";
@@ -60,6 +61,8 @@ export async function POST(req: NextRequest) {
       SELECT inserted FROM message
     `;
     if (!rows.length) return NextResponse.json({ error: "idempotency_conflict" }, { status: 409 });
+    // La CTE autonome est déjà validée (autocommit), file incluse.
+    if (rows[0].inserted) await signalSupportIncoming(sql, "chat");
   } catch (error) {
     console.error("[POST /api/chat]", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });

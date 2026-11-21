@@ -1,4 +1,5 @@
 import postgres from "postgres";
+import { signalSupportIncoming } from "./supportNotificationSignal";
 import { canDepositPhotos, canRespondToPreview } from "./clientOrderPolicy";
 import { assurerSchemaRetouches } from "./retouches";
 import { validRetoucheNote } from "./retouchePolicy";
@@ -1042,6 +1043,8 @@ export async function insertSupportMessage(msg: {
       )
       SELECT id FROM message
     `;
+    // Requête autonome terminée : message et file déjà validés en autocommit.
+    if (rows.length > 0) await signalSupportIncoming(sql, "chat");
     return { isNew: rows.length > 0 };
   }
   const rows = await sql`
@@ -1053,6 +1056,8 @@ export async function insertSupportMessage(msg: {
     ON CONFLICT (message_id) DO NOTHING
     RETURNING id
   `;
+  // Le signal reste distinct du stockage : son échec ne peut pas l'annuler.
+  if (rows.length > 0) await signalSupportIncoming(sql, "email");
   return { isNew: rows.length > 0 };
 }
 

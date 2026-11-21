@@ -2,10 +2,31 @@ import postgres from 'postgres';
 import {randomUUID} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {loadOrderContext,unavailableContext,orderBrief,inline,translateMessage} from './chat-notification-context.mjs';
-import {openFollowups} from './chat-translation-followups.mjs';
+import {openProgressive,notificationParts,telegramSender} from './telegram-progressive.mjs';
+import {bilingualDraft} from './telegram-bilingual.mjs';
 
 // processing is intentionally never retried automatically: provider outcomes can be ambiguous.
-export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeoutMs=45000,loadContext=loadOrderContext,translate=translateMessage,settleSeconds=0,history}={}) {
+export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeoutMs=45000,loadContext=loadOrderContext,translate=translateMessage,settleSeconds=0,history,progressive,enrich=true}={}) {
+  if(!dryRun&&!progressive)throw Error('Missing durable progressive ledger');
+  const enrichMessage=async message=>{
+    if(history)try{message.history=await history(sql,message);}catch{}
+    message.orderContext=unavailableContext();
+    try{message.orderContext=await loadContext(sql,message)||unavailableContext();}catch{}
+    message.orderSummary=orderBrief(message.orderContext);
+    message.customerStatus=message.orderContext.customerStatus||'unknown';
+    try{message.translation=await translate(message.body);}catch{message.translation={status:'unavailable'};}
+    message.draft=null;message.preparing=false;
+    if(draft){const controller=new AbortController();let timer;
+      try{const result=await Promise.race([draft(message,{signal:controller.signal}),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('Draft timeout'));},draftTimeoutMs);})]);
+        if(typeof result==='object'&&result)Object.assign(message,result);
+        else if(typeof result==='string')message.draft=result;
+      }finally{clearTimeout(timer);}
+    }
+    // Cache-based translation may finish on a later tick; retry enrichment instead
+    // of freezing a pending translation permanently.
+    if(message.translation?.status==='pending')return null;
+    return message;
+  };
   if(!Number.isInteger(settleSeconds)||settleSeconds<0||settleSeconds>600)throw new Error('Invalid settle delay');
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('Invalid limit');
   if(!Number.isInteger(draftTimeoutMs)||draftTimeoutMs<1||draftTimeoutMs>45000)throw new Error('Invalid draft timeout');
@@ -46,7 +67,7 @@ export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeout
     try {
       const messages=settleSeconds>0
         ?rows.map(r=>({...r,id:r.support_message_id})).sort((a,b)=>a.id-b.id)
-        :await sql`SELECT id, from_email AS email, body_text AS body, to_jsonb(m)->>'order_id' AS "orderId" FROM support_messages m WHERE id=${rows[0].support_message_id}`;
+        :await sql`SELECT id, from_email AS email, body_text AS body, to_jsonb(m)->>'received_at' AS "receivedAt", to_jsonb(m)->>'subject' AS subject, CASE WHEN to_jsonb(m)->>'message_id' LIKE 'contact-%' THEN 'contact' ELSE 'chat' END AS channel, to_jsonb(m)->>'order_id' AS "orderId" FROM support_messages m WHERE id=${rows[0].support_message_id}`;
       if(!messages.length) throw new Error('Missing message');
       const message={...messages[0]};
       message.groupedIds=messages.map(m=>m.id);
@@ -55,22 +76,8 @@ export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeout
       message.conflictingOrders=orderIds.length>1;
       message.orderId=orderIds.length===1?orderIds[0]:undefined;
       if(messages.length>1)message.body=messages.map((m,i)=>`Message ${i+1} (chat #${m.id}) :\n${m.body}`).join('\n\n');
-      if(history) {try {message.history=await history(sql,message);} catch { /* Context only. */ }}
-      message.orderContext=unavailableContext();
-      try {message.orderContext=await loadContext(sql,message)||unavailableContext();}catch { /* Fail open for notification only. */ }
-      message.customerStatus=message.orderContext.customerStatus||'unknown';
-      message.translation={status:'unavailable'};
-      try {message.translation=await translate(message.body)||message.translation;}catch { /* Cache failure never hides the original. */ }
-      if(draft) {
-        message.draft=null;
-        const controller=new AbortController();let timer;
-        try {
-          const result=await Promise.race([draft(message,{signal:controller.signal}),new Promise((_,reject)=>{timer=setTimeout(()=>{reject(Error('Draft unavailable'));controller.abort();},draftTimeoutMs);})]);
-          if(typeof result==='string'&&result.trim())message.draft=result;
-        } catch { /* Always deliver the original message if drafting fails. */ }
-        finally {clearTimeout(timer);}
-      }
-      await send(message);
+      message.preparing=true;
+      await progressive.initial(`chat:${message.id}`,message,send);
     } catch { failed++; continue; }
     const done=await sql`UPDATE chat_telegram_notifications SET status='sent',sent_at=now(),
       locked_until=NULL, lock_token=NULL, updated_at=now()
@@ -82,76 +89,26 @@ export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeout
     count(*) FILTER (WHERE status='processing')::int AS processing,
     count(*) FILTER (WHERE status='processing' AND (locked_until IS NULL OR locked_until <= now()))::int AS "staleProcessing"
     FROM chat_telegram_notifications`;
-  return {eligible:n,attempted,sent,failed,...counts};
+  const enrichment=!dryRun&&enrich?await progressive.run({send,enrich:enrichMessage,limit:1}):undefined;
+  return {eligible:n,attempted,sent,failed,...counts,...(enrichment?{enrichment}:{})};
 }
 
-// Data is untrusted. Never interpret it as an instruction or Telegram markup.
-export function formatNotificationParts({id,email,body,customerStatus,draft,orderContext,orderSummary,translation,translationOnly=false}) {
-  if (!Number.isSafeInteger(id) || id<1 || typeof email!=='string' || typeof body!=='string')
-    throw new Error('Invalid support message');
-  const ready=translation?.status==='ready'&&typeof translation.text==='string'&&translation.text.trim();
-  if(translationOnly&&!ready)throw Error('Translation not ready');
-  const title=translationOnly?`🌐 Traduction FR · Chat #${id} · Cartoonova`:'💬 Nouveau chat · Cartoonova';
-  const status=customerStatus==='existing'?'Client existant':customerStatus==='none'?'Aucun achat retrouvé':'Statut non vérifié';
-  const contextLine=orderContext||typeof orderSummary==='string'?`Chat #${id} · Commande : ${typeof orderSummary==='string'?inline(orderSummary,1400):orderBrief(orderContext)}\n`:'';
-  const translationLine=translation?.status==='french'?'':ready?'Message client — traduction française intégrale\n':translation?.status==='pending'?'Traduction FR en attente (cache local) — message original ci-dessous\n':translation?'Traduction FR indisponible — message original ci-dessous\n':'';
-  const header=`${title}\nDe : ${inline(email,320)}\n${status}\n${contextLine}${translationLine}\n`;
-  if(ready)body=translation.text;
-  const entities=[{type:'bold',offset:0,length:title.length},{type:'bold',offset:title.length+1,length:4}];
-  const capacity=4096-header.length;
-  if(capacity<2) throw new Error('Notification header too long');
-  const parts=[];
-  for(let i=0;i<body.length;) {
-    let end=Math.min(i+capacity,body.length);
-    if(end<body.length && body.charCodeAt(end-1)>=0xD800 && body.charCodeAt(end-1)<=0xDBFF && body.charCodeAt(end)>=0xDC00 && body.charCodeAt(end)<=0xDFFF) end--;
-    parts.push({text:header+body.slice(i,end),entities});i=end;
-  }
-  if(!parts.length)parts.push({text:header,entities});
-  if(draft!==undefined) {
-    const title='✍️ Brouillon · Cartoonova';
-    const draftHeader=title+'\nÀ relire avant envoi\n\n';
-    const content=typeof draft==='string'&&draft.trim()?draft:'Brouillon indisponible : rédaction manuelle nécessaire.';
-    const capacity=4096-draftHeader.length;
-    for(let i=0;i<content.length;) {
-      let end=Math.min(i+capacity,content.length);
-      if(end<content.length&&/[\uD800-\uDBFF]/.test(content[end-1])&&/[\uDC00-\uDFFF]/.test(content[end]))end--;
-      parts.push({text:draftHeader+content.slice(i,end),entities:[{type:'bold',offset:0,length:title.length}]});i=end;
-    }
-  }
-  return parts;
-}
-
-export function formatNotification(message) { return formatNotificationParts(message).map(p=>p.text); }
-
-export function createSender({token,chatId,confirmedChatId,fetchImpl=fetch,formatParts=formatNotificationParts}) {
-  if (!token || typeof chatId !== 'string' || !/^[1-9][0-9]*$/.test(chatId) || chatId !== confirmedChatId)
-    throw new Error('Destination not explicitly confirmed');
-  return async(message)=>{
-    for(const {text,entities} of formatParts(message)) {
-    const response=await fetchImpl(`https://api.telegram.org/bot${token}/sendMessage`,{
-      method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({chat_id:chatId,text,entities,link_preview_options:{is_disabled:true}}),
-      signal:AbortSignal.timeout(10000)
-    });
-    const data=await response.json();
-    if(!response.ok || data.ok!==true) throw new Error('Provider outcome unconfirmed');
-    }
-  };
-}
+export const formatNotificationParts=notificationParts;
+export function formatNotification(message){return notificationParts(message).map(p=>p.text);}
+export const createSender=telegramSender;
 
 // Hermes send interprets MEDIA: directives in text. Never pass untrusted data to it.
 export function createHermesSender() {
   throw new Error('Hermes transport disabled for untrusted chat content');
 }
 
-// Keep the new message complete. The local inference adapter accepts <=2000
-// characters: a manual draft is safer than silently ignoring the end of a burst.
+// Keep the new message complete; reject rather than silently clip oversized input.
 export function draftInput(message) {
-  if(typeof message.body!=='string'||message.body.length>2000)throw Error('Full chat exceeds draft capacity');
+  if(typeof message.body!=='string'||message.body.length>100000)throw Error('Full chat exceeds draft capacity');
   const context=[message.orderContext?'Commande : '+orderBrief(message.orderContext):'',
     message.history?'Échanges récents :\n'+message.history:''].filter(Boolean).join('\n');
   const prefix='[Contexte]\n',separator='\n[Nouveau message]\n';
-  const room=2000-message.body.length-prefix.length-separator.length;
+  const room=Math.min(4000,100000-message.body.length-prefix.length-separator.length);
   let brief=room>80?context.slice(0,room):'';
   if(/[\uD800-\uDBFF]$/.test(brief))brief=brief.slice(0,-1);
   return {subject:'Message du chat Cartoonova',bodyText:(brief?prefix+brief+separator:'')+message.body};
@@ -179,36 +136,12 @@ async function main() {
     ?createHermesSender(destination)
     :createSender({...destination,token:process.env.CHAT_NOTIFY_TELEGRAM_TOKEN});
   const sql=postgres(process.env.CHAT_NOTIFY_DATABASE_URL,{max:2,onnotice(){}});
-  let followups,followupsUnavailable=false;
-  // Local cache/ledger failure cannot suppress an incoming chat.
-  if(!dryRun)try{followups=openFollowups(process.env.CHAT_NOTIFY_TRANSLATION_STATE);}catch{followupsUnavailable=true;}
+  const progressive=dryRun?null:openProgressive(process.env.CHAT_NOTIFY_TRANSLATION_STATE||'/home/hermes/.hermes/profiles/cartoonova/state/chat-translation-followups/queue.sqlite');
   try {
-    let followupResult;
-    // Read back the original delivery fence: a crash after sending but before
-    // acknowledging SQL must never release a translation for an uncertain chat.
-    if(followups)try{followupResult=await followups.run({send,ready:async message=>{
-      const [row]=await sql`SELECT status FROM chat_telegram_notifications WHERE support_message_id=${message.id}`;
-      return row?.status==='sent';
-    }});}catch{followupsUnavailable=true;}
-    const notify=dryRun?undefined:async message=>{
-      // Persist BEFORE delivery. A crash after SQL acknowledgement can then
-      // recover the translation; pending/ambiguous originals are fenced above.
-      if(!['ready','french'].includes(message.translation?.status)) {
-        try{if(!followups)throw Error('Ledger unavailable');followups.schedule(message);}catch{followupsUnavailable=true;}
-      }
-      await send(message);
-    };
-    const draft=dryRun?undefined:async(message,{signal})=>{
-      const {runInference}=await import('/home/hermes/.hermes/profiles/cartoonova/artifacts/support-email-local-v2/inference.mjs');
-      return runInference(draftInput(message),{signal});
-    };
-    // One full draft per tick keeps the 150s wrapper deadline safe.
-    const result=await runOnce(sql,{dryRun,send:notify,draft,limit:1,settleSeconds:90,history:loadHistory});
-    if(followupResult)result.translationFollowups=followupResult;
-    if(followupsUnavailable)result.translationFollowupsUnavailable=true;
+    const draft=async(message,{signal})=>bilingualDraft(draftInput(message),{signal});
+    const result=await runOnce(sql,{dryRun,send,progressive,draft,limit:50,settleSeconds:0,history:loadHistory,enrich:process.env.TELEGRAM_RECEIVE_ONLY!=='1'});
     console.log(JSON.stringify(result));
-    if(result.failed || result.staleProcessing || followupsUnavailable || followupResult?.failed || followupResult?.processing) process.exitCode=1;
-  }
-  finally {followups?.close();await sql.end({timeout:5});}
+    if(result.failed||result.staleProcessing||result.enrichment?.failed)process.exitCode=1;
+  }finally{progressive?.close();await sql.end({timeout:5});}
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href) main().catch(()=>{console.error('Chat notification worker failed; inspect configuration and database securely.');process.exitCode=1;});

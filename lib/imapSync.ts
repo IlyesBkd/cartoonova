@@ -70,7 +70,7 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
       const parsed = await simpleParser(message.source);
       const fromEmail = parsed.from?.value?.[0]?.address?.toLowerCase() || "inconnu";
       const subject = parsed.subject || null;
-      const bodyText = (parsed.text || "").slice(0, 5000);
+      const bodyText = parsed.text || "";
       const messageId = parsed.messageId || `uid-${message.uid}@imap-fallback`;
       const receivedAt = parsed.date || new Date();
 
