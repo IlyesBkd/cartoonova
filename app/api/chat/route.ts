@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid_input" }, { status: 400 });
   }
 
-  let inserted: boolean;
   try {
     // L'unicité de message_id sérialise aussi les tentatives concurrentes.
     const rows = await sql`
@@ -61,25 +60,10 @@ export async function POST(req: NextRequest) {
       SELECT inserted FROM message
     `;
     if (!rows.length) return NextResponse.json({ error: "idempotency_conflict" }, { status: 409 });
-    inserted = rows[0].inserted;
   } catch (error) {
     console.error("[POST /api/chat]", diagnosticJournal(error));
     return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 
-  // Discord est un signal facultatif : sa panne ne remet pas en cause la sauvegarde.
-  const webhook = process.env.DISCORD_WEBHOOK_URL;
-  if (webhook && inserted) {
-    try {
-      const response = await fetch(webhook, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ embeds: [{ title: "💬 Nouveau message — Chat Cartoonova", color: 0xffc82c,
-          fields: [{ name: "📧 Email", value: email, inline: true }, { name: "💬 Message", value: message.slice(0, 1024) }],
-          footer: { text: "Cartoonova Chat Widget" } }] }),
-        signal: AbortSignal.timeout(3000),
-      });
-      if (!response.ok) console.error("[POST /api/chat] Discord indisponible", response.status);
-    } catch (error) { console.error("[POST /api/chat] Discord indisponible", diagnosticJournal(error)); }
-  }
   return NextResponse.json({ ok: true });
 }

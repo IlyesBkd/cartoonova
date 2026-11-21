@@ -2,7 +2,6 @@ import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { findOrderByCustomerEmail, insertSupportMessage } from "@/lib/db";
-import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 import { cleDepuisRequete } from "@/lib/rateLimit";
 import { emailValide } from "@/lib/email";
 
@@ -28,8 +27,7 @@ const MESSAGE_MAX = 5000;
 
 /* Limitation par IP, sur le modele du depot d'avis. Compteur en memoire, donc
    par instance : il n'arrete pas un attaquant determine, mais empeche un
-   formulaire relance en boucle de remplir la boite support et de saturer
-   Discord. */
+   formulaire relance en boucle de remplir la boite support. */
 const ENVOIS_MAX = 5;
 const FENETRE_MS = 60 * 60 * 1000;
 const envois = new Map<string, number[]>();
@@ -112,19 +110,6 @@ export async function POST(req: NextRequest) {
       receivedAt: new Date(),
       orderId: commande?.id ?? null,
       category: "customer",
-    });
-
-    await alerteDiscord({
-      titre: "✉️ FORMULAIRE DE CONTACT",
-      couleur: COULEUR_ATTENTION,
-      champs: [
-        { name: "📧 Email", value: email, inline: true },
-        ...(nom ? [{ name: "👤 Nom", value: nom.slice(0, 100), inline: true }] : []),
-        ...(commande ? [{ name: "📦 Commande", value: commande.id.slice(0, 8), inline: true }] : []),
-        { name: "📝 Sujet", value: sujet.slice(0, 200) || "(sans sujet)", inline: false },
-        { name: "💬 Message", value: message.slice(0, 1000), inline: false },
-      ],
-      piedDePage: "Cartoonova • Onglet Support",
     });
 
     return NextResponse.json({ ok: true });

@@ -8,7 +8,10 @@ import {execFileSync,spawnSync} from 'node:child_process';
 import {createRequire,Module} from 'node:module';
 import postgres from 'postgres';
 import ts from 'typescript';
-import {runOnce,createSender,createHermesSender} from '../scripts/chat-telegram-worker.mjs';
+import {runOnce as workerRunOnce,createSender,createHermesSender} from '../scripts/chat-telegram-worker.mjs';
+
+// Transport/claim regression tests do not consult the shared translation cache.
+const runOnce=(sql,options={})=>workerRunOnce(sql,{translate:()=>({status:'french'}),...options});
 
 const root=path.resolve(import.meta.dirname,'..');
 test('route and worker share real migration, claims and ambiguous recovery', async()=>{
@@ -89,8 +92,10 @@ test('route and worker share real migration, claims and ambiguous recovery', asy
   const limited=await runOnce(db,{dryRun:true}); assert.equal(limited.pending,1);
   const stillStale=cli(); assert.equal(stillStale.status,1); assert.equal(JSON.parse(stillStale.stdout).pending,1);
   writeFileSync(dir+'/fake-fetch.mjs',`import cp from 'node:child_process';import {syncBuiltinESMExports} from 'node:module';cp.spawn=()=>{throw Error('mock inference')};syncBuiltinESMExports();globalThis.fetch=async()=>{throw Error('private timeout')}`);
+  // Production groups only settled messages; age this synthetic pending item.
+  await db`UPDATE chat_telegram_notifications SET available_at=now()-interval '2 minutes' WHERE status='pending'`;
   const scheduled=spawnSync(process.execPath,['--import',dir+'/fake-fetch.mjs','scripts/chat-telegram-worker.mjs','--send'],{
-    cwd:root,env:{...env,CHAT_NOTIFY_DATABASE_URL:url,CHAT_NOTIFY_TELEGRAM_TOKEN:'fake',CHAT_NOTIFY_TELEGRAM_CHAT_ID:'123',CHAT_NOTIFY_TELEGRAM_CONFIRMED_CHAT_ID:'123'},encoding:'utf8'});
+    cwd:root,env:{...env,CHAT_NOTIFY_DATABASE_URL:url,CARTOONOVA_TRANSLATION_DB:dir+'/translation.sqlite',CHAT_NOTIFY_TRANSLATION_STATE:dir+'/followups.sqlite',CHAT_NOTIFY_TELEGRAM_TOKEN:'fake',CHAT_NOTIFY_TELEGRAM_CHAT_ID:'123',CHAT_NOTIFY_TELEGRAM_CONFIRMED_CHAT_ID:'123'},encoding:'utf8'});
   assert.equal(scheduled.status,1); assert.equal(JSON.parse(scheduled.stdout).failed,1);
   assert.ok(!scheduled.stdout.includes('private') && !scheduled.stderr.includes('private'));
   assert.equal((await db`SELECT count(*)::int AS n FROM chat_telegram_notifications WHERE status='processing' AND attempts=1`)[0].n,6);

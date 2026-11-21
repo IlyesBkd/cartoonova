@@ -1023,6 +1023,27 @@ export async function insertSupportMessage(msg: {
   category: SupportMessageCategory | null;
 }): Promise<{ isNew: boolean }> {
   await ensureSupportInboxSchema();
+  // Seuls les formulaires rejoignent la file Telegram du chat. L'insertion et
+  // la mise en file sont atomiques ; un message déjà présent ne renotifie pas.
+  if (msg.messageId.startsWith("contact-")) {
+    const rows = await sql`
+      WITH message AS (
+        INSERT INTO support_messages (message_id, from_email, subject, body_text, received_at, order_id, category)
+        VALUES (
+          ${msg.messageId}, ${msg.fromEmail}, ${msg.subject}, ${msg.bodyText}, ${msg.receivedAt.toISOString()},
+          ${msg.orderId ? msg.orderId : null}::uuid, ${msg.category}
+        )
+        ON CONFLICT (message_id) DO NOTHING
+        RETURNING id
+      ), notification AS (
+        INSERT INTO chat_telegram_notifications (support_message_id)
+        SELECT id FROM message
+        RETURNING id
+      )
+      SELECT id FROM message
+    `;
+    return { isNew: rows.length > 0 };
+  }
   const rows = await sql`
     INSERT INTO support_messages (message_id, from_email, subject, body_text, received_at, order_id, category)
     VALUES (

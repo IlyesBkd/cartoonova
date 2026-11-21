@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { sql } from "@/lib/db";
-import { alerteDiscord, COULEUR_ATTENTION } from "@/lib/discord";
 
 /* Reception des rapports de la politique de securite du contenu (CSP).
 
@@ -89,27 +87,6 @@ function directiveCsp(valeur: string): string {
   return /^(?:default|script|style|img|font|connect|media|object|frame|child|worker|manifest|prefetch)-src(?:-elem|-attr)?$|^(?:base-uri|form-action|frame-ancestors|upgrade-insecure-requests|trusted-types|require-trusted-types-for)$/.test(valeur) ? valeur : "[directive]";
 }
 
-/* Local buffer is bounded; the database grants at most one notification per
-   hour across ALL instances. Detailed sanitized reports remain in Vercel logs. */
-let derniereAlerte = 0;
-const recents = new Set<string>();
-
-async function reserverAlerte(): Promise<boolean> {
-  try {
-    const lignes = await sql`
-      INSERT INTO csp_alert_clock (id, alerted_at) VALUES (1, NOW())
-      ON CONFLICT (id) DO UPDATE SET alerted_at = NOW()
-      WHERE csp_alert_clock.alerted_at <= NOW() - INTERVAL '1 hour'
-      RETURNING id
-    `;
-    return lignes.length > 0;
-  } catch {
-    // Do not fall back to per-instance notifications (would restore the spam).
-    console.warn("[csp] regroupement partagé indisponible");
-    return false;
-  }
-}
-
 export async function POST(req: Request) {
   let corps: unknown;
   try {
@@ -126,26 +103,6 @@ export async function POST(req: Request) {
     const bloque = ressourceCsp(v.bloque);
     const source = ressourceCsp(v.source);
     console.warn("[csp]", directive, bloque, cheminPropre(v.page), source);
-    const action = directive === "connect-src" ? "Connexion à un service bloquée" : "Ressource bloquée";
-    const lignes = [`${action} (${directive}) : ${bloque || "(inline)"}`, `Page : ${cheminPropre(v.page) || "?"}`];
-    if (source) lignes.push(`Script : ${source}`);
-    if (recents.size < 8) recents.add(lignes.join("\n"));
-  }
-
-  if (recents.size > 0 && Date.now() - derniereAlerte > 3600_000) {
-    derniereAlerte = Date.now();
-    if (!await reserverAlerte()) return new NextResponse(null, { status: 204 });
-    const resume = [...recents].join("\n\n");
-    recents.clear();
-    await alerteDiscord({
-      titre: "CSP : violations signalées",
-      couleur: COULEUR_ATTENTION,
-      champs: [
-        { name: "Ce que le navigateur a bloqué", value: resume.slice(0, 1000) },
-        { name: "À savoir", value: "Signalement navigateur, pas une preuve de panne ou de piratage. Services connus identifiés sans URL privée ; domaines inconnus masqués. Détails filtrés dans les journaux Vercel." },
-      ],
-      piedDePage: "Protection active · au plus une alerte par heure, tous serveurs confondus",
-    });
   }
 
   return new NextResponse(null, { status: 204 });

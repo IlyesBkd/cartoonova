@@ -79,15 +79,13 @@ test('prepared support handler keeps provider failures and customer content out 
   }
 });
 
-test('real CSP handler sanitizes malicious directive, resource URL and private access paths before console and Discord', async () => {
+test('real CSP handler sanitizes malicious directive, resource URL and private access paths before console without Discord', async () => {
   const alerts = [];
   const route = routeModule('app/api/csp/route.ts', { '@/lib/discord': { alerteDiscord: async body => alerts.push(body), COULEUR_ATTENTION: 1 } });
   const response = await route.api.POST(new Request('https://cartoonova.invalid/api/csp', { method: 'POST', body: JSON.stringify({ 'csp-report': { 'effective-directive': raw, 'blocked-uri': raw, 'document-uri': `https://cartoonova.invalid/fr/extras/CAPABILITY_private_123?email=${privateValues[0]}`, 'source-file': raw } }) }));
-  assert.equal(response.status, 204); assert.equal(route.logs.length, 1); assert.equal(alerts.length, 1);
+  assert.equal(response.status, 204); assert.equal(route.logs.length, 1); assert.equal(alerts.length, 0);
   assertPrivateFree({ logs: route.logs, alerts });
   assert.match(JSON.stringify(route.logs), /extras/);
-  assert.equal(alerts[0].titre, 'CSP : violations signalées');
-  assert.equal(alerts[0].piedDePage, 'Protection active · au plus une alerte par heure, tous serveurs confondus');
   saveCapture('csp-handler-safe-outputs', { logs: route.logs, alerts });
 });
 
@@ -101,11 +99,11 @@ test('CSP identifies integration families without leaking paths, credentials or 
   assert.equal(route.api.page('https://cartoonova.com/fr/suivi/CAPABILITY_private_123'), '/suivi/[prive]');
 });
 
-test('CSP deduplicates concurrent server instances and keeps sanitized logs', async () => {
-  let claimed = false, calls = 0;
+test('CSP keeps sanitized reports across instances without database or Discord calls', async () => {
+  let calls = 0;
   const alerts = [];
   const modules = {
-    '@/lib/db': { sql: async () => { calls++; if (claimed) return []; claimed = true; return [{id:1}]; } },
+    '@/lib/db': { sql: async () => { calls++; throw error; } },
     '@/lib/discord': { alerteDiscord: async body => alerts.push(body), COULEUR_ATTENTION: 1 },
   };
   const routes = Array.from({length:5}, () => routeModule('app/api/csp/route.ts', modules));
@@ -113,26 +111,20 @@ test('CSP deduplicates concurrent server instances and keeps sanitized logs', as
     type:'csp-violation', body:{effectiveDirective:'connect-src', blockedURL:'https://api.stripe.com/private?token=CAPABILITY_private_123', documentURL:'https://cartoonova.com/fr/checkout'}
   }])});
   const responses = await Promise.all(routes.map(r => r.api.POST(request())));
-  assert.ok(responses.every(r => r.status === 204)); assert.equal(calls,5); assert.equal(alerts.length,1);
-  assert.match(JSON.stringify(alerts), /Connexion à un service bloquée/);
-  assert.match(JSON.stringify(alerts), /stripe.com/);
-  assertPrivateFree({alerts, logs:routes.map(r=>r.logs)});
-  saveCapture('csp-readable-alert', alerts[0]);
-  await routes[0].api.POST(request()); assert.equal(calls,5);
+  assert.ok(responses.every(r => r.status === 204));
+  await routes[0].api.POST(request());
+  assert.equal(calls,0); assert.equal(alerts.length,0);
+  assert.deepEqual(routes.map(r => r.logs.length), [2,1,1,1,1]);
+  assert.match(JSON.stringify(routes[0].logs), /stripe.com/);
+  assertPrivateFree(routes.map(r=>r.logs));
 });
 
-test('CSP ignores extension noise and malformed reports; database failure never sends a fallback alert', async () => {
-  const alerts = [];
-  const route = routeModule('app/api/csp/route.ts', {
-    '@/lib/db': { sql: async () => { throw error; } },
-    '@/lib/discord': { alerteDiscord: async body => alerts.push(body), COULEUR_ATTENTION:1 },
-  });
+test('CSP ignores extension noise and malformed or oversized reports without side effects', async () => {
+  const route = routeModule('app/api/csp/route.ts');
   for (const body of ['not json', JSON.stringify({body:42}), JSON.stringify({'csp-report':{'effective-directive':'connect-src','blocked-uri':'chrome-extension://id/a'}}), ' '.repeat(65537)]) {
     assert.equal((await route.api.POST(new Request('https://cartoonova.invalid/api/csp', {method:'POST',body}))).status,204);
   }
-  assert.equal(route.logs.length,0);
-  await route.api.POST(new Request('https://cartoonova.invalid/api/csp', {method:'POST',body:JSON.stringify({'csp-report':{'effective-directive':'connect-src','blocked-uri':'https://api.stripe.com'}})}));
-  assert.equal(alerts.length,0); assert.equal(route.logs.length,2); assertPrivateFree(route.logs);
+  assert.equal(route.logs.length,0); assert.equal(route.wire.length,0);
 });
 
 test('real support sync cron logs safe counters and safe failed-provider diagnostics', async () => {
@@ -206,7 +198,8 @@ test('all owned route/cron and dependent-library console arguments reject privat
   }
   assert.ok(captures.length > 80);
   assert.ok(captures.some(c => c.file.includes('lifecycle-emails') && JSON.stringify(c.args).includes('synthetic-order')));
-  assert.ok(captures.some(c => c.file === 'app/api/chat/route.ts' && c.args.includes('[POST /api/chat] Discord indisponible') && c.args.includes(422)), 'chat Discord rejection must log only its numeric status');
+  assert.ok(captures.some(c => c.file === 'app/api/chat/route.ts' && c.args.includes('[POST /api/chat]')), 'chat persistence failures must retain safe diagnostics');
+  assert.ok(!captures.some(c => c.file === 'app/api/chat/route.ts' && JSON.stringify(c.args).includes('Discord')), 'chat must not retain Discord delivery logs');
   if (process.env.PRIVACY_CAPTURE_DIR) {
     mkdirSync(process.env.PRIVACY_CAPTURE_DIR, { recursive: true });
     writeFileSync(path.join(process.env.PRIVACY_CAPTURE_DIR, 'route-console-arguments.json'), JSON.stringify(captures, null, 2));

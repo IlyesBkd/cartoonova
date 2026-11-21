@@ -1,4 +1,3 @@
-import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import {
@@ -18,44 +17,6 @@ interface PendingMessage {
   bodyText: string;
   receivedAt: Date;
   orderId: string | null;
-}
-
-async function notifySupportDiscord(msg: {
-  fromEmail: string;
-  subject: string;
-  bodyText: string;
-  orderId: string | null;
-}) {
-  try {
-    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    if (!webhookUrl) return;
-
-    const fields = [{ name: "📧 De", value: msg.fromEmail, inline: true }];
-    if (msg.orderId) {
-      fields.push({ name: "📦 Commande liée", value: msg.orderId.slice(0, 8), inline: true });
-    }
-    if (msg.bodyText) {
-      fields.push({ name: "Message", value: msg.bodyText.slice(0, 1000), inline: false });
-    }
-
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        embeds: [
-          {
-            title: `📩 Nouveau message client : ${msg.subject || "(sans objet)"}`,
-            color: 3447003,
-            fields,
-            footer: { text: "Cartoonova • Boîte support" },
-            timestamp: new Date().toISOString(),
-          },
-        ],
-      }),
-    });
-  } catch (error) {
-    console.error("[IMAP-SYNC] Erreur notification Discord:", diagnosticJournal(error));
-  }
 }
 
 export async function syncSupportInbox(): Promise<{ checked: number; newMessages: number }> {
@@ -153,7 +114,7 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
     await client.logout().catch(() => client.close());
   }
 
-  // Classify all fetched messages concurrently, then persist + notify.
+  // Classify all fetched messages concurrently, then persist.
   const categories: (SupportMessageCategory | null)[] = await Promise.all(
     pending.map((msg) => classifySupportMessage({ fromEmail: msg.fromEmail, subject: msg.subject, bodyText: msg.bodyText }))
   );
@@ -162,22 +123,7 @@ export async function syncSupportInbox(): Promise<{ checked: number; newMessages
     pending.map(async (msg, i) => {
       const category = categories[i];
       const { isNew } = await insertSupportMessage({ ...msg, category });
-      if (isNew) {
-        newMessages++;
-        /* `null` alerte au meme titre qu'un client. Le classement a echoue,
-           donc on ignore si c'est un client ou du demarchage — et se taire
-           ferait rater un vrai message, ce que l'ancien repli sur "customer"
-           evitait justement. Le sujet porte la mention pour qu'on sache que
-           ce n'est pas un tri, mais une absence de tri. */
-        if (category === "customer" || category === null) {
-          await notifySupportDiscord({
-            fromEmail: msg.fromEmail,
-            subject: (category === null ? "[non classé] " : "") + (msg.subject || ""),
-            bodyText: msg.bodyText,
-            orderId: msg.orderId,
-          });
-        }
-      }
+      if (isNew) newMessages++;
     })
   );
 
