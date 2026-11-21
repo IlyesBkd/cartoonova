@@ -46,7 +46,8 @@ const LEGENDES_PAR_RANG: (LegendeVisuel | null)[] = ["transformation", "impressi
 export interface VisuelsProduit {
   galerie: string[];
   /**
-   * Aligne sur `galerie`, pour ce qui sort du site : og:image, flux marchand.
+   * Ce qui sort du site : og:image, flux marchand. Suit l'ordre de `galerie`,
+   * moins les visuels `horsPartage` du produit.
    * Les visuels dont le fond a ete rendu transparent (scripts/retire-fond-blanc.mjs)
    * y retrouvent leur original opaque, range dans `galerie/opaque/` : Facebook
    * affiche la transparence en noir, et Merchant Center attend un fond plein.
@@ -99,6 +100,12 @@ type VisuelsLivres = Omit<VisuelsProduit, "legendes" | "partage"> & {
    * n'en fabrique pas. Un univers sans montage reel garde `false`.
    */
   avantApres: boolean;
+  /**
+   * Visuels montres sur le site mais jamais envoyes hors du site (flux Google
+   * et Pinterest, og:image) : photos reelles de clients a cote du dessin, armes
+   * dessinees. Google Shopping refuse ces images (« Inappropriate image »).
+   */
+  horsPartage?: string[];
 };
 
 const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
@@ -213,6 +220,13 @@ const VISUELS_LIVRES: Record<string, VisuelsLivres> = {
   rickandmorty: {
     // Premier visuel : montage photo d'origine + dessin, deja en tete.
     avantApres: true,
+    // Refus Merchant du 21/11/2026 : photos reelles (1.png) et armes (3 visuels).
+    horsPartage: [
+      "/rickandmorty/Photo_produits/1.png",
+      "/rickandmorty/Photo_produits/il_1140xN.6929430540_28j8.png",
+      "/rickandmorty/Photo_produits/il_1140xN.6977423979_mjqy.png",
+      "/rickandmorty/Photo_produits/il_794xN.4850315697_f5io.png",
+    ],
     galerie: [
       "/rickandmorty/Photo_produits/1.png",
       "/rickandmorty/Photo_produits/il_1140xN.6929430540_28j8.png",
@@ -368,9 +382,9 @@ export function visuelsProduit(slug: string): VisuelsProduit {
       : livres?.decors ?? [];
 
   const opaques = deposee ? fichiersDe(`catalogue/${slug}/galerie/opaque`) : [];
-  const partage = galerie.map(
-    (src) => opaques.find((o) => nomSansExtension(o) === nomSansExtension(src)) ?? src
-  );
+  const partage = galerie
+    .filter((src) => !livres?.horsPartage?.includes(src))
+    .map((src) => opaques.find((o) => nomSansExtension(o) === nomSansExtension(src)) ?? src);
 
   return { galerie, partage, legendes, decors, supports: livres?.supports ?? supportsDeposes(slug, galerieDeposee) };
 }
