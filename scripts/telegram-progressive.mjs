@@ -5,14 +5,14 @@ const clean=v=>String(v??'non renseigné').replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/g
 export function notificationParts(m) {
  const date=new Date(m.receivedAt??NaN);
  const received=Number.isFinite(date.getTime())?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Paris'}).format(date)+' (Paris)':'non renseignée';
- const header=`${m.channel==='email'?'✉️ Nouvel email':'💬 Nouveau message'} · Cartoonova · #${m.id}\nDate : ${received}\nClient / expéditeur : ${clean(m.email)}\nCanal : ${clean(m.channel??'chat')}\nObjet : ${clean(m.subject??'(sans objet)')}\nCommande : ${clean(m.orderSummary??'Contexte en préparation, identité non authentifiée')}\n`;
+ const header=`${m.channel==='email'?'✉️ Nouvel email':'💬 Nouveau message'} · Cartoonova · #${m.id}\n📅 Date : ${received}\n👤 Client / expéditeur : ${clean(m.email)}\n📨 Canal : ${clean(m.channel??'chat')}\n📝 Objet : ${clean(m.subject??'(sans objet)')}\n📦 Commande : ${clean(m.orderSummary??'Contexte en préparation, identité non authentifiée')}\n`;
  const t=m.translation;
- const content=`${header}\nMessage original intégral\n${m.body}\n\n${t?.status==='ready'?`Traduction française intégrale\n${t.text}\n\n`:t?.status==='french'?'Langue du client : français\n\n':'Traduction française : en préparation / indisponible\n\n'}${m.preparing!==false?'Préparation en cours — brouillon, rien envoyé':`Brouillon — rien envoyé · langue client : ${clean(m.language??'à déterminer')}\n${m.draft??'Indisponible : rédaction manuelle nécessaire.'}\n\nVersion française du brouillon\n${m.draftFR??(m.language==='fr'?m.draft:null)??'Indisponible : rédaction manuelle nécessaire.'}`}`;
+ const content=`${header}\n📩 Message original intégral\n${m.body}\n\n${t?.status==='ready'?`🇫🇷 Traduction française intégrale\n${t.text}\n\n`:t?.status==='french'?'🇫🇷 Langue du client : français\n\n':'⏳ Traduction française : en préparation / indisponible\n\n'}${m.preparing!==false?'⏳ Préparation en cours — brouillon, rien envoyé':`✍️ Brouillon — rien envoyé · langue client : ${clean(m.language??'à déterminer')}\n${m.draft??'Indisponible : rédaction manuelle nécessaire.'}\n\n🇫🇷 Version française du brouillon\n${m.draftFR??(m.language==='fr'?m.draft:null)??'Indisponible : rédaction manuelle nécessaire.'}`}`;
  // Reserve numbering overhead; UTF-16 boundaries match Telegram entity offsets.
  const chunks=[];for(let i=0;i<content.length;){let end=Math.min(i+3960,content.length);if(/[\uD800-\uDBFF]/.test(content[end-1])&&/[\uDC00-\uDFFF]/.test(content[end]??''))end--;chunks.push(content.slice(i,end));i=end;}
  return chunks.map((text,i)=>{
   text=(chunks.length>1?`[${m.channel??'chat'} #${m.id} · partie ${i+1}/${chunks.length}]\n`:'')+text;
-  const headings=/^(?:✉️ Nouvel email[^\n]*|💬 Nouveau message[^\n]*|Message original intégral|Traduction française intégrale|Brouillon — rien envoyé[^\n]*|Version française du brouillon|Préparation en cours[^\n]*)$/gm;
+  const headings=/^(?:✉️ Nouvel email[^\n]*|💬 Nouveau message[^\n]*|📩 Message original intégral|🇫🇷 Traduction française intégrale|✍️ Brouillon — rien envoyé[^\n]*|🇫🇷 Version française du brouillon|⏳ Préparation en cours[^\n]*)$/gm;
   const entities=[...text.matchAll(headings)].map(match=>({type:'bold',offset:match.index,length:match[0].length}));
   return {text,entities};
  });
