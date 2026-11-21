@@ -256,7 +256,7 @@ export const LEGAL_NL: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Navigatiegegevens" },
-          { liste: ["IP-adres", "Type browser en besturingssysteem", "Bezochte pagina's en duur van het bezoek", "Cookies en sessie-identificatoren"] },
+          { liste: ["IP-adres", "Type browser en besturingssysteem", "Bezochte pagina's en duur van het bezoek", "Cookies en sessie-identificatoren", "Geanonimiseerde opname van uw route door het afrekenen (ingevulde velden en betaling verborgen) om de site te verbeteren; u kunt bezwaar maken via de meetvoorkeuren op deze pagina"] },
         ],
       },
       {

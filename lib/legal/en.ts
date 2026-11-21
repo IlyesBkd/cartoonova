@@ -256,7 +256,7 @@ export const LEGAL_EN: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Browsing data" },
-          { liste: ["IP address", "Browser type and operating system", "Pages viewed and length of visit", "Cookies and session identifiers"] },
+          { liste: ["IP address", "Browser type and operating system", "Pages viewed and length of visit", "Cookies and session identifiers", "Anonymised recording of your path through checkout (typed fields and payment hidden) to improve the site; you can opt out with the measurement preferences on this page"] },
         ],
       },
       {

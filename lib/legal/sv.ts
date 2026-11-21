@@ -256,7 +256,7 @@ export const LEGAL_SV: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Surfdata" },
-          { liste: ["IP-adress", "Typ av webbläsare och operativsystem", "Besökta sidor och besökets längd", "Cookies och sessionsidentifierare"] },
+          { liste: ["IP-adress", "Typ av webbläsare och operativsystem", "Besökta sidor och besökets längd", "Cookies och sessionsidentifierare", "Anonymiserad inspelning av din väg genom kassan (ifyllda fält och betalning dolda) för att förbättra webbplatsen; du kan invända via mätinställningarna på den här sidan"] },
         ],
       },
       {

@@ -12,7 +12,7 @@ import {
 import { Elements, PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useCurrency } from "@/components/CurrencyProvider";
 import { useLocale, useTranslations } from "next-intl";
-import { mesure, identifier } from "@/lib/analytics";
+import { mesure, identifier, filmerCaisse } from "@/lib/analytics";
 import { MESURES } from "@/lib/evenementsMesure";
 import { enCentimes, mesurerPixelChatgpt } from "@/lib/pixelChatgpt";
 import { COUNTRIES, getCallingCode } from "@/lib/countries";
@@ -542,7 +542,7 @@ function PaymentForm({
           </span>
           <div className="recap-commande__corps">
             <div className="recap-commande__support">{orderConfig.printOption}</div>
-            <p className="recap-commande__detail">{formData.email}</p>
+            <p className="recap-commande__detail" data-prive>{formData.email}</p>
           </div>
           <div className="recap-commande__prix">
             <b>{montant}</b>
@@ -778,6 +778,7 @@ export default function CheckoutModal({
        collante. En dependance, il faisait partir cet evenement en rafale :
        236 « caisse ouverte » pour une seule personne le 13 juillet 2026. */
     const config = configCourante.current;
+    filmerCaisse();
     mesure(MESURES.caisseOuverte, {
       style: config.style,
       value: config.total,
@@ -1207,7 +1208,7 @@ export default function CheckoutModal({
                 </span>
                 <div className="recap-commande__corps">
                   <div className="recap-commande__support">{orderConfig.printOption}</div>
-                  <p className="recap-commande__detail">
+                  <p className="recap-commande__detail" data-prive>
                     {detailCommande}
                     {noteCommande && ` — « ${noteCommande} »`}
                   </p>
@@ -1694,7 +1695,7 @@ export default function CheckoutModal({
                   <Icone nom="fete" taille={54} style={{ margin: "0 auto 16px", color: "var(--accent-texte)" }} />
                   <h3>{t("orderConfirmedTitle")}</h3>
                   <p>
-                    {t("confirmationEmailSent")} <strong>{email}</strong>.
+                    {t("confirmationEmailSent")} <strong data-prive>{email}</strong>.
                   </p>
                   <p>{t("artistsAtWork")}</p>
                 </div>

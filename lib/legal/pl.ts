@@ -256,7 +256,7 @@ export const LEGAL_PL: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Dane dotyczące przeglądania" },
-          { liste: ["Adres IP", "Rodzaj przeglądarki i system operacyjny", "Odwiedzone strony i czas trwania wizyty", "Pliki cookie i identyfikatory sesji"] },
+          { liste: ["Adres IP", "Rodzaj przeglądarki i system operacyjny", "Odwiedzone strony i czas trwania wizyty", "Pliki cookie i identyfikatory sesji", "Zanonimizowane nagrywanie Twojej ścieżki w procesie zamówienia (wpisywane dane i płatność ukryte) w celu ulepszania strony; możesz się sprzeciwić w ustawieniach pomiaru na tej stronie"] },
         ],
       },
       {

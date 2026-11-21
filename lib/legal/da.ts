@@ -256,7 +256,7 @@ export const LEGAL_DA: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Browsingoplysninger" },
-          { liste: ["IP-adresse", "Browsertype og styresystem", "Besøgte sider og besøgets varighed", "Cookies og sessions-id'er"] },
+          { liste: ["IP-adresse", "Browsertype og styresystem", "Besøgte sider og besøgets varighed", "Cookies og sessions-id'er", "Anonymiseret optagelse af din vej gennem kassen (indtastede felter og betaling skjult) for at forbedre siden; du kan gøre indsigelse via måleindstillingerne på denne side"] },
         ],
       },
       {

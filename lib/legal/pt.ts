@@ -256,7 +256,7 @@ export const LEGAL_PT: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Dados de navegação" },
-          { liste: ["Endereço IP", "Tipo de navegador e sistema operativo", "Páginas consultadas e duração da visita", "Cookies e identificadores de sessão"] },
+          { liste: ["Endereço IP", "Tipo de navegador e sistema operativo", "Páginas consultadas e duração da visita", "Cookies e identificadores de sessão", "Gravação anonimizada do seu percurso no checkout (campos preenchidos e pagamento ocultos) para melhorar o site; pode opor-se nas preferências de medição desta página"] },
         ],
       },
       {

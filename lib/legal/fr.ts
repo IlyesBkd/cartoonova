@@ -260,7 +260,7 @@ export const LEGAL_FR: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Données de navigation" },
-          { liste: ["Adresse IP", "Type de navigateur et système d'exploitation", "Pages consultées et durée de visite", "Cookies et identifiants de session"] },
+          { liste: ["Adresse IP", "Type de navigateur et système d'exploitation", "Pages consultées et durée de visite", "Cookies et identifiants de session", "Enregistrement anonymisé du parcours dans la caisse (champs saisis et paiement masqués), pour améliorer le site ; vous pouvez vous y opposer avec les préférences de mesure de cette page"] },
         ],
       },
       {

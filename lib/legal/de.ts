@@ -256,7 +256,7 @@ export const LEGAL_DE: PagesLegales = {
             ],
           },
           { sousTitre: "3.4 Nutzungsdaten" },
-          { liste: ["IP-Adresse", "Browsertyp und Betriebssystem", "Aufgerufene Seiten und Besuchsdauer", "Cookies und Sitzungskennungen"] },
+          { liste: ["IP-Adresse", "Browsertyp und Betriebssystem", "Aufgerufene Seiten und Besuchsdauer", "Cookies und Sitzungskennungen", "Anonymisierte Aufzeichnung Ihres Wegs durch den Bestellvorgang (Eingaben und Zahlungsdaten verborgen) zur Verbesserung der Website; Sie können dem über die Messeinstellungen auf dieser Seite widersprechen"] },
         ],
       },
       {

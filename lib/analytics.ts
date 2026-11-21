@@ -217,9 +217,10 @@ function client(): Promise<PostHog | null> {
            propriete qui les porterait. */
         before_send: filtrerAvantEnvoi,
 
-        /* Les snapshots compresses du replay ne passent pas par notre filtre
-           de donnees. Pas de film tant que ce transport prive n'est pas audite ;
-           les evenements commerciaux anonymes restent actifs et testes. */
+        /* Pas de film automatique. Seule la caisse est filmee, a son
+           ouverture (`filmerCaisse`, decision d'Ilyes du 21/11/2026), champs
+           saisis masques et elements Stripe bloques ; les snapshots ne passent
+           pas par notre filtre, d'ou ces masques. */
         disable_session_recording: true,
         session_recording: {
           maskAllInputs: true,
@@ -312,6 +313,17 @@ export function proprietesPersonne(proprietes: Properties): void {
  */
 export function oublier(): void {
   void client().then((posthog) => posthog?.reset());
+}
+
+/**
+ * Film anonymise du seul parcours de caisse (decision d'Ilyes du 21/11/2026),
+ * mentionne dans la politique de confidentialite. Jamais pour un visiteur qui
+ * a refuse la mesure : `client()` ne charge alors pas le SDK.
+ */
+export function filmerCaisse(): void {
+  void client().then((posthog) => {
+    if (posthog && !posthog.sessionRecordingStarted()) posthog.startSessionRecording(true);
+  });
 }
 
 /* ═══ consentement ══════════════════════════════════════════════════════ */
