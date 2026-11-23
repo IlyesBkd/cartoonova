@@ -19,6 +19,22 @@ async function saveShipping(orderId: string, patch: ShippingPatch, notify?: Noti
   return withFreshDatabaseClient(async db => db.begin(async tx => {
     const [order] = await tx`SELECT * FROM orders WHERE id=${orderId}::uuid FOR NO KEY UPDATE`;
     if (!order) throw new ShippingError("Commande introuvable.", 404);
+    if (order.shipping_details) throw new ShippingError("Expédition groupée : utiliser le dossier multi-suivis, sans écraser ses colis.",409);
+    // Reference attachment shares the group gate; no member may join mid-send.
+    for (const ref of new Set([order.fournisseur_ref,patch.fournisseurRef].filter(Boolean))) {
+      const [gate] = await tx`SELECT pg_try_advisory_xact_lock(hashtextextended(${`shipping:${ref}`},0)) AS acquired`;
+      if (!gate.acquired) throw new ShippingError("Expédition de cette référence en cours.",409);
+      const [frozen] = await tx`SELECT id FROM orders WHERE fournisseur_ref=${ref} AND shipping_details IS NOT NULL LIMIT 1`;
+      if (frozen && patch.fournisseurRef !== undefined && patch.fournisseurRef !== order.fournisseur_ref) throw new ShippingError("Groupe d'expédition déjà constitué.",409);
+    }
+    // A group provider call is durable even when its order transaction rolls
+    // back. Check the ledger under the shared reference gate, not only the
+    // projection above. Membership also fences a subsequently changed reference.
+    const refs = [...new Set([order.fournisseur_ref, patch.fournisseurRef].filter(Boolean))];
+    const [effect] = await tx`SELECT supplier_ref FROM order_shipping_effects
+      WHERE supplier_ref=ANY(${refs}::text[]) OR details->'orderIds' ? ${order.id}
+      LIMIT 1`;
+    if (effect) throw new ShippingError("Expédition groupée journalisée : vérification requise, sans envoi simple.",409);
     const options = typeof order.options === "string" ? JSON.parse(order.options) : order.options;
     if (!order.paid_at || !estPhysique(options)) {
       throw new ShippingError("L'expédition exige une commande physique payée.", 409);

@@ -6,6 +6,8 @@ import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { envoyerEmail } from "@/lib/envoiEmail";
 import { patchShipping, notifyShipping, ShippingError } from "@/lib/orderDeliveryShipping";
+import { parseShippingGroup, notifyShippingGroup } from "@/lib/orderShippingGroup";
+import { groupShippingEmail } from "@/lib/emailShippingGroup";
 
 /**
  * Le dossier d'expedition d'une commande physique.
@@ -109,6 +111,11 @@ export async function PATCH(req: NextRequest) {
   if (refus) return refus;
 
   try {
+    const incoming = await req.clone().json().catch(()=>null);
+    if (incoming && Object.hasOwn(incoming,"shippingGroup")) {
+      const result = await notifyShippingGroup(parseShippingGroup(incoming.shippingGroup));
+      return NextResponse.json({ok:true,...result});
+    }
     const { orderId, fournisseurRef, suiviUrl, transporteur } = await lireCorps(req);
     if (!orderId) {
       return NextResponse.json({ error: "orderId manquant." }, { status: 400 });
@@ -138,6 +145,15 @@ export async function POST(req: NextRequest) {
   if (refus) return refus;
 
   try {
+    const incoming = await req.clone().json().catch(()=>null);
+    if (incoming && Object.hasOwn(incoming,"shippingGroup")) {
+      const details = parseShippingGroup(incoming.shippingGroup);
+      const result = await notifyShippingGroup(details, async (orders, saved, key) => envoyerEmail({
+        from:EXPEDITEUR,to:[orders[0].customer_email],replyTo:SUPPORT_EMAIL,
+        ...groupShippingEmail(orders,saved),
+      },{idempotencyKey:key}));
+      return NextResponse.json({ok:true,...result});
+    }
     const { orderId, fournisseurRef, suiviUrl, transporteur } = await lireCorps(req);
     if (!orderId) {
       return NextResponse.json({ error: "orderId manquant." }, { status: 400 });

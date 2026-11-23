@@ -272,6 +272,8 @@ export interface DbOrder {
   fournisseur_ref: string | null;
   /** Lien de suivi du colis, tel que le transporteur le fournit. */
   suivi_url: string | null;
+  /** All parcels share this supplier group; no inferred product attribution. */
+  shipping_details?: import("./orderShippingGroup").ShippingDetails | null;
   /** Nom du transporteur, saisi librement. Null quand il n'est pas connu. */
   suivi_transporteur: string | null;
   /** Date de remise au transporteur. Null tant que le colis n'est pas parti. */

@@ -17,6 +17,7 @@ import { STATUTS_COMMANDE, statutCommande, type StatutCommande } from "@/lib/sta
 import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 import TraductionFr from "@/components/admin/TraductionFr";
+import ShippingGroupPanel from "./ShippingGroupPanel";
 
 
 /**
@@ -1963,6 +1964,7 @@ export default function AdminPage() {
                           );
                         })()}
 
+                        {/^[0-9]{6,10}$/.test(selectedOrder.fournisseur_ref || '') && (!selectedOrder.expedition_email_envoye_le || !!selectedOrder.shipping_details) && <ShippingGroupPanel key={selectedOrder.id + JSON.stringify(selectedOrder.shipping_details)} order={selectedOrder} orders={orders} request={adminFetch} onSaved={()=>{fetchOrders();}} />}
                         {/* Référence imprimeur — interne, jamais envoyée au client. */}
                         <div>
                           <label className="block text-[10px] font-semibold text-gray-500 mb-1">
@@ -1977,6 +1979,7 @@ export default function AdminPage() {
                           />
                         </div>
 
+                        {(!/^[0-9]{6,10}$/.test(selectedOrder.fournisseur_ref || '') || (!!selectedOrder.expedition_email_envoye_le && !selectedOrder.shipping_details)) && <>
                         <div className="grid grid-cols-3 gap-2">
                           <div className="col-span-2">
                             <label className="block text-[10px] font-semibold text-gray-500 mb-1">
@@ -2046,6 +2049,7 @@ export default function AdminPage() {
                             Ouvrir le suivi →
                           </a>
                         )}
+                        </>}
                       </div>
                     )}
 

@@ -5,7 +5,8 @@ import { createRequire, Module } from 'node:module';
 import path from 'node:path';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { NextIntlClientProvider, useTranslations, createTranslator } from 'next-intl';
+import * as nextIntl from 'next-intl';
+const { NextIntlClientProvider, useTranslations, createTranslator } = nextIntl;
 import { parse } from '@formatjs/icu-messageformat-parser';
 import ts from 'typescript';
 const root = path.resolve(import.meta.dirname, '..');
@@ -50,6 +51,8 @@ function load(file, replacements={}, cache=new Map()) {
  const m=new Module(file);m.filename=file;cache.set(file,m);const original=createRequire(file);
  m.require=name=>{
   if(name in replacements)return replacements[name];
+  // Keep the ESM provider and transpiled component hooks on one React context.
+  if(name === 'next-intl')return nextIntl;
   if(name.startsWith('@/')) {
    const target=name.slice(2);return load(target+(existsSync(path.join(root,target+'.ts'))?'.ts':'.tsx'),replacements,cache);
   }

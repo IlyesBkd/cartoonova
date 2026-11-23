@@ -7,7 +7,7 @@ import ts from 'typescript';
 
 const root = path.resolve(import.meta.dirname, '..');
 const routes = ['confirm-poster', 'review-request', 'expedition', 'send-poster-confirmation', 'extras'];
-const allowed = new Set(['lib/email-i18n.ts', 'lib/deliveryCopy.ts', 'lib/i18n/serveur.ts', 'lib/emailTemplate.ts']);
+const allowed = new Set(['lib/emailShippingGroup.ts', 'lib/email-i18n.ts', 'lib/deliveryCopy.ts', 'lib/i18n/serveur.ts', 'lib/emailTemplate.ts']);
 function load(relative, mocks = {}, cache = new Map()) {
   const file = path.resolve(root, relative);
   if (cache.has(file)) return cache.get(file).exports;
@@ -52,12 +52,14 @@ for (const lang of copy.LANGS) for (const route of routes) test(`${route}/${lang
     '@/lib/confidentialiteMesure': { diagnosticJournal: x => x },
     '@/lib/expediteur': { EXPEDITEUR: 'Cartoonova <from@example.test>', SUPPORT_EMAIL: 'support@example.test' },
     '@/lib/site': { SITE_URL: 'https://cartoonova.example.test' },
+    '@/lib/storage': { storageEmailUrl: ref => ref, uploadVpsServerObject: async () => assert.fail('No upload on artifact replay') },
     '@/lib/envoiEmail': { envoyerEmail: async (...args) => { sent.push(args); return { data: { id: 'email-local' } }; } },
     '@/lib/db': { getOrderById: async () => order, getOrderByConfirmationToken: async () => order, recordPosterConfirmationResponse: async () => ({ order, changed: true }), setPosterConfirmationToken: async (...args) => { effects.push(['token', ...args]); return true; }, recordPosterConfirmationMessage: async (...args) => effects.push(['poster', ...args]), setOrderLastOutboundMessageId: async (...args) => effects.push(['outbound', ...args]), markReviewRequestSent: async (...args) => effects.push(['review', ...args]) },
     '@/lib/recompenseAvis': { recompenseAvisFormatee: () => '10 €' },
     '@/lib/emailToken': { orderTrackingToken: id => `signed-${id}` },
     '@/lib/reviewsDb': { avisExistePourCommande: async () => false },
     '@/lib/finalImage': { FinalImageError, downloadFinalImage: async () => ({ bytes: Buffer.from('local image'), contentType: 'image/png' }) },
+    '@/lib/orderShippingGroup': {parseShippingGroup:()=>assert.fail('Legacy fixture must not take the group path'),notifyShippingGroup:()=>assert.fail('Legacy fixture must not take the group path')},
     '@/lib/orderDeliveryShipping': { ShippingError, patchShipping: async () => {}, notifyShipping: async (id, data, send) => { effects.push(['shipping', id, data]); await send(order); return order; } },
     '@/lib/orderDelivery': { OrderDeliveryError, deliveryContentHash: () => 'local-hash', executeDelivery: async (o, kind, hash, recipient, callback) => { effects.push(['delivery', kind, hash, recipient]); await callback({ artifacts: { fichiers }, checkpoint: async () => assert.fail('Existing artifacts must be reused'), send: fn => fn('local-idempotency-key') }); return { artifacts: { fichiers }, emailId: 'email-local', duplicate: false }; } },
     '@vercel/blob': { put: async () => assert.fail('No upload allowed') },
@@ -79,7 +81,7 @@ for (const lang of copy.LANGS) for (const route of routes) test(`${route}/${lang
   delete process.env.DISCORD_WEBHOOK_URL;
   try {
     const handler = load(`app/api/orders/${route}/route.ts`, mocks);
-    const result = await handler.POST({ url: 'https://cartoonova.example.test/api/orders/local', json: async () => ({ orderId: order.id, customerEmail: order.customer_email, finalImageUrl: order.final_image_url, token: 'existing-token', action: 'changes', note: order.poster_confirmation_note, suiviUrl: order.suivi_url }) });
+    const result = await handler.POST({ clone:()=>({json:async()=>({})}), url: 'https://cartoonova.example.test/api/orders/local', json: async () => ({ orderId: order.id, customerEmail: order.customer_email, finalImageUrl: order.final_image_url, token: 'existing-token', action: 'changes', note: order.poster_confirmation_note, suiviUrl: order.suivi_url }) });
     assert.equal(result.status, 200, JSON.stringify(result.body));
     assert.equal(sent.length, 1);
     const [email, deliveryOptions] = sent[0];

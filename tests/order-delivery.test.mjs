@@ -147,7 +147,7 @@ test('FLOW06 real route + PostgreSQL preserves partial fields and refuses missin
  await pg.db`UPDATE orders SET options='{"printOption":"digital"}' WHERE id=${id}`;assert.equal((await PATCH(request({transporteur:'forbidden'}))).status,409);
  await pg.db`UPDATE orders SET options='{"printOption":"canvas"}',status='paid',paid_at=null WHERE id=${id}`;assert.equal((await PATCH(request({transporteur:'forbidden'}))).status,409);
 });
-test('FLOW08 real express save route sends once under concurrency and once for a real retouch',async()=>{
+test('FLOW08 real express deposit is silent; explicit concurrent send and retouch each deliver once',async()=>{
  await pg.db`DELETE FROM order_delivery_effects`;
  await pg.db`UPDATE orders SET options='{"printOption":"digital","express":true}',status='PAID',paid_at=now(),final_image_sent_at=null,final_image_url='https://synthetic.invalid/final/express-A.png' WHERE id=${id}`;
  let count=0;
@@ -160,12 +160,15 @@ test('FLOW08 real express save route sends once under concurrency and once for a
   '@/lib/envoiEmail':{envoyerEmail:async()=>{count++;await new Promise(r=>setTimeout(r,15));return {data:{id:'express-'+count}};}},
  };
  const a=loadDeep('app/api/orders/send-final-image/route.ts',replacements),b=loadDeep('app/api/orders/send-final-image/route.ts',replacements);
- const req=url=>new Request('http://local/api/orders/send-final-image',{method:'POST',body:JSON.stringify({orderId:id,finalImageUrl:url,saveOnly:true})});
+ const req=(url,saveOnly=false,deliveryMode='initial')=>new Request('http://local/api/orders/send-final-image',{method:'POST',body:JSON.stringify({orderId:id,finalImageUrl:url,saveOnly,deliveryMode})});
+ const deposited=await Promise.all(Array.from({length:8},(_,i)=>(i%2?a:b).POST(req('https://synthetic.invalid/final/express-A.png',true))));
+ assert.ok(deposited.every(r=>r.status===200));assert.equal(count,0);
  const responses=await Promise.all(Array.from({length:8},(_,i)=>(i%2?a:b).POST(req('https://synthetic.invalid/final/express-A.png'))));
  assert.ok(responses.every(r=>[200,409].includes(r.status)));assert.equal(count,1);
  const [first]=await pg.db`SELECT final_image_sent_at FROM orders WHERE id=${id}`;
- assert.equal((await a.POST(req('https://synthetic.invalid/final/express-B.png'))).status,200);assert.equal(count,2);
- assert.equal((await b.POST(req('https://synthetic.invalid/final/express-B.png'))).status,200);assert.equal(count,2);
+ assert.equal((await a.POST(req('https://synthetic.invalid/final/express-B.png',true))).status,200);assert.equal(count,1);
+ assert.equal((await a.POST(req('https://synthetic.invalid/final/express-B.png',false,'retouch'))).status,200);assert.equal(count,2);
+ assert.equal((await b.POST(req('https://synthetic.invalid/final/express-B.png',false,'retouch'))).status,200);assert.equal(count,2);
  assert.equal((await pg.db`SELECT final_image_sent_at FROM orders WHERE id=${id}`)[0].final_image_sent_at.toISOString(),first.final_image_sent_at.toISOString());
 });
 test('FLOW08 ambiguous Blob upload blocks free reuploads until explicit reconciliation',async()=>{
