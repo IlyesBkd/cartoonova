@@ -94,7 +94,7 @@ test('route rejects an incomplete approved transport without calling the provide
  await delivery.approvePreparedSupportReply(id,fp);
  const before=providerCalls.length;
  const response=await route.POST(new Request('https://local.invalid',{method:'POST',body:JSON.stringify({id,approvalFingerprint:fp})}));
- assert.equal(response.status,409);assert.equal((await response.json()).state,'prepared');
+ assert.equal(response.status,409);assert.deepEqual(await response.json(),{error:'Envoi incertain : vérification obligatoire, ne pas renvoyer.',state:'unknown'});
  assert.equal(providerCalls.length,before);assert.equal((await drafts.readPreparedSupportReply(id)).status,'prepared');
 });
 test('route quarantines even a synchronous transport exception and prevents another attempt',async()=>{
@@ -104,8 +104,9 @@ test('route quarantines even a synchronous transport exception and prevents anot
  const request=()=>new Request('https://local.invalid',{method:'POST',body:JSON.stringify({id,approvalFingerprint:draft.approvalFingerprint})});
  const before=providerCalls.length;providerFailure=true;
  try {
-  let response=await route.POST(request());assert.equal(response.status,409);assert.equal((await response.json()).state,'sending');
-  response=await route.POST(request());assert.equal(response.status,409);assert.equal((await response.json()).state,'sending');
+  let response=await route.POST(request());assert.equal(response.status,409);assert.deepEqual(await response.json(),{error:'Envoi incertain : vérification obligatoire, ne pas renvoyer.',state:'unknown'});
+  response=await route.POST(request());assert.equal(response.status,409);assert.deepEqual(await response.json(),{error:'Envoi incertain : vérification obligatoire, ne pas renvoyer.',state:'unknown'});
+  assert.equal((await drafts.readPreparedSupportReply(id)).status,'sending');
   assert.equal(providerCalls.length,before+1);
  } finally {providerFailure=false;providerCalls.splice(before);await discardFixtures([id]);}
 });

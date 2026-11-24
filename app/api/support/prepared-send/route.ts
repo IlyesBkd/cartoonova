@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { envoyerEmail } from "@/lib/envoiEmail";
-import { sendPreparedSupportReply } from "@/lib/supportPreparedDelivery";
-import { readPreparedSupportReply } from "@/lib/supportPreparedReplies";
+import { PreparedSupportAcceptedError, sendPreparedSupportReply } from "@/lib/supportPreparedDelivery";
 
 /** Called only after approval of the precise prepared message. */
 export async function POST(request: NextRequest) {
@@ -32,9 +31,15 @@ export async function POST(request: NextRequest) {
       };
     });
     return NextResponse.json({ ok: true, replyId }, { headers: { "Cache-Control": "private, no-store" } });
-  } catch {
-    let state = "unknown";
-    try { state = (await readPreparedSupportReply(id))?.status ?? state; } catch { /* Do not expose unverified content. */ }
-    return NextResponse.json({ error: state === "sent" ? "Email accepté : l'historique doit être réparé sans renvoi." : state === "sending" || state === "uncertain" ? "Envoi incertain : vérification obligatoire, ne pas renvoyer." : "Envoi refusé : vérifiez l'aperçu et le destinataire.", state }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
+  } catch (error) {
+    // Never re-read through the shared pool here: it may be closed or occupied.
+    // Only typed acceptance evidence may classify this request as accepted.
+    const accepted = error instanceof PreparedSupportAcceptedError;
+    return NextResponse.json(accepted ? {
+      error: "Email accepté : l'historique doit être réparé sans renvoi.",
+      state: "sent", needsHistoryRepair: true,
+    } : {
+      error: "Envoi incertain : vérification obligatoire, ne pas renvoyer.", state: "unknown",
+    }, { status: 409, headers: { "Cache-Control": "private, no-store" } });
   }
 }

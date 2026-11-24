@@ -1,9 +1,24 @@
 import { createHash, randomUUID } from "node:crypto";
 import { sql, withFreshDatabaseClient } from "@/lib/db";
 import { readPreparedSupportReply } from "@/lib/supportPreparedReplies";
+import { retryConfirmedSupportHistory } from "./supportHistoryRetry";
 
 type Prepared = NonNullable<Awaited<ReturnType<typeof readPreparedSupportReply>>>;
 type Provider = (draft: Prepared, idempotencyKey: string) => Promise<{ id: string }>;
+
+/** Safe provider acceptance evidence, independent of the shared database pool.
+ * No raw cause, draft, recipient or provider identifier may escape in this error.
+ * Acceptance is NOT proof of delivery to the customer's inbox.
+ */
+export class PreparedSupportAcceptedError extends Error {
+  readonly state = "sent" as const;
+  readonly needsHistoryRepair = true;
+
+  constructor() {
+    super("Email accepté : l'historique doit être réparé sans renvoi.");
+    this.name = "PreparedSupportAcceptedError";
+  }
+}
 
 /** A durable sending intent is committed BEFORE contacting the provider. */
 export async function approvePreparedSupportReply(id: string, approvedFingerprint: string) {
@@ -55,6 +70,8 @@ export async function sendPreparedSupportReply(id: string, approvedFingerprint: 
   return priorOutboundId;
   })); // The global lock and the durable claim commit together, on one connection.
 
+  let acceptedCheckpoint: Promise<void> | undefined;
+  try {
   await withFreshDatabaseClient(lockDb => lockDb.begin(async tx => {
   await tx`SET LOCAL lock_timeout = '3s'`;
   await tx`SET LOCAL statement_timeout = '5s'`;
@@ -78,12 +95,20 @@ export async function sendPreparedSupportReply(id: string, approvedFingerprint: 
       provider(draft, `support/${id}`).then(async accepted => {
         if (!accepted.id) throw new Error("Résultat fournisseur incertain : vérification requise.");
         // This checkpoint may still run after the timeout if the process survives.
-        await withFreshDatabaseClient(async checkpoint => {
+        acceptedCheckpoint = retryConfirmedSupportHistory("checkpoint", () => withFreshDatabaseClient(async checkpoint => {
           await checkpoint`SET lock_timeout = '3s'`;
           await checkpoint`SET statement_timeout = '5s'`;
           const stored = await checkpoint`UPDATE support_prepared_replies SET status='sent',provider_id=${accepted.id},provider_sent_at=clock_timestamp(),resolved_at=clock_timestamp() WHERE id=${id}::uuid AND status='sending' RETURNING id`;
-          if (!stored.length) throw new Error("Résultat fournisseur incertain : vérification requise.");
-        });
+          if (!stored.length) {
+            // A lost acknowledgement can hide a committed checkpoint. Accept
+            // only the SAME provider evidence; never rewrite its original date.
+            const [previous] = await checkpoint`SELECT status,provider_id,provider_sent_at FROM support_prepared_replies WHERE id=${id}::uuid`;
+            if (previous?.status !== "sent" || previous.provider_id !== accepted.id || !previous.provider_sent_at) {
+              throw new Error("Résultat fournisseur incertain : vérification requise.");
+            }
+          }
+        }));
+        await acceptedCheckpoint;
         return accepted;
       }),
       new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("Envoi incertain : délai fournisseur dépassé.")), 8000); }),
@@ -93,18 +118,34 @@ export async function sendPreparedSupportReply(id: string, approvedFingerprint: 
   }
   if (!result.id) throw new Error("Résultat fournisseur incertain : vérification requise.");
   }));
+  } catch (error) {
+    if (!acceptedCheckpoint) throw error;
+    // A broken lease can reject begin() while the independent checkpoint is
+    // still in flight. Await ONLY that persistence, never the provider scope.
+    try { await acceptedCheckpoint; }
+    catch { throw new PreparedSupportAcceptedError(); }
+    // The lease connection/COMMIT may fail AFTER the independent checkpoint.
+    // Do not repeat that scope (it contains the provider); only repair history.
+    console.error("[support-history]", { phase: "lease-release", code: "confirmed_checkpoint" });
+  }
   try { return await reconcilePreparedSupportReply(id); }
-  catch { throw new Error("Email accepté, mais historique à réparer sans renvoi."); }
+  catch { throw new PreparedSupportAcceptedError(); }
 }
 
 /** Idempotent history repair: this function cannot call an email provider. */
 export async function reconcilePreparedSupportReply(id: string): Promise<number> {
-  const draft = await readPreparedSupportReply(id);
-  if (!draft || draft.status !== "sent") throw new Error("Aucun envoi confirmé à réparer.");
+  return retryConfirmedSupportHistory("reconcile", () => reconcilePreparedSupportReplyOnce(id));
+}
+
+async function reconcilePreparedSupportReplyOnce(id: string): Promise<number> {
   return withFreshDatabaseClient(db => db.begin(async tx => {
     await tx`SET LOCAL lock_timeout = '3s'`;
     await tx`SET LOCAL statement_timeout = '5s'`;
     await tx`SELECT pg_advisory_xact_lock(hashtextextended('support-send:global',0))`;
+    // The snapshot read belongs to this bounded, fresh transaction as well:
+    // never queue it behind unrelated work in the shared one-connection pool.
+    const draft = await readPreparedSupportReply(id, tx);
+    if (!draft || draft.status !== "sent") throw new Error("Aucun envoi confirmé à réparer.");
     const [entry] = await tx`SELECT status,provider_id,provider_sent_at,reply_id,prior_outbound_id FROM support_prepared_replies WHERE id=${id}::uuid FOR UPDATE`;
     if (!entry || entry.status !== "sent" || !entry.provider_id || !entry.provider_sent_at) throw new Error("Aucun envoi confirmé à réparer.");
     if (entry.reply_id) return Number(entry.reply_id);

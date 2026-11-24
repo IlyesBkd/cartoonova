@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import type { Sql, TransactionSql } from "postgres";
 import { sql, withFreshDatabaseClient } from "@/lib/db";
 import { EXPEDITEUR, SUPPORT_EMAIL } from "@/lib/expediteur";
 import { emailLayout, emailParagraph } from "@/lib/emailTemplate";
@@ -70,11 +71,11 @@ export async function prepareSupportReply(input: DraftInput): Promise<string> {
 }
 
 /** Never return or send an attachment whose bytes no longer match its digest. */
-export async function readPreparedSupportReply(id: string) {
+export async function readPreparedSupportReply(id: string, querySql: Sql | TransactionSql = sql) {
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(id)) return null;
-  const [row] = await sql`SELECT * FROM support_prepared_replies WHERE id=${id}::uuid`;
+  const [row] = await querySql`SELECT * FROM support_prepared_replies WHERE id=${id}::uuid`;
   if (!row) return null;
-  const files = await sql`SELECT filename,content_type,content,sha256 FROM support_prepared_attachments WHERE draft_id=${id}::uuid ORDER BY position`;
+  const files = await querySql`SELECT filename,content_type,content,sha256 FROM support_prepared_attachments WHERE draft_id=${id}::uuid ORDER BY position`;
   const attachments = files.map(file => {
     const bytes = Buffer.from(file.content as Buffer);
     if (hash(bytes) !== file.sha256) throw new Error("Pièce jointe corrompue.");
