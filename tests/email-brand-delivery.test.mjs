@@ -26,6 +26,7 @@ const noop = async () => {};
 const base = {
   '@/lib/confidentialiteMesure': { diagnosticJournal: () => 'isolated' },
   '@/lib/site': { SITE_URL: 'https://cartoonova.test' },
+  '@/lib/storage': { storageEmailUrl: ref => ref },
   '@/lib/expediteur': { EXPEDITEUR: 'Cartoonova <hello@cartoonova.test>', SUPPORT_EMAIL: 'support@cartoonova.test' },
   '@/lib/emailToken': { orderTrackingToken: id => 'signed-' + id, bonToken: code => 'signed-' + code },
   '@/lib/analyticsServeur': { mesureServeur: noop, personneServeur: noop },

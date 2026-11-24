@@ -70,21 +70,40 @@ export async function executeDelivery(
       }
       const [unresolved] = await db`SELECT status FROM order_delivery_effects WHERE order_id=${expected.id}::uuid AND kind=${kind} AND (status IN ('sending','uncertain') OR artifacts->>'uploadPending' IS NOT NULL) LIMIT 1`;
       if (unresolved) throw new OrderDeliveryError("Résultat fournisseur incertain : vérifier le journal avant toute reprise.");
-      await db`INSERT INTO order_delivery_effects(order_id,kind,version,status) VALUES(${expected.id}::uuid,${kind},${version},'preparing') ON CONFLICT DO NOTHING`;
+      // Only NEW fingerprints acquire provenance. Never relabel an old ledger
+      // row on retry, or infer a retouch from a version number / current button.
+      const provenance = kind === "final_image" ? { deliveryHistory: {
+        mode, recipient: recipient.trim(), portraitUrl: current.final_image_url, contentHash,
+      } } : {};
+      await db`INSERT INTO order_delivery_effects(order_id,kind,version,status,artifacts) VALUES(${expected.id}::uuid,${kind},${version},'preparing',${db.json(provenance)}) ON CONFLICT DO NOTHING`;
       const [effect] = await db`SELECT * FROM order_delivery_effects WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
       if (effect.status === "sent") return {artifacts:effect.artifacts as Artifacts,emailId:effect.email_id as string | null,duplicate:true};
       const context: DeliveryContext = {
         artifacts: effect.artifacts as Artifacts,
         checkpoint: async artifacts => {
-          await db`UPDATE order_delivery_effects SET artifacts=${db.json(artifacts as postgres.JSONValue)},updated_at=now() WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
-          context.artifacts = artifacts;
+          // Checkpoints belong to preparation; callers cannot erase or rewrite
+          // durable provenance (including the success timestamp) with a stale copy.
+          const prepared = { ...artifacts };
+          delete prepared.deliveryHistory;
+          const [saved] = await db`UPDATE order_delivery_effects SET artifacts=${db.json(prepared as postgres.JSONValue)} || CASE WHEN artifacts ? 'deliveryHistory' THEN jsonb_build_object('deliveryHistory',artifacts->'deliveryHistory') ELSE '{}'::jsonb END,updated_at=now() WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version} RETURNING artifacts`;
+          context.artifacts = saved.artifacts as Artifacts;
         },
         send: async provider => {
-          await db`UPDATE order_delivery_effects SET status='sending',updated_at=now() WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
+          // A positively retryable preparation may be resumed with another
+          // explicit mode (same fingerprint). Record the mode actually used by
+          // THIS provider invocation, not an abandoned preparation. Legacy rows
+          // still remain unlabelled, and successful provenance stays immutable.
+          await db`UPDATE order_delivery_effects SET status='sending',updated_at=now(),
+            artifacts=CASE WHEN kind='final_image' AND artifacts ? 'deliveryHistory' AND artifacts#>>'{deliveryHistory,sentAt}' IS NULL
+              THEN artifacts || ${db.json(provenance)}::jsonb ELSE artifacts END
+            WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
           try {
             const result = await provider(`delivery/${expected.id}/${kind}/${version}`);
             if (result.error) throw new Error("Envoi refusé.");
-            await db`UPDATE order_delivery_effects SET status='sent',email_id=${result.data?.id ?? null},updated_at=now() WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
+            await db`UPDATE order_delivery_effects SET status='sent',email_id=${result.data?.id ?? null},updated_at=now(),
+              artifacts=CASE WHEN artifacts ? 'deliveryHistory' AND artifacts#>>'{deliveryHistory,sentAt}' IS NULL
+                THEN jsonb_set(artifacts,'{deliveryHistory,sentAt}',to_jsonb(clock_timestamp())) ELSE artifacts END
+              WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
           } catch (error) {
             await db`UPDATE order_delivery_effects SET status='uncertain',updated_at=now() WHERE order_id=${expected.id}::uuid AND kind=${kind} AND version=${version}`;
             throw error;

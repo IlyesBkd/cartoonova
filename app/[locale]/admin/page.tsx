@@ -18,6 +18,7 @@ import PromoCodesPanel from "@/components/admin/PromoCodesPanel";
 import ReviewsPanel from "@/components/admin/ReviewsPanel";
 import TraductionFr from "@/components/admin/TraductionFr";
 import ShippingGroupPanel from "./ShippingGroupPanel";
+import CustomerHistoryPanel, { type CustomerHistoryTarget } from "@/components/admin/CustomerHistoryPanel";
 
 
 /**
@@ -119,6 +120,7 @@ export default function AdminPage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [ordersError, setOrdersError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<DbOrder | null>(null);
+  const [historyTarget, setHistoryTarget] = useState<CustomerHistoryTarget | null>(null);
 
   // Prices
   const [pricesByCurrency, setPricesByCurrency] = useState<PricesByCurrency>(DEFAULT_PRICES_BY_CURRENCY);
@@ -1319,7 +1321,8 @@ export default function AdminPage() {
 
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs text-gray-500 font-semibold mb-1">Client</p>
-                      <p className="font-medium">{selectedOrder.customer_email}</p>
+                      <p className="font-medium break-all">{selectedOrder.customer_email}</p>
+                      <button type="button" onClick={() => setHistoryTarget({ orderId: selectedOrder.id })} className="mt-2 min-h-11 rounded-lg border border-gray-300 bg-white px-3 text-sm font-semibold">Historique client</button>
                       {selectedOrder.customer_name && (
                         <p className="text-gray-600">{selectedOrder.customer_name}</p>
                       )}
@@ -2276,6 +2279,7 @@ export default function AdminPage() {
                           </button>
                           {isExpanded && (
                             <div className="px-4 pb-4 space-y-3">
+                              <button type="button" onClick={() => setHistoryTarget({ supportMessageId: m.id })} className="min-h-11 rounded-lg border border-gray-300 bg-white px-3 text-sm font-semibold">Historique client</button>
                               <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-700 whitespace-pre-wrap">
                                 {m.body_text || "(pas de contenu texte)"}
                               </div>
@@ -2588,6 +2592,7 @@ export default function AdminPage() {
           </>
         )}
       </main>
+      {historyTarget && <CustomerHistoryPanel target={historyTarget} onClose={() => setHistoryTarget(null)} />}
     </div>
   );
 }

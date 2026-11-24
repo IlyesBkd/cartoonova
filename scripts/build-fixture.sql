@@ -6,6 +6,7 @@ CREATE TABLE orders (
  created_at timestamptz NOT NULL DEFAULT now(),
  status text NOT NULL DEFAULT 'PENDING',
  payment_intent_id text,
+ customer_email text,
  promo_code text,
  discount_amount numeric,
  poster_confirmation_token text
@@ -32,10 +33,15 @@ CREATE TABLE prices (
 CREATE TABLE support_messages (
  id serial PRIMARY KEY,
  email text NOT NULL,
+ from_email text,
  message text NOT NULL,
  received_at timestamptz NOT NULL DEFAULT now()
 );
 -- Existing production baseline table, required by support attachment migration.
-CREATE TABLE support_replies (id serial PRIMARY KEY);
+CREATE TABLE support_replies (
+ id serial PRIMARY KEY,
+ to_email text,
+ sent_at timestamptz NOT NULL DEFAULT now()
+);
 -- Articles/reviews/product content are provisioned from their in-repo runtime
 -- schema definitions by the local application (VERCEL unset), with empty content.

@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { emailText } from "./emailTemplate";
+import { beginEmailHistory, finishEmailHistory, emailHistoryDiagnostic } from "./customerHistoryJournal";
 
 /**
  * Envoi d'un e-mail par Resend, qui echoue VRAIMENT quand l'envoi est refuse.
@@ -27,13 +28,22 @@ export async function envoyerEmail(
   const payload = typeof parametres.html === "string" && parametres.text === undefined
     ? { ...parametres, text: emailText(parametres.html) }
     : parametres;
-  const resultat = await resend.emails.send(payload, options);
+  const attempt = await beginEmailHistory(payload, options?.idempotencyKey);
+  let resultat: Resultat;
+  try {
+    resultat = await resend.emails.send(payload, options);
+  } catch (error) {
+    await finishEmailHistory(attempt, 'uncertain').catch(emailHistoryDiagnostic);
+    throw error;
+  }
   if (resultat.error) {
+    await finishEmailHistory(attempt, 'failed').catch(emailHistoryDiagnostic);
     // Provider text can echo recipients, signed links or HTML. Keep only a
     // documented diagnostic category, never the response body or recipient.
     const categories = ["validation_error", "rate_limit_exceeded", "application_error", "missing_api_key", "invalid_api_key", "restricted_api_key"];
     const categorie = categories.includes(resultat.error.name) ? resultat.error.name : "erreur";
     throw new Error(`Resend a refuse l'envoi (${categorie})`);
   }
+  await finishEmailHistory(attempt, resultat.data?.id ? 'sent' : 'uncertain', resultat.data?.id).catch(emailHistoryDiagnostic);
   return resultat;
 }

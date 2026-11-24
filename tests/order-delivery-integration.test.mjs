@@ -23,6 +23,56 @@ async function fixture(options={printOption:'digital',carteVoeux:true}) {
  };
  return {id,db,replacements,sends,get uploads(){return uploads;},setBytes:b=>{bytes=Buffer.from(b);},final:async()=>loadDeep('app/api/orders/send-final-image/route.ts',replacements).POST(request(id,{finalImageUrl:(await db.getOrderById(id)).final_image_url})),extras:()=>loadDeep('app/api/orders/extras/route.ts',replacements).POST(request(id))};
 }
+test('new final versions persist explicit mode/recipient/portrait, protected across checkpoints and replay',async()=>{
+ const f=await fixture({printOption:'digital'}),helper=pg.load('lib/orderDelivery.ts');let calls=0;
+ const deliver=async(mode,hash)=>helper.executeDelivery(await f.db.getOrderById(f.id),'final_image',hash,'gift@example.invalid',async ctx=>{
+  assert.equal(ctx.artifacts.deliveryHistory.mode,mode);
+  await ctx.checkpoint({prepared:'kept',deliveryHistory:{mode:'forged'}});
+  assert.equal(ctx.artifacts.deliveryHistory.mode,mode);
+  await ctx.send(async()=>{calls++;return {data:{id:'metadata-'+calls}};});
+  await ctx.checkpoint({prepared:'after-send'});
+ },mode);
+ const initial=await deliver('initial','hash-A');
+ assert.deepEqual({...initial.artifacts.deliveryHistory,sentAt:undefined},{mode:'initial',recipient:'gift@example.invalid',portraitUrl:'https://synthetic.invalid/final/A.png',contentHash:'hash-A',sentAt:undefined});
+ assert.ok(Number.isFinite(Date.parse(initial.artifacts.deliveryHistory.sentAt)));
+ const replay=await helper.executeDelivery(await f.db.getOrderById(f.id),'final_image','hash-A','gift@example.invalid',async()=>{throw Error('duplicate must not execute');},'retouch');
+ assert.equal(replay.duplicate,true);assert.deepEqual(replay.artifacts,initial.artifacts);assert.equal(calls,1);
+ await pg.db`UPDATE orders SET final_image_url='https://synthetic.invalid/final/B.png' WHERE id=${f.id}::uuid`;
+ const retouch=await deliver('retouch','hash-B');assert.equal(retouch.artifacts.deliveryHistory.mode,'retouch');assert.equal(retouch.artifacts.deliveryHistory.portraitUrl,'https://synthetic.invalid/final/B.png');assert.equal(calls,2);
+});
+test('legacy sent/preparing ledger rows never acquire inferred provenance on replay or retry',async()=>{
+ const f=await fixture({printOption:'digital'}),helper=pg.load('lib/orderDelivery.ts');
+ const invoke=async work=>helper.executeDelivery(await f.db.getOrderById(f.id),'final_image','legacy-hash','buyer@example.invalid',work,'initial');
+ await invoke(async ctx=>ctx.send(async()=>({data:{id:'old-email'}})));
+ await pg.db`UPDATE order_delivery_effects SET artifacts='{"oldArtifact":"retained"}'::jsonb WHERE order_id=${f.id}::uuid`;
+ const replay=await invoke(async()=>{throw Error('must not resend');});assert.equal(replay.duplicate,true);assert.deepEqual(replay.artifacts,{oldArtifact:'retained'});
+ await pg.db`UPDATE order_delivery_effects SET status='preparing',email_id=NULL WHERE order_id=${f.id}::uuid`;
+ const retried=await invoke(async ctx=>{await ctx.checkpoint({...ctx.artifacts,deliveryHistory:{mode:'retouch'}});await ctx.send(async()=>({data:{id:'retry-email'}}));});
+ assert.equal(retried.artifacts.deliveryHistory,undefined);assert.equal(retried.artifacts.oldArtifact,'retained');
+});
+test('retryable new preparation records the explicit mode of actual provider invocation',async()=>{
+ const f=await fixture({printOption:'digital'}),helper=pg.load('lib/orderDelivery.ts');
+ const deliver=async(hash,mode,work)=>helper.executeDelivery(await f.db.getOrderById(f.id),'final_image',hash,'buyer@example.invalid',work,mode);
+ await deliver('first-hash','initial',async ctx=>ctx.send(async()=>({data:{id:'first-delivery'}})));
+ await assert.rejects(deliver('next-hash','initial',async()=>{throw Error('preparation failed before provider');}));
+ const resumed=await deliver('next-hash','retouch',async ctx=>{
+  await ctx.send(async()=>{
+   const [sending]=await pg.db`SELECT artifacts FROM order_delivery_effects WHERE order_id=${f.id}::uuid AND status='sending'`;
+   assert.equal(sending.artifacts.deliveryHistory.mode,'retouch');return {data:{id:'resumed-retouch'}};
+  });
+  await ctx.checkpoint({extra:'kept'});
+ });
+ assert.equal(resumed.artifacts.deliveryHistory.mode,'retouch');assert.ok(resumed.artifacts.deliveryHistory.sentAt);
+});
+test('uncertain delivery reconciliation preserves provenance without inventing actual sent time',async()=>{
+ const f=await fixture({printOption:'digital'}),helper=pg.load('lib/orderDelivery.ts');
+ await assert.rejects(helper.executeDelivery(await f.db.getOrderById(f.id),'final_image','uncertain-hash','buyer@example.invalid',async ctx=>ctx.send(async()=>{throw Error('lost response');})));
+ const [pending]=await pg.db`SELECT * FROM order_delivery_effects WHERE order_id=${f.id}::uuid`;
+ assert.equal(pending.status,'uncertain');assert.equal(pending.artifacts.deliveryHistory.mode,'initial');assert.equal(pending.artifacts.deliveryHistory.sentAt,undefined);
+ await helper.reconcileDelivery(f.id,'final_image',pending.version,{outcome:'sent',reason:'synthetic provider proof',emailId:'reconciled-id'});
+ const [saved]=await pg.db`SELECT * FROM order_delivery_effects WHERE order_id=${f.id}::uuid`;
+ assert.equal(saved.status,'sent');assert.deepEqual(saved.artifacts.deliveryHistory,pending.artifacts.deliveryHistory);assert.equal(saved.artifacts.reconciliation.length,1);
+});
 test('physical final route refuses confirmation from previous email under canonical lock',async()=>{
  const f=await fixture({printOption:'canvas'});
  await pg.db`UPDATE orders SET poster_confirmation_email='previous@example.invalid' WHERE id=${f.id}::uuid`;

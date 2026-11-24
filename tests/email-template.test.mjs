@@ -33,11 +33,22 @@ test('plain alternative keeps links and meaningful content without styles or hid
 });
 test('transport adds text fallback without changing headers, attachments, recipients or idempotency',async()=>{
  let captured;
- const {envoyerEmail}=load('lib/envoiEmail.ts',{'resend':{Resend:class{emails={send:async(...args)=>{captured=args;return {data:{id:'synthetic-id'},error:null};}};}}});
+ const journal=[];
+ const {envoyerEmail}=load('lib/envoiEmail.ts',{
+  './customerHistoryJournal':{
+   beginEmailHistory:async(payload,key)=>{journal.push(['begin',payload,key]);return 'synthetic-attempt';},
+   finishEmailHistory:async(...args)=>{journal.push(['finish',...args]);},
+   emailHistoryDiagnostic:()=>assert.fail('unexpected journal failure'),
+  },
+  'resend':{Resend:class{emails={send:async(...args)=>{captured=args;journal.push(['provider']);return {data:{id:'synthetic-id'},error:null};}};}}
+ });
  const payload={from:'support@example.invalid',to:['client@example.invalid'],subject:'Test',html:'<p>Bonjour &amp; merci</p>',headers:{References:'<synthetic>'},attachments:[{filename:'test.txt',content:'hello'}]};
  await envoyerEmail(payload,{idempotencyKey:'synthetic-key'});
  assert.equal(captured[0].text,'Bonjour & merci');for(const key of ['to','headers','attachments'])assert.deepEqual(captured[0][key],payload[key]);assert.equal(captured[1].idempotencyKey,'synthetic-key');assert.equal(payload.text,undefined);
+ assert.deepEqual(journal,[['begin',captured[0],'synthetic-key'],['provider'],['finish','synthetic-attempt','sent','synthetic-id']]);
+ journal.length=0;
  await envoyerEmail({...payload,text:'Texte déjà approuvé'});assert.equal(captured[0].text,'Texte déjà approuvé');
+ assert.deepEqual(journal,[['begin',captured[0],undefined],['provider'],['finish','synthetic-attempt','sent','synthetic-id']]);
 });
 test('support adds branded safe HTML while preserving approved text, recipient and threading',async()=>{
  let payload;const text='Hej <script>alert(1)</script>\n\nDin tavla är på väg.';
