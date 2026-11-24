@@ -1,5 +1,6 @@
 // Durable local delivery fence shared by chat/contact and email. No production DDL.
 import {randomUUID} from 'node:crypto';
+import {customerContextSummary} from './customer-notification-context.mjs';
 import {openQueue} from '/home/hermes/.hermes/profiles/cartoonova/scripts/notification-translation.mjs';
 const clean=v=>String(v??'non renseigné').replace(/[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/gu,' ');
 export function notificationParts(m) {
@@ -7,7 +8,8 @@ export function notificationParts(m) {
  const received=Number.isFinite(date.getTime())?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Paris'}).format(date)+' (Paris)':'non renseignée';
  const header=`${m.channel==='email'?'✉️ Nouvel email':'💬 Nouveau message'} · Cartoonova · #${m.id}\n📅 Date : ${received}\n👤 Client / expéditeur : ${clean(m.email)}\n📨 Canal : ${clean(m.channel??'chat')}\n📝 Objet : ${clean(m.subject??'(sans objet)')}\n📦 Commande : ${clean(m.orderSummary??'Contexte en préparation, identité non authentifiée')}\n`;
  const t=m.translation;
- const content=`${header}\n📩 Message original intégral\n${m.body}\n\n${t?.status==='ready'?`🇫🇷 Traduction française intégrale\n${t.text}\n\n`:t?.status==='french'?'🇫🇷 Langue du client : français\n\n':'⏳ Traduction française : en préparation / indisponible\n\n'}${m.preparing!==false?'⏳ Préparation en cours — brouillon, rien envoyé':`✍️ Brouillon — rien envoyé · langue client : ${clean(m.language??'à déterminer')}\n${m.draft??'Indisponible : rédaction manuelle nécessaire.'}\n\n🇫🇷 Version française du brouillon\n${m.draftFR??(m.language==='fr'?m.draft:null)??'Indisponible : rédaction manuelle nécessaire.'}`}`;
+ const context=m.customerContext?customerContextSummary(m.customerContext):'';
+ const content=`${header}${context?'\n'+context+'\n':''}\n📩 Message original intégral\n${m.body}\n\n${t?.status==='ready'?`🇫🇷 Traduction française intégrale\n${t.text}\n\n`:t?.status==='french'?'🇫🇷 Langue du client : français\n\n':'⏳ Traduction française : en préparation / indisponible\n\n'}${m.preparing!==false?'⏳ Préparation en cours — brouillon, rien envoyé':`✍️ Brouillon — rien envoyé · langue client : ${clean(m.language??'à déterminer')}\n${m.draft??'Indisponible : rédaction manuelle nécessaire.'}\n\n🇫🇷 Version française du brouillon\n${m.draftFR??(m.language==='fr'?m.draft:null)??'Indisponible : rédaction manuelle nécessaire.'}`}\n\nBrouillon uniquement. Rien d’envoyé au client.`;
  // Reserve numbering overhead; UTF-16 boundaries match Telegram entity offsets.
  const chunks=[];for(let i=0;i<content.length;){let end=Math.min(i+3960,content.length);if(/[\uD800-\uDBFF]/.test(content[end-1])&&/[\uDC00-\uDFFF]/.test(content[end]??''))end--;chunks.push(content.slice(i,end));i=end;}
  return chunks.map((text,i)=>{

@@ -1,18 +1,21 @@
 import postgres from 'postgres';
 import {randomUUID} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
-import {loadOrderContext,unavailableContext,orderBrief,inline,translateMessage} from './chat-notification-context.mjs';
+import {loadOrderContext,unavailableContext,orderBrief,translateMessage} from './chat-notification-context.mjs';
 import {openProgressive,notificationParts,telegramSender} from './telegram-progressive.mjs';
 import {bilingualDraft} from './telegram-bilingual.mjs';
+import {loadContext as loadCustomerContext,inferenceContext,formatOrderBrief} from '../ops/support-context-v1/context.mjs';
 
 // processing is intentionally never retried automatically: provider outcomes can be ambiguous.
-export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeoutMs=45000,loadContext=loadOrderContext,translate=translateMessage,settleSeconds=0,history,progressive,enrich=true}={}) {
+export async function runOnce(sql,{dryRun=false,send,limit=50,draft,draftTimeoutMs=45000,loadContext=loadOrderContext,translate=translateMessage,settleSeconds=0,progressive,enrich=true,loadCustomer=loadCustomerContext}={}) {
   if(!dryRun&&!progressive)throw Error('Missing durable progressive ledger');
   const enrichMessage=async message=>{
-    if(history)try{message.history=await history(sql,message);}catch{}
+    // The same bounded structured context feeds the notification and inference.
+    message.customerContext=inferenceContext(await loadCustomer(sql,{id:message.id,conflictingOrders:message.conflictingOrders}));
+    message.history=message.customerContext.history?.map(h=>`${h.role==='support'?'Cartoonova':'Client'} : ${h.text}`).join('\n')??'';
     message.orderContext=unavailableContext();
     try{message.orderContext=await loadContext(sql,message)||unavailableContext();}catch{}
-    message.orderSummary=orderBrief(message.orderContext);
+    message.orderSummary=message.customerContext.version===2&&message.customerContext.linkage!=='unavailable'?formatOrderBrief(message.customerContext):orderBrief(message.orderContext);
     message.customerStatus=message.orderContext.customerStatus||'unknown';
     try{message.translation=await translate(message.body);}catch{message.translation={status:'unavailable'};}
     message.draft=null;message.preparing=false;
@@ -105,25 +108,12 @@ export function createHermesSender() {
 // Keep the new message complete; reject rather than silently clip oversized input.
 export function draftInput(message) {
   if(typeof message.body!=='string'||message.body.length>100000)throw Error('Full chat exceeds draft capacity');
-  const context=[message.orderContext?'Commande : '+orderBrief(message.orderContext):'',
-    message.history?'Échanges récents :\n'+message.history:''].filter(Boolean).join('\n');
-  const prefix='[Contexte]\n',separator='\n[Nouveau message]\n';
-  const room=Math.min(4000,100000-message.body.length-prefix.length-separator.length);
-  let brief=room>80?context.slice(0,room):'';
-  if(/[\uD800-\uDBFF]$/.test(brief))brief=brief.slice(0,-1);
-  return {subject:'Message du chat Cartoonova',bodyText:(brief?prefix+brief+separator:'')+message.body};
+  return {subject:'Message du chat Cartoonova',bodyText:message.body,...(message.customerContext?{context:message.customerContext}:{})};
 }
 
 export async function loadHistory(db,m) {
-  const rows=await db`SELECT * FROM (
-    SELECT received_at AS at, 'Client' AS who, body_text AS body, id AS source_id
-    FROM support_messages WHERE lower(btrim(from_email))=lower(btrim(${m.email}))
-      AND id<${m.id} AND received_at>now()-interval '48 hours'
-    UNION ALL SELECT sent_at, 'Cartoonova', body_text, id FROM support_replies
-    WHERE lower(btrim(to_email))=lower(btrim(${m.email})) AND sent_at IS NOT NULL
-      AND sent_at>now()-interval '48 hours'
-    ) t ORDER BY at DESC,who,source_id DESC LIMIT 6`;
-  return rows.reverse().map(r=>`${r.who} : ${inline(String(r.body??''),300)}`).join('\n');
+ const c=await loadCustomerContext(db,{id:m.id});
+ return c.history.map(h=>`${h.role==='support'?'Cartoonova':'Client'} : ${h.text}`).join('\n');
 }
 
 async function main() {

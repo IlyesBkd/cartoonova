@@ -85,7 +85,7 @@ export async function runOnce(sql,db,{send,limit=500,draft=generateDraft,draftTi
       return await Promise.race([(async()=>{
         const context=await loadContext(sql,message.sourceRow,{signal:controller.signal,supplierEvidence});
         const proposal=await draft(sql,message.sourceRow,{signal:controller.signal,context,infer});
-        return {...message,...(proposal&&typeof proposal==='object'?proposal:{}),draft:proposal?.draft??null,orderSummary:formatOrderBrief(context),preparing:false};
+        return {...message,...(proposal&&typeof proposal==='object'?proposal:{}),draft:proposal?.draft??null,orderSummary:formatOrderBrief(context),customerContext:inferenceContext(context),preparing:false};
       })(),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('Enrichment timeout'));},draftTimeoutMs);})]);
     }finally{clearTimeout(timer);}
   }});
