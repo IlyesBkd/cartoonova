@@ -69,7 +69,7 @@ def action_lines(verified):
     lines=[]
     for group in list(groups.values())[:8]:
         labels=list(dict.fromkeys(summary(c) for c in group))
-        lines.append('• <b>'+escape(group[0]['customer'],40)+'</b> — '+' ; '.join(labels[:3]))
+        lines.append('• <b>'+escape(next((c['displayLabel'] for c in group if c.get('displayLabel') and not c['displayLabel'].startswith('Dossier ')),group[0].get('displayLabel','Dossier')),60)+'</b> — '+' ; '.join(labels[:3]))
         if len(labels)>3:lines.append('<i>Autres propositions de ce dossier : à relire dans l’admin.</i>')
     if not groups:lines.append('• Aucune action actuelle confirmée ; propositions périmées écartées.')
     if len(groups)>8:lines.append('• +'+str(len(groups)-8)+' dossiers non affichés — consulter l’admin.')

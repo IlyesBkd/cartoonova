@@ -182,7 +182,7 @@ console.log(JSON.stringify(cs));
         self.assertNotIn('oui 7',brief.render(data(reviewed),NOW))
 
     def test_tanguy_b3_b5_same_text_different_orders_survive_projection_review_render(self):
-        script="""import {A,B,NOW,order,draft,empty} from './tests/fixtures.mjs';import {projectOrderContext,makeCandidates} from './evidence.mjs';const contexts={[A]:projectOrderContext(order(A),[],{observedAt:NOW}),[B]:projectOrderContext(order(B),[],{observedAt:NOW})};console.log(JSON.stringify(makeCandidates(empty(),[draft({id:3,client:'Tanguy fictif'}),draft({id:5,client:'Tanguy fictif',commande:B})],contexts)));"""
+        script="""import {A,B,NOW,order,draft,empty} from './tests/fixtures.mjs';import {projectOrderContext,makeCandidates} from './evidence.mjs';const contexts={[A]:projectOrderContext({...order(A),customer_name:'Tanguy fictif'},[],{observedAt:NOW}),[B]:projectOrderContext(order(B),[],{observedAt:NOW})};console.log(JSON.stringify(makeCandidates(empty(),[draft({id:3,client:'Tanguy fictif'}),draft({id:5,client:'Tanguy fictif',commande:B})],contexts)));"""
         proc=subprocess.run(['/usr/bin/node','--input-type=module','-e',script],cwd=ROOT,text=True,capture_output=True,check=True,env={'PATH':'/usr/bin:/bin'})
         cs=json.loads(proc.stdout);self.assertEqual(len(cs),2);self.assertNotEqual(cs[0]['orderId'],cs[1]['orderId'])
         text=brief.render(data(v.review(cs,decisions)),NOW)

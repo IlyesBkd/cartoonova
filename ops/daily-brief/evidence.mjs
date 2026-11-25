@@ -17,6 +17,15 @@ const iso=v=>{
 const norm=v=>String(v??'').normalize('NFKC').replace(/\s+/gu,' ').trim();
 const hash=v=>createHash('sha256').update(v).digest('hex');
 export const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Local display only: accept the structured order name, never labels, draft
+// identities or email fallbacks. Reject rather than truncate arbitrary input.
+export function localDisplayName(value){
+ if(typeof value!=='string'||value.length>80)return null;
+ const name=value.normalize('NFC').trim().replace(/ +/g,' ');
+ if(!name||Array.from(name).length>60||!/^\p{L}[\p{L}\p{M}]*(?:[ '’\-][\p{L}\p{M}]+)*$/u.test(name))return null;
+ if(name.split(' ').length>6||/\b(?:rue|avenue|boulevard|chemin|route|impasse|allée|place|quai|square|cours|passage|sentier|résidence|lotissement|street|road|lane|drive|platz|strasse|straße|via|piazza|calle|email|tel|téléphone|adresse)\b/iu.test(name))return null;
+ return name;
+}
 export const LIMITS={orders:40,events:24,pages:3,text:700,candidates:40};
 const SENT_PORTRAIT=new Set(['delivery.final_image','order.final_image','delivery.preview','delivery.poster_confirmation']);
 const TERMINAL=new Set(['completed','shipped','delivered','cancelled','canceled']);
@@ -60,7 +69,7 @@ export function projectOrderContext(order,events,{observedAt=new Date().toISOStr
  selected.sort((a,b)=>b.at.localeCompare(a.at));
  if(selected.length>LIMITS.events)limitations.push('event_limit');
  for(const [i,e] of selected.slice(0,LIMITS.events).entries())evidence.push({id:'event-'+(i+1),...e});
- return {evidence,limitations:[...new Set(limitations)],terminal:TERMINAL.has(status)||!!iso(order.expedie_le)&&iso(order.expedie_le)<=observed};
+ return {evidence,limitations:[...new Set(limitations)],localDisplayName:localDisplayName(order.customer_name),terminal:TERMINAL.has(status)||!!iso(order.expedie_le)&&iso(order.expedie_le)<=observed};
 }
 export async function loadOrderContext(sql,id,{getHistory,now=new Date()}={}){
  if(!UUID.test(id??''))return {evidence:[],limitations:['invalid_order_link']};
@@ -107,7 +116,7 @@ export function makeCandidates(data,drafts,contexts){
   // Exact full-body equality is local proof; never use a truncated history.
   if(draft&&!limitations.length&&iso(draft.cree_le)&&norm(draft.texte)&&context.evidence.some(e=>e.status==='sent'&&e.at>=iso(draft.cree_le)&&e.bodyFingerprint===hash(norm(draft.texte))))blocked=blocked??'duplicate';
   if(draft&&sent.some(e=>!iso(at)||e.at>=iso(at)))limitations.push('draft_semantics_unproven');
-  candidates.push({id:'candidate-'+(candidates.length+1),kind,orderId,action,customer:redact(source.customer??source.client??'Client',40),draftId:draft?.id??null,language:draft?.langue??null,at:iso(at),proposal:draft?redact([draft.objet,draft.texte].filter(Boolean).join('\n'),LIMITS.text):null,evidence,limitations:[...new Set(limitations)],blocked});
+  candidates.push({id:'candidate-'+(candidates.length+1),kind,orderId,action,customer:redact(source.customer??source.client??'Client',40),displayLabel:localDisplayName(context.localDisplayName)??('Dossier '+(draft&&/^[1-9]\d{0,5}$/.test(String(draft.id))?'b'+draft.id:'c'+(candidates.length+1))),draftId:draft?.id??null,language:draft?.langue??null,at:iso(at),proposal:draft?redact([draft.objet,draft.texte].filter(Boolean).join('\n'),LIMITS.text):null,evidence,limitations:[...new Set(limitations)],blocked});
  };
  for(const a of data.alerts)add(a.type,a.orderId,actionNames[a.type]??'Vérifier la commande',a,{at:a.eventAt});
  const alerted=new Set(data.alerts.map(a=>a.orderId));

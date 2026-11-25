@@ -27,7 +27,7 @@ def query_for(order_id):
     deliveries AS (SELECT json_build_object('at',d.updated_at,'kind','delivery.'||d.kind,'status',d.status,'title','Livraison enregistrée','orderIds',json_build_array(d.order_id)) AS e FROM order_delivery_effects d,o WHERE d.order_id=o.id ORDER BY d.updated_at DESC LIMIT 25),
     retouch AS (SELECT json_build_object('at',r.demandee_le,'kind','retouch.request','status','recorded','body',r.note,'orderIds',json_build_array(r.order_id)) AS e FROM retouches r,o WHERE r.order_id=o.id ORDER BY r.demandee_le DESC LIMIT 25),
     prepared AS (SELECT json_build_object('at',coalesce(to_jsonb(p)->>'provider_sent_at',to_jsonb(p)->>'approved_at',to_jsonb(p)->>'created_at'),'kind','draft.prepared','status','recorded','subject',p.subject,'body',p.body_text,'orderIds',json_build_array(o.id)) AS e FROM support_prepared_replies p,o WHERE (p.target_type='order' AND p.target_id::text=o.id::text) OR to_jsonb(p)->>'frozen_order_id'=o.id::text ORDER BY to_jsonb(p)->>'created_at' DESC LIMIT 25)
-    SELECT json_build_object('order',(SELECT json_build_object('id',id,'status',status,'statut_force',statut_force,'photo_urls',photo_urls,'poster_confirmation_sent_at',poster_confirmation_sent_at,'poster_confirmation_status',poster_confirmation_status,'final_image_sent_at',final_image_sent_at,'expedie_le',expedie_le,'fournisseur_ref',fournisseur_ref,'own_count',own_count) FROM o),'events',coalesce((SELECT json_agg(e) FROM (SELECT e FROM incoming UNION ALL SELECT e FROM outgoing UNION ALL SELECT e FROM deliveries UNION ALL SELECT e FROM retouch UNION ALL SELECT e FROM prepared) q),'[]'::json)) AS dossier"""
+    SELECT json_build_object('order',(SELECT json_build_object('id',id,'customer_name',customer_name,'status',status,'statut_force',statut_force,'photo_urls',photo_urls,'poster_confirmation_sent_at',poster_confirmation_sent_at,'poster_confirmation_status',poster_confirmation_status,'final_image_sent_at',final_image_sent_at,'expedie_le',expedie_le,'fournisseur_ref',fournisseur_ref,'own_count',own_count) FROM o),'events',coalesce((SELECT json_agg(e) FROM (SELECT e FROM incoming UNION ALL SELECT e FROM outgoing UNION ALL SELECT e FROM deliveries UNION ALL SELECT e FROM retouch UNION ALL SELECT e FROM prepared) q),'[]'::json)) AS dossier"""
 
 def local_drafts(home):
     path=home/'state/brouillons-en-attente.json'
@@ -154,6 +154,7 @@ def enrich(candidates,inference=plan,lookup=inspect_dossier,clock=time.monotonic
                     if isinstance(projected,Exception):raise projected
                     context=projected['context']
                     for x in matching:
+                        if context.get('localDisplayName'):x['displayLabel']=context['localDisplayName']
                         # Preserve draft_text_limit from JS (UTF-16), independently
                         # of history text_limit; len(proposal) cannot recover it.
                         old=[l for l in x['limitations'] if l not in {'context_unavailable','history_unavailable','text_limit'}]

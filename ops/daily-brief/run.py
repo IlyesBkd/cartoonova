@@ -101,7 +101,7 @@ def render(d,now,test=False):
    lines+=['• Depuis hier : '+('+' if delta>=0 else '')+euros(delta)]
  else:lines+=['• Ce mois : <b>indisponible</b>','• Total : <b>indisponible</b>']
  lines+=['']
- lines+=['<b>🔎 ACTIONS RECOUPÉES</b>']
+ lines+=['<b>🔎 CE QU’IL RESTE À FAIRE</b>']
  verified=d.get('verifiedCandidates')
  if verified is None:
   # No legacy path can quietly expose an unchecked action as ready to send.
