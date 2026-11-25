@@ -11,6 +11,7 @@ MAX_PAYLOAD=60000
 MAX_OUTPUT=20000
 DECISIONS={'confirmer','retirer','a_verifier'}
 REASONS={'supported','superseded','duplicate','contradiction','insufficient','unavailable'}
+FINDINGS={'action','awaiting_customer','draft_superseded','draft_update','refund_requested','unknown'}
 SENT_PORTRAIT={'delivery.final_image','order.final_image','delivery.preview','delivery.poster_confirmation'}
 
 def confirmation_compatible(candidate):
@@ -56,13 +57,21 @@ def payload_for(candidates):
             if set(e)!={'id','at','kind','status','text'}:raise ValueError('fields')
             if e['id'] in refs or not isinstance(e['id'],str) or len(e['id'])>30:raise ValueError('ref')
             refs.add(e['id']);timestamp(e['at'])
-            for k,maximum in [('kind',80),('status',30),('text',1000)]:
+            for k,maximum in [('kind',80),('status',30),('text',6000)]:
                 if not isinstance(e[k],str) or len(e[k])>maximum:raise ValueError('evidence text')
             evidence.append(e)
         if c.get('at'):timestamp(c['at'])
         if c.get('proposal') is not None and (not isinstance(c['proposal'],str) or len(c['proposal'])>700):raise ValueError('proposal')
         # Deliberately omit names, raw order IDs, draft IDs and all financial data.
-        result.append({k:c.get(k) for k in ('id','kind','at','proposal','limitations')}|{'evidence':evidence})
+        item={k:c.get(k) for k in ('id','kind','at','proposal','limitations')}|{'evidence':evidence}
+        if 'relatedDrafts' in c:
+            drafts=c['relatedDrafts']
+            if not isinstance(drafts,list) or len(drafts)>20:raise ValueError('draft budget')
+            for d in drafts:
+                if set(d)!={'at','text','limitations'} or not isinstance(d['text'],str) or len(d['text'])>700 or not isinstance(d['limitations'],list):raise ValueError('draft schema')
+                if d['at']:timestamp(d['at'])
+            item['relatedDrafts']=drafts
+        result.append(item)
     payload={'version':1,'candidates':result}
     if len(json.dumps(payload,ensure_ascii=False).encode())>MAX_PAYLOAD:raise ValueError('payload budget')
     return payload
@@ -79,7 +88,8 @@ def validate_output(raw,payload):
     if not isinstance(parsed,dict) or set(parsed)!={'decisions'} or not isinstance(parsed['decisions'],list):raise ValueError('schema')
     expected={c['id']:c for c in payload['candidates']};result={}
     for r in parsed['decisions']:
-        if not isinstance(r,dict) or set(r)!={'id','decision','reason','evidenceIds'}:raise ValueError('decision schema')
+        if not isinstance(r,dict) or set(r) not in ({'id','decision','reason','evidenceIds'},{'id','decision','reason','evidenceIds','finding'}):raise ValueError('decision schema')
+        if r.get('finding','unknown') not in FINDINGS:raise ValueError('finding')
         cid=r['id']
         if not isinstance(cid,str) or cid not in expected or cid in result:raise ValueError('unknown/duplicate candidate')
         if r['decision'] not in DECISIONS or r['reason'] not in REASONS:raise ValueError('enum')
@@ -87,6 +97,15 @@ def validate_output(raw,payload):
         if not isinstance(refs,list) or len(refs)>4 or any(not isinstance(x,str) for x in refs) or len(set(refs))!=len(refs):raise ValueError('refs')
         valid={e['id']:e for e in expected[cid]['evidence']}
         if any(x not in valid for x in refs):raise ValueError('foreign evidence')
+        finding=r.get('finding','unknown')
+        proof=[valid[x] for x in refs if valid[x]['kind']!='current_state']
+        usable=not expected[cid].get('limitations') and bool(proof)
+        if finding=='refund_requested':usable=usable and any(x['kind']=='email.incoming' for x in proof)
+        if finding=='draft_superseded':usable=usable and bool(expected[cid].get('at')) and any(x['status']=='sent' and timestamp(x['at'])>=timestamp(expected[cid]['at']) for x in proof)
+        if finding=='awaiting_customer':
+            outgoing=[x for x in proof if x['kind']=='email.outgoing' and x['status']=='sent']
+            usable=usable and bool(outgoing) and not any(x['kind'] in {'email.incoming','retouch.request'} and timestamp(x['at'])>max(timestamp(y['at']) for y in outgoing) for x in valid.values())
+        if not usable and 'finding' in r:r=dict(r,finding='unknown')
         if r['decision']!='a_verifier' and not refs:raise ValueError('missing proof')
         if r['decision']=='confirmer' and r['reason']!='supported':raise ValueError('unsafe confirmation')
         if r['decision']=='retirer' and r['reason'] not in {'superseded','duplicate'}:raise ValueError('unsafe removal')

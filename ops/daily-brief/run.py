@@ -6,6 +6,7 @@ SOURCE=pathlib.Path(__file__).resolve().parent
 # Scheduled launchers use runpy.run_path; their sys.path is not this directory.
 if str(SOURCE) not in sys.path:sys.path.insert(0,str(SOURCE))
 from verification import review
+from enrichment import enrich
 HOME=pathlib.Path('/home/hermes/.hermes/profiles/cartoonova')
 HERE=HOME/'artifacts/daily-brief'
 CHAT='5303154438'; BOARD='6ab6fd8ae6f060ac44bc93cc'; TODO='6ade22e9e6aee27e48668dc1'
@@ -61,7 +62,7 @@ def collect(finance=True):
    data['finance']=json.loads(f.stdout) if f.returncode==0 else None
   except (subprocess.TimeoutExpired,ValueError):data['finance']=None
  # Review text is redacted by the shared JS projection; source drafts stay untouched.
- data['verifiedCandidates']=review(data.get('reviewCandidates',[]))
+ data['verifiedCandidates']=review(enrich(data.get('reviewCandidates',[])))
  morning=HOME/'state/support-drafts.json'
  try:
   md=json.loads(morning.read_text()) if morning.exists() else {}
@@ -106,26 +107,8 @@ def render(d,now,test=False):
   # No legacy path can quietly expose an unchecked action as ready to send.
   lines+=['• À vérifier — relecture indisponible ; consulter les commandes et brouillons.']
  else:
-  visible=[c for c in verified if c['decision']!='retirer']
-  for c in visible[:8]:
-   confirmed=c['decision']=='confirmer'
-   label='✅ Recoupé' if confirmed else '⚠ À vérifier'
-   action=clean(c['action'],70) if confirmed else ('brouillon non vérifié' if c['kind']=='draft' else 'commande avant toute action')
-   line='• <b>'+clean(c['customer'],40)+'</b> — '+label+' · '+action
-   if confirmed and c['kind']=='draft':line+=' · réponds « oui '+clean(c['draftId'],8)+' »'
-   refs={e['id']:e for e in c['evidence']}
-   dates=[]
-   for ref in c.get('evidenceIds',[])[:2]:
-    e=refs[ref];date=datetime.datetime.fromisoformat(e['at'].replace('Z','+00:00')).astimezone(PARIS).strftime('%d/%m %H:%M')
-    title={'current_state':'état observé','delivery.final_image':'portrait envoyé','order.final_image':'portrait envoyé','order.preview':'aperçu préparé','email.outgoing':'réponse envoyée','email.incoming':'message reçu','retouch.request':'retouche demandée'}.get(e['kind'],e['kind'])
-    dates.append(clean(title,25)+' '+date)
-   if dates:line+=' <i>('+', '.join(dates)+')</i>'
-   if not confirmed and c.get('limitations'):line+=' <i>· preuves limitées</i>'
-   lines.append(line)
-  if not visible:lines+=['• Aucune action actuelle confirmée ; propositions périmées écartées.']
-  if len(visible)>8:lines+=['• +'+str(len(visible)-8)+' éléments non affichés — à vérifier dans l’admin avant toute action.']
-  removed=sum(c['decision']=='retirer' for c in verified)
-  if removed:lines+=['<i>'+str(removed)+' proposition(s) écartée(s) ; sources conservées.</i>']
+  from presentation import action_lines
+  lines+=action_lines(verified)
  if d.get('morningDrafts'):lines+=['','✉️ <b>Brouillons du matin</b> : '+str(d['morningDrafts'])+' non vérifiés — relire l’historique avant validation.']
  if d['supportUnread']:
   lines+=['','<b>💬 MESSAGES À TRIER · '+str(d['supportUnread'])+'</b>','<i>Non lus sur le site ; réponses hors site non vérifiées.</i>']

@@ -6,7 +6,7 @@ import {redact} from './redaction.mjs';
 const iso=v=>{
  if(v instanceof Date)return Number.isFinite(v.getTime())?v.toISOString():null;
  if(typeof v!=='string')return null;
- const m=/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d{1,3})?(?:Z|[+-]\d\d:\d\d)$/.exec(v);
+ const m=/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.\d{1,6})?(?:Z|[+-]\d\d:\d\d)$/.exec(v);
  if(!m)return null;
  const [y,month,day,hour,minute,second]=m.slice(1).map(Number);
  const leap=y%4===0&&(y%100!==0||y%400===0);
@@ -32,7 +32,7 @@ export function dedupeDrafts(drafts){
  }
  return kept;
 }
-export function projectOrderContext(order,events,{observedAt=new Date().toISOString(),multiple=false,limited=false,warnings=[]}={}){
+export function projectOrderContext(order,events,{observedAt=new Date().toISOString(),multiple=false,limited=false,warnings=[],textLimit=LIMITS.text}={}){
  const evidence=[],limitations=[...warnings];
  if(limited)limitations.push('history_limit');
  if(!order)return {evidence,limitations:['order_unavailable']};
@@ -54,8 +54,8 @@ export function projectOrderContext(order,events,{observedAt=new Date().toISOStr
   if(!at||at>observed){limitations.push('invalid_or_future_date');continue;}
   // Do not expose raw admin details, URLs, provider payloads or attachments.
   const raw=[e.subject,e.body].filter(Boolean).join('\n')||String(e.title??'');
-  if(raw.length>LIMITS.text)limitations.push('text_limit');
-  selected.push({at,kind:redact(e.kind,80),status:['sent','failed','uncertain','scheduled','recorded'].includes(e.status)?e.status:'uncertain',text:redact(raw||e.title,LIMITS.text),bodyFingerprint:e.body?hash(norm(e.body)):null});
+  if(raw.length>textLimit)limitations.push('text_limit');
+  selected.push({at,kind:redact(e.kind,80),status:['sent','failed','uncertain','scheduled','recorded'].includes(e.status)?e.status:'uncertain',text:redact(raw||e.title,textLimit),bodyFingerprint:e.body?hash(norm(e.body)):null});
  }
  selected.sort((a,b)=>b.at.localeCompare(a.at));
  if(selected.length>LIMITS.events)limitations.push('event_limit');
@@ -103,11 +103,11 @@ export function makeCandidates(data,drafts,contexts){
   if(at&&!iso(at))limitations.push('invalid_candidate_date');
   if(iso(at)&&iso(at)>evidence[0]?.at)limitations.push('future_candidate_date');
   if(draft&&(!iso(draft.cree_le)||!norm(draft.texte)))limitations.push('draft_incomplete');
-  if(draft&&[draft.objet,draft.texte].filter(Boolean).join('\n').length>LIMITS.text)limitations.push('text_limit');
+  if(draft&&[draft.objet,draft.texte].filter(Boolean).join('\n').length>LIMITS.text)limitations.push('text_limit','draft_text_limit');
   // Exact full-body equality is local proof; never use a truncated history.
   if(draft&&!limitations.length&&iso(draft.cree_le)&&norm(draft.texte)&&context.evidence.some(e=>e.status==='sent'&&e.at>=iso(draft.cree_le)&&e.bodyFingerprint===hash(norm(draft.texte))))blocked=blocked??'duplicate';
   if(draft&&sent.some(e=>!iso(at)||e.at>=iso(at)))limitations.push('draft_semantics_unproven');
-  candidates.push({id:'candidate-'+(candidates.length+1),kind,orderId,action,customer:source.customer??source.client??'Client',draftId:draft?.id??null,language:draft?.langue??null,at:iso(at),proposal:draft?redact([draft.objet,draft.texte].filter(Boolean).join('\n'),LIMITS.text):null,evidence,limitations:[...new Set(limitations)],blocked});
+  candidates.push({id:'candidate-'+(candidates.length+1),kind,orderId,action,customer:redact(source.customer??source.client??'Client',40),draftId:draft?.id??null,language:draft?.langue??null,at:iso(at),proposal:draft?redact([draft.objet,draft.texte].filter(Boolean).join('\n'),LIMITS.text):null,evidence,limitations:[...new Set(limitations)],blocked});
  };
  for(const a of data.alerts)add(a.type,a.orderId,actionNames[a.type]??'Vérifier la commande',a,{at:a.eventAt});
  const alerted=new Set(data.alerts.map(a=>a.orderId));

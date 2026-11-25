@@ -227,7 +227,7 @@ console.log(JSON.stringify(cs));
                 if path.endswith('/lists'):return [{'id':brief.TODO,'name':'Cartoonova — À faire'}]
                 if path.endswith('/cards/all'):return []
                 return {'prefs':{'permissionLevel':'private'}}
-            with patch.object(brief,'HOME',home),patch.object(brief,'HERE',runtime),patch.object(brief.subprocess,'run',side_effect=process),patch.object(brief,'trello',side_effect=trello),patch.object(brief,'review',side_effect=lambda c:v.review(c,decisions)):
+            with patch.object(brief,'enrich',side_effect=lambda c:c),patch.object(brief,'HOME',home),patch.object(brief,'HERE',runtime),patch.object(brief.subprocess,'run',side_effect=process),patch.object(brief,'trello',side_effect=trello),patch.object(brief,'review',side_effect=lambda c:v.review(c,decisions)):
                 d=brief.collect(finance=False)
             self.assertEqual(d['verifiedCandidates'][0]['decision'],'confirmer');self.assertEqual(d['morningDrafts'],1)
             self.assertEqual(draft_path.read_bytes(),raw);self.assertEqual(list(runtime.iterdir()),[])
