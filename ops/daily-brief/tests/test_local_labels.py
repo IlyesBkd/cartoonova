@@ -32,7 +32,7 @@ console.log(JSON.stringify(makeCandidates(empty(),[draft({id,client,commande:lin
                     return decisions(p)
                 text=brief.render(data(review(enrich(cs,inference=plan),model)),NOW)
                 self.assertIn(name,text)
-                self.assertIn('CE QU’IL RESTE À FAIRE',text)
+                self.assertIn('Une décision à prendre',text)
                 self.assertIn('dossier non consulté',text)
                 for p in payloads:
                     raw=json.dumps(p,ensure_ascii=False)
@@ -47,7 +47,8 @@ console.log(JSON.stringify(makeCandidates(empty(),[draft({id,client,commande:lin
                 cs=self.project(name,client='abc@example.com')
                 text=brief.render(data(review(cs,decisions)),NOW)
                 self.assertEqual(cs[0]['displayLabel'],'Dossier b17')
-                self.assertIn('Dossier b17',text)
+                self.assertIn('Commande liée',text)
+                self.assertNotIn('Dossier b17',text)
                 for raw in ['abc@example.com','33 6 12','rue Exemple','[email masqué]','[nom masqué]']:
                     self.assertNotIn(raw,text)
         # Even a syntactically valid draft client is not a structured order name.

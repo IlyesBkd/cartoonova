@@ -25,7 +25,7 @@ def candidate(n=1,**kw) -> dict[str,Any]:
 def decisions(payload,decision='confirmer',reason='supported',refs=None):
     return json.dumps({'decisions':[dict(id=c['id'],decision=decision,reason=reason,evidenceIds=['state'] if refs is None else refs) for c in payload['candidates']]})
 
-def data(cs):
+def data(cs) -> dict[str,Any]:
     return dict(alerts=[],pending=[],readyPrint=[],supportUnread=0,supportMessages=[],trello=[],finance=None,morningDrafts=2,verifiedCandidates=cs)
 
 class VerificationTests(unittest.TestCase):
@@ -186,14 +186,15 @@ console.log(JSON.stringify(cs));
         proc=subprocess.run(['/usr/bin/node','--input-type=module','-e',script],cwd=ROOT,text=True,capture_output=True,check=True,env={'PATH':'/usr/bin:/bin'})
         cs=json.loads(proc.stdout);self.assertEqual(len(cs),2);self.assertNotEqual(cs[0]['orderId'],cs[1]['orderId'])
         text=brief.render(data(v.review(cs,decisions)),NOW)
-        self.assertEqual(text.count('Tanguy fictif'),2);self.assertIn('oui 3',text);self.assertIn('oui 5',text)
+        self.assertEqual(text.count('Tanguy fictif'),2);self.assertNotIn('oui 3',text);self.assertNotIn('oui 5',text)
+        self.assertIn('Rédaction IA indisponible',text)
 
     def test_tiffany_tanguy_actual_js_projection_review_render(self):
         script="""import {A,B,NOW,order,event,draft,empty} from './tests/fixtures.mjs';import {projectOrderContext,makeCandidates} from './evidence.mjs';const contexts={[A]:projectOrderContext({...order(),photo_urls:Array(5).fill('group')},[event()],{observedAt:NOW}),[B]:projectOrderContext(order(B),[],{observedAt:NOW})};const ds=[draft(),draft({id:8,client:'Tanguy fictif',commande:B}),draft({id:9,client:'Tanguy fictif',commande:B})];console.log(JSON.stringify(makeCandidates(empty(),ds,contexts)));"""
         proc=subprocess.run(['/usr/bin/node','--input-type=module','-e',script],cwd=ROOT,text=True,capture_output=True,check=True,env={'PATH':'/usr/bin:/bin'})
         cs=json.loads(proc.stdout);self.assertEqual(len(cs),2)
         reviewed=v.review(cs,decisions);text=brief.render(data(reviewed),NOW)
-        self.assertIn('Tiffany',text);self.assertNotIn('oui 7',text);self.assertEqual(text.count('Tanguy fictif'),1);self.assertIn('oui 8',text);self.assertNotIn('oui 9',text)
+        self.assertIn('Tiffany',text);self.assertNotIn('oui 7',text);self.assertEqual(text.count('Tanguy fictif'),1);self.assertNotIn('oui 8',text);self.assertNotIn('oui 9',text)
         self.assertIn('non vérifiés',text);self.assertNotIn('envoie 1',text)
     def test_render_legacy_missing_review_cannot_expose_actions(self):
         d=data([]);del d['verifiedCandidates'];d['drafts']=[{'id':99,'client':'Danger','objet':'Relance','commande':None}]
@@ -227,7 +228,7 @@ console.log(JSON.stringify(cs));
                 if path.endswith('/lists'):return [{'id':brief.TODO,'name':'Cartoonova — À faire'}]
                 if path.endswith('/cards/all'):return []
                 return {'prefs':{'permissionLevel':'private'}}
-            with patch.object(brief,'enrich',side_effect=lambda c:c),patch.object(brief,'HOME',home),patch.object(brief,'HERE',runtime),patch.object(brief.subprocess,'run',side_effect=process),patch.object(brief,'trello',side_effect=trello),patch.object(brief,'review',side_effect=lambda c:v.review(c,decisions)):
+            with patch.object(brief,'write',return_value={'status':'unavailable'}),patch.object(brief,'enrich',side_effect=lambda c:c),patch.object(brief,'HOME',home),patch.object(brief,'HERE',runtime),patch.object(brief.subprocess,'run',side_effect=process),patch.object(brief,'trello',side_effect=trello),patch.object(brief,'review',side_effect=lambda c:v.review(c,decisions)):
                 d=brief.collect(finance=False)
             self.assertEqual(d['verifiedCandidates'][0]['decision'],'confirmer');self.assertEqual(d['morningDrafts'],1)
             self.assertEqual(draft_path.read_bytes(),raw);self.assertEqual(list(runtime.iterdir()),[])

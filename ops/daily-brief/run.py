@@ -7,6 +7,7 @@ SOURCE=pathlib.Path(__file__).resolve().parent
 if str(SOURCE) not in sys.path:sys.path.insert(0,str(SOURCE))
 from verification import review
 from enrichment import enrich
+from drafting import write,render_business
 HOME=pathlib.Path('/home/hermes/.hermes/profiles/cartoonova')
 HERE=HOME/'artifacts/daily-brief'
 CHAT='5303154438'; BOARD='6ab6fd8ae6f060ac44bc93cc'; TODO='6ade22e9e6aee27e48668dc1'
@@ -79,6 +80,8 @@ def collect(finance=True):
   import re
   m=re.search(r'\[P([0-9])\]',c['name']);return (int(m[1]) if m else 9,c['pos'])
  data['trello']=sorted(cards,key=rank)
+ data['writingTrello']=data['trello'] if datetime.datetime.now(PARIS).weekday()==0 else []
+ data['agentDraft']=write(data)
  return data
 LANGS={'fr':'français','en':'anglais','it':'italien','es':'espagnol','de':'allemand','pt':'portugais','nl':'néerlandais','pl':'polonais','sv':'suédois','da':'danois'}
 def euros(cents):
@@ -101,28 +104,7 @@ def render(d,now,test=False):
    lines+=['• Depuis hier : '+('+' if delta>=0 else '')+euros(delta)]
  else:lines+=['• Ce mois : <b>indisponible</b>','• Total : <b>indisponible</b>']
  lines+=['']
- lines+=['<b>🔎 CE QU’IL RESTE À FAIRE</b>']
- verified=d.get('verifiedCandidates')
- if verified is None:
-  # No legacy path can quietly expose an unchecked action as ready to send.
-  lines+=['• À vérifier — relecture indisponible ; consulter les commandes et brouillons.']
- else:
-  from presentation import action_lines
-  lines+=action_lines(verified)
- if d.get('morningDrafts'):lines+=['','✉️ <b>Brouillons du matin</b> : '+str(d['morningDrafts'])+' non vérifiés — relire l’historique avant validation.']
- if d['supportUnread']:
-  lines+=['','<b>💬 MESSAGES À TRIER · '+str(d['supportUnread'])+'</b>','<i>Non lus sur le site ; réponses hors site non vérifiées.</i>']
-  messages=d.get('supportMessages',[])
-  for message in messages[:10]:
-   date=datetime.datetime.fromisoformat(message['received_at'].replace('Z','+00:00')).astimezone(PARIS).strftime('%d/%m %H:%M')
-   subject=re.sub(r'[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}', '[email masqué]',message.get('subject') or 'Sans objet')
-   lines+=['• #'+str(message['id'])+' · '+date+' — '+clean(subject,100)]
-  if len(messages)>10:lines+=['• +'+str(len(messages)-10)+' autres messages dans l’admin.']
- if d['trello'] and (local.weekday()==0 or test):  # 14/11: Trello once a week (Monday)
-  lines+=['','<b>📌 CETTE SEMAINE · TRELLO</b>']
-  for c in d['trello'][:3]:
-   title=re.sub(r'\[[^\]]+\]\s*','',c['name']).strip()
-   lines+=['• <a href="'+html.escape(c['url'],quote=True)+'">'+clean(title,95)+'</a>']
+ lines+=render_business(d.get('agentDraft'),d)
  result='\n'.join(lines)
  if len(result.encode('utf-16-le'))//2>3900:raise RuntimeError('Récap trop long')
  return result
