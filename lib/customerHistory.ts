@@ -132,7 +132,9 @@ export async function getCustomerHistory(db: ReturnType<typeof postgres>, input:
     WHERE lower(btrim(customer_email))=${email} OR id=${explicit}::uuid ORDER BY created_at DESC,id DESC`;
   const ids = orders.map(o => String(o.id));
   // Never follow the alternative email of an explicitly linked order.
-  const snapshot = input.cursor?.snapshot ?? new Date().toISOString();
+  // The database clock writes events in microseconds; an app-side snapshot in
+  // milliseconds (or a lagging app clock) would hide the newest events.
+  const snapshot = input.cursor?.snapshot ?? String((await db`SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS s`)[0].s);
   const scope = input.orderId ? `order:${input.orderId}` : `support:${input.supportMessageId}`;
   const pieces: string[] = [];
   const add = (source: string, from: string, where: string, id: string, at: string, kind: string, title: string, orderIds: string,
