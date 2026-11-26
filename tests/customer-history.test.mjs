@@ -39,6 +39,16 @@ before(async()=>{
  await db`INSERT INTO orders(id,customer_email,customer_name,paid_at) VALUES(${A},' Client@Example.invalid ','Same Name',now()),(${B},'client@example.invalid','Same Name',now()),(${C},'other@example.invalid','Same Name',now()),(${D},'other@example.invalid','Same Name',now())`;
 });
 after(async()=>{if(db)await db.end({timeout:2});if(started)pg('pg_ctl',['-D',dir+'/pg','-m','fast','-w','stop']);});
+
+// Diagnostic only (branch ci-diagnostic-history): explains a missing event on CI.
+async function explain(events,id,label){
+ const bySource={};for(const e of events)bySource[e.source]=(bySource[e.source]??0)+1;
+ const [clock]=await db`SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') s,current_setting('TimeZone') tz,current_schema() sch,current_setting('search_path') sp,version() v`;
+ const pages=[];let data=await history.getCustomerHistory(db,input('orderId='+A+'&limit=100'));
+ for(let i=0;i<14;i++){pages.push({n:data.events.length,firstId:data.events[0]?.id,firstAt:data.events[0]?.at,lastId:data.events.at(-1)?.id,lastAt:data.events.at(-1)?.at,hit:data.events.some(e=>e.id===id),cursor:data.nextCursor&&JSON.parse(Buffer.from(data.nextCursor,'base64url').toString())});
+  if(!data.nextCursor)break;data=await history.getCustomerHistory(db,input('orderId='+A+'&limit=100&cursor='+data.nextCursor));}
+ return 'DIAG '+JSON.stringify({label,id,node:process.version,total:events.length,unique:new Set(events.map(e=>e.id)).size,bySource,clock,pages});
+}
 test('validation rejects ambiguity, malformed IDs, out-of-bounds limits and scoped cursors',()=>{
  for(const q of ['', 'orderId=bad','orderId='+A+'&supportMessageId=1','supportMessageId=0','supportMessageId=2147483648','orderId='+A+'&limit=19','orderId='+A+'&cursor=garbage'])assert.throws(()=>input(q));
  assert.equal(input().limit,50);
@@ -117,7 +127,7 @@ test('journal presentation is French, before/after readable and preparation neve
  ];
  for(const [field,before,after,title] of changes){
   const [row]=await db`INSERT INTO customer_history_events(customer_email,order_id,kind,status,details) VALUES('client@example.invalid',${A},${'order.'+field},'recorded',${db.json({field,before,after})}) RETURNING id`;
-  const event=(await all('orderId='+A+'&limit=100')).find(e=>e.id==='journal:'+row.id);
+  const evs=await all('orderId='+A+'&limit=100'),event=evs.find(e=>e.id==='journal:'+row.id);assert.ok(event,await explain(evs,'journal:'+row.id,field));
   assert.equal(event.title,title);assert.equal(event.status,'recorded');assert.match(event.details,/Avant :/);assert.match(event.details,/Après :/);assert.ok(!event.details.includes('"field"'));
   if(field==='status')assert.match(event.details,/Payée\nAprès : En cours/);
   if(field==='poster_confirmation_status'&&after==='changes_requested')assert.match(event.details,/Après : Retouche demandée/);
@@ -131,6 +141,7 @@ test('only explicit delivery metadata identifies retouch; immutable sent date an
   ['not-sent-retouch','uncertain',{mode:'retouch'}],['unknown-mode','sent',{mode:'unknown'}],['old-ninth','sent',null],
  ])await db`INSERT INTO order_delivery_effects(order_id,kind,version,status,artifacts) VALUES(${A},'final_image',${version},${status},${db.json(metadata?{deliveryHistory:metadata}:{})})`;
  const events=await all('orderId='+A+'&limit=100'),find=v=>events.find(e=>e.id===`delivery:${A}:final_image:${v}`);
+ for(const v of ['new-initial','new-retouch','not-sent-retouch','unknown-mode','old-ninth'])assert.ok(find(v),await explain(events,`delivery:${A}:final_image:${v}`,v));
  assert.equal(find('new-initial').title,'Portrait envoyé');assert.equal(find('new-retouch').title,'Portrait retouché envoyé');assert.equal(find('new-retouch').at,'2026-03-02T10:00:00.000Z');
  assert.match(find('new-retouch').details,/gift@example.invalid/);assert.match(find('new-retouch').details,/https:\/\/portrait.invalid\/retouch/);
  for(const version of ['not-sent-retouch','unknown-mode','old-ninth'])assert.equal(find(version).title,'Livraison de portrait (version enregistrée)');
