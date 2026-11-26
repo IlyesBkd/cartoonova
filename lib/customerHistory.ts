@@ -133,7 +133,8 @@ export async function getCustomerHistory(db: ReturnType<typeof postgres>, input:
   const ids = orders.map(o => String(o.id));
   // Never follow the alternative email of an explicitly linked order.
   // The database clock writes events in microseconds; an app-side snapshot in
-  // milliseconds (or a lagging app clock) would hide the newest events.
+  // milliseconds (or a lagging app clock) would hide the newest events. The
+  // query reads it as text: postgres.js serializes timestamptz through Date.
   const snapshot = input.cursor?.snapshot ?? String((await db`SELECT to_char(clock_timestamp() AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS s`)[0].s);
   const scope = input.orderId ? `order:${input.orderId}` : `support:${input.supportMessageId}`;
   const pieces: string[] = [];
@@ -166,7 +167,7 @@ export async function getCustomerHistory(db: ReturnType<typeof postgres>, input:
     ('fournisseur_ref','Impression référencée'),('cout','Coût enregistré'),('cout_note','Note de coût enregistrée'),
     ('suivi_url','Suivi enregistré'),('suivi_transporteur','Transporteur enregistré'),('shipping_details','Suivis enregistrés')
   ) v(field,label)`, `o.id::text=ANY($2::text[]) AND to_jsonb(o)->>v.field IS NOT NULL
-    ${tables.has('customer_history_events') ? `AND NOT EXISTS(SELECT 1 FROM customer_history_events j WHERE j.order_id=o.id AND j.details->>'field'=v.field AND j.details->'after'=to_jsonb(o)->v.field AND j.at <= $3::timestamptz)` : ''}`,
+    ${tables.has('customer_history_events') ? `AND NOT EXISTS(SELECT 1 FROM customer_history_events j WHERE j.order_id=o.id AND j.details->>'field'=v.field AND j.details->'after'=to_jsonb(o)->v.field AND j.at <= $3::text::timestamptz)` : ''}`,
     "'current:'||o.id||':'||v.field",'NULL',"'order.current.'||v.field","v.label||' (date inconnue)'",'ARRAY[o.id::text]',"'recorded'",'NULL','NULL',
     `jsonb_build_object('currentField',v.field,'value',CASE WHEN v.field='shipping_details' THEN (to_jsonb(o)->'shipping_details')->'tracking' ELSE to_jsonb(o)->v.field END,'carrier',to_jsonb(o)->>'suivi_transporteur')::text`);
   // A scheduled date is a planned time, not the date of an action.
@@ -208,7 +209,7 @@ export async function getCustomerHistory(db: ReturnType<typeof postgres>, input:
   ].filter(Boolean).join(' OR ');
   const journalMatch = `(customer_email=$1 OR order_id::text=ANY($2::text[])${ledgerMailMatch ? ' OR '+ledgerMailMatch : ''})`;
   if (tables.has('customer_history_events')) add('customer_history_events',
-    `(SELECT DISTINCT ON (COALESCE(attempt_id,id),customer_email) * FROM customer_history_events j WHERE at <= $3::timestamptz AND
+    `(SELECT DISTINCT ON (COALESCE(attempt_id,id),customer_email) * FROM customer_history_events j WHERE at <= $3::text::timestamptz AND
       ${journalMatch} ORDER BY COALESCE(attempt_id,id),customer_email,at DESC,id DESC) j`, 'true',
     "'journal:'||id",'at','kind',`CASE WHEN kind='email' THEN 'Email sortant' ELSE 'Modification enregistrée' END`,
     "CASE WHEN order_id::text=ANY($2::text[]) THEN ARRAY[order_id::text] ELSE ARRAY[]::text[] END",'status','subject','body',
@@ -217,14 +218,14 @@ export async function getCustomerHistory(db: ReturnType<typeof postgres>, input:
   const deliveryPresent = tables.has('order_delivery_effects') ? "SELECT order_id::text FROM order_delivery_effects WHERE kind='final_image' AND status='sent'" : 'SELECT NULL::text order_id WHERE false';
   const shippingPresent = tables.has('order_shipping_effects') ? "SELECT ARRAY(SELECT jsonb_array_elements_text(details->'orderIds')) order_ids FROM order_shipping_effects" : 'SELECT ARRAY[]::text[] order_ids WHERE false';
   const cursorAt = input.cursor?.at ?? null; const cursorId = input.cursor?.id ?? null;
-  const emailLinks = tables.has('customer_history_events') ? `SELECT DISTINCT ON (details->>'idempotencyKey') 'outbox:'||(details->>'idempotencyKey') old_key,'provider:'||provider_id new_key FROM customer_history_events j WHERE ${journalMatch} AND status='sent' AND provider_id IS NOT NULL AND details->>'idempotencyKey' IS NOT NULL AND at <= $3::timestamptz ORDER BY details->>'idempotencyKey',at DESC,id DESC` : 'SELECT NULL::text old_key,NULL::text new_key WHERE false';
+  const emailLinks = tables.has('customer_history_events') ? `SELECT DISTINCT ON (details->>'idempotencyKey') 'outbox:'||(details->>'idempotencyKey') old_key,'provider:'||provider_id new_key FROM customer_history_events j WHERE ${journalMatch} AND status='sent' AND provider_id IS NOT NULL AND details->>'idempotencyKey' IS NOT NULL AND at <= $3::text::timestamptz ORDER BY details->>'idempotencyKey',at DESC,id DESC` : 'SELECT NULL::text old_key,NULL::text new_key WHERE false';
   const ledgerLinks = [
-    tables.has('order_delivery_effects') ? "SELECT 'outbox:delivery/'||order_id||'/'||kind||'/'||version old_key,'provider:'||email_id new_key FROM order_delivery_effects WHERE order_id::text=ANY($2::text[]) AND email_id IS NOT NULL AND status='sent' AND updated_at <= $3::timestamptz" : '',
-    tables.has('order_shipping_effects') ? "SELECT 'outbox:shipping/'||supplier_ref||'/'||fingerprint old_key,'provider:'||email_id new_key FROM order_shipping_effects WHERE email_id IS NOT NULL AND status='sent' AND updated_at <= $3::timestamptz AND EXISTS(SELECT 1 FROM jsonb_array_elements_text(details->'orderIds') x WHERE x=ANY($2::text[]))" : '',
+    tables.has('order_delivery_effects') ? "SELECT 'outbox:delivery/'||order_id||'/'||kind||'/'||version old_key,'provider:'||email_id new_key FROM order_delivery_effects WHERE order_id::text=ANY($2::text[]) AND email_id IS NOT NULL AND status='sent' AND updated_at <= $3::text::timestamptz" : '',
+    tables.has('order_shipping_effects') ? "SELECT 'outbox:shipping/'||supplier_ref||'/'||fingerprint old_key,'provider:'||email_id new_key FROM order_shipping_effects WHERE email_id IS NOT NULL AND status='sent' AND updated_at <= $3::text::timestamptz AND EXISTS(SELECT 1 FROM jsonb_array_elements_text(details->'orderIds') x WHERE x=ANY($2::text[]))" : '',
   ].filter(Boolean).map(s=>` UNION ${s}`).join('');
   const query = `WITH delivery_present AS (${deliveryPresent}),shipping_present AS (${shippingPresent}),email_links AS ((${emailLinks})${ledgerLinks}),source_raw AS (${pieces.join('\nUNION ALL\n')}),
-    raw AS (SELECT r.id,r.at,r.kind,r.title,r.source,r.order_ids,r.status,r.subject,r.body,r.details,COALESCE(l.new_key,r.mail_key) mail_key,r.priority FROM source_raw r LEFT JOIN email_links l ON l.old_key=r.mail_key WHERE r.at IS NULL OR r.at <= $3::timestamptz),
-    ranked AS (SELECT *,row_number() OVER(PARTITION BY COALESCE(mail_key,id) ORDER BY priority DESC,at DESC NULLS LAST,id DESC) AS n FROM raw WHERE at IS NULL OR at <= $3::timestamptz),
+    raw AS (SELECT r.id,r.at,r.kind,r.title,r.source,r.order_ids,r.status,r.subject,r.body,r.details,COALESCE(l.new_key,r.mail_key) mail_key,r.priority FROM source_raw r LEFT JOIN email_links l ON l.old_key=r.mail_key WHERE r.at IS NULL OR r.at <= $3::text::timestamptz),
+    ranked AS (SELECT *,row_number() OVER(PARTITION BY COALESCE(mail_key,id) ORDER BY priority DESC,at DESC NULLS LAST,id DESC) AS n FROM raw WHERE at IS NULL OR at <= $3::text::timestamptz),
     unique_events AS (SELECT * FROM ranked WHERE n=1),
     linked AS (SELECT u.*,
       CASE WHEN EXISTS(SELECT 1 FROM raw r WHERE r.mail_key=u.mail_key AND r.status='sent') THEN 'sent' ELSE u.status END merged_status,

@@ -19,7 +19,7 @@ before(async()=>{
  const server=net.createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const port=server.address().port;await new Promise(r=>server.close(r));assert.notEqual(port,5432);
  pg('initdb',['-D',dir+'/pg','-U','history_test','--auth=trust','--no-locale','--encoding=UTF8']);
  pg('pg_ctl',['-D',dir+'/pg','-l',dir+'/pg.log','-o',`-h 127.0.0.1 -p ${port} -k ${dir}`,'-w','start']);started=true;
- db=postgres(`postgresql://history_test@127.0.0.1:${port}/postgres`,{max:1,onnotice(){}});
+ db=postgres(`postgresql://history_test@127.0.0.1:${port}/postgres`,{max:6,onnotice(){}});
  await db`CREATE TABLE orders(id uuid PRIMARY KEY,customer_email text,customer_name text,created_at timestamptz DEFAULT now(),paid_at timestamptz,photo_urls jsonb DEFAULT '[]',photos_received_at timestamptz,photos_updated_at timestamptz,final_image_url text,final_image_scheduled_at timestamptz,final_image_sent_at timestamptz,poster_confirmation_status text,poster_confirmation_token text,poster_confirmation_note text,status text,shipping_details jsonb)`;
  await db`CREATE TABLE support_messages(id serial PRIMARY KEY,message_id text,from_email text,subject text,body_text text,received_at timestamptz DEFAULT now(),order_id uuid)`;
  await db`CREATE TABLE support_replies(id serial PRIMARY KEY,support_message_id int,order_id uuid,to_email text,subject text,body_text text,provider_id text,sent_at timestamptz DEFAULT now())`;
