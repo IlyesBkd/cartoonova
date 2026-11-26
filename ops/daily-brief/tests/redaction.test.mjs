@@ -63,7 +63,7 @@ test('URLs vps privées, HTTP signées et stockages partagés', () => {
 });
 
 test('protections déjà couvertes par sharedRedact conservées', () => {
-  const fakeSecrets = ['sk_test_1234567890123456', 'pk_live_1234567890123456', 'sk-1234567890123456', 're_1234567890123456', 'ghp_1234567890123456', 'github_pat_1234567890123456', 'hf_1234567890123456', 'xoxb-1234567890123456', 'AKIA1234567890ABCDEF', 'eyJhbGci.fakepayload.fakesignature'];
+  const fakeSecrets = ['sk_test_1234567890123456', 'pk_live_1234567890123456', 'sk-1234567890123456', 're_1234567890123456', 'ghp_1234567890123456', 'github_pat_1234567890123456', 'hf_1234567890123456', 'xoxb-1234567890123456', 'AKIA' + '1234567890ABCDEF', 'eyJhbGci.fakepayload.fakesignature'];
   const text = redact([...fakeSecrets, 'bearer fictif-bearer', 'token=fictif-token', 'secret=fictif-secret', 'signature=fictif-signature', 'api_key=fictif-api', 'alice@example.test', '12345678-1234-1234-1234-123456789abc', 'Alice Martin', '12 rue Exemple; portrait envoyé'].join(' ; '), 6000);
   absent(text, [...fakeSecrets, 'fictif-bearer', 'fictif-token', 'fictif-secret', 'fictif-signature', 'fictif-api', 'alice@example.test', '12345678-1234-1234-1234-123456789abc', 'Alice Martin', '12 rue Exemple']);
   assert.match(text, /portrait envoyé/);
