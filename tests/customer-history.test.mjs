@@ -14,7 +14,8 @@ let db,started=false,history,journal,route,sendEmail,providerMode='ok',calls=0,d
 const A='10000000-0000-0000-0000-000000000001',B='10000000-0000-0000-0000-000000000002',C='10000000-0000-0000-0000-000000000003',D='10000000-0000-0000-0000-000000000004';
 const migration=readFileSync(path.join(root,'migrations/20261124_customer_history.sql'),'utf8');
 const input=(query='orderId='+A)=>history.parseHistoryInput(new URLSearchParams(query));
-const all=async query=>{let data=await history.getCustomerHistory(db,input(query)),events=[...data.events];while(data.nextCursor){data=await history.getCustomerHistory(db,input(query+'&cursor='+data.nextCursor));events.push(...data.events);}return events;};
+let firstSnapshot=null;
+const all=async query=>{let data=await history.getCustomerHistory(db,input(query)),events=[...data.events];firstSnapshot=data.nextCursor?JSON.parse(Buffer.from(data.nextCursor,'base64url').toString()).snapshot:null;while(data.nextCursor){data=await history.getCustomerHistory(db,input(query+'&cursor='+data.nextCursor));events.push(...data.events);}return events;};
 before(async()=>{
  const server=net.createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const port=server.address().port;await new Promise(r=>server.close(r));assert.notEqual(port,5432);
  pg('initdb',['-D',dir+'/pg','-U','history_test','--auth=trust','--no-locale','--encoding=UTF8']);
@@ -127,7 +128,8 @@ test('journal presentation is French, before/after readable and preparation neve
  ];
  for(const [field,before,after,title] of changes){
   const [row]=await db`INSERT INTO customer_history_events(customer_email,order_id,kind,status,details) VALUES('client@example.invalid',${A},${'order.'+field},'recorded',${db.json({field,before,after})}) RETURNING id`;
-  const evs=await all('orderId='+A+'&limit=100'),event=evs.find(e=>e.id==='journal:'+row.id);assert.ok(event,await explain(evs,'journal:'+row.id,field));
+  const evs=await all('orderId='+A+'&limit=100'),event=evs.find(e=>e.id==='journal:'+row.id);
+  if(!event){const [r]=await db`SELECT to_char(at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') at FROM customer_history_events WHERE id=${row.id}`;const skew=await Promise.all(Array.from({length:6},()=>db`SELECT pg_backend_pid() pid,extract(epoch FROM (clock_timestamp()-(SELECT at FROM customer_history_events WHERE id=${row.id})))*1e6 AS micros_after`));assert.fail('ROWAT '+JSON.stringify({rowAt:r.at,firstSnapshot,skew:skew.map(x=>x[0])})+' '+await explain(evs,'journal:'+row.id,field));}
   assert.equal(event.title,title);assert.equal(event.status,'recorded');assert.match(event.details,/Avant :/);assert.match(event.details,/Après :/);assert.ok(!event.details.includes('"field"'));
   if(field==='status')assert.match(event.details,/Payée\nAprès : En cours/);
   if(field==='poster_confirmation_status'&&after==='changes_requested')assert.match(event.details,/Après : Retouche demandée/);
