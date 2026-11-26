@@ -1,10 +1,13 @@
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync,statSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {loadOrderContext,orderBrief,translateMessage} from '../scripts/chat-notification-context.mjs';
-import {nextTask,saveTranslation} from '/home/hermes/.hermes/profiles/cartoonova/scripts/notification-translation.mjs';
+const {loadOrderContext,orderBrief,translateMessage}=skip?{}:await import('../scripts/chat-notification-context.mjs');
+const {nextTask,saveTranslation}=skip?{}:await import('/home/hermes/.hermes/profiles/cartoonova/scripts/notification-translation.mjs');
 const id='11111111-1111-4111-8111-111111111111';
 const other='22222222-2222-4222-8222-222222222222';
 const order={id,customer_email:'TEST@example.invalid',paid_at:'2026-11-01T00:00:00Z',created_at:'2026-10-31T23:30:00Z',status:'PAID',options:{style:'ghibli',printKey:'canvas',format:'portrait'}};

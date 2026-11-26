@@ -30,7 +30,8 @@ if args.runtime_dir:
   raise SystemExit('Refusing unowned runtime directory')
 else:
  run=Path(tempfile.mkdtemp(prefix='ten-build-',dir=os.environ['TMPDIR']))
-out=Path(tempfile.mkdtemp(prefix='next-ten-review-',dir='/home/hermes/.hermes/profiles/cartoonova/cache'))
+cache=Path('/home/hermes/.hermes/profiles/cartoonova/cache')
+out=Path(tempfile.mkdtemp(prefix='next-ten-review-',dir=cache if cache.is_dir() else os.environ['TMPDIR']))
 env={k:os.environ[k] for k in ('PATH','HOME','TMPDIR','LANG','PLAYWRIGHT_BROWSERS_PATH') if k in os.environ}
 pg=Path('/usr/lib/postgresql/18/bin')
 def call(args,**kw):

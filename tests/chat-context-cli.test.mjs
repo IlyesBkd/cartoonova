@@ -1,5 +1,8 @@
 // Fresh-process CLI harness. Every provider and PostgreSQL call is intercepted.
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import assert from 'node:assert/strict';
 import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';

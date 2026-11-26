@@ -7,7 +7,7 @@ test('real CheckoutModal preparation links only accepted current response; withd
  const stubs={
   'next-intl':`export const useLocale=()=> 'fr';export const useTranslations=()=>Object.assign(k=>k,{rich:k=>k});`,
   '@/components/CurrencyProvider':`export const useCurrency=()=>({currency:'EUR',formatRaw:n=>n+' EUR'});`,
-  '@/lib/analytics':`export const mesure=()=>{};export const identifier=()=>{};`,
+  '@/lib/analytics':`export const mesure=()=>{};export const identifier=()=>{};export const filmerCaisse=()=>{};`,
   '@stripe/stripe-js':`export const loadStripe=()=>Promise.resolve(null);`,
   '@stripe/react-stripe-js':`export const Elements=p=>p.children;export const PaymentElement=()=>null;export const ExpressCheckoutElement=()=>null;export const useStripe=()=>null;export const useElements=()=>null;`,
  };

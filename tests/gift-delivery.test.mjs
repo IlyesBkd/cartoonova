@@ -124,6 +124,8 @@ test('manual and express routes use persisted recipient and language, and cannot
   const {POST}=load('app/api/orders/send-final-image/route.ts',{'@/lib/db':db,'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
   const response=await POST(new Request('http://local/api/orders/send-final-image',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({orderId:order.id,finalImageUrl:order.final_image_url,customerEmail:order.customer_email,detectedCountry:'FR',saveOnly})}));
   assert.equal(response.status,200);const body=await response.json();
+  // Saving an express portrait stores it only; the admin sends it later (8d6427e).
+  if(saveOnly){assert.equal(downloads.length,1);assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(scheduled.length,0);assert.equal(body.scheduledAt,null);continue;}
   assert.equal(downloads.length,future?1:2,'route validates before persistence; actual delivery validates again');
   if(future){assert.equal(sends.length,0);assert.equal(marked.length,0);assert.equal(body.scheduledAt,'2026-10-26T09:00:00.000Z');assert.notEqual(body.envoyeImmediatement,true);}
   else {assert.deepEqual(sends[0].to,['recipient@example.invalid']);assert.equal(sends[0].subject,load('lib/email-i18n.ts').finalImageEmail.en.subject);}

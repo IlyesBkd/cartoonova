@@ -95,7 +95,7 @@ test('poster uses real Resend SDK transport with captured bytes and no remote at
  const key=process.env.RESEND_API_KEY;process.env.RESEND_API_KEY='re_synthetic_local_only';
  const agent=new MockAgent();agent.disableNetConnect();const previous=getGlobalDispatcher();setGlobalDispatcher(agent);
  try {
-  const {POST}=load('app/api/orders/send-poster-confirmation/route.ts',{'@/lib/db':{getOrderById:async()=>({id:'synthetic',customer_email:'captured@example.invalid',final_image_url:url,langue:'en'}),setPosterConfirmationToken:async()=>true,recordPosterConfirmationMessage:async()=>{},setOrderLastOutboundMessageId:async()=>{}},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null}});
+  const {POST}=load('app/api/orders/send-poster-confirmation/route.ts',{'@/lib/db':{getOrderById:async()=>({id:'synthetic',customer_email:'captured@example.invalid',final_image_url:url,langue:'en'}),setPosterConfirmationToken:async()=>true,recordPosterConfirmationMessage:async()=>{},setOrderLastOutboundMessageId:async()=>{}},'@/lib/adminAuth':{refuserSiPasAdmin:()=>null},'@/lib/customerHistoryJournal':{beginEmailHistory:async()=>'synthetic-attempt',finishEmailHistory:async()=>{},emailHistoryDiagnostic:()=>{}}});
   agent.get(origin).intercept({path:'/final/context/portrait.png'}).reply(200,png,{headers:{'content-type':'image/png'}});
   let captured;
   agent.get('https://api.resend.com').intercept({path:'/emails',method:'POST'}).reply(200,({body})=>{captured=JSON.parse(body);return {id:'synthetic-capture'};});

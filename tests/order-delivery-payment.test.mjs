@@ -62,13 +62,15 @@ for (const [status,paid] of cases) {
    }
    const [saved]=await pg.db`SELECT * FROM orders WHERE id=${id}::uuid`;
    const [ledger]=await pg.db`SELECT count(*)::int n FROM order_delivery_effects WHERE order_id=${id}::uuid`;
-   assert.equal(sends,paid&&['extras','final','express'].includes(path)?1:0);
+   // Saving an express portrait stores it only; the admin sends it later (8d6427e).
+   assert.equal(sends,paid&&['extras','final'].includes(path)?1:0);
    assert.equal(uploads,paid&&path==='extras'?1:0);
    assert.equal(scheduled,paid&&path==='future-gift'?1:0);
-   assert.equal(ledger.n,paid&&path==='extras'?2:paid&&['final','express'].includes(path)?1:0);
+   assert.equal(ledger.n,paid&&path==='extras'?2:paid&&path==='final'?1:0);
    assert.equal(saved.suivi_transporteur,paid&&path==='shipping'?'DHL':null);
    assert.equal(saved.final_image_scheduled_at!==null,paid&&path==='future-gift');
-   if(['final','express'].includes(path))assert.equal(saved.final_image_sent_at!==null,paid);
+   if(path==='final')assert.equal(saved.final_image_sent_at!==null,paid);
+   if(path==='express')assert.equal(saved.final_image_sent_at,null);
   });
  }
 }

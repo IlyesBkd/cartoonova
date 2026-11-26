@@ -1,3 +1,5 @@
+import {existsSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
@@ -7,7 +9,8 @@ import tailwind from '@tailwindcss/postcss';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(import.meta.dirname,'..');
-const out=process.env.GIFT_GUIDE_ARTIFACTS||'/home/hermes/.hermes/profiles/cartoonova/cache/gift-guide-premium-components';
+const cacheRoot='/home/hermes/.hermes/profiles/cartoonova/cache';
+const out=process.env.GIFT_GUIDE_ARTIFACTS||path.join(existsSync(cacheRoot)?cacheRoot:tmpdir(),'gift-guide-premium-components');
 const stubs={
  'next/link':`export default function Link(p){return <a {...p}/>}`,
  'next/image':`export default function Image({fill,preload,...p}){return <img {...p}/>}`,

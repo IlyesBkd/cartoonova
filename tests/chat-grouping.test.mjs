@@ -1,7 +1,10 @@
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import assert from 'node:assert/strict';
-import {runOnce,draftInput,loadHistory} from '../scripts/chat-telegram-worker.mjs';
-import {fixture,transport,enriched} from './telegram-test-helpers.mjs';
+const {runOnce,draftInput,loadHistory}=skip?{}:await import('../scripts/chat-telegram-worker.mjs');
+const {fixture,transport,enriched}=skip?{}:await import('./telegram-test-helpers.mjs');
 test('settle=0 notifies close arrivals immediately and keeps exact sender history for drafting',async()=>{
  const f=await fixture();try{
   await f.add('earlier','a@example.invalid',500);await f.db`UPDATE chat_telegram_notifications SET status='sent'`;

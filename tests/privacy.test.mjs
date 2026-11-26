@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
 import { test, after } from 'node:test';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-after(() => { globalThis.fetch = originalFetch; console.error = originalError; });
+import { database } from './order-delivery-harness.mjs';
+after(async () => { globalThis.fetch = originalFetch; console.error = originalError; await history.close(); });
+
+// Every email is journaled before the provider call (customer history, 24/11).
+const history = await database();
+await history.db.unsafe(readFileSync(new URL('../migrations/20261124_customer_history.sql', import.meta.url), 'utf8'));
+process.env.DATABASE_URL = history.connectionUrl;
 
 // Run with env -i. Only synthetic credentials; fail closed on every transport.
 process.env.RESEND_API_KEY = 're_synthetic_privacy_test';

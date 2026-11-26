@@ -1,3 +1,5 @@
+import {existsSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {build} from 'esbuild';
@@ -9,7 +11,8 @@ import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 
 const root=path.resolve(import.meta.dirname,'..');
-const cache=process.env.CONTRAST_ARTIFACTS || '/home/hermes/.hermes/profiles/cartoonova/cache/ten-cards-local';
+const cacheRoot='/home/hermes/.hermes/profiles/cartoonova/cache';
+const cache=process.env.CONTRAST_ARTIFACTS || path.join(existsSync(cacheRoot)?cacheRoot:tmpdir(),'ten-cards-local');
 const baseline=process.env.CONTRAST_BASELINE;
 const stubs={
  'next/image':`export default function Image({priority,fill,...p}){return <img {...p}/>}`,

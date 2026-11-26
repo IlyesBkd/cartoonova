@@ -1,8 +1,11 @@
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import assert from 'node:assert/strict';
-import {bilingualDraft,parseBilingual} from '../scripts/telegram-bilingual.mjs';
-import {notificationParts} from '../scripts/telegram-progressive.mjs';
-import {joined} from './telegram-test-helpers.mjs';
+const {bilingualDraft,parseBilingual}=skip?{}:await import('../scripts/telegram-bilingual.mjs');
+const {notificationParts}=skip?{}:await import('../scripts/telegram-progressive.mjs');
+const {joined}=skip?{}:await import('./telegram-test-helpers.mjs');
 for(const language of ['fr','it','en'])test(`bilingual ${language}: complete client draft and French version remain distinct from original`,async()=>{
  const body='Original 😀\n'.repeat(800),draftClient=`${language} client draft 😀`,draftFR='Version française du brouillon';
  const result=await bilingualDraft({bodyText:body,subject:'Synthetic'},{infer:async input=>{assert.equal(input.bodyText,body);return JSON.stringify({language,draftClient,draftFR,messageFR:'Traduction française intégrale'});}});

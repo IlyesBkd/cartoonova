@@ -69,7 +69,7 @@ test('prepared support handler keeps provider failures and customer content out 
       '@/lib/adminAuth': { refuserSiPasAdmin: () => null },
       '@/lib/expediteur': { EXPEDITEUR: 'synthetic@sender.invalid', SUPPORT_EMAIL: 'support@sender.invalid' },
       '@/lib/db': { getOrderById: async () => ({ id: 'synthetic-order', customer_email: privateValues[0] }) },
-      '@/lib/supportPreparedDelivery': { sendPreparedSupportReply: async (_id, _fp, send, validate) => { const draft = {id:_id,targetType:'order',targetId:'synthetic-order',toEmail:privateValues[0],subject:'Subject',body:raw,attachments:[],transport:{from:'synthetic@sender.invalid',replyTo:'support@sender.invalid',html:'synthetic',headers:null}}; validate(draft); return send(draft,'synthetic-key'); } },
+      '@/lib/supportPreparedDelivery': { PreparedSupportAcceptedError: class extends Error {}, sendPreparedSupportReply: async (_id, _fp, send, validate) => { const draft = {id:_id,targetType:'order',targetId:'synthetic-order',toEmail:privateValues[0],subject:'Subject',body:raw,attachments:[],transport:{from:'synthetic@sender.invalid',replyTo:'support@sender.invalid',html:'synthetic',headers:null}}; validate(draft); return send(draft,'synthetic-key'); } },
       '@/lib/supportPreparedReplies': { readPreparedSupportReply: async () => ({status:'uncertain'}) },
       '@/lib/envoiEmail': { envoyerEmail: async payload => { transactions.push(payload); if (throws) throw error; return { error }; } },
     });

@@ -1,7 +1,10 @@
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import assert from 'node:assert/strict';
-import {state,runOnce,generateDraft} from '../ops/support-context-v1/worker.mjs';
-import {fixture,transport} from './telegram-test-helpers.mjs';
+const {state,runOnce,generateDraft}=skip?{}:await import('../ops/support-context-v1/worker.mjs');
+const {fixture,transport}=skip?{}:await import('./telegram-test-helpers.mjs');
 const reply=JSON.stringify({language:'it',messageFR:'Où est ma commande ?',draftClient:'Buongiorno,\nIl team Cartoonova',draftFR:'Bonjour,\nL’équipe Cartoonova'});
 test('email: baseline/history preserved, complete original before inference; durable edit same id',async()=>{
  const f=await fixture();const db=state(f.dir+'/email.sqlite');try{

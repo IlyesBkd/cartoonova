@@ -1,11 +1,14 @@
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {mkdtempSync,rmSync,statSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
-import {openProgressive,notificationParts,telegramSender} from '../scripts/telegram-progressive.mjs';
-import {transport,enriched,joined} from './telegram-test-helpers.mjs';
+const {openProgressive,notificationParts,telegramSender}=skip?{}:await import('../scripts/telegram-progressive.mjs');
+const {transport,enriched,joined}=skip?{}:await import('./telegram-test-helpers.mjs');
 const message={id:42,email:'synthetic@example.invalid',body:'Hello 😀',channel:'chat',receivedAt:'2026-11-21T01:02:03Z',preparing:true};
 async function isolated(fn){const dir=mkdtempSync(join(tmpdir(),'telegram-ledger-'));let q=openProgressive(dir+'/state.sqlite');try{await fn(q,dir);}finally{q.close();rmSync(dir,{recursive:true,force:true});}}
 test('pagination preserves every original, translation, bilingual draft and emoji without markup interpretation',()=>{

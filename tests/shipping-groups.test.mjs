@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import {before,after,test} from 'node:test';
 import {database,loadDeep} from './order-delivery-harness.mjs';
+import {serverSkip} from './helpers/server-only.mjs';
 let pg,helper,shipping,seq=40000000;
 before(async()=>{pg=await database();await pg.db`ALTER TABLE orders ADD COLUMN customer_address text, ADD COLUMN statut_force text, ADD COLUMN poster_confirmation_responded_at timestamptz, ADD COLUMN poster_confirmation_sent_at timestamptz, ADD COLUMN photo_urls jsonb`;await pg.db.unsafe(readFileSync('migrations/20261123_order_shipping_groups.sql','utf8'));await pg.db.unsafe(readFileSync('migrations/20261123_order_shipping_groups.sql','utf8'));shipping=pg.load('lib/orderDeliveryShipping.ts');helper=pg.load('lib/orderShippingGroup.ts',{'@/lib/orderDeliveryShipping':shipping});});
 after(async()=>pg?.close());
@@ -83,7 +84,7 @@ test('different references cannot claim one parcel concurrently',async()=>{
  const task=f.call('POST',undefined,async message=>{f.sends.push(message);enter();await barrier;return {data:{id:'shared-parcel'}};});await entered;
  try{assert.equal((await other.call()).status,409);}finally{release();}assert.equal((await task).status,200);assert.equal((await other.call()).status,409);assert.equal(other.sends.length,0);
 });
-test('real shared PAGE_FETCH JSON transport reaches actual route and persists one group email',async()=>{
+test('real shared PAGE_FETCH JSON transport reaches actual route and persists one group email',{skip:serverSkip(['/home/hermes/hermes-ops/ops/clients/support.py'])},async()=>{
  const f=await fixture(),source=readFileSync('/home/hermes/hermes-ops/ops/clients/support.py','utf8');
  const body=source.match(/PAGE_FETCH = """([\s\S]*?)""" % ORIGIN/)[1].replace('%r',JSON.stringify('https://www.cartoonova.com'));
  let calls=0;const transport=runInNewContext(`(${body})`,{location:{origin:'https://www.cartoonova.com'},fetch:async(path,init)=>{
@@ -94,7 +95,7 @@ test('real shared PAGE_FETCH JSON transport reaches actual route and persists on
  const second=await transport('/api/orders/expedition',{shippingGroup:f.group},null);assert.equal(second.status,200);assert.equal(second.data.duplicate,true);assert.equal(calls,2);assert.equal(f.sends.length,1);
  for(const row of await f.rows()){assert.ok(row.expedie_le);assert.ok(row.expedition_email_envoye_le);assert.equal(row.shipping_details.tracking.length,2);}
 });
-test('real reminder SQL and evaluator stop print_check for all shipped group members',async()=>{
+test('real reminder SQL and evaluator stop print_check for all shipped group members',{skip:serverSkip(['/home/hermes/.hermes/profiles/cartoonova/artifacts/order-delay-watch/worker.mjs'])},async()=>{
  const {collect,evaluate}=await import('/home/hermes/.hermes/profiles/cartoonova/artifacts/order-delay-watch/worker.mjs');
  await pg.db`CREATE TABLE IF NOT EXISTS retouches(order_id uuid,demandee_le timestamptz)`;
  await pg.db`CREATE TABLE IF NOT EXISTS support_messages(id integer,order_id uuid)`;

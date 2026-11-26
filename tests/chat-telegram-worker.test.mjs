@@ -1,8 +1,11 @@
-import {test} from 'node:test';
+import {test as nodeTest} from 'node:test';
+import {serverSkip,serverOnly} from './helpers/server-only.mjs';
+const skip=serverSkip();
+const test=serverOnly(nodeTest,skip);
 import assert from 'node:assert/strict';
-import {runOnce,createHermesSender} from '../scripts/chat-telegram-worker.mjs';
-import {openProgressive} from '../scripts/telegram-progressive.mjs';
-import {fixture,transport,enriched} from './telegram-test-helpers.mjs';
+const {runOnce,createHermesSender}=skip?{}:await import('../scripts/chat-telegram-worker.mjs');
+const {openProgressive}=skip?{}:await import('../scripts/telegram-progressive.mjs');
+const {fixture,transport,enriched}=skip?{}:await import('./telegram-test-helpers.mjs');
 test('chat/contact: initial ids durable before context, inference and SQL sent fence; edits same ids',async()=>{
  const f=await fixture();try {
   const id=await f.add('Hello | <b>literal</b> MEDIA:/etc/passwd 😀','a@example.invalid',0,'contact');

@@ -40,8 +40,11 @@ export function summarizeTap(text) {
     if (matches.length !== 1) return {ok:false, reason:`missing/duplicate TAP ${key}`};
     counts[key] = Number(matches[0][1]);
   }
-  return {...counts, ok: counts.tests > 0 && counts.pass === counts.tests &&
-    ['fail','cancelled','skipped','todo'].every(key=>counts[key]===0)};
+  // Only tests/helpers/server-only.mjs may skip: off the server, the support
+  // chain's files are absent. Any other skip still fails the run.
+  const serverOnly = [...text.matchAll(/^ok \d+ - .* # SKIP needs server-only files: /gm)].length;
+  return {...counts, ok: counts.tests > 0 && counts.pass + serverOnly === counts.tests && counts.skipped === serverOnly &&
+    ['fail','cancelled','todo'].every(key=>counts[key]===0)};
 }
 
 export function partition(files) {
