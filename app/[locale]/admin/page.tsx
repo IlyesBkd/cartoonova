@@ -785,7 +785,15 @@ export default function AdminPage() {
         setTelechargementPhotos(`Photo ${i + 1}/${urls.length}…`);
         const src = storageDisplayUrl(urls[i]);
         try {
-          const res = await fetch(src, { credentials: "same-origin" });
+          /* La lecture admin refait une connexion base a chaque photo ; un
+             echec passager repond 403 puis passe au coup suivant (vu le
+             27/11/2026). Deux nouvelles tentatives avant l'onglet de secours. */
+          let res = await fetch(src, { credentials: "same-origin" });
+          for (const attente of [700, 1800]) {
+            if (res.ok) break;
+            await new Promise(r => setTimeout(r, attente));
+            res = await fetch(src, { credentials: "same-origin" });
+          }
           if (!res.ok) throw new Error(String(res.status));
           const blob = await res.blob();
           const type = blob.type.split("/")[1]?.split(";")[0] || "";
