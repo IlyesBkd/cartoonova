@@ -1251,7 +1251,7 @@ export default function AdminPage() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 ml-64 p-8">
+      <main className="flex-1 min-w-0 ml-64 p-8">
         {/* ═══ COMMANDES TAB ═══ */}
         {tab === "orders" && (
           <>
@@ -1371,7 +1371,7 @@ export default function AdminPage() {
 
               {/* Order detail panel */}
               {selectedOrder && (
-                <div className="w-96 bg-white border border-gray-200 rounded-xl p-6 self-start sticky top-8">
+                <div className="w-96 shrink-0 bg-white border border-gray-200 rounded-xl p-6 self-start sticky top-8">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-gray-900">Détail commande</h3>
                     <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
@@ -1625,11 +1625,11 @@ export default function AdminPage() {
                             value={coutNoteSaisie}
                             onChange={(e) => setCoutNoteSaisie(e.target.value)}
                             placeholder="impression, port…"
-                            className="flex-1 rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                            className="min-w-0 flex-1 rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
                           />
                           <button
                             onClick={enregistrerCout}
-                            className="px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-800 text-white hover:bg-black transition-colors cursor-pointer"
+                            className="shrink-0 px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-800 text-white hover:bg-black transition-colors cursor-pointer"
                           >
                             {coutEnregistre ? "✓" : "Enregistrer"}
                           </button>
