@@ -16,6 +16,11 @@ import { assertDeliveryEligible, DeliveryPolicyError } from "@/lib/deliveryPolic
 import { isVpsReference } from "@/lib/storageReference";
 import { authorizeFinalStorageAttachment } from "@/lib/storageAuthorization";
 
+/* L envoi tient le verrou de livraison pendant l appel a Resend. Le 27/11/2026
+   un envoi a mis 18 s : l e-mail est parti mais la fonction a echoue (coupure probable) avant
+   de noter final_image_sent_at. Meme marge que /api/orders/extras. */
+export const maxDuration = 60;
+
 /**
  * Depot de l'illustration finale, et son envoi.
  *
