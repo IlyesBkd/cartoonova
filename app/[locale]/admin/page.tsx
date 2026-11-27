@@ -773,6 +773,44 @@ export default function AdminPage() {
 
   /* Poster ou toile abandonne : le client garde le fichier numerique. Le
      remboursement se fait a part, dans Stripe. */
+  /* Telecharge chaque photo du client en fichier separe (pas de zip), en un
+     clic. Les photos privees passent par /api/storage/read avec le cookie
+     admin ; une URL ancienne qui refuse la lecture s'ouvre dans un onglet. */
+  const [telechargementPhotos, setTelechargementPhotos] = useState<string | null>(null);
+  const telechargerPhotos = async (orderId: string, urls: string[]) => {
+    const ref = orderId.slice(0, 8);
+    const echecs: number[] = [];
+    try {
+      for (let i = 0; i < urls.length; i++) {
+        setTelechargementPhotos(`Photo ${i + 1}/${urls.length}…`);
+        const src = storageDisplayUrl(urls[i]);
+        try {
+          const res = await fetch(src, { credentials: "same-origin" });
+          if (!res.ok) throw new Error(String(res.status));
+          const blob = await res.blob();
+          const type = blob.type.split("/")[1]?.split(";")[0] || "";
+          const depuisUrl = urls[i].split("?")[0].split(".").pop() || "";
+          const ext = (/^[a-z0-9]{2,5}$/i.test(depuisUrl) ? depuisUrl : type || "jpg").toLowerCase().replace("jpeg", "jpg");
+          const lien = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = lien;
+          a.download = `${ref}-photo-${i + 1}.${ext}`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(lien), 30000);
+        } catch {
+          echecs.push(i + 1);
+          window.open(src, "_blank", "noopener");
+        }
+        await new Promise(r => setTimeout(r, 350));
+      }
+    } finally {
+      setTelechargementPhotos(null);
+    }
+    if (echecs.length) alert(`Photo(s) ${echecs.join(", ")} : téléchargement direct impossible, ouverte(s) dans un onglet.`);
+  };
+
   const passerEnNumerique = async (id: string) => {
     const motif = window.prompt(
       "Passer cette commande en numérique ? Le poster ou la toile ne sera plus à commander et le fichier final restera à envoyer. Le remboursement se fait à part, dans Stripe.\n\nMotif (facultatif) :",
@@ -1660,7 +1698,16 @@ export default function AdminPage() {
                     {/* Photos — clickable thumbnails */}
                     {(() => { const urls = typeof selectedOrder.photo_urls === 'string' ? JSON.parse(selectedOrder.photo_urls) : selectedOrder.photo_urls; return urls && urls.length > 0 ? (
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-500 font-semibold mb-2">📸 Photos ({urls.length})</p>
+                        <div className="flex items-center justify-between mb-2 gap-2">
+                          <p className="text-xs text-gray-500 font-semibold">📸 Photos ({urls.length})</p>
+                          <button
+                            onClick={() => telechargerPhotos(selectedOrder.id, urls)}
+                            disabled={telechargementPhotos !== null}
+                            className="px-2 py-1 text-xs font-bold rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {telechargementPhotos ?? `⬇️ Tout télécharger (${urls.length})`}
+                          </button>
+                        </div>
                         <div className="grid grid-cols-3 gap-2">
                           {urls.map((url: string, i: number) => (
                             <a key={i} href={storageDisplayUrl(url)} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-gray-200 hover:ring-2 hover:ring-yellow-400 transition-all">
