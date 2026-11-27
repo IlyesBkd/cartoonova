@@ -17,7 +17,11 @@ export async function authorizeFinalStorageAttachment(reference: string, orderId
 }
 export async function authorizeStorageRead(req: Request, reference: string): Promise<boolean> {
   if (!isVpsReference(reference)) return false;
-  if (await requireAdmin(req) === null) return true;
+  const admin = await requireAdmin(req);
+  if (admin === null) return true;
+  /* Base injoignable pendant la verification admin : ce n'est pas un refus.
+     La route repond 503 (« Stockage indisponible. ») au lieu d'un faux 403. */
+  if (admin.status === 503) throw new Error("Authentification admin indisponible.");
   const path = storagePath(reference).slice(1);
   const session = checkoutPhotoSession(req);
   if (session) {

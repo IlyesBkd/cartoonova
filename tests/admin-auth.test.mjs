@@ -114,3 +114,19 @@ test('logout revokes the server record so a copied cookie cannot be replayed',as
  assert.equal(result.status,204);assert.match(result.headers.get('set-cookie'),/Max-Age=0/);
  assert.equal((await auth().requireAdmin(req('GET',{cookie}))).status,401);
 });
+
+/* 27/11/2026 : une connexion neuve qui echoue une fois ne doit pas refuser l'admin. */
+test('a transient database failure is retried once; a lasting one answers 503, never 401',async()=>{
+ const response=await login();
+ const token=response.headers.get('set-cookie').match(/cartoonova-admin=([a-f0-9]{64})/)[1];
+ const flaky=failures=>{let left=failures,calls=0;return {calls:()=>calls,mod:load('lib/adminAuth.ts',{'@/lib/db':{withFreshDatabaseClient:fn=>{calls++;if(left-->0)return Promise.reject(new Error('tunnel ferme'));return fn(db);}}})};};
+ const once=flaky(1);
+ assert.equal(await once.mod.requireAdmin(req('GET',{cookie:`cartoonova-admin=${token}`})),null);
+ assert.equal(once.calls(),2);
+ const always=flaky(5);
+ assert.equal((await always.mod.requireAdmin(req('GET',{cookie:`cartoonova-admin=${token}`})))?.status,503);
+ assert.equal(always.calls(),2,'une seule nouvelle tentative');
+ const bad=flaky(0);
+ assert.equal((await bad.mod.requireAdmin(req('GET',{cookie:`cartoonova-admin=${'0'.repeat(64)}`})))?.status,401);
+ assert.equal(bad.calls(),1,'un refus n est pas retente');
+});

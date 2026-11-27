@@ -31,11 +31,21 @@ export async function requireAdmin(req: Request): Promise<NextResponse | null> {
   }
   const value = token(req);
   if (!value) return denied();
-  try {
-    const rows = await withFreshDatabaseClient(db => db`SELECT token_hash FROM admin_sessions
-      WHERE token_hash = ${hash(value)} AND credential_hash = ${createHmac("sha256", password).update(value).digest("hex")} AND expires_at > now()`);
-    return rows.length ? null : denied();
-  } catch { return unavailable(); }
+  /* Une lecture admin ouvre une connexion neuve (tunnel SSH depuis Vercel).
+     Le 27/11/2026, une sur quatorze a echoue puis reussi au coup suivant :
+     on retente une fois avant de repondre « indisponible ». Un refus
+     (session absente ou expiree) n'est jamais retente. */
+  const credential = createHmac("sha256", password).update(value).digest("hex");
+  for (let essai = 1; ; essai++) {
+    try {
+      const rows = await withFreshDatabaseClient(db => db`SELECT token_hash FROM admin_sessions
+        WHERE token_hash = ${hash(value)} AND credential_hash = ${credential} AND expires_at > now()`);
+      return rows.length ? null : denied();
+    } catch {
+      if (essai >= 2) return unavailable();
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+  }
 }
 export const refuserSiPasAdmin = requireAdmin;
 
