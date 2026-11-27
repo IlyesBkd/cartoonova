@@ -483,6 +483,63 @@ export async function marquerAlertePhotos(orderId: string): Promise<void> {
  * et « ne m'a rien coute » sont deux choses differentes, et les confondre
  * fausserait toute moyenne.
  */
+export type PassageNumerique =
+  | { ok: true; avant: string | null }
+  | { ok: false; raison: "introuvable" | "deja_numerique" | "chez_imprimeur" | "expediee" };
+
+/**
+ * Passe une commande physique en portrait numerique seul (le client garde le
+ * fichier, le poster ou la toile est rembourse a part, dans Stripe).
+ *
+ * Il n'existait aucun moyen de le faire : le 25/11/2026, une cliente a ete
+ * remboursee de son poster et sa commande est restee « poster », si bien que
+ * rien ne disait d'envoyer le fichier final, et l'imprimeur restait a commander.
+ *
+ * Une seule requete, gardee par PostgreSQL : refus si la commande est deja chez
+ * l'imprimeur (`fournisseur_ref`) ou partie (`suivi_url`, `expedie_le`). L'ancien
+ * support reste dans les options (`supportAvant`) et une ligne part dans
+ * l'historique client. Le remboursement, lui, ne se fait PAS ici.
+ */
+export async function passerCommandeEnNumerique(orderId: string, motif: string | null): Promise<PassageNumerique> {
+  {
+    const rows = (await sql`
+      UPDATE orders o SET options = o.options || jsonb_build_object(
+          'printKey', 'digital',
+          'printOption', 'Digital',
+          'supportAvant', o.options->>'printKey',
+          'supportAvantLibelle', o.options->>'printOption',
+          'passeEnNumeriqueLe', to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
+          'passeEnNumeriqueMotif', ${motif}::text)
+      WHERE o.id = ${orderId}::uuid
+        AND coalesce(o.options->>'printKey', '') <> 'digital'
+        AND o.fournisseur_ref IS NULL AND o.suivi_url IS NULL AND o.expedie_le IS NULL
+      RETURNING o.options->>'supportAvant' AS avant, o.customer_email AS email`) as unknown as { avant: string | null; email: string | null }[];
+    if (rows.length) {
+      const { avant, email } = rows[0];
+      if (email) {
+        try {
+          await sql`INSERT INTO customer_history_events (customer_email, order_id, kind, status, subject, body, details)
+            VALUES (${email.trim().toLowerCase()}, ${orderId}::uuid, 'order.support', 'recorded',
+              'Commande passée en numérique', ${motif},
+              ${JSON.stringify({ field: "printKey", before: avant, after: "digital" })}::text::jsonb)`;
+        } catch {
+          /* Table absente sur une base ancienne : le passage reste valable. */
+          console.error("[passerCommandeEnNumerique] historique client non ecrit");
+        }
+      }
+      return { ok: true, avant };
+    }
+    const etat = (await sql`
+      SELECT options->>'printKey' pk, fournisseur_ref ref, suivi_url suivi, expedie_le::text exp
+      FROM orders WHERE id = ${orderId}::uuid`) as unknown as { pk: string | null; ref: string | null; suivi: string | null; exp: string | null }[];
+    if (!etat.length) return { ok: false, raison: "introuvable" };
+    const e = etat[0];
+    if (e.pk === "digital") return { ok: false, raison: "deja_numerique" };
+    if (e.suivi || e.exp) return { ok: false, raison: "expediee" };
+    return { ok: false, raison: "chez_imprimeur" };
+  }
+}
+
 export async function enregistrerCoutCommande(
   orderId: string,
   cout: number | null,

@@ -771,6 +771,32 @@ export default function AdminPage() {
           .at(-1) ?? null,
     });
 
+  /* Poster ou toile abandonne : le client garde le fichier numerique. Le
+     remboursement se fait a part, dans Stripe. */
+  const passerEnNumerique = async (id: string) => {
+    const motif = window.prompt(
+      "Passer cette commande en numérique ? Le poster ou la toile ne sera plus à commander et le fichier final restera à envoyer. Le remboursement se fait à part, dans Stripe.\n\nMotif (facultatif) :",
+      ""
+    );
+    if (motif === null) return;
+    try {
+      const r = await adminFetch("/api/orders", {
+        method: "PATCH",
+        headers: headers(),
+        body: JSON.stringify({ id, passerEnNumerique: true, motif }),
+      });
+      if (!r.ok) {
+        const data = await r.json().catch(() => ({}));
+        alert(`Non fait : ${data.error ?? `erreur ${r.status}`}`);
+        return;
+      }
+    } catch (e) {
+      alert(`Non fait : ${e instanceof Error ? e.message : "erreur réseau"}`);
+      return;
+    }
+    fetchOrders();
+  };
+
   // Forcer un statut, ou `null` pour revenir au calcul automatique.
   const forcerStatut = async (id: string, statutForce: StatutCommande | null) => {
     try {
@@ -1945,6 +1971,14 @@ export default function AdminPage() {
                     {estPhysique(typeof selectedOrder.options === "string" ? JSON.parse(selectedOrder.options) : selectedOrder.options) && (
                       <div className="rounded-lg p-3 border border-indigo-200 bg-indigo-50 space-y-3">
                         <p className="text-xs text-indigo-700 font-semibold">📦 Expédition</p>
+                        {!selectedOrder.fournisseur_ref && !selectedOrder.suivi_url && (
+                          <button
+                            onClick={() => passerEnNumerique(selectedOrder.id)}
+                            className="text-xs font-semibold text-indigo-700 hover:underline cursor-pointer"
+                          >
+                            Passer en numérique (support abandonné)
+                          </button>
+                        )}
 
                         {/* Ce qu'il faut commander, répété ici. C'est à ce
                             moment précis qu'on ouvre Optimal Print, et remonter

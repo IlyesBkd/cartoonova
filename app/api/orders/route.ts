@@ -1,6 +1,6 @@
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
-import { getOrders, forcerStatutCommande, enregistrerCoutCommande, withFreshDatabaseClient } from "@/lib/db";
+import { getOrders, forcerStatutCommande, enregistrerCoutCommande, passerCommandeEnNumerique, withFreshDatabaseClient } from "@/lib/db";
 import { estStatutCommande } from "@/lib/statutCommande";
 import { refuserSiPasAdmin } from "@/lib/adminAuth";
 import { retouchesParCommande } from "@/lib/retouches";
@@ -34,16 +34,36 @@ export async function PATCH(req: NextRequest) {
   try {
   const refus = await refuserSiPasAdmin(req);
   if (refus) return refus;
-    const { id, statutForce, cout, coutNote }: {
+    const { id, statutForce, cout, coutNote, passerEnNumerique, motif }: {
       id: string;
       /** Statut impose, ou `null` pour revenir au statut calcule. */
       statutForce?: string | null;
       cout?: number | string | null;
       coutNote?: string | null;
+      /** Poster ou toile abandonne, le client garde le fichier numerique. */
+      passerEnNumerique?: boolean;
+      motif?: string | null;
     } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: "Commande manquante." }, { status: 400 });
+    }
+
+    /* Traite seul et en premier : une erreur ici ne doit pas laisser un statut
+       ou un cout a moitie enregistres a cote. */
+    if (passerEnNumerique === true) {
+      const note = typeof motif === "string" ? motif.trim().slice(0, 300) || null : null;
+      const r = await passerCommandeEnNumerique(id, note);
+      if (!r.ok) {
+        const messages = {
+          introuvable: "Commande introuvable.",
+          deja_numerique: "La commande est déjà en numérique.",
+          chez_imprimeur: "Déjà commandée chez l'imprimeur : annule d'abord chez Optimalprint, puis efface la référence.",
+          expediee: "La commande est déjà expédiée.",
+        } as const;
+        return NextResponse.json({ error: messages[r.raison], raison: r.raison }, { status: r.raison === "introuvable" ? 404 : 409 });
+      }
+      return NextResponse.json({ ok: true, avant: r.avant });
     }
 
     if (statutForce !== undefined) {
