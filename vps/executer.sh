@@ -150,6 +150,8 @@ executer() {
     cron-support)   suivre cron-support appeler_route "/api/cron/sync-support-inbox" ;;
     # Retouches sans reponse depuis 24 h : alerte Discord, lecture seule.
     cron-retouches) suivre cron-retouches appeler_route "/api/cron/retouches" ;;
+    # Envois de portrait restés « en cours » alors que Resend a accepté le mail : réparés sur preuve locale.
+    cron-reparer)   suivre cron-reparer appeler_route "/api/cron/reparer-livraisons" ;;
 
     *)
       echo "tache inconnue : $1" >&2
