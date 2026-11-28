@@ -4,7 +4,12 @@ import { isIP } from "node:net";
 import { withFreshDatabaseClient } from "@/lib/db";
 
 export const ADMIN_COOKIE = "cartoonova-admin";
-const TTL = 900;
+/* Session glissante (28/11/2026, demande d'Ilyes : l'admin se déconnectait toutes les 15 min) :
+   prolongée à chaque usage, coupée après 12 h sans activité et 30 jours au plus après la connexion.
+   La base fait foi (expires_at) ; le cookie vit 30 jours pour ne pas expirer avant elle. */
+const IDLE_HOURS = 12;
+const MAX_DAYS = 30;
+const TTL = MAX_DAYS * 24 * 3600;
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
 const denied = () => NextResponse.json({ error: "Non autorisé." }, { status: 401 });
 const unavailable = () => NextResponse.json({ error: "Authentification indisponible." }, { status: 503 });
@@ -38,8 +43,15 @@ export async function requireAdmin(req: Request): Promise<NextResponse | null> {
   const credential = createHmac("sha256", password).update(value).digest("hex");
   for (let essai = 1; ; essai++) {
     try {
-      const rows = await withFreshDatabaseClient(db => db`SELECT token_hash FROM admin_sessions
-        WHERE token_hash = ${hash(value)} AND credential_hash = ${credential} AND expires_at > now()`);
+      const rows = await withFreshDatabaseClient(async db => {
+        const found = await db`SELECT token_hash, expires_at < now() + make_interval(hours => ${IDLE_HOURS - 1}) AS due FROM admin_sessions
+          WHERE token_hash = ${hash(value)} AND credential_hash = ${credential} AND expires_at > now()`;
+        // Prolonge au plus une fois par heure (pas d'écriture à chaque clic), sans dépasser 30 jours.
+        if (found[0]?.due) await db`UPDATE admin_sessions
+          SET expires_at = LEAST(now() + make_interval(hours => ${IDLE_HOURS}), created_at + make_interval(days => ${MAX_DAYS}))
+          WHERE token_hash = ${hash(value)} AND expires_at > now()`;
+        return found;
+      });
       return rows.length ? null : denied();
     } catch {
       if (essai >= 2) return unavailable();
@@ -91,7 +103,7 @@ export async function loginAdmin(req: Request): Promise<NextResponse> {
   try {
     const value = randomBytes(32).toString("hex");
     await withFreshDatabaseClient(db => db`INSERT INTO admin_sessions (token_hash, credential_hash, expires_at)
-      VALUES (${hash(value)}, ${createHmac("sha256", password).update(value).digest("hex")}, now() + interval '15 minutes')`);
+      VALUES (${hash(value)}, ${createHmac("sha256", password).update(value).digest("hex")}, now() + make_interval(hours => ${IDLE_HOURS}))`);
     return sessionCookie(new NextResponse(null, { status: 204 }), value);
   } catch { return unavailable(); }
 }

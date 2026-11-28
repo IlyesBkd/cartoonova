@@ -34,7 +34,7 @@ test('login issues a short HttpOnly session accepted by a fresh guard instance',
  const response=await login();
  assert.equal(response.status,204);
  const cookie=response.headers.get('set-cookie');
- assert.match(cookie,/HttpOnly/i);assert.match(cookie,/SameSite=Strict/i);assert.match(cookie,/Max-Age=900/i);
+ assert.match(cookie,/HttpOnly/i);assert.match(cookie,/SameSite=Strict/i);assert.match(cookie,/Max-Age=2592000/i);
  const token=cookie.match(/cartoonova-admin=([a-f0-9]{64})/)[1];
  assert.equal(await auth().requireAdmin(req('GET',{cookie:`cartoonova-admin=${token}`})),null);
  const [stored]=await db`SELECT * FROM admin_sessions`;
@@ -91,14 +91,27 @@ test('absent password and unavailable database fail closed without leaking inter
  const broken=load('lib/adminAuth.ts',{'@/lib/db':{withFreshDatabaseClient:async()=>{throw Error('sensitive-db-detail');}}});
  for(const r of [await broken.requireAdmin(req('GET',{cookie})),await broken.loginAdmin(req('POST')),await broken.logoutAdmin(req('DELETE',{cookie}))]){assert.equal(r.status,503);assert.doesNotMatch(await r.text(),/sensitive-db-detail/);}
 });
-test('production cookies are Secure and fixed expiry is never renewed by reads',async()=>{
+test('production cookies are Secure; using the admin extends the session (12 h idle, 30 days max), never an expired one',async()=>{
  process.env.NODE_ENV='production';
  try{
   const response=await login();assert.match(response.headers.get('set-cookie'),/; Secure/);
   const cookie=response.headers.get('set-cookie').split(';')[0];
+  // Fresh session: no write on every read.
   const [before]=await db`SELECT expires_at FROM admin_sessions`;
-  const check=await route().GET(req('GET',{cookie}));assert.equal(check.headers.get('set-cookie'),null);
+  const check=await route().GET(req('GET',{cookie}));assert.equal(check.status,204);assert.equal(check.headers.get('set-cookie'),null);
   assert.equal((await db`SELECT expires_at FROM admin_sessions`)[0].expires_at.getTime(),before.expires_at.getTime());
+  // Nearly idle-expired: a read extends it to about 12 h.
+  await db`UPDATE admin_sessions SET expires_at=now()+interval '5 minutes'`;
+  assert.equal((await route().GET(req('GET',{cookie}))).status,204);
+  const [ext]=await db`SELECT expires_at>now()+interval '11 hours' AS ok FROM admin_sessions`;assert.equal(ext.ok,true);
+  // Capped at 30 days after login.
+  await db`UPDATE admin_sessions SET created_at=now()-interval '30 days'+interval '1 hour', expires_at=now()+interval '5 minutes'`;
+  assert.equal((await route().GET(req('GET',{cookie}))).status,204);
+  const [cap]=await db`SELECT expires_at<=now()+interval '1 hour 1 minute' AS ok FROM admin_sessions`;assert.equal(cap.ok,true);
+  // Expired stays expired.
+  await db`UPDATE admin_sessions SET expires_at=now()-interval '1 second'`;
+  assert.equal((await route().GET(req('GET',{cookie}))).status,401);
+  assert.equal((await db`SELECT expires_at<now() AS ok FROM admin_sessions`)[0].ok,true);
  }finally{delete process.env.NODE_ENV;}
 });
 test('expired login window permits retries without instance-local resets',async()=>{
