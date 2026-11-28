@@ -1,7 +1,7 @@
 import { diagnosticJournal } from "@/lib/confidentialiteMesure";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { getOrderByPaymentId } from "@/lib/db";
+import { getOrderByPaymentId, forcerStatutCommande } from "@/lib/db";
 import { finaliserCommande } from "@/lib/finaliserCommande";
 import { finaliserBonCadeau } from "@/lib/bonCadeau";
 import { mesureServeur } from "@/lib/analyticsServeur";
@@ -206,6 +206,17 @@ async function surRemboursement(charge: Stripe.Charge): Promise<NextResponse> {
       source: "webhook",
     },
   });
+
+  /* Un remboursement total clot la commande : sans ce statut, elle restait
+     « A traiter » ou « Attente du client » dans l'admin et dans le recap. Un
+     echec ici ne doit pas faire rejouer le webhook (la mesure est deja faite). */
+  if (order && !partiel) {
+    try {
+      await forcerStatutCommande(order.id, "rembourse");
+    } catch {
+      console.error("[webhook] statut rembourse non pose");
+    }
+  }
 
   await alerteDiscord({
     titre: partiel ? "↩️ Remboursement partiel" : "↩️ Remboursement",

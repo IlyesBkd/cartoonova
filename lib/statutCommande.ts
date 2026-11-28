@@ -26,6 +26,8 @@ export const STATUTS_COMMANDE = {
   envoi_programme: { label: "Envoi programmé", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
   a_imprimer: { label: "À imprimer", color: "bg-yellow-100 text-yellow-800 border-yellow-300" },
   completed: { label: "Terminée", color: "bg-green-100 text-green-800 border-green-300" },
+  /* Posee a la main ou par le webhook Stripe sur un remboursement total. */
+  rembourse: { label: "Remboursée", color: "bg-stone-100 text-stone-700 border-stone-400" },
   shipped: { label: "Expédiée", color: "bg-purple-100 text-purple-800 border-purple-300" },
 } as const;
 
